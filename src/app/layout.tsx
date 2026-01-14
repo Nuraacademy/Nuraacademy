@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/header";
+import Footer from "@/components/footer";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -26,6 +27,7 @@ export default function RootLayout({
       >
         {children}
       </body>
+      <Footer instagram="www.google.com" facebook="qqq" linkedin="abc" x="def"/>
     </html>
   );
 }
