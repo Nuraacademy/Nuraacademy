@@ -9,7 +9,7 @@ interface FooterProps {
 
 export default function Footer({ instagram, facebook, linkedin, x } : FooterProps) {
     return (
-        <footer className="bg-[#042940] text-white py-12 px-4 md:px-8">
+        <main className="bg-[#042940] text-white py-12 px-4 md:px-8">
             <div className="max-w-7xl mx-auto">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 mb-8">
                     {/* Logo & Description */}
@@ -135,6 +135,6 @@ export default function Footer({ instagram, facebook, linkedin, x } : FooterProp
                 
                 </div>
             </div>
-        </footer>
+        </main>
     );
 }

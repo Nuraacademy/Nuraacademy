@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 export default function Header({ title, is_logged_in }: { title: string, is_logged_in: boolean }) {
     const router = useRouter();
     return (
-        <div className="flex justify-between text-center items-center bg-white px-16 py-2">
+        <main className="sticky top-0 flex justify-between text-center items-center bg-white px-16 py-2 z-10 shadow-sm">
             <h1 className="text-2xl font-medium text-black text-left">
                 {title}
             </h1>
@@ -68,7 +68,7 @@ export default function Header({ title, is_logged_in }: { title: string, is_logg
                     </div>
                 )
             }
-        </div>
+        </main>
     )
     
 }
