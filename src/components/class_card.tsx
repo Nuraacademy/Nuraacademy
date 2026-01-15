@@ -1,4 +1,9 @@
+"use client"
+
+import { useRouter } from 'next/navigation';
+
 interface ClassCardProp {
+    id : string,
     imageUrl?: string;
     title: string;
     duration: number;
@@ -9,8 +14,9 @@ interface ClassCardProp {
 }
 
 export default function ClassCard({ 
-    imageUrl, title, duration, level, capacity, description, price 
+    id, imageUrl, title, duration, level, capacity, description, price 
 }: ClassCardProp) {
+    const router = useRouter()
     return (
         <div className="flex flex-col bg-white rounded-[2rem] p-5 shadow-xl border border-gray-100 w-full max-w-[400px]">
             {/* Image Container */}
@@ -56,7 +62,10 @@ export default function ClassCard({
                     Rp{price.toLocaleString('id-ID')}/bulan
                 </span>
                 
-                <button className="flex items-center gap-2 bg-[#D9F066] hover:bg-[#CCE44B] transition-colors py-2 px-5 rounded-full font-semibold text-sm">
+                <button 
+                    onClick={() => router.push(`/courses/${id}`)}
+                    className="flex items-center gap-2 bg-[#D9F066] hover:bg-[#CCE44B] transition-colors py-2 px-5 rounded-full font-semibold text-sm"
+                >
                     See Details
                     <img
                         src="/icons/Next.svg"

@@ -47,6 +47,7 @@ export default async function ClassesPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-screen-2xl mx-auto">
                     <ClassCard 
+                        id="1"
                         imageUrl="https://www.lackawanna.edu/wp-content/uploads/2024/08/male-tutor-teaching-university-students-in-classro-2023-11-27-05-16-59-utc.webp"
                         title="Introduction to Programming"
                         duration={12}
@@ -56,6 +57,7 @@ export default async function ClassesPage() {
                         price={500000}
                     />
                     <ClassCard 
+                        id="2"
                         imageUrl="https://www.lackawanna.edu/wp-content/uploads/2024/08/male-tutor-teaching-university-students-in-classro-2023-11-27-05-16-59-utc.webp"
                         title="Introduction to Programming"
                         duration={12}
@@ -65,6 +67,7 @@ export default async function ClassesPage() {
                         price={500000}
                     />
                     <ClassCard 
+                        id="3"
                         imageUrl="https://www.lackawanna.edu/wp-content/uploads/2024/08/male-tutor-teaching-university-students-in-classro-2023-11-27-05-16-59-utc.webp"
                         title="Introduction to Programming"
                         duration={12}
