@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
@@ -26,6 +27,7 @@ export default function RootLayout({
         className={`${outfit.variable} antialiased`}
       >
         {children}
+        <Toaster position="bottom-right" richColors />
       </body>
       <Footer instagram="www.google.com" facebook="qqq" linkedin="abc" x="def"/>
     </html>
