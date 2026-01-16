@@ -22,14 +22,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Header title="Nura Academy" is_logged_in={false} />
       <body
         className={`${outfit.variable} antialiased`}
       >
+        <Header title="Nura Academy" is_logged_in={false} />
         {children}
         <Toaster position="bottom-right" richColors />
+        <Footer instagram="www.google.com" facebook="qqq" linkedin="abc" x="def"/>
       </body>
-      <Footer instagram="www.google.com" facebook="qqq" linkedin="abc" x="def"/>
     </html>
   );
 }
