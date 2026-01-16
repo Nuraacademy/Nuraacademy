@@ -3,6 +3,7 @@
 import { ChevronLeft, Search, List, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation"
+import { ClassOutlineDialog } from "@/components/class_outline_dialog"
 
 interface Header2Props {
     classId: string;
@@ -14,7 +15,7 @@ export const Header2 = ({ classId }: Header2Props) => {
         <header className="px-6 py-4 flex items-center justify-between border-b border-gray-100 bg-white sticky top-0 z-50">
             {/* Left Section: Back Button */}
             <Link 
-                href="/courses" 
+                href={`/courses/about/${classId}`} 
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
                 aria-label="Back to courses"
             >
@@ -36,12 +37,7 @@ export const Header2 = ({ classId }: Header2Props) => {
 
             {/* Right Section: Actions */}
             <div className="flex items-center gap-4 md:gap-6 flex-shrink-0">
-                <button 
-                    className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-black transition-colors"
-                >
-                    <List size={18} />
-                    <span className="hidden sm:inline">Contents</span>
-                </button>
+                <ClassOutlineDialog classId={classId} />
                 <button
                     onClick={() => router.push(`/discussions/class?id=${classId}`)} 
                     className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-black transition-colors"
