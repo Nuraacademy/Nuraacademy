@@ -3,26 +3,37 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { 
-    ChevronLeft, ChevronRight, Pencil, Save, Trash2, Plus, X
+    ChevronLeft, 
+    ChevronRight, 
+    Pencil, 
+    Save, 
+    Trash2, 
+    Plus, 
+    X
 } from 'lucide-react';
 import { RichTextInput } from '@/components/rich_text_input';
+import { Header2 } from '@/components/header2';
 
 export default function ModuleDetailPage(
     { params }: {
-        params: Promise<{ id: string }> 
+        params: { id: string }
     } 
 ) {
+    const isAdmin = true;
+
     const [isEditing, setIsEditing] = useState(false);
     const [data, setData] = useState({
-        id: "1",
+        moduleId: "1",
+        classId: "1",
+        courseId: "1",
         title: "Konsep Dasar Pemrograman",
+        prev: "Introduction",
+        next: "Data Types & Variables",
         sections: [
-            { id: "s1", type: 'text', value: "<h1>Python Basics</h1><p>Python is a <strong>high-level</strong> programming language...</p>" },
+            { id: "s1", type: 'text', value: "<p>Python is a <strong>high-level</strong> programming language...</p>" },
             { id: "s2", type: 'image', value: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2070&auto=format&fit=crop" },
         ]
     });
-
-    const isAdmin = true
 
     const updateSection = (id: string, value: string) => {
         setData((prev) => ({
@@ -42,6 +53,7 @@ export default function ModuleDetailPage(
 
     return (
         <main className="min-h-screen bg-white flex flex-col font-sans text-gray-800">
+            <Header2 classId={data.classId} />
             <div className="flex-grow max-w-5xl mx-auto w-full p-6 md:p-10">
                 <article className={`relative border rounded-[2.5rem] p-8 md:p-12 transition-all duration-300 ${isEditing ? 'border-[#D9F066] bg-gray-50/20 ring-1 ring-[#D9F066]' : 'border-gray-200 shadow-sm'}`}>
                     
@@ -149,13 +161,13 @@ export default function ModuleDetailPage(
                     <div className="w-12 h-12 rounded-full border border-gray-100 flex items-center justify-center bg-white"><ChevronLeft size={24}/></div>
                     <div className="flex flex-col items-start">
                         <span className="text-[10px] uppercase text-gray-300">Previous</span>
-                        Introduction
+                        {data.prev}
                     </div>
                 </button>
                 <button className="flex items-center gap-4 text-black font-bold text-sm group">
                     <div className="flex flex-col items-end">
                         <span className="text-[10px] uppercase text-gray-400">Next Module</span>
-                        Variable & Data Types
+                        {data.next}
                     </div>
                     <div className="w-12 h-12 rounded-full border border-black flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all shadow-sm">
                         <ChevronRight size={24}/>
