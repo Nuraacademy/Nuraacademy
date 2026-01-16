@@ -25,7 +25,9 @@ export default function ModuleDetailPage(
     const [data, setData] = useState({
         moduleId: "1",
         classId: "1",
+        classTitle: "Introduction to Programming",
         courseId: "1",
+        courseTitle: "Pengenalan Pemrograman & Google Colab",
         title: "Konsep Dasar Pemrograman",
         prev: "Introduction",
         next: "Data Types & Variables",
@@ -54,9 +56,12 @@ export default function ModuleDetailPage(
     return (
         <main className="min-h-screen bg-white flex flex-col font-sans text-gray-800">
             <Header2 classId={data.classId} />
-            <div className="flex-grow max-w-5xl mx-auto w-full p-6 md:p-10">
-                <article className={`relative border rounded-[2.5rem] p-8 md:p-12 transition-all duration-300 ${isEditing ? 'border-[#D9F066] bg-gray-50/20 ring-1 ring-[#D9F066]' : 'border-gray-200 shadow-sm'}`}>
-                    
+            
+            <div className="flex-grow mx-auto w-full p-8 md:p-16">
+                <div className="mb-4 text-[#a2a2a2]">
+                    {data.classTitle}/{data.courseTitle}/{data.title}
+                </div>
+                <article className={`relative border rounded-[2.5rem] p-8 md:p-12 transition-all duration-300 ${isEditing ? 'border-[#D9F066] bg-gray-50/20 ring-1 ring-[#D9F066]' : 'border-black shadow-sm'}`}>
                     <div className="absolute top-8 right-8 flex gap-2 z-10">
                         {isAdmin && (
                             <button 
