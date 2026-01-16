@@ -60,7 +60,7 @@ export const ClassOutlineDialog = ({ classId }: { classId: string }) => {
 
             <Dialog.Portal>
                 <Dialog.Overlay 
-                    className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[9999]" 
+                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999]" 
                 />
                 
                 <Dialog.Content 
@@ -77,8 +77,8 @@ export const ClassOutlineDialog = ({ classId }: { classId: string }) => {
                             Table of Contents
                         </Dialog.Title>
                         <Dialog.Close asChild>
-                            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors group">
-                                <X size={24} className="text-gray-400 group-hover:text-black" />
+                            <button className="p-1 border-2 border-black rounded-full hover:bg-gray-100">
+                                <X size={20} strokeWidth={3} />
                             </button>
                         </Dialog.Close>
                     </div>
