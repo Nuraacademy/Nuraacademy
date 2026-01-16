@@ -1,30 +1,111 @@
 "use client"
 
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, FileText, Calendar, Clock, Video } from 'lucide-react'; // Suggested icon library
+import { useRouter } from 'next/navigation';
+import { ChevronDown, ChevronUp, FileText, Calendar, Clock, Video, Book } from 'lucide-react'; 
 
 interface CourseExpanderProp {
-    id: string;
+    classId: string;
+    courseId: string;
     title: string;
     description: string;
     isSynchronous: boolean;
 }
 
+interface SynchronousCourseProp{
+    datetime : Date;
+    liveURL : string;
+}
+
+interface AsynchronousModuleProp{
+    moduleId: string;
+    title: string;
+    isAssignment: boolean;
+}
+
+interface AsynchronousCourseProp{
+    modules: AsynchronousModuleProp[];
+}
+
 export default function CourseExpander({
-    id, title, description, isSynchronous
+    classId, courseId, title, description, isSynchronous
 }: CourseExpanderProp) {
     const [isOpen, setIsOpen] = useState(false);
 
+    const router = useRouter();
+
     const course_type = isSynchronous ? "Synchronous" : "Asynchronous";
+
+    /* Get this from BE where courseId = courseId and classId = classId */
+    const mockSynchronousCourses: SynchronousCourseProp = {
+        datetime: new Date('1970-01-01T00:00:00'),
+        liveURL: "https://zoom.us/j/123456789",
+    };
+
+    /* Get this from BE where courseId = courseId and classId = classId */
+    const mockAsynchronousCourses: AsynchronousCourseProp = 
+    { 
+        "modules": 
+            [
+                {
+                    moduleId: "1",
+                    title: "Konsep Dasar Pemrograman",
+                    isAssignment: false
+                },
+                {
+                    moduleId: "2",
+                    title: "Cara Kerja Program (Input-Process-Output)",
+                    isAssignment: false
+                },
+                {
+                    moduleId: "3",
+                    title: "Pengenalan Google Colab & Environment Python",
+                    isAssignment: false
+                },
+                {
+                    moduleId: "4",
+                    title: "Tugas Akhir",
+                    isAssignment: true
+                },
+            ]
+    };
+
+    const synchronousCourses = mockSynchronousCourses;
+    const asynchronousCourses = mockAsynchronousCourses;
+
+    const formatDate = (date: Date) => {
+        return date.toLocaleDateString('id-ID', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
+    };
+
+    const formatTime = (date: Date) => {
+        return date.toLocaleTimeString('id-ID', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+    };
+
+    const handleButtonRedirect = () => {
+        const testURL = `/course/quick-test/${courseId}`
+        const recordingURL = `/course/recording/${courseId}`
+        const target = isSynchronous ? recordingURL : testURL;
+        router.push(target)
+    }
 
     return (
         <div className="w-full mb-4">
             <div 
-                onClick={() => setIsOpen(!isOpen)}
                 className={`border border-gray-200 rounded-[2rem] p-6 transition-all cursor-pointer bg-white shadow-sm ${isOpen ? 'border-black' : 'hover:border-[#D9F066]'}`}
             >
                 {/* Header Section */}
-                <div className="flex justify-between items-start">
+                <div 
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="flex justify-between items-start"
+                >
                     <div className="flex-grow">
                         <h4 className="font-bold text-xl mb-2">{title}</h4>
                         <p className="text-gray-500 text-sm mb-4 leading-relaxed max-w-[90%]">
@@ -53,7 +134,10 @@ export default function CourseExpander({
                                     {isSynchronous ? "Watch the recorded class to catch up" : "Try a quick test to find out if you can skip the course"}
                                 </p>
                             </div>
-                            <button className="bg-black text-white px-6 py-2 rounded-full text-sm font-bold hover:scale-105 transition-transform">
+                            <button 
+                                className="bg-black text-white px-6 py-2 rounded-full text-sm font-bold hover:scale-105 transition-transform"
+                                onClick={() => handleButtonRedirect()}
+                            >
                                 {isSynchronous ? "Watch Record" : "Take Test"}
                             </button>
                         </div>
@@ -64,27 +148,36 @@ export default function CourseExpander({
                                 // Synchronous Details (Date/Time/Zoom)
                                 <>
                                     <div className="flex items-center gap-3 text-sm text-gray-700 font-medium">
-                                        <Calendar size={18} className="text-gray-400" /> 19-21 Januari 2026
+                                        <Calendar size={18} className="text-gray-400" /> {formatDate(synchronousCourses.datetime)}
                                     </div>
                                     <div className="flex items-center gap-3 text-sm text-gray-700 font-medium">
-                                        <Clock size={18} className="text-gray-400" /> 19:00-21:00 WIB
+                                        <Clock size={18} className="text-gray-400" /> {formatTime(synchronousCourses.datetime)} WIB
                                     </div>
                                     <div className="flex items-center gap-3 text-sm text-gray-700 font-medium">
-                                        <Video size={18} className="text-gray-400" /> Zoom
+                                        <Video size={18} className="text-gray-400" /> 
+                                        <a href={synchronousCourses.liveURL} target='_blank' className='text-blue-600 hover:text-blue-800'><u>{synchronousCourses.liveURL}</u></a>
                                     </div>
                                 </>
                             ) : (
                                 // Asynchronous Details (Curriculum)
                                 <>
-                                    <div className="flex items-center gap-3 text-sm text-gray-700 font-medium">
-                                        <FileText size={18} className="text-gray-400" /> Konsep Dasar Pemrograman
-                                    </div>
-                                    <div className="flex items-center gap-3 text-sm text-gray-700 font-medium">
-                                        <FileText size={18} className="text-gray-400" /> Cara Kerja Program (Input-Process-Output)
-                                    </div>
-                                    <div className="flex items-center gap-3 text-sm text-gray-700 font-medium">
-                                        <FileText size={18} className="text-gray-400" /> Pengenalan Google Colab & Environment Python
-                                    </div>
+                                {
+                                    asynchronousCourses.modules.map((asynchronousCourse, index) => 
+                                        (
+                                            <div className="flex items-center gap-3 text-sm text-gray-700 font-medium">
+                                                {
+                                                    asynchronousCourse.isAssignment ? (
+                                                        <FileText size={18} className="text-gray-400" />
+                                                    ) : (
+                                                        <Book size={18} className="text-gray-400" />
+                                                    )
+                                                }
+                                                <a href={`/module/${classId}/${courseId}/${asynchronousCourse.moduleId}`} target='_blank' className='hover:text-blue-800'><u>{asynchronousCourse.title}</u></a>
+                                            </div>
+                                        )
+                                    )
+                                }
+                                    
                                 </>
                             )}
                         </div>
@@ -94,3 +187,4 @@ export default function CourseExpander({
         </div>
     );
 }
+

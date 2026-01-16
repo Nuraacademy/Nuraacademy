@@ -118,14 +118,16 @@ export default async function CourseDetailPage({
                 
                 <div className="space-y-4">
                     <CourseExpander
-                        id="1"
+                        classId={id}
+                        courseId="1"
                         title="Pengenalan Pemrograman & Google Colab"
                         description="Memahami konsep dasar pemrograman, cara kerja program (input-process-output), serta pengenalan Google Colab. Memahami konsep dasar pemrograman, cara kerja program (input-process-output), serta pengenalan Google Colab. Memahami konsep dasar pemrograman, cara kerja program (input-process-output), serta pengenalan Google Colab."
                         isSynchronous={false}
                     />
                     
                     <CourseExpander
-                        id="2"
+                        classId={id}
+                        courseId="2"
                         title="Pengenalan Pemrograman & Google Colab"
                         description="Memahami konsep dasar pemrograman, cara kerja program (input-process-output), serta pengenalan Google Colab. Memahami konsep dasar pemrograman, cara kerja program (input-process-output), serta pengenalan Google Colab. Memahami konsep dasar pemrograman, cara kerja program (input-process-output), serta pengenalan Google Colab."
                         isSynchronous={true}
