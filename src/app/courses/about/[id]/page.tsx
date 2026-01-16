@@ -19,6 +19,7 @@ export default async function CourseDetailPage({
     const description="Kelas ini dirancang untuk peserta yang ingin memahami konsep dasar pemrograman menggunakan python. Pembelajaran fokus pada pemahaman cara kerja program, penggunaan variabel, serta pengelolaan file."
     const price=500000
     const trainerProfilePictureUrl="https://upload.wikimedia.org/wikipedia/commons/0/03/Jeff_Bezos_visits_LAAFB_SMC_%283908618%29_%28cropped%29.jpeg"
+    const isEnrolled=true
 
     return (
         <main className="min-h-screen bg-[#F9F9F4] p-4 md:p-10 font-sans text-gray-800">
@@ -49,12 +50,16 @@ export default async function CourseDetailPage({
                     {description}
                 </p>
 
-                <div className="flex items-center justify-between md:justify-start md:gap-12">
-                    <span className="text-2xl font-bold text-white">Rp{price.toLocaleString('id-ID')}/bulan</span>
-                    <button className="bg-[#D9F066] hover:scale-105 transition-transform px-8 py-3 rounded-full font-bold shadow-md">
-                    Enroll Now
-                    </button>
-                </div>
+                {
+                    !isEnrolled && (
+                        <div className="flex items-center justify-between md:justify-start md:gap-12">
+                            <span className="text-2xl font-bold text-white">Rp{price.toLocaleString('id-ID')}/bulan</span>
+                            <button className="bg-[#D9F066] hover:scale-105 transition-transform px-8 py-3 rounded-full font-bold shadow-md">
+                                Enroll Now
+                            </button>
+                        </div>
+                    )
+                }
                 </div>
             </section>
 
@@ -123,6 +128,7 @@ export default async function CourseDetailPage({
                         title="Pengenalan Pemrograman & Google Colab"
                         description="Memahami konsep dasar pemrograman, cara kerja program (input-process-output), serta pengenalan Google Colab. Memahami konsep dasar pemrograman, cara kerja program (input-process-output), serta pengenalan Google Colab. Memahami konsep dasar pemrograman, cara kerja program (input-process-output), serta pengenalan Google Colab."
                         isSynchronous={false}
+                        isEnrolled={isEnrolled}
                     />
                     
                     <CourseExpander
@@ -131,6 +137,7 @@ export default async function CourseDetailPage({
                         title="Pengenalan Pemrograman & Google Colab"
                         description="Memahami konsep dasar pemrograman, cara kerja program (input-process-output), serta pengenalan Google Colab. Memahami konsep dasar pemrograman, cara kerja program (input-process-output), serta pengenalan Google Colab. Memahami konsep dasar pemrograman, cara kerja program (input-process-output), serta pengenalan Google Colab."
                         isSynchronous={true}
+                        isEnrolled={isEnrolled}
                     />
                 </div>
                 </section>

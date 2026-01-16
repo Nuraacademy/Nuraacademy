@@ -10,6 +10,7 @@ interface CourseExpanderProp {
     title: string;
     description: string;
     isSynchronous: boolean;
+    isEnrolled: boolean;
 }
 
 interface SynchronousCourseProp{
@@ -28,7 +29,7 @@ interface AsynchronousCourseProp{
 }
 
 export default function CourseExpander({
-    classId, courseId, title, description, isSynchronous
+    classId, courseId, title, description, isSynchronous, isEnrolled
 }: CourseExpanderProp) {
     const [isOpen, setIsOpen] = useState(false);
 
@@ -90,8 +91,8 @@ export default function CourseExpander({
     };
 
     const handleButtonRedirect = () => {
-        const testURL = `/course/quick-test/${courseId}`
-        const recordingURL = `/course/recording/${courseId}`
+        const testURL = `/courses/quick-test/${courseId}`
+        const recordingURL = `/courses/recording/${courseId}`
         const target = isSynchronous ? recordingURL : testURL;
         router.push(target)
     }
@@ -125,25 +126,30 @@ export default function CourseExpander({
                     <div className="mt-6 pt-6 border-t border-gray-100 flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
                         
                         {/* Banner for Action */}
-                        <div className={`flex items-center justify-between p-4 rounded-xl ${isSynchronous ? 'bg-[#FDF9ED]' : 'bg-[#FDF9ED]'}`}>
-                            <div className="text-sm">
-                                <p className="font-bold text-gray-800">
-                                    {isSynchronous ? "Missed the live session?" : "Think you already know this?"}
-                                </p>
-                                <p className="text-gray-600">
-                                    {isSynchronous ? "Watch the recorded class to catch up" : "Try a quick test to find out if you can skip the course"}
-                                </p>
-                            </div>
-                            <button 
-                                className="bg-black text-white px-6 py-2 rounded-full text-sm font-bold hover:scale-105 transition-transform"
-                                onClick={() => handleButtonRedirect()}
-                            >
-                                {isSynchronous ? "Watch Record" : "Take Test"}
-                            </button>
-                        </div>
+                        { 
+                            isEnrolled && 
+                            (
+                                <div className={`flex items-center justify-between mb-2 p-4 rounded-xl ${isSynchronous ? 'bg-[#FDF9ED]' : 'bg-[#FDF9ED]'}`}>
+                                    <div className="text-sm">
+                                        <p className="font-bold text-gray-800">
+                                            {isSynchronous ? "Missed the live session?" : "Think you already know this?"}
+                                        </p>
+                                        <p className="text-gray-600">
+                                            {isSynchronous ? "Watch the recorded class to catch up" : "Try a quick test to find out if you can skip the course"}
+                                        </p>
+                                    </div>
+                                    <button 
+                                        className="bg-black text-white px-6 py-2 rounded-full text-sm font-bold hover:scale-105 transition-transform"
+                                        onClick={() => handleButtonRedirect()}
+                                    >
+                                        {isSynchronous ? "Watch Record" : "Take Test"}
+                                    </button>
+                                </div>
+                            )
+                        }
 
                         {/* Details List */}
-                        <div className="space-y-3 mt-2">
+                        <div className="space-y-3">
                             {isSynchronous ? (
                                 // Synchronous Details (Date/Time/Zoom)
                                 <>
@@ -153,10 +159,14 @@ export default function CourseExpander({
                                     <div className="flex items-center gap-3 text-sm text-gray-700 font-medium">
                                         <Clock size={18} className="text-gray-400" /> {formatTime(synchronousCourses.datetime)} WIB
                                     </div>
-                                    <div className="flex items-center gap-3 text-sm text-gray-700 font-medium">
-                                        <Video size={18} className="text-gray-400" /> 
-                                        <a href={synchronousCourses.liveURL} target='_blank' className='text-blue-600 hover:text-blue-800'><u>{synchronousCourses.liveURL}</u></a>
-                                    </div>
+                                    {
+                                        isEnrolled && (
+                                            <div className="flex items-center gap-3 text-sm text-gray-700 font-medium">
+                                                <Video size={18} className="text-gray-400" /> 
+                                                <a href={synchronousCourses.liveURL} target='_blank' className='text-blue-600 hover:text-blue-800'><u>{synchronousCourses.liveURL}</u></a>
+                                            </div>
+                                        )
+                                    }
                                 </>
                             ) : (
                                 // Asynchronous Details (Curriculum)
@@ -164,7 +174,7 @@ export default function CourseExpander({
                                 {
                                     asynchronousCourses.modules.map((asynchronousCourse, index) => 
                                         (
-                                            <div className="flex items-center gap-3 text-sm text-gray-700 font-medium">
+                                            <div key={`${courseId}_${index}`} className="flex items-center gap-3 text-sm text-gray-700 font-medium">
                                                 {
                                                     asynchronousCourse.isAssignment ? (
                                                         <FileText size={18} className="text-gray-400" />
@@ -172,7 +182,14 @@ export default function CourseExpander({
                                                         <Book size={18} className="text-gray-400" />
                                                     )
                                                 }
-                                                <a href={`/module/${classId}/${courseId}/${asynchronousCourse.moduleId}`} target='_blank' className='hover:text-blue-800'><u>{asynchronousCourse.title}</u></a>
+                                                {
+                                                    isEnrolled ? (
+                                                        <a href={`/modules/${asynchronousCourse.moduleId}`} className='hover:text-blue-800'><u>{asynchronousCourse.title}</u></a>
+                                                    ) : 
+                                                    (
+                                                        asynchronousCourse.title
+                                                    )
+                                                }
                                             </div>
                                         )
                                     )

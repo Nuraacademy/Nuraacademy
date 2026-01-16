@@ -66,7 +66,7 @@ export default function ClassCard({
                 </span>
                 
                 <button 
-                    onClick={() => router.push(`/courses/${id}`)}
+                    onClick={() => router.push(`/courses/about/${id}`)}
                     className="flex items-center gap-2 bg-[#D9F066] hover:bg-[#CCE44B] transition-all py-2 px-5 rounded-full font-bold text-sm shadow-sm active:scale-95"
                 >
                     See Details
