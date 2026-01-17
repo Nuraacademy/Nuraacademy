@@ -10,17 +10,19 @@ import { RichTextInput } from '@/components/rich_text_input';
 import { Header2 } from '@/components/header2';
 import { SubmissionStatusTable } from '@/components/submission_status_table';
 import { LimeButton } from '@/components/lime_button';
+import { UploadModal } from '@/components/upload_file';
 
 export default function ModuleDetailPage({ params }: { params: { id: string } }) {
     const isAdmin = true;
-    const isAssignment = false;
+    const isAssignment = true;
 
     const [isEditing, setIsEditing] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [file, setFile] = useState<File | null>(null);
     
-    const [submission] = useState({
+    const [submission, setSubmission] = useState({
         grade: 9.3, 
-        file: "Essay_Pemrograman_Dasar.pdf",
+        file: null as File | null,
         review: "good", 
         feedback: "Okay"
     });
@@ -57,7 +59,7 @@ export default function ModuleDetailPage({ params }: { params: { id: string } })
         <main className="min-h-screen bg-white flex flex-col font-sans text-gray-800">
             <Header2 classId={data.classId} />
             
-            <div className="flex-grow mx-auto w-full p-8 md:p-16">
+            <div className="flex-grow mx-auto w-full py-8 md:px-16">
                 {/* Breadcrumbs */}
                 <div className="mb-4 text-[#a2a2a2] text-sm">
                     {data.classTitle} / {data.courseTitle} / {data.title}
@@ -127,7 +129,14 @@ export default function ModuleDetailPage({ params }: { params: { id: string } })
             </div>
             
             <NavigationFooter prev={data.prev} next={data.next} />
-            {isModalOpen && <UploadModal onClose={() => setIsModalOpen(false)} />}
+            {isModalOpen && 
+                <UploadModal 
+                    onClose={() => setIsModalOpen(false)}
+                    onUploadSuccess={(uploadedFile) => {
+                        setSubmission(prev => ({ ...prev, file: uploadedFile as File}));
+                    }}
+                />
+            }
         </main>
     );
 }
@@ -184,27 +193,5 @@ function NavigationFooter({ prev, next }: { prev: string, next: string }) {
                 <div className="w-12 h-12 rounded-full border border-black flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all shadow-sm"><ChevronRight size={24}/></div>
             </button>
         </footer>
-    );
-}
-
-function UploadModal({ onClose }: { onClose: () => void }) {
-    return (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
-            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative bg-white w-full max-w-3xl rounded-[2.5rem] p-10 shadow-2xl animate-in fade-in zoom-in-95">
-                <div className="flex justify-between items-center mb-8">
-                    <h2 className="text-2xl font-bold text-gray-900">Attach File</h2>
-                    <button onClick={onClose} className="p-1 border-2 border-black rounded-full"><X size={20} strokeWidth={3} /></button>
-                </div>
-                <div className="border-2 border-dashed border-gray-400 rounded-[2rem] bg-[#F9FBE7]/50 p-12 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#D9F55C] transition-colors">
-                    <div className="mb-4 p-4 bg-white rounded-xl border shadow-sm"><Upload size={32} /></div>
-                    <p className="text-lg font-medium underline">Click to upload or drag and drop</p>
-                    <p className="text-gray-500 text-sm">Max 10 MB (.pdf only)</p>
-                </div>
-                <div className="mt-4 flex justify-end">
-                    <LimeButton label="Attach File" variant="solid" className="min-w-[180px]" />
-                </div>
-            </div>
-        </div>
     );
 }
