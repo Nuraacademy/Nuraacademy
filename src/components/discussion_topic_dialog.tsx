@@ -3,17 +3,19 @@
 import React, { useState } from 'react';
 import { LimeButton } from './lime_button';
 
-interface NewDiscussionTopicDialogProp {
+interface DiscussionTopicDialogProp {
   isOpen: boolean;
   onConfirm: (data: { title: string; description: string }) => void;
   onCancel: () => void;
+  isReply ?: boolean;
 }
 
-export const NewDiscussionTopicDialog = ({
+export const DiscussionTopicDialog = ({
   isOpen,
   onConfirm,
   onCancel,
-}: NewDiscussionTopicDialogProp) => {
+  isReply,
+}: DiscussionTopicDialogProp) => {
   const [topicTitle, setTopicTitle] = useState("");
   const [description, setDescription] = useState("");
 
@@ -42,16 +44,17 @@ export const NewDiscussionTopicDialog = ({
         
         <div className="space-y-6">
           {/* Topic Title Input */}
-          <div>
-            <label className="block text-xl text-gray-800 mb-3 px-2">Topic Title</label>
-            <input
-              type="text"
-              placeholder="A Beginner Journey to Python"
-              value={topicTitle}
-              onChange={(e) => setTopicTitle(e.target.value)}
-              className="w-full p-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-lime-400 transition-colors placeholder:text-gray-300"
-            />
-          </div>
+          {!isReply && (<div>
+              <label className="block text-xl text-gray-800 mb-3 px-2">Topic Title</label>
+              <input
+                type="text"
+                placeholder="A Beginner Journey to Python"
+                value={topicTitle}
+                onChange={(e) => setTopicTitle(e.target.value)}
+                className="w-full p-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-lime-400 transition-colors placeholder:text-gray-300"
+              />
+            </div>
+          )}
 
           {/* Description Textarea */}
           <div>

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import DiscussionList from "@/components/discussion_list";
 import { LimeButton } from "@/components/lime_button";
-import { NewDiscussionTopicDialog } from "@/components/new_discussion_topic_dialog";
+import {DiscussionTopicDialog } from "@/components/discussion_topic_dialog";
 
 interface Topic {
     id: string;
@@ -38,7 +38,7 @@ export default function DiscussionClientWrapper({ topics }: { topics: Topic[] })
 
             <DiscussionList topics={topics} />
 
-            <NewDiscussionTopicDialog 
+            <DiscussionTopicDialog 
                 isOpen={isDialogOpen} 
                 onConfirm={({ title, description }: { title: string; description: string }) => handleConfirm(title, description)} 
                 onCancel={() => setIsDialogOpen(false)}
