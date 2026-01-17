@@ -2,13 +2,14 @@
 
 
 export default async function DiscussionTopicPage({ 
-    params 
+    searchParams 
 }: { 
-    params: Promise<{ id: string }> 
+    searchParams: Promise<{ id?: string }> 
 }) {
+    const { id } = await searchParams;
     return (
         <main>
-            <h1>Discussion - {(await params).id}</h1>
+            <h1>Discussion - {id}</h1>
         </main>
     )
 }
