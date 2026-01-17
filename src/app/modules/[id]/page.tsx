@@ -11,6 +11,7 @@ import { Header2 } from '@/components/header2';
 import { SubmissionStatusTable } from '@/components/submission_status_table';
 import { LimeButton } from '@/components/lime_button';
 import { UploadModal } from '@/components/upload_file';
+import { ConfirmModal } from '@/components/confirmation_dialog';
 
 export default function ModuleDetailPage({ params }: { params: { id: string } }) {
     const isAdmin = true;
@@ -18,14 +19,15 @@ export default function ModuleDetailPage({ params }: { params: { id: string } })
 
     const [isEditing, setIsEditing] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [file, setFile] = useState<File | null>(null);
-    
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+
     const [submission, setSubmission] = useState({
         grade: 9.3, 
         file: null as File | null,
         review: "good", 
         feedback: "Okay"
     });
+
 
     const [data, setData] = useState({
         classId: "1",
@@ -53,6 +55,20 @@ export default function ModuleDetailPage({ params }: { params: { id: string } })
     const handleSave = () => {
         setIsEditing(false);
         toast.success("Module saved successfully!");
+    };    
+
+    const handleSaveAttempt = () => {
+        setIsConfirmOpen(true);
+    };
+
+    const handleFinalSave = () => {
+        // Logic to save data to database goes here
+        setIsConfirmOpen(false);
+        if (!submission.file) {
+            toast.error("File can not be empty");
+        } else {
+            toast.success("Course saved successfully!");
+        }
     };
 
     return (
@@ -113,7 +129,15 @@ export default function ModuleDetailPage({ params }: { params: { id: string } })
                                     <SubmissionStatusTable {...submission} />
                                     <div className="flex justify-end gap-2">
                                         <LimeButton label="Upload File" variant="outline" onClick={() => setIsModalOpen(true)} />
-                                        <LimeButton label="Submit" variant="solid" />
+                                        <LimeButton label="Submit" variant="solid" onClick={handleSaveAttempt} />
+                                        {/* Confirmation Modal */}
+                                        <ConfirmModal 
+                                            isOpen={isConfirmOpen}
+                                            title="Submit File"
+                                            message="Are you sure want to submit this file?"
+                                            onConfirm={handleFinalSave}
+                                            onCancel={() => setIsConfirmOpen(false)}
+                                        />
                                     </div>
                                 </>
                             ) : (
