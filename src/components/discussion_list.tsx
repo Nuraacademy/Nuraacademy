@@ -19,7 +19,7 @@ export default function DiscussionList({ topics }: { topics: Topic[] }) {
             {topics.map((topic) => (
                 <div 
                     key={topic.id} 
-                    className="border border-gray-200 rounded-[2rem] p-6 transition-all cursor-pointer bg-white shadow-sm hover:border-[#D9F066]"
+                    className="border border-black rounded-[2rem] p-6 transition-all cursor-pointer bg-white shadow-sm hover:border-[#D9F066]"
                     onClick={() => router.push(`/discussions/topic?id=${topic.id}`)}
                 >
                     <div className="flex items-center gap-2 mb-3 text-sm text-gray-400">

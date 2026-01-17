@@ -100,7 +100,7 @@ export default function CourseExpander({
     return (
         <div className="w-full mb-4">
             <div 
-                className={`border border-gray-200 rounded-[2rem] p-6 transition-all cursor-pointer bg-white shadow-sm ${isOpen ? 'border-black' : 'hover:border-[#D9F066]'}`}
+                className={`border border-black rounded-[2rem] p-6 transition-all cursor-pointer bg-white shadow-sm ${isOpen ? 'border-black' : 'hover:border-[#D9F066]'}`}
             >
                 {/* Header Section */}
                 <div 

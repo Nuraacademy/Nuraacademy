@@ -34,9 +34,9 @@ export default async function DiscussionPage({
 
     return (
         <main className="min-h-screen bg-white flex flex-col font-sans text-gray-800">
-            <Header2 classId={id ?? ""} />
+            <Header2 classId={id ?? ""} variant="discussion" />
             <div className="flex-grow mx-auto w-full max-w-7xl py-8 px-6 md:px-16">
-                <nav className="mb-4 text-[#a2a2a2] text-sm font-medium">
+                <nav className="text-gray-400 text-sm mb-6">
                     {mockData.classTitle} / Forum Diskusi
                 </nav>
                 

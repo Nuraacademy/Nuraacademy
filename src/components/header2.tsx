@@ -1,15 +1,19 @@
 "use client"
 
-import { ChevronLeft, Search, List, MessageSquare } from "lucide-react";
+import { ChevronLeft, Search, MessageSquare, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation"
 import { ClassOutlineDialog } from "@/components/class_outline_dialog"
 
 interface Header2Props {
     classId: string;
+    variant?: 'modules' | 'discussion';
 }
 
-export const Header2 = ({ classId }: Header2Props) => {
+export const Header2 = ({ 
+    classId, 
+    variant='modules'
+}: Header2Props) => {
     const router = useRouter();
     return (
         <header className="px-6 py-4 flex items-center justify-between border-b border-gray-100 bg-white sticky top-0 z-50">
@@ -36,16 +40,28 @@ export const Header2 = ({ classId }: Header2Props) => {
             </div>
 
             {/* Right Section: Actions */}
-            <div className="flex items-center gap-4 md:gap-6 flex-shrink-0">
-                <ClassOutlineDialog classId={classId} />
-                <button
-                    onClick={() => router.push(`/discussions/class?id=${classId}`)} 
-                    className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-black transition-colors"
-                >
-                    <MessageSquare size={18} />
-                    <span className="hidden sm:inline">Discussion</span>
-                </button>
-            </div>
+            { variant === 'discussion' ? (
+                <div className="flex items-center gap-4 md:gap-6 flex-shrink-0">
+                    <button
+                        onClick={() => router.push(`/courses/about/${classId}`)} 
+                        className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-black transition-colors"
+                    >
+                        <BookOpen size={18} />
+                        <span className="hidden sm:inline">Class</span>
+                    </button>
+                </div>
+            ) : (
+                <div className="flex items-center gap-4 md:gap-6 flex-shrink-0">
+                    <ClassOutlineDialog classId={classId} />
+                    <button
+                        onClick={() => router.push(`/discussions/class?id=${classId}`)} 
+                        className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-black transition-colors"
+                    >
+                        <MessageSquare size={18} />
+                        <span className="hidden sm:inline">Discussion</span>
+                    </button>
+                </div>
+            )}
         </header>
     );
 };
