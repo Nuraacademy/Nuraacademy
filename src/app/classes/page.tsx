@@ -1,5 +1,5 @@
 
-import ClassCard from "@/components/class_card"
+import ClassCard from "@/components/ui/class_card"
 
 export default async function ClassesPage() {
     return (

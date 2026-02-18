@@ -15,7 +15,7 @@ import { ConfirmModal } from '@/components/confirmation_dialog';
 
 export default function ModuleDetailPage({ params }: { params: { id: string } }) {
     const isAdmin = true;
-    const isAssignment = true;
+    const isAssignment = false;
 
     const [isEditing, setIsEditing] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
