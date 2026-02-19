@@ -1,7 +1,6 @@
 "use client"
 
 import { useRouter } from 'next/navigation';
-
 import { Clock, BookText } from 'lucide-react';
 import { NuraButton } from './button/button';
 
@@ -22,9 +21,12 @@ export default function ClassCard({
 }: ClassCardProp) {
     const router = useRouter()
 
+    const formatDate = (date: Date) =>
+        date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+
     return (
         <div className="flex flex-col bg-white rounded-[2rem] p-5 shadow-xl border border-gray-100 w-full max-w-[400px]">
-            {/* Image Container */}
+            {/* Image */}
             <div className="mb-4">
                 <img
                     src={imageUrl || "/example/dummy.png"}
@@ -33,60 +35,48 @@ export default function ClassCard({
                 />
             </div>
 
-            {/* Content Area */}
+            {/* Content */}
             <div className="flex flex-col flex-grow gap-3">
-                <h3 className="font-bold text-xl text-gray-900 text-left justify-start">
+                <h3 className="font-bold text-lg text-gray-900 text-left leading-snug">
                     {title}
                 </h3>
 
-                {/* Info Row - Using Lucide Icons */}
-                <div className="flex justify-between items-center text-gray-600">
-                    <div className="flex flex-col items-left justify-start text-left text-[12px]">
-                        <div className='font-md font-semibold'> 
-                            Methods
-                        </div>
+                {/* Method & Schedule */}
+                <div className="flex justify-between items-start text-gray-700 gap-4">
+                    <div className="flex flex-col items-start text-left text-xs">
+                        <span className="font-semibold text-gray-500 uppercase tracking-wide text-[10px] mb-0.5">Method</span>
                         {method}
                     </div>
-                    <div className="flex flex-col items-left justify-start text-left text-[12px]">
-                        <div className='font-md font-semibold'> 
-                            Schedules
-                        </div>
-                        {scheduleStart.toLocaleString('ID').split(',')[0]} - {scheduleEnd.toLocaleString('ID').split(',')[0]}
+                    <div className="flex flex-col items-start text-left text-xs">
+                        <span className="font-semibold text-gray-500 uppercase tracking-wide text-[10px] mb-0.5">Schedule</span>
+                        {formatDate(scheduleStart)} – {formatDate(scheduleEnd)}
                     </div>
                 </div>
 
                 {/* Description */}
-                <div className='font-md text-left text-[12px]'> 
-                    <p className='font-semibold'>
-                        Description
-                    </p>
-                    <p className="text-[12px]">
+                <div className="text-left text-xs text-gray-600">
+                    <p className="font-semibold text-gray-500 uppercase tracking-wide text-[10px] mb-0.5">Description</p>
+                    <p className="leading-relaxed line-clamp-3">
                         {description}
                     </p>
                 </div>
             </div>
 
             {/* Footer */}
-            <div className="flex flex-row flex-grow items-center justify-between gap-3 mt-4">
-                <div className='flex flex-row items-left justify-start text-left text-[12px] gap-2'>
-                    <Clock className='w-4 h-4'/>
-                    <p className="text-[12px]">
-                        {duration} Hours
-                    </p>
+            <div className="flex flex-row items-center justify-between gap-3 mt-4 pt-4 border-t border-gray-100">
+                <div className="flex flex-row items-center gap-1.5 text-xs text-gray-600">
+                    <Clock className="w-4 h-4 text-gray-400" />
+                    <span>{duration} Hours</span>
                 </div>
-                <div className='flex flex-row items-left justify-start text-left text-[12px] gap-2'>
-                    <BookText className='w-4 h-4'/>
-                    <p className="text-[12px]">
-                        {modules} Modules
-                    </p>
+                <div className="flex flex-row items-center gap-1.5 text-xs text-gray-600">
+                    <BookText className="w-4 h-4 text-gray-400" />
+                    <span>{modules} Modules</span>
                 </div>
-                <div>
-                    <NuraButton
-                        label="Enroll Now"
-                        variant="navigate"
-                        onClick={() => router.push(`/courses/about/${id}`)}
-                    />
-                </div>
+                <NuraButton
+                    label="Enroll Now"
+                    variant="navigate"
+                    onClick={() => router.push(`/courses/about/${id}`)}
+                />
             </div>
         </div>
     );
