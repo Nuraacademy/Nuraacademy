@@ -1,19 +1,23 @@
+"use client"
+
 import { NuraButton } from "@/components/ui/button/button";
 import ClassCard from "@/components/ui/class_card";
 import HomeCard from "@/components/ui/home_card";
 import HomeStoriesCard from "@/components/ui/home_card copy";
-import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
   return (
-    <div className="relative min-h-screen w-full -z-11 overflow-hidden pt-8 bg-[#F9F9EE]">
-      <img
-        src="background/HomeBG.svg"
-        alt="Background"
-        className="absolute inset-0 -z-10 h-80 w-full object-cover"
-      />
+    <div className="relative min-h-screen w-full overflow-hidden pt-8 bg-[#F9F9EE]">
+      
       {/* Section 1 - Hero */}
       <div>
+        <img
+          src="background/HomeBG.svg"
+          alt="Background"
+          className="absolute inset-0 h-80 w-full object-cover"
+        />
         {/* Content */}
         <div className="sticky justify-center text-center text-white px-8 py-2 mb-4">
           <h1 className="text-4xl font-semibold mb-4">
@@ -28,7 +32,7 @@ export default function Home() {
         </div>
 
         {/* Stats */}
-        <div className="flex justify-between items-center text-center text-white px-16 py-2 mb-4">
+        <div className="sticky flex justify-between items-center text-center text-white px-16 py-2 mb-4">
           <div className="flex flex-col items-center w-full">
             <h1 className="text-xl">10.000</h1>
             <p className="text-sm">Pengguna Aktif</p>
@@ -102,7 +106,6 @@ export default function Home() {
       </div>
 
       {/* Section 4 - Top Classes */}
-
       <div>
         <div className="sticky justify-center text-center text-black px-8 py-12 mb-4">
           <h1 className="text-4xl font-semibold mb-4">Our Top Classes</h1>
@@ -144,6 +147,37 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Section 5 - Footer */}
+      <div className="w-full flex justify-center px-4 py-12">
+        <div className="relative w-full max-w-6xl rounded-[40px] overflow-hidden">
+          {/* Gradient background image */}
+          <img
+            src="/background/HomeFooterBG.svg"
+            alt="CTA Background"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+
+          {/* Overlay content */}
+          <div className="relative flex flex-col items-center justify-center text-center text-white px-6 py-16 gap-6">
+            <h1 className="text-4xl font-semibold mb-4">
+              Siap Melangkah Lebih Lanjut?
+            </h1>
+
+            <p className="text-base md:text-2xl max-w-3xl">
+              Ambil langkah pertama menuju karier impian Anda. Belajar, berkembang,
+              dan sukses bersama Nara Academy.
+            </p>
+
+            <NuraButton label="Join Now" variant="primary" onClick={() => 
+              {
+                console.log('Join Now');
+                router.push('/register');
+              }} />
+          </div>
+        </div>
+      </div>
+
 
       
 

@@ -1,0 +1,29 @@
+<svg width="1200" height="300" viewBox="0 0 1200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_770_2088)">
+<rect width="1200" height="300" rx="48" fill="url(#paint0_linear_770_2088)"/>
+<line y1="99" x2="1200" y2="99" stroke="white" stroke-opacity="0.1" stroke-width="2"/>
+<line y1="199" x2="1200" y2="199" stroke="white" stroke-opacity="0.1" stroke-width="2"/>
+<line x1="99" y1="300" x2="99" stroke="white" stroke-opacity="0.1" stroke-width="2"/>
+<line x1="199" y1="300" x2="199" stroke="white" stroke-opacity="0.1" stroke-width="2"/>
+<line x1="299" y1="300" x2="299" stroke="white" stroke-opacity="0.1" stroke-width="2"/>
+<line x1="399" y1="300" x2="399" stroke="white" stroke-opacity="0.1" stroke-width="2"/>
+<line x1="499" y1="300" x2="499" stroke="white" stroke-opacity="0.1" stroke-width="2"/>
+<line x1="599" y1="300" x2="599" stroke="white" stroke-opacity="0.1" stroke-width="2"/>
+<line x1="699" y1="300" x2="699" stroke="white" stroke-opacity="0.1" stroke-width="2"/>
+<line x1="799" y1="300" x2="799" stroke="white" stroke-opacity="0.1" stroke-width="2"/>
+<line x1="899" y1="300" x2="899" stroke="white" stroke-opacity="0.1" stroke-width="2"/>
+<line x1="999" y1="300" x2="999" stroke="white" stroke-opacity="0.1" stroke-width="2"/>
+<line x1="1099" y1="300" x2="1099" stroke="white" stroke-opacity="0.1" stroke-width="2"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_770_2088" x1="399.017" y1="-341.186" x2="1958.52" y2="635.999" gradientUnits="userSpaceOnUse">
+<stop stop-color="#042940" stop-opacity="0.9"/>
+<stop offset="0.25" stop-color="#508F42" stop-opacity="0.9"/>
+<stop offset="0.5" stop-color="#9FC131" stop-opacity="0.9"/>
+<stop offset="1" stop-color="#DBF227" stop-opacity="0.9"/>
+</linearGradient>
+<clipPath id="clip0_770_2088">
+<rect width="1200" height="300" fill="white"/>
+</clipPath>
+</defs>
+</svg>

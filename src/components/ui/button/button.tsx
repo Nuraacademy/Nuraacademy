@@ -25,10 +25,12 @@ export const NuraButton = ({
     mini: "w-60 h-6 bg-black text-white text-xs",
   };
 
+  const hoverStyles = "hover:bg-[#c8e64b] hover:border-[#c8e64b]";
+
   return (
     <button 
       onClick={onClick}
-      className={`${baseStyles} ${variants[variant]} ${className}`}
+      className={`${baseStyles} ${variants[variant]} ${hoverStyles} ${className}`}
     >
       {label}
       {variant === "navigate" && <ChevronRight className="w-4 h-4 ml-auto" strokeWidth={3} />}
