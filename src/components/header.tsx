@@ -2,13 +2,16 @@
 
 import { useRouter } from 'next/navigation';
 
-export default function Header({ title, is_logged_in }: { title: string, is_logged_in: boolean }) {
+export default function Header({ is_logged_in }: { is_logged_in: boolean }) {
     const router = useRouter();
     return (
         <main className="sticky top-0 flex justify-between text-center items-center bg-white px-16 py-2 z-10 shadow-sm">
-            <h1 className="text-2xl font-medium text-black text-left">
-                {title}
-            </h1>
+            <img
+                src="/logo/logo_nura.png"
+                alt="Nura Academy"
+                className="h-10"
+                onClick={() => router.push('/')}
+            />
             <div className="flex justify-end items-center gap-4 bg-white">
                 <button 
                     className="flex justify-center items-center gap-2 w-32 h-12 rounded-lg hover:bg-gray-100 transition-colors px-4 text-s text-black bg-white" 
