@@ -1,6 +1,29 @@
+"use client"
+
+import { useState } from "react";
+import { NuraButton } from "@/components/ui/button/button";
+import { NuraTextInput } from "@/components/ui/input/text_input";
+
 export const dynamic = "force-dynamic";
 
 export default function RegisterPage() {
+  const [fullName, setFullName] = useState("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log("Register form data:", {
+      fullName,
+      username,
+      email,
+      password,
+      whatsapp,
+    });
+  };
+
   return (
     <main className="min-h-screen w-full bg-white flex items-stretch">
       {/* Left image panel */}
@@ -35,58 +58,60 @@ export default function RegisterPage() {
             Create Your Account
           </h2>
 
-          <form className="space-y-4">
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
-              <label className="block text-sm font-medium mb-1">Full Name</label>
-              <input
-                type="text"
+              <NuraTextInput
+                label="Full Name"
                 placeholder="Full Name"
-                className="w-full rounded-full border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Username</label>
-              <input
-                type="text"
+              <NuraTextInput
+                label="Username"
                 placeholder="Username"
-                className="w-full rounded-full border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Email</label>
-              <input
-                type="email"
+              <NuraTextInput
+                label="Email"
                 placeholder="Email"
-                className="w-full rounded-full border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Password</label>
-              <input
-                type="password"
+              <NuraTextInput
+                label="Password"
                 placeholder="Password"
-                className="w-full rounded-full border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                variant="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">WhatsApp</label>
-              <input
-                type="text"
+              <NuraTextInput
+                label="WhatsApp"
                 placeholder="WhatsApp"
-                className="w-full rounded-full border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                value={whatsapp}
+                onChange={(e) => setWhatsapp(e.target.value)}
               />
             </div>
 
-            <button
-              type="submit"
-              className="mt-4 w-full rounded-full bg-black text-white py-2 text-sm font-medium hover:bg-gray-900 transition-colors"
-            >
-              Create Account
-            </button>
+            <div className="flex items-center justify-center">
+              <NuraButton
+                label="Create Account"
+                type="submit"
+                className="w-full rounded-full bg-black text-white py-2 text-sm font-medium hover:bg-gray-900 transition-colors"
+              />
+            </div>
 
             <p className="text-center text-xs text-gray-500 mt-4">
               Already have an account?{" "}
