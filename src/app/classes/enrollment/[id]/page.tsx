@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation"
 import { NuraTextInput } from "@/components/ui/input/text_input"
 import Chip from "@/components/ui/chip/chip"
 import CVUpload from "@/components/ui/upload/cv_upload"
-import { LimeButton } from "@/components/lime_button"
+import { NuraButton } from "@/components/ui/button/button"
 import Breadcrumb from "@/components/breadcrumb/breadcrumb"
 import { NuraTextArea } from "@/components/ui/input/text_area"
+import WelcomingModal from "@/components/ui/modal/welcoming_modal"
 
 export default function EnrollmentPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter()
@@ -29,6 +30,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
 
     const [selectedObjectives, setSelectedObjectives] = useState<string[]>(["Job seeker", "Upskilling"])
     const [cvFile, setCvFile] = useState<File | null>(null)
+    const [isWelcomingModalOpen, setIsWelcomingModalOpen] = useState(false)
 
     const learningObjectives = [
         "Career switch",
@@ -54,6 +56,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
         e.preventDefault()
         console.log("Enrollment data:", { ...formData, selectedObjectives, cvFile })
         // Handle submission logic here
+        // Open welcoming modal after successful submission
+        setIsWelcomingModalOpen(true)
     }
 
     const handleCancel = () => {
@@ -172,22 +176,36 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
 
                         {/* Action Buttons */}
                         <div className="flex justify-end gap-4 pt-6">
-                            <button
+                            <NuraButton
+                                label="Cancel"
+                                variant="secondary"
                                 type="button"
                                 onClick={handleCancel}
-                                className="px-8 py-2 rounded-full font-medium text-lg border-2 border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <LimeButton
+                                className="min-w-[120px]"
+                            />
+                            <NuraButton
                                 label="Submit"
-                                variant="solid"
-                                onClick={() => {}}
+                                variant="primary"
+                                type="submit"
+                                className="min-w-[120px]"
                             />
                         </div>
                     </form>
                 </div>
             </div>
+
+            {/* Welcoming Modal */}
+            <WelcomingModal
+                isOpen={isWelcomingModalOpen}
+                classId={classId}
+                steps={[
+                    { date: "02/03/2026", label: "Placement Test" },
+                    { date: "08/03/2026", label: "Course Mapping" },
+                    { date: "15/03/2026", label: "Grouping" },
+                    { date: "22/03/2026", label: "Learning" },
+                    { date: "24/05/2026", label: "Final Project" },
+                ]}
+            />
         </main>
     )
 }
