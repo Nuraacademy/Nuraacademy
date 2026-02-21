@@ -1,34 +1,126 @@
 'use client';
 
 interface FooterProps {
+    variant?: "default" | "minimal";
     instagram?: string;
-    facebook?: string;
-    linkedin?: string;
+    youtube?: string;
     x?: string;
 }
 
-export default function Footer({ instagram, facebook, linkedin, x } : FooterProps) {
+export default function Footer({ variant = "default", instagram, youtube, x } : FooterProps) {
     return (
-        <main className="bg-[#042940] text-white py-12 px-4 md:px-8 z-10">
-            <div className="max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 mb-8">
-                    {/* Logo & Description */}
-                    <div>
-                        <div className="flex items-center gap-3 mb-8">
-                            <div>
-                                <h3 className="font-bold text-xl mb-4">Nura Academy</h3>
-                                <p className="text-blue-200 text-sm leading-relaxed">
-                                    Menara Tinggi Kav. 12, 
-                                </p>
-                                <p className="text-blue-200 text-sm leading-relaxed">
-                                    Pasar Lama, Kota Jakarta Selatan
-                                </p>
-                                <p className="text-blue-200 text-sm leading-relaxed">
-                                    Daerah Khusus Ibukota Jakarta 12340
-                                </p>
+        <main className={`bg-[#042940] text-white ${variant === "minimal" ? "py-4" : "py-12"} px-4 md:px-8 z-10`}>
+            {variant === "default" ? (
+                <div className="max-w-7xl mx-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+                        {/* Company Information Column */}
+                        <div>
+                            <h3 className="font-bold text-xl mb-4">Nura Academy</h3>
+                            <p className="text-white text-sm leading-relaxed mb-4">
+                                Menara Tinggi Kav. 12, Pasar Lama, Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta 12340
+                            </p>
+                            <p className="text-white text-sm mb-4">
+                                Contact Number: +62 811-2233-4455
+                            </p>
+                            <div className="flex gap-4">
+                                {
+                                    !!instagram && (
+                                        <a 
+                                            href={instagram.startsWith('http') ? instagram : `https://${instagram}`} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                        >
+                                            <img 
+                                                src="/icons/Instagram.svg" 
+                                                alt="Instagram" 
+                                                className="w-6 h-6 hover:opacity-80 transition-all"
+                                            />
+                                        </a>
+                                    )
+                                }
+                                {
+                                    !!youtube && (
+                                        <a 
+                                            href={youtube.startsWith('http') ? youtube : `https://${youtube}`} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                        >
+                                            <img 
+                                                src="/icons/Youtube.svg" 
+                                                alt="Youtube" 
+                                                className="w-6 h-6 hover:opacity-80 transition-all"
+                                            />
+                                        </a>
+                                    )
+                                }
+                                {
+                                    !!x && (
+                                        <a 
+                                            href={x.startsWith('http') ? x : `https://${x}`} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                        >
+                                            <img 
+                                                src="/icons/X.svg" 
+                                                alt="X" 
+                                                className="w-6 h-6 hover:opacity-80 transition-all"
+                                            />
+                                        </a>
+                                    )
+                                }
                             </div>
                         </div>
-                        <div className="flex gap-4">
+
+                        {/* Data Classes Column */}
+                        <div>
+                            <h4 className="font-semibold mb-4">Data</h4>
+                            <ul className="space-y-2 text-sm">
+                                <li><a href="/classes" className="text-white hover:text-blue-300 transition-colors">Class One</a></li>
+                                <li><a href="/classes" className="text-white hover:text-blue-300 transition-colors">Class Two</a></li>
+                                <li><a href="/classes" className="text-white hover:text-blue-300 transition-colors">Class Three</a></li>
+                                <li><a href="/classes" className="text-white hover:text-blue-300 transition-colors">Class Four</a></li>
+                            </ul>
+                        </div>
+
+                        {/* Software Engineer Classes Column */}
+                        <div>
+                            <h4 className="font-semibold mb-4">Software Engineer</h4>
+                            <ul className="space-y-2 text-sm">
+                                <li><a href="/classes" className="text-white hover:text-blue-300 transition-colors">Class Five</a></li>
+                                <li><a href="/classes" className="text-white hover:text-blue-300 transition-colors">Class Six</a></li>
+                                <li><a href="/classes" className="text-white hover:text-blue-300 transition-colors">Class Seven</a></li>
+                                <li><a href="/classes" className="text-white hover:text-blue-300 transition-colors">Class Eight</a></li>
+                            </ul>
+                        </div>
+
+                        {/* UI/UX Classes Column */}
+                        <div>
+                            <h4 className="font-semibold mb-4">UI/UX</h4>
+                            <ul className="space-y-2 text-sm">
+                                <li><a href="/classes" className="text-white hover:text-blue-300 transition-colors">Class Nine</a></li>
+                                <li><a href="/classes" className="text-white hover:text-blue-300 transition-colors">Class Ten</a></li>
+                                <li><a href="/classes" className="text-white hover:text-blue-300 transition-colors">Class Eleven</a></li>
+                                <li><a href="/classes" className="text-white hover:text-blue-300 transition-colors">Class Twelve</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    {/* Separator Line */}
+                    <div className="border-t border-gray-400 mb-6"></div>
+
+                    {/* Bottom Row - Copyright */}
+                    <div className="pt-4">
+                        <p className="text-sm text-white">© 2026 PT Nura Academy. All Rights Reserved.</p>
+                    </div>
+                </div>
+            ): (
+                <div className="max-w-7xl mx-auto">
+                    <div className="border-t border-blue-200/40 pt-4 flex items-center justify-between gap-4">
+                        <p className="text-xs md:text-sm text-blue-100">
+                            © 2026 PT Nura Academy. All Rights Reserved.
+                        </p>
+
+                        <div className="flex items-center gap-4">
                             {
                                 !!instagram && (
                                     <a 
@@ -39,37 +131,22 @@ export default function Footer({ instagram, facebook, linkedin, x } : FooterProp
                                         <img 
                                             src="/icons/Instagram.svg" 
                                             alt="Instagram" 
-                                            className="w-6 h-6 hover:opacity-80 transition-all"
+                                            className="w-7 h-7 rounded-md hover:bg-white transition-colors p-1.5"
                                         />
                                     </a>
                                 )
                             }
                             {
-                                !!facebook && (
+                                !!youtube && (
                                     <a 
-                                        href={facebook.startsWith('http') ? facebook : `https://${facebook}`} 
+                                        href={youtube.startsWith('http') ? youtube : `https://${youtube}`} 
                                         target="_blank" 
                                         rel="noopener noreferrer"
                                     >
                                         <img 
-                                            src="/icons/Facebook.svg" 
-                                            alt="Facebook" 
-                                            className="w-6 h-6 hover:opacity-80 transition-all"
-                                        />
-                                    </a>
-                                )
-                            }
-                            {
-                                !!linkedin && (
-                                    <a 
-                                        href={linkedin.startsWith('http') ? linkedin : `https://${linkedin}`} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                    >
-                                        <img 
-                                            src="/icons/Linkedin.svg" 
-                                            alt="Linkedin" 
-                                            className="w-6 h-6 hover:opacity-80 transition-all"
+                                            src="/icons/YouTube.svg" 
+                                            alt="Youtube" 
+                                            className="w-7 h-7 rounded-md hover:bg-white transition-colors p-1.5"
                                         />
                                     </a>
                                 )
@@ -84,57 +161,16 @@ export default function Footer({ instagram, facebook, linkedin, x } : FooterProp
                                         <img 
                                             src="/icons/X.svg" 
                                             alt="X" 
-                                            className="w-6 h-6 hover:opacity-80 transition-all"
+                                            className="w-7 h-7 rounded-md hover:bg-white transition-colors p-1.5"
                                         />
                                     </a>
                                 )
                             }
-
-                        </div>
-                        
-                        
-                    </div>
-
-                    {/* Menu Columns */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
-                        <div>
-                            <h4 className="font-semibold mb-4">Bootcamp Specialist</h4>
-                            <ul className="space-y-2 text-sm">
-                            <li><a href="/bootcamps" className="hover:text-blue-300 transition-colors">UI/UX Design Specialist</a></li>
-                            <li><a href="/bootcamps" className="hover:text-blue-300 transition-colors">Fullstack Web Develpoment</a></li>
-                            <li><a href="/bootcamps" className="hover:text-blue-300 transition-colors">Data Science & AI</a></li>
-                            <li><a href="/bootcamps" className="hover:text-blue-300 transition-colors">Digital Marketing & Strategy</a></li>
-                            <li><a href="/bootcamps" className="hover:text-blue-300 transition-colors">Product Management</a></li>
-                            </ul>
-                        </div>
-
-                        <div>
-                            <h4 className="font-semibold mb-4">Resources</h4>
-                            <ul className="space-y-2 text-sm">
-                            <li><a href="/blogs" className="hover:text-blue-300 transition-colors">Blog & Articles</a></li>
-                            <li><a href="/discussions" className="hover:text-blue-300 transition-colors">Discussion Forum</a></li>
-                            <li><a href="/classes" className="hover:text-blue-300 transition-colors">Free Modules</a></li>
-                            <li><a href="/" className="hover:text-blue-300 transition-colors">Help Center</a></li>
-                            </ul>
-                        </div>
-
-                        <div>
-                            <h4 className="font-semibold mb-4">Company</h4>
-                            <ul className="space-y-2 text-sm">
-                            <li><a href="/" className="hover:text-blue-300 transition-colors">About</a></li>
-                            <li><a href="/privacy" className="hover:text-blue-300 transition-colors">Privacy Policy</a></li>
-                            <li><a href="/terms" className="hover:text-blue-300 transition-colors">Terms of Service</a></li>
-                            </ul>
                         </div>
                     </div>
                 </div>
-
-                {/* Bottom Row */}
-                <div className="border-t border-blue-800 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p className="text-sm text-blue-200">© 2026 Nura Academy. All rights reserved.</p>
-                
-                </div>
-            </div>
+            )
+            }
         </main>
     );
 }

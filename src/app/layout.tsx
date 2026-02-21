@@ -32,7 +32,7 @@ export default function RootLayout({
         <Header is_logged_in={ false } />
         {children}
         <Toaster position="bottom-right" richColors />
-        <Footer instagram="www.google.com" facebook="qqq" linkedin="abc" x="def"/>
+        <Footer instagram="www.google.com" youtube="www.youtube.com" x="www.x.com"/>
       </body>
     </html>
   );
