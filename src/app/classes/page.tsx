@@ -3,8 +3,11 @@
 import ClassCard from "@/components/ui/class_card"
 import { NuraTextInput } from "@/components/ui/input/text_input"
 import { Search } from "lucide-react"
+import { useState } from "react"
 
-export default async function ClassesPage() {
+export default function ClassesPage() {
+    const [searchValue, setSearchValue] = useState("");
+
     return (
         <main className="relative min-h-screen w-full overflow-hidden p-8">
             {/* Background Image */}
@@ -27,8 +30,8 @@ export default async function ClassesPage() {
                 <div className="relative w-64">
                     <NuraTextInput
                         placeholder="Search class"
-                        value=""
-                        onChange={() => { }}
+                        value={searchValue}
+                        onChange={(e) => setSearchValue(e.target.value)}
                         icon={<Search strokeWidth={1.5} />}
                     />
                 </div>
