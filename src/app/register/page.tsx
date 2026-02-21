@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { NuraButton } from "@/components/ui/button/button";
 import { NuraTextInput } from "@/components/ui/input/text_input";
+import { useRouter } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -51,6 +53,7 @@ export default function RegisterPage() {
               src="/logo/logo_nura.png"
               alt="Nura Academy"
               className="h-10"
+              onClick={() => router.push('/')}
             />
           </div>
 

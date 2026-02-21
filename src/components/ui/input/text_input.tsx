@@ -25,7 +25,7 @@ export const NuraTextInput = ({
                 placeholder={placeholder}
                 value={value}
                 onChange={onChange}
-                className={`w-full rounded-full border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black ${className}`}
+                className={`w-full rounded-[0.5rem] border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black ${className}`}
             />
         </div>
     )
