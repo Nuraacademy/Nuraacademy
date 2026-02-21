@@ -78,7 +78,7 @@ export default function ClassCard({
                     label="Enroll Now"
                     variant="navigate"
                     onClick={() => router.push(`/classes/enrollment/${id}`)}
-                    // onClick={() => router.push(`/courses/about/${id}`)}
+                // onClick={() => router.push(`/classes/overview/${id}`)}
                 />
             </div>
         </div>
