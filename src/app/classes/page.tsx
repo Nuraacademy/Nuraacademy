@@ -1,15 +1,20 @@
 "use client"
 
-import ClassCard from "@/components/ui/class_card"
+import ClassCard from "@/components/ui/card/class_card"
 import { NuraTextInput } from "@/components/ui/input/text_input"
+import Sidebar from "@/components/ui/sidebar/sidebar"
 import { Search } from "lucide-react"
 import { useState } from "react"
 
 export default function ClassesPage() {
     const [searchValue, setSearchValue] = useState("");
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     return (
-        <main className="relative min-h-screen w-full overflow-hidden p-8">
+        <main className={`relative min-h-screen w-full overflow-hidden py-8 pr-8 transition-all duration-300 ${isSidebarOpen ? "pl-80" : "pl-8"}`}>
+            {/* Sidebar */}
+            <Sidebar onOpenChange={setIsSidebarOpen} />
+
             {/* Background Image */}
             <img
                 src="background/PolygonBGTop.svg"

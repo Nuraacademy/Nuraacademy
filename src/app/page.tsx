@@ -1,9 +1,9 @@
 "use client"
 
 import { NuraButton } from "@/components/ui/button/button";
-import ClassCard from "@/components/ui/class_card";
-import HomeCard from "@/components/ui/home_card";
-import HomeStoriesCard from "@/components/ui/home_stories_card";
+import ClassCard from "@/components/ui/card/class_card";
+import HomeCard from "@/components/ui/card/home_card";
+import HomeStoriesCard from "@/components/ui/card/home_stories_card";
 import { useRouter } from "next/navigation";
 
 export default function Home() {

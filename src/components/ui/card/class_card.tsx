@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { Clock, BookText } from 'lucide-react';
-import { NuraButton } from './button/button';
+import { NuraButton } from '../button/button';
 
 interface ClassCardProp {
     id: string,
