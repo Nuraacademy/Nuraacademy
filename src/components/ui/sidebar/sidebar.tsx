@@ -1,6 +1,6 @@
 "use client"
 
-import { Menu, ChevronUp, ChevronDown, BookOpen, FileText, MessageSquare, BarChart } from "lucide-react"
+import { Menu, ChevronUp, ChevronDown, FileText, BarChart, TrendingUp, ClipboardList, Star, Zap, Hand, Presentation, Building2, User, Monitor } from "lucide-react"
 import { useState } from "react"
 
 interface SidebarProp {
@@ -51,22 +51,31 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
     ]
 
     const assignments = [
-        "UI/UX Design Placement Test",
-        "Data Analytics Pre-test",
-        "Data Analytics Post-test",
-        "Python Assignment",
-        "Python Exercise",
-        "Programming Final Project"
+        { name: "UI/UX Design Placement Test", type: "test" },
+        { name: "Data Analytics Pre-test", type: "test" },
+        { name: "Data Analytics Post-test", type: "test" },
+        { name: "Python Assignment", type: "assignment" },
+        { name: "Python Exercise", type: "exercise" },
+        { name: "Programming Final Project", type: "project" }
     ]
 
     const feedbacks = [
-        "Python Assignment Feedback",
-        "Python Peer Feedback",
-        "Data Analytics Class Feedback",
-        "Python Trainer Feedback",
-        "UI/UX Design Reflection",
-        "UI/UX Design Reflection Feedback"
+        { name: "Python Assignment Feedback", type: "feedback" },
+        { name: "Python Peer Feedback", type: "feedback" },
+        { name: "Data Analytics Class Feedback", type: "feedback" },
+        { name: "Python Trainer Feedback", type: "feedback" },
+        { name: "UI/UX Design Reflection", type: "reflection" },
+        { name: "UI/UX Design Reflection Feedback", type: "reflection" }
     ]
+
+    const map_type_to_icon: Record<string, string> = {
+        test: "/icons/sidebar/SubTest.svg",
+        assignment: "/icons/sidebar/SubAssignment.svg",
+        exercise: "/icons/sidebar/SubExercise.svg",
+        project: "/icons/sidebar/SubFinalProject.svg",
+        feedback: "/icons/sidebar/SubFeedback.svg",
+        reflection: "/icons/sidebar/SubReflection.svg"
+    }
 
     return (
         <div className={`fixed top-0 left-0 h-screen z-50 flex items-start gap-0 ${className || ""}`}>
@@ -74,11 +83,16 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
                 <div className="w-72 h-full bg-white shadow-lg px-4 py-6 space-y-6 overflow-y-auto">
                     {/* My Class Section */}
                     <div>
-                        <div className="flex items-center gap-2 mb-3">
-                            <BookOpen size={20} className="text-gray-700" />
+                        <div className="flex items-center gap-3 mb-3">
+                            <img
+                                src="/icons/sidebar/Class.svg"
+                                alt="Class Icon"
+                                width={24}
+                                height={24}
+                            />
                             <h3 className="font-semibold text-gray-800">My Class</h3>
                         </div>
-                        <div className="space-y-1 ml-7">
+                        <div className="space-y-1 ml-11">
                             {myClasses.map((item, index) => {
                                 const key = index === 0 ? "intro-programming" : "foundation-data"
                                 const isExpanded = expandedItems[key]
@@ -119,48 +133,88 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
                         </div>
                     </div>
 
+                    {/* Separator */}
+                    <div className="border-t border-gray-200"></div>
+
                     {/* Assignment Section */}
                     <div>
-                        <div className="flex items-center gap-2 mb-3">
-                            <FileText size={20} className="text-gray-700" />
+                        <div className="flex items-center gap-3 mb-3">
+                            <img
+                                src="/icons/sidebar/Assignment.svg"
+                                alt="Assignment Icon"
+                                width={24}
+                                height={24}
+                            />
                             <h3 className="font-semibold text-gray-800">Assignment</h3>
                         </div>
-                        <div className="space-y-1 ml-7">
-                            {assignments.map((assignment, index) => (
-                                <a
-                                    key={index}
-                                    href="#"
-                                    className="block p-2 text-sm text-gray-600 hover:bg-gray-50 rounded transition-colors"
-                                >
-                                    {assignment}
-                                </a>
-                            ))}
+                        <div className="space-y-1 ml-11">
+                            {assignments.map((assignment, index) => {
+                                return (
+                                    <a
+                                        key={index}
+                                        href="#"
+                                        className="flex items-center gap-2 p-2 text-sm text-gray-600 hover:bg-gray-50 rounded transition-colors"
+                                    >
+                                        <img
+                                            src={map_type_to_icon[assignment.type]}
+                                            alt={assignment.type}
+                                            width={24}
+                                            height={24}
+                                        />
+                                        <span>{assignment.name}</span>
+                                    </a>
+                                )
+                            })}
                         </div>
                     </div>
+
+                    {/* Separator */}
+                    <div className="border-t border-gray-200"></div>
 
                     {/* Feedback Section */}
                     <div>
-                        <div className="flex items-center gap-2 mb-3">
-                            <MessageSquare size={20} className="text-gray-700" />
+                        <div className="flex items-center gap-3 mb-3">
+                            <img
+                                src="/icons/sidebar/Feedback.svg"
+                                alt="Feedback Icon"
+                                width={24}
+                                height={24}
+                            />
                             <h3 className="font-semibold text-gray-800">Feedback</h3>
                         </div>
-                        <div className="space-y-1 ml-7">
-                            {feedbacks.map((feedback, index) => (
-                                <a
-                                    key={index}
-                                    href="#"
-                                    className="block p-2 text-sm text-gray-600 hover:bg-gray-50 rounded transition-colors"
-                                >
-                                    {feedback}
-                                </a>
-                            ))}
+                        <div className="space-y-1 ml-11">
+                            {feedbacks.map((feedback, index) => {
+                                return (
+                                    <a
+                                        key={index}
+                                        href="#"
+                                        className="flex items-center gap-2 p-2 text-sm text-gray-600 hover:bg-gray-50 rounded transition-colors"
+                                    >
+                                        <img
+                                            src={map_type_to_icon[feedback.type]}
+                                            alt={feedback.type}
+                                            width={24}
+                                            height={24}
+                                        />
+                                        <span>{feedback.name}</span>
+                                    </a>
+                                )
+                            })}
                         </div>
                     </div>
 
+                    {/* Separator */}
+                    <div className="border-t border-gray-200"></div>
+
                     {/* Report & Analytics Section */}
                     <div>
-                        <div className="flex items-center gap-2 mb-3">
-                            <BarChart size={20} className="text-purple-600" />
+                        <div className="flex items-center gap-3 mb-3">
+                            <img
+                                src="/icons/sidebar/Report.svg"
+                                alt="Report Icon"
+                                width={24}
+                                height={24}
+                            />
                             <h3 className="font-semibold text-gray-800">Report & Analytics</h3>
                         </div>
                     </div>
