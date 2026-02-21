@@ -30,7 +30,7 @@ export const NuraTextInput = ({
                     placeholder={placeholder}
                     value={value}
                     onChange={onChange}
-                    className={`w-full rounded-[0.5rem] border border-${color} px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black ${icon ? "pr-10" : ""
+                    className={`w-full rounded-[0.5rem] bg-white border border-${color} px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black ${icon ? "pr-10" : ""
                         } ${className}`}
                 />
                 {icon && (

@@ -77,7 +77,8 @@ export default function ClassCard({
                 <NuraButton
                     label="Enroll Now"
                     variant="navigate"
-                    onClick={() => router.push(`/courses/about/${id}`)}
+                    onClick={() => router.push(`/classes/enrollment/${id}`)}
+                    // onClick={() => router.push(`/courses/about/${id}`)}
                 />
             </div>
         </div>
