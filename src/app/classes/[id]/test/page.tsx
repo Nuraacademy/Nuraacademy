@@ -7,113 +7,16 @@ import { NuraButton } from "@/components/ui/button/button"
 import { RichTextInput } from "@/components/ui/input/rich_text_input"
 import FileUpload from "@/components/ui/upload/file_upload"
 
-type QuestionType = "objective" | "essay" | "project"
-
-interface ObjectiveQuestion {
-  id: number
-  question: string
-  options: string[]
-  points: number
-}
-
-interface EssayQuestion {
-  id: number
-  question: string
-  points: number
-}
-
-interface ProjectQuestion {
-  id: number
-  question: string
-  requirements: string[]
-  points: number
-}
-
-const OBJECTIVE_QUESTIONS: ObjectiveQuestion[] = Array.from({ length: 15 }).map(
-  (_, index) => ({
-    id: index + 1,
-    question:
-      "Proses pengumpulan data dari berbagai sumber sebelum disimpan dalam sistem big data disebut ...",
-    options: ["A. Data Visualization", "B. Data Ingestion", "C. Data Modeling", "D. Data Reporting"],
-    points: 10,
-  }),
-)
-
-const ESSAY_QUESTIONS: EssayQuestion[] = Array.from({ length: 5 }).map((_, index) => ({
-  id: index + 1,
-  question:
-    "Bandingkan perbedaan antara structured, semi-structured, dan unstructured data. Jelaskan ciri masing-masing, contoh di sekitar anda, tantangan dalam pengolahannya.",
-  points: 20,
-}))
-
-const PROJECT_QUESTIONS: ProjectQuestion[] = [
-  {
-    id: 1,
-    question: "Buat program Python yang:",
-    requirements: [
-      "Membaca file transaksi (.csv)",
-      "Menggunakan variable untuk menyimpan parameter (misalnya diskon)",
-      "Menggunakan selection statement untuk menentukan kategori transaksi:\n  • < 100.000 = Low\n  • 100.000-500.000 = Medium\n  • > 500.000 = High",
-      "Menggunakan looping untuk menghitung total transaksi",
-      "Membuat function yang:\n  • Menghitung total belanja\n  • Menghitung diskon\n  • Menyimpan hasil ke file baru (output.csv)",
-    ],
-    points: 50,
-  },
-]
-
-const TEST_DATA = {
-  courseName: "Foundation to Data Analytics",
-  introDescription:
-    "Selamat datang di tahap awal perjalanan belajarmu. Hasil placement test ini membantu kami menentukan course yang bisa kamu lewati serta menempatkanmu dalam grup belajar sesuai materi yang perlu kamu pelajari. Jangan tegang dan lakukan yang terbaik!",
-  durationMinutes: 120,
-  sectionsCount: (OBJECTIVE_QUESTIONS.length > 0 ? 1 : 0) + (ESSAY_QUESTIONS.length > 0 ? 1 : 0) + (PROJECT_QUESTIONS.length > 0 ? 1 : 0),
-  deadlineValue: "7 Maret 2026",
-  testDescription:
-    "Tes ini mengukur pemahaman dasar pemrograman untuk data analytics, termasuk konsep dasar cara kerja programming, penggunaan variabel dengan python, pengolahan data melalui file, penerapan selection dan looping statement, pembuatan fungsi (function), serta pengolahan array dan dataframe.",
-  instructions: [
-    "Pastikan koneksi internet stabil selama pengerjaan.",
-    "Tes hanya dapat dilakukan satu kali, pastikan kamu memiliki waktu luang yang cukup.",
-    "Dilarang menggunakan alat bantu AI atau mencari jawaban di luar platform selama tes berlangsung.",
-    "Hasil penempatan grup akan diumumkan sehari setelah batas akhir pengisian tes.",
-  ],
-}
-
-const PAGE_TEXT = {
-  bannerTitle: "Placement Test",
-  introTitle: "Hello, Learner!",
-  infoTitle: "Detail Informasi Tes",
-  durationLabel: "Duration:",
-  durationValue: "minutes",
-  sectionLabel: "Section:",
-  sectionValue: "sections",
-  deadlineLabel: "Deadline:",
-  instructionTitle: "Instruksi",
-  buttonCancel: "Cancel",
-  buttonStart: "Start",
-  sidebarTimeLeft: "Time Left",
-  sidebarObjective: "Objective Answer",
-  buttonSubmit: "Submit Test",
-  finishedTitle: "Test Submitted!",
-  finishedDescription: "Thank you for completing the placement test. Your answers have been recorded. We will review your results and assign you to the appropriate group.",
-  buttonBackToCourse: "Back to Course Overview",
-  sidebarEssay: "Essay Answer",
-  sidebarProject: "Project Answer",
-  contentObjective: "Objective",
-  contentEssay: "Essay",
-  contentProject: "Project",
-  contentQuestions: "Questions",
-  contentOf: "of",
-  contentPoints: "points",
-  contentAnswer: "Answer",
-  testPrevButton: "Previous questions",
-  testNextButton: "Next questions",
-  breadcrumbHome: "Home",
-  breadcrumbTest: "Placement Test",
-}
+import { ProjectQuestion, QuestionType } from "./types"
+import { OBJECTIVE_QUESTIONS, ESSAY_QUESTIONS, PROJECT_QUESTIONS, TEST_DATA, PAGE_TEXT } from "./constants"
+import { IntroCard } from "./components/intro_card"
+import { FinishedCard } from "./components/finished_card"
+import { ConfirmModal } from "@/components/ui/modal/confirmation_modal"
 
 export default function PlacementTestPage({ params }: { params: Promise<{ id: string }> }) {
   const [hasStarted, setHasStarted] = useState(false)
   const [isFinished, setIsFinished] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const [timeLeft, setTimeLeft] = useState(TEST_DATA.durationMinutes * 60)
   const [currentType, setCurrentType] = useState<QuestionType>("objective")
   const [objectiveIndex, setObjectiveIndex] = useState(0)
@@ -133,7 +36,12 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
     params.then(p => setClassId(p.id)).catch(() => { })
   }, [params])
 
-  const handleSubmit = () => {
+  const handleSubmitClick = () => {
+    setIsModalOpen(true)
+  }
+
+  const handleConfirmSubmit = () => {
+    setIsModalOpen(false)
     setIsFinished(true)
   }
 
@@ -144,7 +52,7 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer)
-          handleSubmit()
+          handleConfirmSubmit()
           return 0
         }
         return prev - 1
@@ -153,6 +61,15 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
 
     return () => clearInterval(timer)
   }, [hasStarted, isFinished])
+
+  // Count unanswered questions
+  const getUnansweredCount = () => {
+    let count = 0
+    count += OBJECTIVE_QUESTIONS.length - Object.keys(objectiveAnswers).length
+    count += ESSAY_QUESTIONS.length - Object.values(essayAnswers).filter(val => val.replace(/<[^>]+>/g, '').trim().length > 0).length
+    count += PROJECT_QUESTIONS.length - Object.keys(projectFiles).filter(key => projectFiles[Number(key)] !== null).length
+    return count
+  }
 
   const formatTime = (seconds: number) => {
     const h = Math.floor(seconds / 3600)
@@ -206,71 +123,6 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
     <div className="w-full bg-[#075546] text-white py-4 px-8 rounded-[1.5rem] shadow-sm">
       <h1 className="text-lg font-semibold">{PAGE_TEXT.bannerTitle}</h1>
     </div>
-  )
-
-  const renderIntroCard = () => (
-    <section className="mt-6 flex justify-center px-4">
-      <div className="w-full max-w-5xl bg-white rounded-[2.5rem] shadow-sm border border-gray-200 px-10 py-10">
-        <h2 className="text-base font-semibold mb-4">{PAGE_TEXT.introTitle}</h2>
-        <p className="text-sm text-gray-700 leading-relaxed mb-8">
-          {TEST_DATA.introDescription}
-        </p>
-
-        <hr className="border-gray-200 my-6" />
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs md:text-sm text-gray-700 mb-6">
-          <div>
-            <p className="font-semibold mb-2">{PAGE_TEXT.infoTitle}</p>
-            <p>
-              {PAGE_TEXT.durationLabel} {TEST_DATA.durationMinutes} <span className="font-semibold">{PAGE_TEXT.durationValue}</span>
-            </p>
-          </div>
-          <div>
-            <p className="font-semibold mb-2">&nbsp;</p>
-            <p>
-              {PAGE_TEXT.sectionLabel} {TEST_DATA.sectionsCount} <span className="font-semibold">{PAGE_TEXT.sectionValue}</span>
-            </p>
-          </div>
-          <div>
-            <p className="font-semibold mb-2">&nbsp;</p>
-            <p>
-              {PAGE_TEXT.deadlineLabel} <span className="font-semibold">{TEST_DATA.deadlineValue}</span>
-            </p>
-          </div>
-        </div>
-
-        <p className="text-sm text-gray-700 leading-relaxed mb-6">
-          {TEST_DATA.testDescription}
-        </p>
-
-        <hr className="border-gray-200 my-6" />
-
-        <div className="mb-6">
-          <p className="font-semibold text-sm mb-3">{PAGE_TEXT.instructionTitle}</p>
-          <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700">
-            {TEST_DATA.instructions.map((inst, index) => (
-              <li key={index}>{inst}</li>
-            ))}
-          </ol>
-        </div>
-
-        <div className="mt-8 flex justify-center gap-4">
-          <NuraButton
-            label={PAGE_TEXT.buttonCancel}
-            variant="secondary"
-            type="button"
-            className="max-w-[140px]"
-          />
-          <NuraButton
-            label={PAGE_TEXT.buttonStart}
-            variant="primary"
-            type="button"
-            className="max-w-[140px]"
-            onClick={() => setHasStarted(true)}
-          />
-        </div>
-      </div>
-    </section>
   )
 
   const renderSidebar = () => (
@@ -508,7 +360,7 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
               variant="primary"
               type="button"
               className="max-w-[140px]"
-              onClick={handleSubmit}
+              onClick={handleSubmitClick}
             />
           ) : (
             <button
@@ -527,26 +379,6 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
     </section>
   )
 
-  const renderFinishedCard = () => (
-    <section className="mt-6 flex justify-center px-4 pb-20">
-      <div className="w-full max-w-3xl bg-white rounded-[2.5rem] shadow-sm border border-gray-200 px-10 py-16 text-center">
-        <h2 className="text-3xl font-semibold mb-4 text-[#075546]">{PAGE_TEXT.finishedTitle}</h2>
-        <p className="text-sm text-gray-700 leading-relaxed mb-8 max-w-lg mx-auto">
-          {PAGE_TEXT.finishedDescription}
-        </p>
-        <NuraButton
-          label={PAGE_TEXT.buttonBackToCourse}
-          variant="primary"
-          type="button"
-          className="mx-auto max-w-[240px]"
-          onClick={() => {
-            window.location.href = `/classes/${classId}/overview`
-          }}
-        />
-      </div>
-    </section>
-  )
-
   return (
     <main className="min-h-screen w-full bg-[#F9F9F0]">
       <div className="px-6 pt-6">
@@ -561,8 +393,21 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
 
       <div className="px-6 mt-2">{renderBanner()}</div>
 
-      {isFinished ? renderFinishedCard() : hasStarted ? renderTestCard() : renderIntroCard()}
+      {isFinished ? <FinishedCard classId={classId} /> : hasStarted ? renderTestCard() : <IntroCard onStart={() => setHasStarted(true)} />}
+
+      <ConfirmModal
+        isOpen={isModalOpen}
+        onConfirm={handleConfirmSubmit}
+        onCancel={() => setIsModalOpen(false)}
+        title="Submit Test?"
+        message={
+          getUnansweredCount() > 0
+            ? `You still have unanswered question(s). Are you sure you want to submit?`
+            : "Are you sure you want to submit your test? You cannot undo this action."
+        }
+        confirmText="Submit Test"
+        cancelText="Cancel"
+      />
     </main>
   )
 }
-

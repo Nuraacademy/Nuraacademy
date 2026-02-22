@@ -11,7 +11,7 @@ import { Header2 } from '@/components/header2';
 import { SubmissionStatusTable } from '@/components/submission_status_table';
 import { LimeButton } from '@/components/lime_button';
 import { UploadModal } from '@/components/upload_file';
-import { ConfirmModal } from '@/components/confirmation_dialog';
+import { ConfirmModal } from '@/components/ui/modal/confirmation_modal';
 
 export default function ModuleDetailPage({ params }: { params: { id: string } }) {
     const isAdmin = true;
