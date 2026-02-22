@@ -1,154 +1,177 @@
 "use client"
 
-import CourseExpander from "@/components/course_expander";
-
-import { Clock, BarChart, Users, ChevronRight } from 'lucide-react';
 import { useEffect, useState } from "react";
+import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
+import { NuraButton } from "@/components/ui/button/button";
+import { useRouter } from "next/navigation";
 
-
-export default function CourseDetailPage({ 
-    params 
-}: { 
-    params: Promise<{ id: string }> 
+export default function CourseOverviewPage({
+    params
+}: {
+    params: Promise<{ id: string }>
 }) {
-    // Await the params to get the ID
     const [id, setId] = useState("");
+    const router = useRouter();
     useEffect(() => {
-        params.then(p => setId(p.id)).catch(() => { })
-    }, [params])
+        params.then(p => setId(p.id)).catch(() => { });
+    }, [params]);
 
-    const imageUrl="https://www.lackawanna.edu/wp-content/uploads/2024/08/male-tutor-teaching-university-students-in-classro-2023-11-27-05-16-59-utc.webp"
-    const title="Introduction to Programming"
-    const duration=12
-    const level="Menengah"
-    const capacity=5000
-    const description="Kelas ini dirancang untuk peserta yang ingin memahami konsep dasar pemrograman menggunakan python. Pembelajaran fokus pada pemahaman cara kerja program, penggunaan variabel, serta pengelolaan file."
-    const price=500000
-    const trainerProfilePictureUrl="https://upload.wikimedia.org/wikipedia/commons/0/03/Jeff_Bezos_visits_LAAFB_SMC_%283908618%29_%28cropped%29.jpeg"
-    const isEnrolled=true
+    const imageUrl = "https://www.lackawanna.edu/wp-content/uploads/2024/08/male-tutor-teaching-university-students-in-classro-2023-11-27-05-16-59-utc.webp";
+
+    const classData = {
+        title: "Foundation to Data Analytics",
+        hours: 55,
+        modules: 5,
+        methods: "Flipped blended classroom",
+        scheduleStart: "22/2/2026",
+        scheduleEnd: "31/5/2026",
+        description:
+            "Kelas Introduction to Programming dirancang untuk pemula yang ingin memahami dasar-dasar pemrograman menggunakan Python. Peserta akan mempelajari konsep fundamental seperti variabel, tipe data, selection statement, looping, function, serta pengolahan file dan data sederhana. Kelas ini menekankan pada pemahaman logika berpikir komputasional dan praktik langsung agar peserta mampu membangun program sederhana secara terstruktur dan sistematis.",
+        whatYouWillLearn: [
+            "Konsep dasar pemrograman dan aturan penulisan kode Python",
+            "Penggunaan variabel dan tipe data",
+            "Selection statement (if, elif, else)",
+            "Looping statement (for, while)",
+            "Pembuatan dan penggunaan function",
+            "Pengolahan flat files (CSV) menggunakan Python",
+            "Modifikasi array (list) menggunakan function",
+            "Manipulasi dan modifikasi DataFrame menggunakan pandas",
+            "Best practices dalam menulis kode yang rapi dan reusable",
+            "Dasar logika pemrograman untuk analisis data",
+        ],
+        courses: [
+            {
+                id: "1",
+                title: "Final Project",
+                description: "Proyek akhir yang menguji pemahaman peserta terhadap keseluruhan course yang telah diikuti",
+            },
+        ],
+    };
 
     return (
-        <main className="min-h-screen bg-[#F9F9F4] p-4 md:p-10 font-sans text-gray-800">
-            <section className="relative bg-gradient-to-r from-[#005954] to-[#94B546] rounded-[2.5rem] overflow-hidden mb-10 flex flex-col md:flex-row items-center p-8 md:p-12 gap-8 border border-white">
-                <div className="w-full md:w-1/3 shrink-0">
-                <img src={imageUrl || "/example/dummy.png"} alt="Course" className="rounded-[2rem] w-full h-64 object-cover shadow-lg"/>
-                </div>
+        <main className="min-h-screen bg-[#F5F5EC] font-sans text-gray-800">
+            <div className="max-w-7xl mx-auto px-6 md:px-10 py-8">
 
-                <div className="flex-grow">
-                <h1 className="text-3xl text-white font-bold mb-4">{title}</h1>
-                
-                <div className="flex flex-wrap gap-6 text-sm font-medium text-white mb-6">
-                    <div className="flex items-center gap-1.5 text-[11px] font-medium">
-                        <Clock className="w-4 h-4 text-white" strokeWidth={2.5} />
-                        {duration} Jam
-                    </div>
-                    <div className="flex items-center gap-1.5 text-[11px] font-medium">
-                        <BarChart className="w-4 h-4 text-white" strokeWidth={2.5} />
-                        {level}
-                    </div>
-                    <div className="flex items-center gap-1.5 text-[11px] font-medium">
-                        <Users className="w-4 h-4 text-white" strokeWidth={2.5} />
-                        {capacity.toLocaleString('id-ID')} Peserta
-                    </div>
-                </div>
-
-                <p className="text-white max-w-2xl mb-8 leading-relaxed">
-                    {description}
-                </p>
-
-                {
-                    !isEnrolled && (
-                        <div className="flex items-center justify-between md:justify-start md:gap-12">
-                            <span className="text-2xl font-bold text-white">Rp{price.toLocaleString('id-ID')}/bulan</span>
-                            <button className="bg-[#D9F066] hover:scale-105 transition-transform px-8 py-3 rounded-full font-bold shadow-md">
-                                Enroll Now
-                            </button>
-                        </div>
-                    )
-                }
-                </div>
-            </section>
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <aside className="lg:col-span-3 space-y-6">
-                <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
-                    <h3 className="font-bold mb-4">Trainers</h3>
-                    <div className="flex items-center gap-4">
-                        <img src={trainerProfilePictureUrl || "/example/human.png"} className="w-12 h-12 rounded-full object-cover" />
-                        <div>
-                            <p className="font-bold text-sm">Ningsih Herawati</p>
-                            <p className="text-xs text-gray-500">Staff Developer at Google</p>
-                        </div>
-                        <hr className="border-t border-gray-200 my-4" />
-                    </div>
-                    
-
-                    <hr className="border-t border-gray-200 my-4" />
-                    <h3 className="font-bold mb-4">Instructors</h3>
-                    <div className="flex items-center gap-4">
-                        <img src={trainerProfilePictureUrl || "/example/human.png"} className="w-12 h-12 rounded-full object-cover" />
-                        <div>
-                            <p className="font-bold text-sm">Ningsih Herawati</p>
-                            <p className="text-xs text-gray-500">Staff Developer at Google</p>
-                        </div>
-                        <hr className="border-t border-gray-200 my-4" />
-                    </div>
-                </div>
-                
-
-                <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
-                <h3 className="font-bold mb-2">Methods</h3>
-                    <ul className="text-sm space-y-1 text-gray-600 list-disc ml-4">
-                        <li>Ceramah</li>
-                        <li>Praktik</li>
-                        <li>Self study</li>
-                    </ul>
-                <hr className="border-t border-gray-200 my-4" />
-                <h3 className="font-bold mb-2">Entry Skill</h3>
-                    <ol className="text-sm space-y-2 text-gray-600 list-decimal ml-4">
-                        <li>Mampu mengoperasikan Google Colab</li>
-                        <li>Mampu mengoperasikan filling system dari Google Colab</li>
-                    </ol>
-                </div>
-
-                <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
-                    <h3 className="font-bold mb-2">Course Aim</h3>
-                    <ul className="text-sm space-y-2 text-gray-600 list-disc ml-4">
-                        <li>3.1.    Peserta dapat mengingat aturan-aturan dasar pada pemrograman</li>
-                        <li>3.1.1. Peserta dapat menjelaskan dengan cara sederhana bagaimana cara programming bekerja</li>
-                        <li>3.2.    Peserta dapat mengoperasikan variabel-variabel menggunakan python</li>
-                        <li>3.2.1. Peserta dapat membedakan jenis-jenis variabel pada python</li>
-                        <li>3.3.    Peserta dapat mengoperasikan flat files untuk menyimpan data mentah maupun data hasil pemrosesan menggunakan python</li>
-                        <li>3.3.1. Peserta memahami perintah-perintah yang dibutuhkan pada pengoperasian file</li>
-                    </ul>
-                </div>
-                </aside>
-
-                <section className="lg:col-span-9 bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
-                <h2 className="text-2xl font-bold mb-8">Courses</h2>
-                
-                <div className="space-y-4">
-                    <CourseExpander
-                        classId={id}
-                        courseId="1"
-                        title="Pengenalan Pemrograman & Google Colab"
-                        description="Memahami konsep dasar pemrograman, cara kerja program (input-process-output), serta pengenalan Google Colab. Memahami konsep dasar pemrograman, cara kerja program (input-process-output), serta pengenalan Google Colab. Memahami konsep dasar pemrograman, cara kerja program (input-process-output), serta pengenalan Google Colab."
-                        isSynchronous={false}
-                        isEnrolled={isEnrolled}
-                    />
-                    
-                    <CourseExpander
-                        classId={id}
-                        courseId="2"
-                        title="Pengenalan Pemrograman & Google Colab"
-                        description="Memahami konsep dasar pemrograman, cara kerja program (input-process-output), serta pengenalan Google Colab. Memahami konsep dasar pemrograman, cara kerja program (input-process-output), serta pengenalan Google Colab. Memahami konsep dasar pemrograman, cara kerja program (input-process-output), serta pengenalan Google Colab."
-                        isSynchronous={true}
-                        isEnrolled={isEnrolled}
+                {/* Breadcrumb */}
+                <div className="mb-6">
+                    <Breadcrumb
+                        items={[
+                            { label: "Home", href: "/" },
+                            { label: "Class", href: "/classes" },
+                            { label: classData.title, href: `/classes/${id}/overview` },
+                        ]}
                     />
                 </div>
+
+                {/* Hero Card */}
+                <section className="relative bg-gradient-to-r from-[#005954] to-[#94B546] rounded-[2rem] overflow-hidden mb-8 flex flex-col md:flex-row items-stretch gap-0">
+                    {/* Image */}
+                    <div className="w-full md:w-[280px] shrink-0">
+                        <img
+                            src={imageUrl}
+                            alt="Course"
+                            className="w-full h-full object-cover"
+                            style={{ minHeight: "220px" }}
+                        />
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-grow p-8 text-white">
+                        <h1 className="text-2xl font-bold mb-3">{classData.title}</h1>
+
+                        {/* Hours & Modules */}
+                        <div className="flex items-center gap-5 text-sm mb-5">
+                            <div className="flex items-center gap-1.5">
+                                <img
+                                    src="/icons/ClockWhite.svg"
+                                    alt="Clock"
+                                    className="w-4 h-4"
+                                />
+                                <span>{classData.hours} hours</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                                <img
+                                    src="/icons/Modules.svg"
+                                    alt="Modules"
+                                    className="w-4 h-4"
+                                />
+                                <span>{classData.modules} modules</span>
+                            </div>
+                        </div>
+
+                        {/* Methods & Schedules */}
+                        <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-sm mb-5">
+                            <div>
+                                <p className="font-semibold text-white/80 mb-0.5">Methods</p>
+                                <p>{classData.methods}</p>
+                            </div>
+                            <div>
+                                <p className="font-semibold text-white/80 mb-0.5">Schedules</p>
+                                <p>{classData.scheduleStart} - {classData.scheduleEnd}</p>
+                            </div>
+                        </div>
+
+                        {/* Description */}
+                        <div className="text-sm leading-relaxed text-white/90">
+                            <p className="font-semibold text-white/80 mb-1">Description</p>
+                            <p>{classData.description}</p>
+                        </div>
+                    </div>
                 </section>
 
+                {/* Main Grid: Left + Right */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                    {/* Left Column */}
+                    <aside className="lg:col-span-4 flex flex-col gap-6">
+                        {/* What You Will Learn */}
+                        <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100">
+                            <h2 className="text-lg font-bold mb-4">What You Will Learn</h2>
+                            <ol className="list-decimal ml-5 text-sm text-gray-700 space-y-2">
+                                {classData.whatYouWillLearn.map((item, i) => (
+                                    <li key={i}>{item}</li>
+                                ))}
+                            </ol>
+                        </div>
+
+                        {/* Timeline */}
+                        <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 flex items-center justify-between">
+                            <h2 className="text-lg font-bold">Timeline</h2>
+                            <NuraButton label="Add Timeline" variant="primary" />
+                        </div>
+                    </aside>
+
+                    {/* Right Column */}
+                    <section className="lg:col-span-8 flex flex-col gap-6">
+                        {/* Placement Test */}
+                        <div className="bg-[#1C3A37] rounded-[2rem] px-6 py-4 flex items-center justify-between">
+                            <h2 className="text-xl font-bold text-white">Placement Test</h2>
+                            <NuraButton label="Create Test" variant="primary" onClick={() => router.push(`/classes/${id}/test/create`)} />
+                        </div>
+
+                        {/* Courses */}
+                        <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 flex flex-col gap-4">
+                            <div className="flex items-center justify-between">
+                                <h2 className="text-xl font-bold">Courses</h2>
+                                <NuraButton label="Add Course" variant="primary" />
+                            </div>
+
+                            <div className="flex flex-col gap-4">
+                                {classData.courses.map((course) => (
+                                    <div
+                                        key={course.id}
+                                        className="border border-gray-200 rounded-[1.5rem] p-5"
+                                    >
+                                        <h3 className="font-bold text-gray-900 mb-1">{course.title}</h3>
+                                        <p className="text-sm text-gray-600">{course.description}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </section>
+
+                </div>
             </div>
-            </main>
+        </main>
     );
 }

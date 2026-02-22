@@ -67,6 +67,7 @@ export default function DiscussionTopicPage({
                 {/* Breadcrumbs */}
                 <Breadcrumb
                     items={[
+                        { label: "Home", href: "/" },
                         { label: "Introduction to Programming", href: "/classes/1/overview" },
                         { label: "Forum Diskusi", href: "/discussions" },
                         { label: discussion_data.title, href: "/discussions/topic" }
