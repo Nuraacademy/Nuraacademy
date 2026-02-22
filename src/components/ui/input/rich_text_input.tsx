@@ -6,6 +6,11 @@ import Underline from '@tiptap/extension-underline';
 
 import { Bold, Italic, UnderlineIcon, Code } from 'lucide-react'
 
+const extensions = [
+    StarterKit,
+    Underline,
+];
+
 // --- Rich Text Section Component ---
 export const RichTextInput = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
     const [isMounted, setIsMounted] = useState(false);
@@ -15,10 +20,7 @@ export const RichTextInput = ({ value, onChange }: { value: string, onChange: (v
     }, []);
 
     const editor = useEditor({
-        extensions: [
-            StarterKit,
-            Underline, 
-        ],
+        extensions,
         content: value,
         immediatelyRender: false,
         onUpdate: ({ editor }) => {
@@ -27,7 +29,7 @@ export const RichTextInput = ({ value, onChange }: { value: string, onChange: (v
     });
 
     // Sync editor content if data is reverted externally
-    useMemo(() => {
+    useEffect(() => {
         if (editor && editor.getHTML() !== value) {
             editor.commands.setContent(value);
         }
@@ -40,29 +42,29 @@ export const RichTextInput = ({ value, onChange }: { value: string, onChange: (v
     return (
         <div className="w-full bg-gray-50 p-3 rounded-xl border border-transparent focus-within:border-gray-200 transition-all">
             <div className="flex flex-wrap gap-1 mb-3 border-b border-gray-200 pb-2">
-                <button 
-                    onClick={() => editor.chain().focus().toggleBold().run()} 
+                <button
+                    onClick={() => editor.chain().focus().toggleBold().run()}
                     className={`p-1.5 rounded transition-colors ${editor.isActive('bold') ? 'bg-black text-white' : 'bg-white text-gray-600 hover:bg-gray-200'}`}
                 >
-                    <Bold size={14}/>
+                    <Bold size={14} />
                 </button>
-                <button 
-                    onClick={() => editor.chain().focus().toggleItalic().run()} 
+                <button
+                    onClick={() => editor.chain().focus().toggleItalic().run()}
                     className={`p-1.5 rounded transition-colors ${editor.isActive('italic') ? 'bg-black text-white' : 'bg-white text-gray-600 hover:bg-gray-200'}`}
                 >
-                    <Italic size={14}/>
+                    <Italic size={14} />
                 </button>
-                <button 
-                    onClick={() => editor.chain().focus().toggleUnderline().run()} 
+                <button
+                    onClick={() => editor.chain().focus().toggleUnderline().run()}
                     className={`p-1.5 rounded transition-colors ${editor.isActive('underline') ? 'bg-black text-white' : 'bg-white text-gray-600 hover:bg-gray-200'}`}
                 >
-                    <UnderlineIcon size={14}/>
-                </button>            
-                <button 
-                    onClick={() => editor.chain().focus().toggleCode().run()} 
+                    <UnderlineIcon size={14} />
+                </button>
+                <button
+                    onClick={() => editor.chain().focus().toggleCode().run()}
                     className={`p-1.5 rounded transition-colors ${editor.isActive('code') ? 'bg-black text-white' : 'bg-white text-gray-600 hover:bg-gray-200'}`}
                 >
-                    <Code size={14}/></button>                     
+                    <Code size={14} /></button>
             </div>
             <EditorContent editor={editor} className="prose prose-sm max-w-none focus:outline-none min-h-[100px] px-1" />
         </div>

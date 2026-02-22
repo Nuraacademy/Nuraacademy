@@ -101,7 +101,7 @@ export default function WelcomingModal({
         <NuraButton
           label="Start Lesson"
           variant="primary"
-          onClick={() => router.push(`/classes/overview/${classId}`)}
+          onClick={() => router.push(`/classes/${classId}/overview`)}
           className="mt-2"
         />
       </div>

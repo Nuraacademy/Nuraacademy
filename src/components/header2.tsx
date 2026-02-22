@@ -19,7 +19,7 @@ export const Header2 = ({
         <header className="px-6 py-4 flex items-center justify-between border-b border-gray-100 bg-white sticky top-0 z-50">
             {/* Left Section: Back Button */}
             <Link
-                href={`/classes/overview/${classId}`}
+                href={`/classes/${classId}/overview`}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
                 aria-label="Back to courses"
             >
@@ -43,7 +43,7 @@ export const Header2 = ({
             {variant === 'discussion' ? (
                 <div className="flex items-center gap-4 md:gap-6 flex-shrink-0">
                     <button
-                        onClick={() => router.push(`/classes/overview/${classId}`)}
+                        onClick={() => router.push(`/classes/${classId}/overview`)}
                         className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-black transition-colors"
                     >
                         <BookOpen size={18} />

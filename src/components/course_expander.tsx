@@ -91,8 +91,8 @@ export default function CourseExpander({
     };
 
     const handleButtonRedirect = () => {
-        const testURL = `/courses/quick-test/${courseId}`
-        const recordingURL = `/courses/recording/${courseId}`
+        const testURL = `/classes/${classId}/test`
+        const recordingURL = `/classes/${classId}/recording`
         const target = isSynchronous ? recordingURL : testURL;
         router.push(target)
     }

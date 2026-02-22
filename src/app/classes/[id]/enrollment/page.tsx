@@ -6,17 +6,16 @@ import { NuraTextInput } from "@/components/ui/input/text_input"
 import Chip from "@/components/ui/chip/chip"
 import CVUpload from "@/components/ui/upload/cv_upload"
 import { NuraButton } from "@/components/ui/button/button"
-import Breadcrumb from "@/components/breadcrumb/breadcrumb"
+import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb"
 import { NuraTextArea } from "@/components/ui/input/text_area"
 import WelcomingModal from "@/components/ui/modal/welcoming_modal"
 
 export default function EnrollmentPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter()
     const [classId, setClassId] = useState<string>("")
-    
-    // Resolve params
+
     useEffect(() => {
-        params.then(p => setClassId(p.id)).catch(() => {})
+        params.then(p => setClassId(p.id)).catch(() => { })
     }, [params])
 
     const [formData, setFormData] = useState({
@@ -87,8 +86,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
                     <Breadcrumb
                         items={[
                             { label: "Home", href: "/" },
-                            { label: className, href: `/classes/overview/${classId}` },
-                            { label: "Enroll Class", href: `/classes/enrollment/${classId}` },
+                            { label: className, href: `/classes/${classId}/overview` },
+                            { label: "Enroll Class", href: `/classes/${classId}/enrollment` },
                         ]}
                     />
                 </div>
