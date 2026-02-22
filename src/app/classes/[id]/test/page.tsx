@@ -61,30 +61,35 @@ const PROJECT_QUESTIONS: ProjectQuestion[] = [
   },
 ]
 
-const PAGE_CONTENT = {
-  bannerTitle: "Placement Test",
-  introTitle: "Hello, Learner!",
+const TEST_DATA = {
+  courseName: "Foundation to Data Analytics",
   introDescription:
     "Selamat datang di tahap awal perjalanan belajarmu. Hasil placement test ini membantu kami menentukan course yang bisa kamu lewati serta menempatkanmu dalam grup belajar sesuai materi yang perlu kamu pelajari. Jangan tegang dan lakukan yang terbaik!",
-  infoTitle: "Detail Informasi Tes",
-  durationLabel: "Duration:",
-  durationValue: "120 minutes",
-  sectionLabel: "Section:",
-  sectionValue: "3 sections",
-  deadlineLabel: "Deadline:",
+  durationMinutes: 120,
+  sectionsCount: (OBJECTIVE_QUESTIONS.length > 0 ? 1 : 0) + (ESSAY_QUESTIONS.length > 0 ? 1 : 0) + (PROJECT_QUESTIONS.length > 0 ? 1 : 0),
   deadlineValue: "7 Maret 2026",
   testDescription:
     "Tes ini mengukur pemahaman dasar pemrograman untuk data analytics, termasuk konsep dasar cara kerja programming, penggunaan variabel dengan python, pengolahan data melalui file, penerapan selection dan looping statement, pembuatan fungsi (function), serta pengolahan array dan dataframe.",
-  instructionTitle: "Instruksi",
   instructions: [
     "Pastikan koneksi internet stabil selama pengerjaan.",
     "Tes hanya dapat dilakukan satu kali, pastikan kamu memiliki waktu luang yang cukup.",
     "Dilarang menggunakan alat bantu AI atau mencari jawaban di luar platform selama tes berlangsung.",
     "Hasil penempatan grup akan diumumkan sehari setelah batas akhir pengisian tes.",
   ],
+}
+
+const PAGE_TEXT = {
+  bannerTitle: "Placement Test",
+  introTitle: "Hello, Learner!",
+  infoTitle: "Detail Informasi Tes",
+  durationLabel: "Duration:",
+  durationValue: "minutes",
+  sectionLabel: "Section:",
+  sectionValue: "sections",
+  deadlineLabel: "Deadline:",
+  instructionTitle: "Instruksi",
   buttonCancel: "Cancel",
   buttonStart: "Start",
-  durationMinutes: 120,
   sidebarTimeLeft: "Time Left",
   sidebarObjective: "Objective Answer",
   buttonSubmit: "Submit Test",
@@ -103,14 +108,13 @@ const PAGE_CONTENT = {
   testPrevButton: "Previous questions",
   testNextButton: "Next questions",
   breadcrumbHome: "Home",
-  breadcrumbCourse: "Foundation to Data Analytics",
   breadcrumbTest: "Placement Test",
 }
 
 export default function PlacementTestPage({ params }: { params: Promise<{ id: string }> }) {
   const [hasStarted, setHasStarted] = useState(false)
   const [isFinished, setIsFinished] = useState(false)
-  const [timeLeft, setTimeLeft] = useState(PAGE_CONTENT.durationMinutes * 60)
+  const [timeLeft, setTimeLeft] = useState(TEST_DATA.durationMinutes * 60)
   const [currentType, setCurrentType] = useState<QuestionType>("objective")
   const [objectiveIndex, setObjectiveIndex] = useState(0)
   const [essayIndex, setEssayIndex] = useState(0)
@@ -200,51 +204,51 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
 
   const renderBanner = () => (
     <div className="w-full bg-[#075546] text-white py-4 px-8 rounded-[1.5rem] shadow-sm">
-      <h1 className="text-lg font-semibold">{PAGE_CONTENT.bannerTitle}</h1>
+      <h1 className="text-lg font-semibold">{PAGE_TEXT.bannerTitle}</h1>
     </div>
   )
 
   const renderIntroCard = () => (
     <section className="mt-6 flex justify-center px-4">
       <div className="w-full max-w-5xl bg-white rounded-[2.5rem] shadow-sm border border-gray-200 px-10 py-10">
-        <h2 className="text-base font-semibold mb-4">{PAGE_CONTENT.introTitle}</h2>
+        <h2 className="text-base font-semibold mb-4">{PAGE_TEXT.introTitle}</h2>
         <p className="text-sm text-gray-700 leading-relaxed mb-8">
-          {PAGE_CONTENT.introDescription}
+          {TEST_DATA.introDescription}
         </p>
 
         <hr className="border-gray-200 my-6" />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs md:text-sm text-gray-700 mb-6">
           <div>
-            <p className="font-semibold mb-2">{PAGE_CONTENT.infoTitle}</p>
+            <p className="font-semibold mb-2">{PAGE_TEXT.infoTitle}</p>
             <p>
-              {PAGE_CONTENT.durationLabel} <span className="font-semibold">{PAGE_CONTENT.durationValue}</span>
+              {PAGE_TEXT.durationLabel} {TEST_DATA.durationMinutes} <span className="font-semibold">{PAGE_TEXT.durationValue}</span>
             </p>
           </div>
           <div>
             <p className="font-semibold mb-2">&nbsp;</p>
             <p>
-              {PAGE_CONTENT.sectionLabel} <span className="font-semibold">{PAGE_CONTENT.sectionValue}</span>
+              {PAGE_TEXT.sectionLabel} {TEST_DATA.sectionsCount} <span className="font-semibold">{PAGE_TEXT.sectionValue}</span>
             </p>
           </div>
           <div>
             <p className="font-semibold mb-2">&nbsp;</p>
             <p>
-              {PAGE_CONTENT.deadlineLabel} <span className="font-semibold">{PAGE_CONTENT.deadlineValue}</span>
+              {PAGE_TEXT.deadlineLabel} <span className="font-semibold">{TEST_DATA.deadlineValue}</span>
             </p>
           </div>
         </div>
 
         <p className="text-sm text-gray-700 leading-relaxed mb-6">
-          {PAGE_CONTENT.testDescription}
+          {TEST_DATA.testDescription}
         </p>
 
         <hr className="border-gray-200 my-6" />
 
         <div className="mb-6">
-          <p className="font-semibold text-sm mb-3">{PAGE_CONTENT.instructionTitle}</p>
+          <p className="font-semibold text-sm mb-3">{PAGE_TEXT.instructionTitle}</p>
           <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700">
-            {PAGE_CONTENT.instructions.map((inst, index) => (
+            {TEST_DATA.instructions.map((inst, index) => (
               <li key={index}>{inst}</li>
             ))}
           </ol>
@@ -252,13 +256,13 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
 
         <div className="mt-8 flex justify-center gap-4">
           <NuraButton
-            label={PAGE_CONTENT.buttonCancel}
+            label={PAGE_TEXT.buttonCancel}
             variant="secondary"
             type="button"
             className="max-w-[140px]"
           />
           <NuraButton
-            label={PAGE_CONTENT.buttonStart}
+            label={PAGE_TEXT.buttonStart}
             variant="primary"
             type="button"
             className="max-w-[140px]"
@@ -272,7 +276,7 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
   const renderSidebar = () => (
     <aside className="w-full md:w-64 mb-6 md:mb-0 md:mr-8">
       <div className="mb-6">
-        <p className="text-xs font-semibold text-gray-700 mb-2">{PAGE_CONTENT.sidebarTimeLeft}</p>
+        <p className="text-xs font-semibold text-gray-700 mb-2">{PAGE_TEXT.sidebarTimeLeft}</p>
         <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs ${timeLeft < 300 ? "bg-red-100 text-red-700" : "bg-emerald-50 text-emerald-700"}`}>
           <Clock size={14} className={timeLeft < 300 ? "text-red-600" : "text-emerald-600"} />
           <span className="font-medium tracking-wide">{formatTime(timeLeft)}</span>
@@ -280,7 +284,7 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
       </div>
 
       <div className="mb-4">
-        <p className="text-xs font-semibold text-gray-700 mb-2">{PAGE_CONTENT.sidebarObjective}</p>
+        <p className="text-xs font-semibold text-gray-700 mb-2">{PAGE_TEXT.sidebarObjective}</p>
         <div className="grid grid-cols-5 gap-2">
           {OBJECTIVE_QUESTIONS.map((q, index) => {
             const isActive = currentType === "objective" && objectiveIndex === index;
@@ -309,7 +313,7 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
       </div>
 
       <div className="mb-4">
-        <p className="text-xs font-semibold text-gray-700 mb-2">{PAGE_CONTENT.sidebarEssay}</p>
+        <p className="text-xs font-semibold text-gray-700 mb-2">{PAGE_TEXT.sidebarEssay}</p>
         <div className="flex flex-wrap gap-2">
           {ESSAY_QUESTIONS.map((q, index) => {
             const isActive = currentType === "essay" && essayIndex === index;
@@ -338,7 +342,7 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
       </div>
 
       <div>
-        <p className="text-xs font-semibold text-gray-700 mb-2">{PAGE_CONTENT.sidebarProject}</p>
+        <p className="text-xs font-semibold text-gray-700 mb-2">{PAGE_TEXT.sidebarProject}</p>
         <div className="flex flex-wrap gap-2">
           {PROJECT_QUESTIONS.map((q, index) => {
             const isActive = currentType === "project" && projectIndex === index;
@@ -370,11 +374,11 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
   const renderObjectiveContent = () => (
     <section className="flex-1">
       <div className="flex justify-between items-center text-xs text-gray-600 mb-6">
-        <span className="font-semibold">{PAGE_CONTENT.contentObjective}</span>
+        <span className="font-semibold">{PAGE_TEXT.contentObjective}</span>
         <span>
-          {PAGE_CONTENT.contentQuestions} {objectiveIndex + 1} {PAGE_CONTENT.contentOf} {OBJECTIVE_QUESTIONS.length}
+          {PAGE_TEXT.contentQuestions} {objectiveIndex + 1} {PAGE_TEXT.contentOf} {OBJECTIVE_QUESTIONS.length}
         </span>
-        <span className="font-semibold">{currentObjective.points} {PAGE_CONTENT.contentPoints}</span>
+        <span className="font-semibold">{currentObjective.points} {PAGE_TEXT.contentPoints}</span>
       </div>
 
       <p className="text-sm text-gray-900 mb-6 leading-relaxed">{currentObjective.question}</p>
@@ -403,16 +407,16 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
   const renderEssayContent = () => (
     <section className="flex-1">
       <div className="flex justify-between items-center text-xs text-gray-600 mb-6">
-        <span className="font-semibold">{PAGE_CONTENT.contentEssay}</span>
+        <span className="font-semibold">{PAGE_TEXT.contentEssay}</span>
         <span>
-          {PAGE_CONTENT.contentQuestions} {essayIndex + 1} {PAGE_CONTENT.contentOf} {ESSAY_QUESTIONS.length}
+          {PAGE_TEXT.contentQuestions} {essayIndex + 1} {PAGE_TEXT.contentOf} {ESSAY_QUESTIONS.length}
         </span>
-        <span className="font-semibold">{currentEssay.points} {PAGE_CONTENT.contentPoints}</span>
+        <span className="font-semibold">{currentEssay.points} {PAGE_TEXT.contentPoints}</span>
       </div>
 
       <p className="text-sm text-gray-900 mb-4 leading-relaxed">{currentEssay.question}</p>
 
-      <p className="text-xs font-semibold text-gray-700 mb-2">{PAGE_CONTENT.contentAnswer}</p>
+      <p className="text-xs font-semibold text-gray-700 mb-2">{PAGE_TEXT.contentAnswer}</p>
 
       <RichTextInput
         value={essayAnswers[currentEssay.id] ?? ""}
@@ -429,11 +433,11 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
   const renderProjectContent = () => (
     <section className="flex-1">
       <div className="flex justify-between items-center text-xs text-gray-600 mb-6">
-        <span className="font-semibold">{PAGE_CONTENT.contentProject}</span>
+        <span className="font-semibold">{PAGE_TEXT.contentProject}</span>
         <span>
-          {PAGE_CONTENT.contentQuestions} {projectIndex + 1} {PAGE_CONTENT.contentOf} {PROJECT_QUESTIONS.length}
+          {PAGE_TEXT.contentQuestions} {projectIndex + 1} {PAGE_TEXT.contentOf} {PROJECT_QUESTIONS.length}
         </span>
-        <span className="font-semibold">{currentProject.points} {PAGE_CONTENT.contentPoints}</span>
+        <span className="font-semibold">{currentProject.points} {PAGE_TEXT.contentPoints}</span>
       </div>
 
       <p className="text-sm font-semibold text-gray-900 mb-4 leading-relaxed">
@@ -458,7 +462,7 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
         ))}
       </ul>
 
-      <p className="text-xs font-semibold text-gray-700 mb-2">{PAGE_CONTENT.contentAnswer}</p>
+      <p className="text-xs font-semibold text-gray-700 mb-2">{PAGE_TEXT.contentAnswer}</p>
 
       <FileUpload
         onFileSelect={(file) =>
@@ -495,12 +499,12 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
             <span className="w-7 h-7 rounded-full border border-gray-800 flex items-center justify-center">
               <ChevronLeft size={16} />
             </span>
-            {PAGE_CONTENT.testPrevButton}
+            {PAGE_TEXT.testPrevButton}
           </button>
 
           {currentType === "project" && projectIndex === PROJECT_QUESTIONS.length - 1 ? (
             <NuraButton
-              label={PAGE_CONTENT.buttonSubmit}
+              label={PAGE_TEXT.buttonSubmit}
               variant="primary"
               type="button"
               className="max-w-[140px]"
@@ -512,7 +516,7 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
               onClick={handleNext}
               className="inline-flex items-center gap-2 text-sm text-gray-800 hover:underline"
             >
-              {PAGE_CONTENT.testNextButton}
+              {PAGE_TEXT.testNextButton}
               <span className="w-7 h-7 rounded-full border border-gray-800 flex items-center justify-center">
                 <ChevronRight size={16} />
               </span>
@@ -526,12 +530,12 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
   const renderFinishedCard = () => (
     <section className="mt-6 flex justify-center px-4 pb-20">
       <div className="w-full max-w-3xl bg-white rounded-[2.5rem] shadow-sm border border-gray-200 px-10 py-16 text-center">
-        <h2 className="text-3xl font-semibold mb-4 text-[#075546]">{PAGE_CONTENT.finishedTitle}</h2>
+        <h2 className="text-3xl font-semibold mb-4 text-[#075546]">{PAGE_TEXT.finishedTitle}</h2>
         <p className="text-sm text-gray-700 leading-relaxed mb-8 max-w-lg mx-auto">
-          {PAGE_CONTENT.finishedDescription}
+          {PAGE_TEXT.finishedDescription}
         </p>
         <NuraButton
-          label={PAGE_CONTENT.buttonBackToCourse}
+          label={PAGE_TEXT.buttonBackToCourse}
           variant="primary"
           type="button"
           className="mx-auto max-w-[240px]"
@@ -548,9 +552,9 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
       <div className="px-6 pt-6">
         <Breadcrumb
           items={[
-            { label: PAGE_CONTENT.breadcrumbHome, href: "/" },
-            { label: PAGE_CONTENT.breadcrumbCourse, href: `/classes/${classId}/overview` },
-            { label: PAGE_CONTENT.breadcrumbTest, href: `/classes/${classId}/test` },
+            { label: PAGE_TEXT.breadcrumbHome, href: "/" },
+            { label: TEST_DATA.courseName, href: `/classes/${classId}/overview` },
+            { label: PAGE_TEXT.breadcrumbTest, href: `/classes/${classId}/test` },
           ]}
         />
       </div>
