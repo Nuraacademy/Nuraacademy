@@ -1,15 +1,21 @@
+"use client"
+
 import CourseExpander from "@/components/course_expander";
 
 import { Clock, BarChart, Users, ChevronRight } from 'lucide-react';
+import { useEffect, useState } from "react";
 
 
-export default async function CourseDetailPage({ 
+export default function CourseDetailPage({ 
     params 
 }: { 
     params: Promise<{ id: string }> 
 }) {
     // Await the params to get the ID
-    const { id } = await params;
+    const [id, setId] = useState("");
+    useEffect(() => {
+        params.then(p => setId(p.id)).catch(() => { })
+    }, [params])
 
     const imageUrl="https://www.lackawanna.edu/wp-content/uploads/2024/08/male-tutor-teaching-university-students-in-classro-2023-11-27-05-16-59-utc.webp"
     const title="Introduction to Programming"

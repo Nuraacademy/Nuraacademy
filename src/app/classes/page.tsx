@@ -17,12 +17,12 @@ export default function ClassesPage() {
 
             {/* Background Image */}
             <img
-                src="background/PolygonBGTop.svg"
+                src="/background/PolygonBGTop.svg"
                 alt="Background"
                 className="absolute -z-10 h-[40rem] object-cover top-0 left-0"
             />
             <img
-                src="background/PolygonBGBot.svg"
+                src="/background/PolygonBGBot.svg"
                 alt="Background"
                 className="absolute -z-10 h-[40rem] object-cover bottom-0 right-0"
             />
