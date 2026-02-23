@@ -14,10 +14,11 @@ interface ClassCardProp {
     description: string,
     duration: number,
     modules: number
+    onClick: () => void
 }
 
 export default function ClassCard({
-    id, imageUrl, title, method, scheduleStart, scheduleEnd, description, duration, modules
+    id, imageUrl, title, method, scheduleStart, scheduleEnd, description, duration, modules, onClick
 }: ClassCardProp) {
     const router = useRouter()
 
@@ -25,7 +26,10 @@ export default function ClassCard({
         `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
 
     return (
-        <div className="flex flex-col bg-white rounded-[20px] p-5 shadow-sm border border-gray-100 w-full max-w-[400px]">
+        <div
+            className="flex flex-col bg-white rounded-[20px] p-5 shadow-sm border border-gray-100 w-full max-w-[400px] hover:shadow-lg transition-all duration-200 cursor-pointer"
+            onClick={onClick}
+        >
             {/* Image */}
             <div className="mb-4">
                 <img
@@ -77,8 +81,10 @@ export default function ClassCard({
                 <NuraButton
                     label="Enroll Now"
                     variant="navigate"
-                    onClick={() => router.push(`/classes/${id}/enrollment`)}
-                // onClick={() => router.push(`/classes/${id}/overview`)}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/classes/${id}/enrollment`);
+                    }}
                 />
             </div>
         </div>

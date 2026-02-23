@@ -16,6 +16,8 @@ export default function CourseOverviewPage({
         params.then(p => setId(p.id)).catch(() => { });
     }, [params]);
 
+    const [adminPage, setAdminPage] = useState(false);
+
     const imageUrl = "https://www.lackawanna.edu/wp-content/uploads/2024/08/male-tutor-teaching-university-students-in-classro-2023-11-27-05-16-59-utc.webp";
 
     const classData = {
@@ -25,6 +27,8 @@ export default function CourseOverviewPage({
         methods: "Flipped blended classroom",
         scheduleStart: "22/2/2026",
         scheduleEnd: "31/5/2026",
+        isEnrolled: true,
+        isTestFinished: false,
         description:
             "Kelas Introduction to Programming dirancang untuk pemula yang ingin memahami dasar-dasar pemrograman menggunakan Python. Peserta akan mempelajari konsep fundamental seperti variabel, tipe data, selection statement, looping, function, serta pengolahan file dan data sederhana. Kelas ini menekankan pada pemahaman logika berpikir komputasional dan praktik langsung agar peserta mampu membangun program sederhana secara terstruktur dan sistematis.",
         whatYouWillLearn: [
@@ -39,9 +43,42 @@ export default function CourseOverviewPage({
             "Best practices dalam menulis kode yang rapi dan reusable",
             "Dasar logika pemrograman untuk analisis data",
         ],
+        timeline: [
+            { id: 1, title: "Enrollment", date: "22/02/2026" },
+            { id: 2, title: "Placement Test", date: "02/03/2026" },
+            { id: 3, title: "Course Mapping", date: "08/03/2026" },
+            { id: 4, title: "Grouping", date: "15/03/2026" },
+            { id: 5, title: "Learning", date: "22/03/2026" },
+            { id: 6, title: "Final Project", date: "24/05/2026" },
+        ],
         courses: [
             {
                 id: "1",
+                title: "Final Project",
+                description: "Proyek akhir yang menguji pemahaman peserta terhadap keseluruhan course yang telah diikuti",
+            },
+            {
+                id: "2",
+                title: "Final Project",
+                description: "Proyek akhir yang menguji pemahaman peserta terhadap keseluruhan course yang telah diikuti",
+            },
+            {
+                id: "3",
+                title: "Final Project",
+                description: "Proyek akhir yang menguji pemahaman peserta terhadap keseluruhan course yang telah diikuti",
+            },
+            {
+                id: "4",
+                title: "Final Project",
+                description: "Proyek akhir yang menguji pemahaman peserta terhadap keseluruhan course yang telah diikuti",
+            },
+            {
+                id: "5",
+                title: "Final Project",
+                description: "Proyek akhir yang menguji pemahaman peserta terhadap keseluruhan course yang telah diikuti",
+            },
+            {
+                id: "6",
                 title: "Final Project",
                 description: "Proyek akhir yang menguji pemahaman peserta terhadap keseluruhan course yang telah diikuti",
             },
@@ -116,12 +153,23 @@ export default function CourseOverviewPage({
                             <p className="font-semibold text-white/80 mb-1">Description</p>
                             <p>{classData.description}</p>
                         </div>
+
+                        {/* Enroll Button */}
+                        {!classData.isEnrolled ? (
+                            <div className="mt-5">
+                                <NuraButton
+                                    label="Enroll Now"
+                                    variant="primary"
+                                    onClick={() => router.push(`/classes/${id}/enrollment`)}
+                                    className="h-6 text-sm"
+                                />
+                            </div>
+                        ) : <></>}
                     </div>
                 </section>
 
                 {/* Main Grid: Left + Right */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
                     {/* Left Column */}
                     <aside className="lg:col-span-4 flex flex-col gap-6">
                         {/* What You Will Learn */}
@@ -134,35 +182,83 @@ export default function CourseOverviewPage({
                             </ol>
                         </div>
 
-                        {/* Timeline */}
-                        <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 flex items-center justify-between">
-                            <h2 className="text-lg font-bold">Timeline</h2>
-                            <NuraButton label="Add Timeline" variant="primary" />
+                        {/* Timeline Card */}
+                        <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100">
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-lg font-bold">Timeline</h2>
+                                {adminPage ? (
+                                    <NuraButton label="Add Timeline" variant="primary" className="h-6 text-sm"/>
+                                ) : <></>}
+                            </div>
+
+                            {/* Timeline Items */}
+                            <div className="relative pl-0">
+                                {classData.timeline.map((item, index) => (
+                                    <div key={item.id} className="relative flex items-center mb-6 last:mb-0">
+                                        {/* Date */}
+                                        <div className="w-24 text-xs text-gray-800 font-medium">
+                                            {item.date}
+                                        </div>
+
+                                        {/* Indicator (Dot & Line) */}
+                                        <div className="relative flex flex-col items-center mx-4">
+                                            {/* Dot */}
+                                            <div className="w-2.5 h-2.5 rounded-full bg-[#D1D1D1] z-10 shrink-0"></div>
+
+                                            {/* Line (except for last item) */}
+                                            {index !== classData.timeline.length - 1 && (
+                                                <div className="absolute top-2.5 w-[1px] h-9 bg-[#E5E5E5]"></div>
+                                            )}
+                                        </div>
+
+                                        {/* Label */}
+                                        <div className="text-sm text-gray-800 font-medium">
+                                            {item.title}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </aside>
 
                     {/* Right Column */}
                     <section className="lg:col-span-8 flex flex-col gap-6">
                         {/* Placement Test */}
-                        <div className="bg-[#1C3A37] rounded-[2rem] px-6 py-4 flex items-center justify-between">
-                            <h2 className="text-xl font-bold text-white">Placement Test</h2>
-                            <NuraButton label="Create Test" variant="primary" onClick={() => router.push(`/classes/${id}/test/create`)} />
-                        </div>
+                        {classData.isEnrolled ? (
+                            <div className="bg-[#1C3A37] rounded-[2rem] px-6 py-4 flex items-center justify-between">
+                                <div>
+                                    <h2 className="text-lg text-white">Placement Test</h2>
+                                    <p className="text-xs text-white">You must take the test first before starting this class. The test results are used to determine your group.</p>
+                                </div>
+                                {
+                                    adminPage ? (
+                                        <NuraButton label="Create Test" variant="primary" onClick={() => router.push(`/classes/${id}/test/create`)} />
+                                    ) : 
+                                    classData.isTestFinished ? (
+                                        <NuraButton label="See Result" variant="primary" onClick={() => router.push(`/classes/${id}/test/result`)} />
+                                    ) :     (
+                                        <NuraButton label="Start Test" variant="primary" onClick={() => router.push(`/classes/${id}/test`)} />
+                                    )
+                                }
+                            </div>
+                        ) : <></>}
 
                         {/* Courses */}
                         <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 flex flex-col gap-4">
                             <div className="flex items-center justify-between">
                                 <h2 className="text-xl font-bold">Courses</h2>
-                                <NuraButton label="Add Course" variant="primary" />
+                                {adminPage ? (
+                                    <NuraButton label="Add Course" variant="primary" />
+                                ) : <></>}
                             </div>
 
                             <div className="flex flex-col gap-4">
                                 {classData.courses.map((course) => (
                                     <div
                                         key={course.id}
-                                        className="border border-gray-200 rounded-[1.5rem] p-5"
+                                        className="border border-gray-200 rounded-[1.5rem] p-5 hover:border-gray-400 hover:shadow-sm transition-all duration-200 cursor-pointer"
                                     >
-                                        <h3 className="font-bold text-gray-900 mb-1">{course.title}</h3>
+                                        <h3 className="text-black text-medium mb-1">{course.title}</h3>
                                         <p className="text-sm text-gray-600">{course.description}</p>
                                     </div>
                                 ))}

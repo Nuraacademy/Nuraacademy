@@ -3,7 +3,7 @@ import { ChevronRight } from "lucide-react";
 interface NuraButtonProp {
   label: string;
   variant?: 'primary' | 'secondary' | 'navigate' | 'medium' | 'mini';
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   className?: string;
   type?: 'button' | 'submit' | 'reset';
 }
