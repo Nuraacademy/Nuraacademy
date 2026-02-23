@@ -5,7 +5,7 @@ import { Clock, ChevronLeft, ChevronRight } from "lucide-react"
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb"
 import { NuraButton } from "@/components/ui/button/button"
 import { RichTextInput } from "@/components/ui/input/rich_text_input"
-import FileUpload from "@/components/ui/upload/file_upload"
+import FileUploadModal from "@/components/ui/modal/file_upload_modal"
 
 import { ProjectQuestion, QuestionType } from "./types"
 import { OBJECTIVE_QUESTIONS, ESSAY_QUESTIONS, PROJECT_QUESTIONS, TEST_DATA, PAGE_TEXT } from "./constants"
@@ -24,7 +24,11 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
   const [projectIndex, setProjectIndex] = useState(0)
   const [objectiveAnswers, setObjectiveAnswers] = useState<Record<number, string>>({})
   const [essayAnswers, setEssayAnswers] = useState<Record<number, string>>({})
+  const [essayFiles, setEssayFiles] = useState<Record<number, File | null>>({})
+  const [projectAnswers, setProjectAnswers] = useState<Record<number, string>>({})
   const [projectFiles, setProjectFiles] = useState<Record<number, File | null>>({})
+  const [isEssayUploadModalOpen, setIsEssayUploadModalOpen] = useState(false)
+  const [isProjectUploadModalOpen, setIsProjectUploadModalOpen] = useState(false)
 
   const currentObjective = OBJECTIVE_QUESTIONS[objectiveIndex]
   const currentEssay = ESSAY_QUESTIONS[essayIndex]
@@ -66,7 +70,11 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
   const getUnansweredCount = () => {
     let count = 0
     count += OBJECTIVE_QUESTIONS.length - Object.keys(objectiveAnswers).length
-    count += ESSAY_QUESTIONS.length - Object.values(essayAnswers).filter(val => val.replace(/<[^>]+>/g, '').trim().length > 0).length
+    count += ESSAY_QUESTIONS.length - ESSAY_QUESTIONS.filter(q => {
+      const hasText = (essayAnswers[q.id] || "").replace(/<[^>]+>/g, '').trim().length > 0
+      const hasFile = !!essayFiles[q.id]
+      return hasText || hasFile
+    }).length
     count += PROJECT_QUESTIONS.length - Object.keys(projectFiles).filter(key => projectFiles[Number(key)] !== null).length
     return count
   }
@@ -89,25 +97,33 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
         setEssayIndex(0)
       }
     } else if (currentType === "essay") {
+      setIsEssayUploadModalOpen(false)
       if (essayIndex < ESSAY_QUESTIONS.length - 1) {
         setEssayIndex(essayIndex + 1)
       } else {
         setCurrentType("project")
         setProjectIndex(0)
+        setIsProjectUploadModalOpen(false)
       }
     }
   }
 
   const handlePrev = () => {
-    if (currentType === "project" && projectIndex === 0) {
-      setCurrentType("essay")
-      setEssayIndex(ESSAY_QUESTIONS.length - 1)
-      return
+    if (currentType === "project") {
+      setIsProjectUploadModalOpen(false)
+      if (projectIndex === 0) {
+        setCurrentType("essay")
+        setEssayIndex(ESSAY_QUESTIONS.length - 1)
+        return
+      }
     }
-    if (currentType === "essay" && essayIndex === 0) {
-      setCurrentType("objective")
-      setObjectiveIndex(OBJECTIVE_QUESTIONS.length - 1)
-      return
+    if (currentType === "essay") {
+      setIsEssayUploadModalOpen(false)
+      if (essayIndex === 0) {
+        setCurrentType("objective")
+        setObjectiveIndex(OBJECTIVE_QUESTIONS.length - 1)
+        return
+      }
     }
 
     if (currentType === "objective") {
@@ -166,11 +182,13 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
 
       <div className="mb-4">
         <p className="text-xs font-semibold text-gray-700 mb-2">{PAGE_TEXT.sidebarEssay}</p>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-5 gap-2">
           {ESSAY_QUESTIONS.map((q, index) => {
             const isActive = currentType === "essay" && essayIndex === index;
             const val = essayAnswers[q.id] || "";
-            const isAnswered = val.replace(/<[^>]+>/g, '').trim().length > 0;
+            const hasText = val.replace(/<[^>]+>/g, '').trim().length > 0;
+            const hasFile = !!essayFiles[q.id];
+            const isAnswered = hasText || hasFile;
             return (
               <button
                 key={q.id}
@@ -256,79 +274,113 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
     </section>
   )
 
-  const renderEssayContent = () => (
-    <section className="flex-1">
-      <div className="flex justify-between items-center text-xs text-gray-600 mb-6">
-        <span className="font-semibold">{PAGE_TEXT.contentEssay}</span>
-        <span>
-          {PAGE_TEXT.contentQuestions} {essayIndex + 1} {PAGE_TEXT.contentOf} {ESSAY_QUESTIONS.length}
-        </span>
-        <span className="font-semibold">{currentEssay.points} {PAGE_TEXT.contentPoints}</span>
-      </div>
+  const renderEssayContent = () => {
+    const attachedFile = essayFiles[currentEssay.id]
+    return (
+      <section className="flex-1">
+        <div className="flex justify-between items-center text-xs text-gray-600 mb-6">
+          <span className="font-semibold">{PAGE_TEXT.contentEssay}</span>
+          <span>
+            {PAGE_TEXT.contentQuestions} {essayIndex + 1} {PAGE_TEXT.contentOf} {ESSAY_QUESTIONS.length}
+          </span>
+          <span className="font-semibold">{currentEssay.points} {PAGE_TEXT.contentPoints}</span>
+        </div>
 
-      <p className="text-sm text-gray-900 mb-4 leading-relaxed">{currentEssay.question}</p>
+        <p className="text-sm text-gray-900 mb-4 leading-relaxed">{currentEssay.question}</p>
 
-      <p className="text-xs font-semibold text-gray-700 mb-2">{PAGE_TEXT.contentAnswer}</p>
+        <p className="text-xs font-semibold text-gray-700 mb-2">{PAGE_TEXT.contentAnswer}</p>
 
-      <RichTextInput
-        value={essayAnswers[currentEssay.id] ?? ""}
-        onChange={(val) =>
-          setEssayAnswers((prev) => ({
-            ...prev,
-            [currentEssay.id]: val,
-          }))
-        }
-      />
-    </section>
-  )
+        <RichTextInput
+          value={essayAnswers[currentEssay.id] ?? ""}
+          onChange={(val) =>
+            setEssayAnswers((prev) => ({
+              ...prev,
+              [currentEssay.id]: val,
+            }))
+          }
+        />
 
-  const renderProjectContent = () => (
-    <section className="flex-1">
-      <div className="flex justify-between items-center text-xs text-gray-600 mb-6">
-        <span className="font-semibold">{PAGE_TEXT.contentProject}</span>
-        <span>
-          {PAGE_TEXT.contentQuestions} {projectIndex + 1} {PAGE_TEXT.contentOf} {PROJECT_QUESTIONS.length}
-        </span>
-        <span className="font-semibold">{currentProject.points} {PAGE_TEXT.contentPoints}</span>
-      </div>
+        <div className="mt-4">
+          <NuraButton
+            label="Attach File"
+            variant="primary"
+            type="button"
+            className="min-w-[160px]"
+            onClick={() => setIsEssayUploadModalOpen(true)}
+          />
+          {attachedFile && (
+            <p className="text-xs text-gray-600 mt-2">
+              Attached: {attachedFile.name}
+            </p>
+          )}
+        </div>
+      </section>
+    )
+  }
 
-      <p className="text-sm font-semibold text-gray-900 mb-4 leading-relaxed">
-        {currentProject.question}
-      </p>
+  const renderProjectContent = () => {
+    const attachedFile = projectFiles[currentProject.id]
+    return (
+      <section className="flex-1">
+        <div className="flex justify-between items-center text-xs text-gray-600 mb-6">
+          <span className="font-semibold">{PAGE_TEXT.contentProject}</span>
+          <span>
+            {PAGE_TEXT.contentQuestions} {projectIndex + 1} {PAGE_TEXT.contentOf} {PROJECT_QUESTIONS.length}
+          </span>
+          <span className="font-semibold">{currentProject.points} {PAGE_TEXT.contentPoints}</span>
+        </div>
 
-      <ul className="list-none space-y-2 mb-6">
-        {currentProject.requirements.map((req, index) => (
-          <li key={index} className="text-sm text-gray-900 leading-relaxed">
-            <span className="font-semibold">{String.fromCharCode(97 + index)}.</span>{" "}
-            {req.split("\n").map((line, lineIndex) => (
-              <span key={lineIndex}>
-                {lineIndex > 0 && <br />}
-                {line.trim().startsWith("•") ? (
-                  <span className="ml-4">{line}</span>
-                ) : (
-                  line
-                )}
-              </span>
-            ))}
-          </li>
-        ))}
-      </ul>
+        <p className="text-sm font-semibold text-gray-900 mb-4 leading-relaxed">
+          {currentProject.question}
+        </p>
 
-      <p className="text-xs font-semibold text-gray-700 mb-2">{PAGE_TEXT.contentAnswer}</p>
+        <ul className="list-none space-y-2 mb-6">
+          {currentProject.requirements.map((req, index) => (
+            <li key={index} className="text-sm text-gray-900 leading-relaxed">
+              <span className="font-semibold">{String.fromCharCode(97 + index)}.</span>{" "}
+              {req.split("\n").map((line, lineIndex) => (
+                <span key={lineIndex}>
+                  {lineIndex > 0 && <br />}
+                  {line.trim().startsWith("•") ? (
+                    <span className="ml-4">{line}</span>
+                  ) : (
+                    line
+                  )}
+                </span>
+              ))}
+            </li>
+          ))}
+        </ul>
 
-      <FileUpload
-        onFileSelect={(file) =>
-          setProjectFiles((prev) => ({
-            ...prev,
-            [currentProject.id]: file,
-          }))
-        }
-        maxSizeMB={5}
-        accept=".py"
-        supportedFileType=".py"
-      />
-    </section>
-  )
+        <p className="text-xs font-semibold text-gray-700 mb-2">{PAGE_TEXT.contentAnswer}</p>
+
+        <RichTextInput
+          value={projectAnswers[currentProject.id] ?? ""}
+          onChange={(val) =>
+            setProjectAnswers((prev) => ({
+              ...prev,
+              [currentProject.id]: val,
+            }))
+          }
+        />
+
+        <div className="mt-4">
+          <NuraButton
+            label="Attach File"
+            variant="primary"
+            type="button"
+            className="min-w-[160px]"
+            onClick={() => setIsProjectUploadModalOpen(true)}
+          />
+          {attachedFile && (
+            <p className="text-xs text-gray-600 mt-2">
+              Attached: {attachedFile.name}
+            </p>
+          )}
+        </div>
+      </section>
+    )
+  }
 
   const renderTestCard = () => (
     <section className="mt-6 flex justify-center px-4">
@@ -407,6 +459,36 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
         }
         confirmText="Submit Test"
         cancelText="Cancel"
+      />
+
+      <FileUploadModal
+        isOpen={isEssayUploadModalOpen}
+        onClose={() => setIsEssayUploadModalOpen(false)}
+        onUploadSuccess={(file) =>
+          setEssayFiles((prev) => ({
+            ...prev,
+            [currentEssay.id]: file,
+          }))
+        }
+        accept=".pdf"
+        maxSizeMB={5}
+        supportedFileType=".pdf"
+        title="Attach File"
+      />
+
+      <FileUploadModal
+        isOpen={isProjectUploadModalOpen}
+        onClose={() => setIsProjectUploadModalOpen(false)}
+        onUploadSuccess={(file) =>
+          setProjectFiles((prev) => ({
+            ...prev,
+            [currentProject.id]: file,
+          }))
+        }
+        accept=".pdf"
+        maxSizeMB={5}
+        supportedFileType=".pdf"
+        title="Attach File"
       />
     </main>
   )
