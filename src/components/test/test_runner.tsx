@@ -25,6 +25,7 @@ type TestRunnerProps = {
   testData: TestData
   pageText: PageText
   autoStart?: boolean
+  showBanner?: boolean
 }
 
 export function TestRunner({
@@ -35,6 +36,7 @@ export function TestRunner({
   testData,
   pageText,
   autoStart = false,
+  showBanner = true,
 }: TestRunnerProps) {
   const [hasStarted, setHasStarted] = useState(autoStart)
   const [isFinished, setIsFinished] = useState(false)
@@ -469,7 +471,7 @@ export function TestRunner({
 
   return (
     <div className="px-6 pb-10">
-      {renderBanner()}
+      {showBanner && renderBanner()}
 
       {isFinished ? (
         <FinishedCard classId={classId} />

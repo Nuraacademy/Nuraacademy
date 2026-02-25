@@ -7,9 +7,15 @@ interface ReferenceMaterial {
 const FILE_ICONS: { ext: string; src: string }[] = [
     { ext: ".csv", src: "/icons/file/CSV.svg" },
     { ext: ".pptx", src: "/icons/file/PPT.svg" },
+    { ext: ".ppt", src: "/icons/file/PPT.svg" },
     { ext: ".pdf", src: "/icons/file/PDF.svg" },
-    { ext: ".xlsx", src: "/icons/file/XLS.svg" },
     { ext: ".docx", src: "/icons/file/DOC.svg" },
+    { ext: ".doc", src: "/icons/file/DOC.svg" },
+    { ext: ".jpg", src: "/icons/file/JPG.svg" },
+    { ext: ".jpeg", src: "/icons/file/JPG.svg" },
+    { ext: ".png", src: "/icons/file/JPG.svg" },
+    { ext: ".mp4", src: "/icons/file/Video.svg" },
+    { ext: ".mov", src: "/icons/file/Video.svg" }
 ];
 
 function getIcon(name: string): string | null {
@@ -31,8 +37,10 @@ export default function ReferenceMaterials({ materials }: ReferenceMaterialsProp
                     return (
                         <div key={i} className="flex flex-col gap-2">
                             <div className="flex items-center gap-2">
-                                {icon && (
+                                {icon ? (
                                     <img src={icon} alt="file" className="w-5 h-5" />
+                                ) : (
+                                    <img src="/icons/file/File.svg" alt="file" className="w-5 h-5" />
                                 )}
                                 <span className="text-sm text-gray-800 font-medium">{mat.name}</span>
                             </div>
