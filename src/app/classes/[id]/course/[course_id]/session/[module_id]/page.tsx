@@ -16,6 +16,8 @@ export default function SessionPage() {
 
     const session = SESSION_DATA.sessions[moduleId];
 
+    const isRecordingPage = session?.type === "Asynchronous";
+
     if (!session) {
         return <div className="p-10 text-center">Session not found</div>;
     }
@@ -82,7 +84,9 @@ export default function SessionPage() {
                         label="View Record"
                         variant="secondary"
                         className="min-w-[120px] h-10 text-sm font-bold"
-                        onClick={() => { }}
+                        onClick={() => {
+                            router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/recording`);
+                        }}
                     />
                 </div>
 
@@ -125,12 +129,9 @@ export default function SessionPage() {
 
                 {/* Hero Title with Badge */}
                 <section className="bg-[#005954] rounded-[1.5rem] p-6 mb-8 flex items-center gap-4">
-                    <h1 className="text-xl font-bold text-white">{session.title}</h1>
-                    {session.type !== "Assignment" && (
-                        <span className="px-3 py-1 bg-[#1C3A37] border border-white/20 rounded-full text-[10px] text-white/80 font-medium">
-                            {session.type}
-                        </span>
-                    )}
+                    <h1 className="text-xl font-bold text-white">
+                        {isRecordingPage ? "Session Recording" : session.title}
+                    </h1>
                 </section>
 
                 {/* Main Content Card */}
@@ -149,7 +150,7 @@ export default function SessionPage() {
                     {renderSessionContent()}
 
                     {/* Footer Buttons */}
-                    <div className="flex justify-center gap-4 mt-4">
+                    <div className="flex justify-center gap-4 mt-6">
                         {session.footerButtons.map((btn, i) => (
                             <NuraButton
                                 key={i}

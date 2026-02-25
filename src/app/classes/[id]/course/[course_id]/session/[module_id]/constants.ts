@@ -32,6 +32,10 @@ export type SynchronousSession = BaseSession & {
         label: string;
         href: string;
     };
+    recording?: {
+        title: string;
+        url: string;
+    };
 };
 
 export type AssignmentSession = BaseSession & {
@@ -81,6 +85,10 @@ export const SESSION_DATA: {
             zoom: {
                 link: "https://zoom.us/join?=abc45ghj89",
                 status: "Scheduled"
+            },
+            recording: {
+                title: "Python Programming",
+                url: "https://www.youtube.com/embed/EHOnDDP9tvA"
             },
             presence: {
                 label: "Lihat daftar hadir",
