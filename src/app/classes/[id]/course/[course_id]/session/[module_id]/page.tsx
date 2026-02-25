@@ -151,15 +151,22 @@ export default function SessionPage() {
 
                     {/* Footer Buttons */}
                     <div className="flex justify-center gap-4 mt-6">
-                        {session.footerButtons.map((btn, i) => (
-                            <NuraButton
-                                key={i}
-                                label={btn.label}
-                                variant="primary"
-                                className="min-w-[160px] h-10 text-sm font-bold"
-                                onClick={() => { }}
-                            />
-                        ))}
+                        <NuraButton
+                            label="Pre-test"
+                            variant="primary"
+                            className="min-w-[160px] h-10 text-sm font-bold"
+                            onClick={() => {
+                                router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/pre-test`);
+                            }}
+                        />
+                        <NuraButton
+                            label="Post-test"
+                            variant="primary"
+                            className="min-w-[160px] h-10 text-sm font-bold"
+                            onClick={() => {
+                                router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/post-test`);
+                            }}
+                        />
                     </div>
                 </div>
             </div>

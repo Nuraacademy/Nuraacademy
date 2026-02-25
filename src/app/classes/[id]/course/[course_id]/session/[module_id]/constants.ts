@@ -7,11 +7,6 @@ export type BaseSession = {
         name: string;
         description: string;
     }[];
-    footerButtons: {
-        label: string;
-        variant: string;
-        href: string;
-    }[];
 };
 
 export type AsynchronousSession = BaseSession & {
@@ -66,9 +61,6 @@ export const SESSION_DATA: {
                     name: "Introduction to Python.pptx",
                     description: "Pada sesi ini, silahkan diskusikan materi dengan grup Anda dan kerjakan group summary tertera!"
                 }
-            ],
-            footerButtons: [
-                { label: "Group Summary", variant: "primary", href: "#" }
             ]
         },
         "2": {
@@ -93,11 +85,7 @@ export const SESSION_DATA: {
             presence: {
                 label: "Lihat daftar hadir",
                 href: "#"
-            },
-            footerButtons: [
-                { label: "Pre-test", variant: "primary", href: "#" },
-                { label: "Post-test", variant: "primary", href: "#" }
-            ]
+            }
         }
     }
 };

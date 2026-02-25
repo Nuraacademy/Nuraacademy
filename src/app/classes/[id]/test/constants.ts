@@ -81,3 +81,6 @@ export const PAGE_TEXT = {
     breadcrumbHome: "Home",
     breadcrumbTest: "Placement Test",
 }
+
+export type TestData = typeof TEST_DATA
+export type PageText = typeof PAGE_TEXT

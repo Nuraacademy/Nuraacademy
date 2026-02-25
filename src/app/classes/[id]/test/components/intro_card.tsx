@@ -1,11 +1,14 @@
 import { NuraButton } from "@/components/ui/button/button"
 import { TEST_DATA, PAGE_TEXT } from "../constants"
+import { useRouter } from "next/navigation";
 
 interface IntroCardProps {
     onStart: () => void;
 }
 
 export function IntroCard({ onStart }: IntroCardProps) {
+    const router = useRouter();
+
     return (
         <section className="mt-6 flex justify-center px-4">
             <div className="w-full max-w-5xl bg-white rounded-[2.5rem] shadow-sm border border-gray-200 px-10 py-10">
@@ -58,6 +61,7 @@ export function IntroCard({ onStart }: IntroCardProps) {
                         variant="secondary"
                         type="button"
                         className="max-w-[140px]"
+                        onClick={() => router.back()}
                     />
                     <NuraButton
                         label={PAGE_TEXT.buttonStart}
