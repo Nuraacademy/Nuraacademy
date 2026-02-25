@@ -257,6 +257,7 @@ export default function CourseOverviewPage({
                                     <div
                                         key={course.id}
                                         className="border border-gray-200 rounded-[1.5rem] p-5 hover:border-gray-400 hover:shadow-sm transition-all duration-200 cursor-pointer"
+                                        onClick={() => router.push(`/classes/${id}/course/${course.id}/overview`)}
                                     >
                                         <h3 className="text-black text-medium mb-1">{course.title}</h3>
                                         <p className="text-sm text-gray-600">{course.description}</p>
