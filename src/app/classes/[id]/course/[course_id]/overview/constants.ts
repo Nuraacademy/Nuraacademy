@@ -32,8 +32,8 @@ export const PAGE_DATA = {
         "Google collab"
     ],
     sessions: [
-        { title: "Python Video Session", type: "Asynchronous" },
-        { title: "Zoom Session", type: "Synchronous" },
-        { title: "Python Assignment", type: "None" }
+        { id: "video-session", title: "Python Video Session", type: "Asynchronous" },
+        { id: "zoom-session", title: "Zoom Session", type: "Synchronous" },
+        { id: "python-assignment", title: "Python Assignment", type: "None" }
     ]
 };

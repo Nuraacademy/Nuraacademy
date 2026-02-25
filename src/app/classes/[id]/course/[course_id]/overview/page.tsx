@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { ChevronRight, Video } from "lucide-react";
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import { PAGE_DATA } from "./constants";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 interface SectionProps {
     icon: React.ReactNode;
@@ -37,8 +37,9 @@ const SessionTag = ({ label }: { label: string }) => {
 
 export default function CourseOverviewPage() {
     const params = useParams();
+    const router = useRouter();
     const classId = params.id as string;
-    // const courseId = params.course_id as string;
+    const courseId = params.course_id as string;
 
     const breadcrumbItems = [
         { label: "Home", href: "/" },
@@ -101,7 +102,11 @@ export default function CourseOverviewPage() {
                     {/* Sessions & Assignments */}
                     <div className="flex flex-col gap-6 pt-8">
                         {PAGE_DATA.sessions.map((session, i) => (
-                            <div key={i} className="flex items-center justify-between group cursor-pointer border-b border-gray-100 last:border-0 pb-6 last:pb-0">
+                            <div
+                                key={i}
+                                className="flex items-center justify-between group cursor-pointer border-b border-gray-100 last:border-0 pb-6 last:pb-0"
+                                onClick={() => router.push(`/classes/${classId}/course/${courseId}/session/${session.id}`)}
+                            >
                                 <div className="flex items-center gap-3">
                                     <div className="text-gray-700">
                                         {session.title.includes("Video") ? <img src="/icons/Video.svg" alt="Video" className="w-5 h-5" /> :
