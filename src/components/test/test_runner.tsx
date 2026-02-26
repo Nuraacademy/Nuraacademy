@@ -25,6 +25,7 @@ type TestRunnerProps = {
   testData: TestData
   pageText: PageText
   autoStart?: boolean
+  finished?: boolean
   showBanner?: boolean
 }
 
@@ -36,10 +37,11 @@ export function TestRunner({
   testData,
   pageText,
   autoStart = false,
+  finished = false,
   showBanner = true,
 }: TestRunnerProps) {
   const [hasStarted, setHasStarted] = useState(autoStart)
-  const [isFinished, setIsFinished] = useState(false)
+  const [isFinished, setIsFinished] = useState(finished)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [timeLeft, setTimeLeft] = useState(testData.durationMinutes * 60)
   const [currentType, setCurrentType] = useState<QuestionType>("objective")

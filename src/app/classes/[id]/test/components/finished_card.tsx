@@ -1,5 +1,5 @@
-import { LimeButton } from "@/components/lime_button"
 import { TEST_DATA } from "../constants"
+import { NuraButton } from "@/components/ui/button/button";
 
 interface FinishedCardProps {
     classId: string;
@@ -45,14 +45,24 @@ export function FinishedCard({ classId }: FinishedCardProps) {
                 </div>
             </div>
 
-            <LimeButton
-                label="Back to Class"
-                variant="solid"
-                className="!text-sm px-10 py-2.5"
+            <div className="flex justify-center gap-4">
+                <NuraButton
+                label="Back"
+                variant="secondary"
+                className="border-transparent"
                 onClick={() => {
                     window.location.href = `/classes/${classId}/overview`
                 }}
-            />
+                />
+                <NuraButton
+                    label="See Groups"
+                    variant="primary"
+                    className="min-w-[160px]"
+                    onClick={() => {
+                        window.location.href = `/classes/${classId}/groups`
+                    }}
+                />
+            </div>
         </section>
     )
 }

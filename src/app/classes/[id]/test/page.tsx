@@ -10,6 +10,7 @@ import { OBJECTIVE_QUESTIONS, ESSAY_QUESTIONS, PROJECT_QUESTIONS, TEST_DATA, PAG
 export default function PlacementTestPage({ params }: { params: Promise<{ id: string }> }) {
   const searchParams = useSearchParams()
   const skipIntro = searchParams.get("skipIntro") === "1"
+  const isFinished = searchParams.get("finished") === "true"
   const resolvedParams = use(params)
   const classId = resolvedParams.id
 
@@ -33,6 +34,7 @@ export default function PlacementTestPage({ params }: { params: Promise<{ id: st
         testData={TEST_DATA}
         pageText={PAGE_TEXT}
         autoStart={skipIntro}
+        finished={isFinished}
       />
     </main>
   )
