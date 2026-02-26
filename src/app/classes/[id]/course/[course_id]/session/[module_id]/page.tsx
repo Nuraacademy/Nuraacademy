@@ -93,7 +93,7 @@ export default function SessionPage() {
                 <div className="flex flex-col gap-2">
                     <h2 className="text-sm font-bold text-gray-900">Presence & SES</h2>
                     <a
-                        href={s.presence.href}
+                        href={`/classes/${classId}/course/${courseId}/session/${moduleId}/presence`}
                         className="text-xs text-[#008B8B] font-medium hover:underline flex items-center gap-1"
                     >
                         {s.presence.label}
