@@ -28,7 +28,7 @@ export default function CourseOverviewPage({
         scheduleStart: "22/2/2026",
         scheduleEnd: "31/5/2026",
         isEnrolled: true,
-        isTestFinished: true,
+        isTestFinished: false,
         description:
             "Kelas Introduction to Programming dirancang untuk pemula yang ingin memahami dasar-dasar pemrograman menggunakan Python. Peserta akan mempelajari konsep fundamental seperti variabel, tipe data, selection statement, looping, function, serta pengolahan file dan data sederhana. Kelas ini menekankan pada pemahaman logika berpikir komputasional dan praktik langsung agar peserta mampu membangun program sederhana secara terstruktur dan sistematis.",
         whatYouWillLearn: [

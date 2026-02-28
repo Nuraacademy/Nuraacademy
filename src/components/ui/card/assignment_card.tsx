@@ -1,6 +1,7 @@
 "use client"
 
-import { useRouter } from "next/navigation";    
+import { useRouter } from "next/navigation";
+import { getAssignmentIcon, getAssignmentEndpoint, AssignmentType } from "@/utils/assignment";
 
 interface AssignmentCardProps {
     title: string;
@@ -8,7 +9,7 @@ interface AssignmentCardProps {
     classId: string;
     courseId: string;
     sessionId: string;
-    type: "Placement" | "Pre" | "Post" | "Assignment" | "Exercise" | "Final Project";
+    type: AssignmentType;
     className?: string;
     courseName?: string;
 }
@@ -25,31 +26,13 @@ export const AssignmentCard = ({
 }: AssignmentCardProps) => {
     const router = useRouter();
 
-    let icon = "";
-
-    if (type === "Placement") {
-        icon = "/icons/assignment/PlacementTest.svg";
-    } else if (type === "Pre") {
-        icon = "/icons/assignment/PreTest.svg";
-    } else if (type === "Post") {
-        icon = "/icons/assignment/PostTest.svg";
-    } else if (type === "Assignment") {
-        icon = "/icons/assignment/Assignment.svg";
-    } else if (type === "Exercise") {
-        icon = "/icons/assignment/Exercise.svg";
-    } else if (type === "Final Project") {
-        icon = "/icons/assignment/FinalProject.svg";
-    }
-
-
     return (
-        <div 
+        <div
             className={`flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-md ${className}`}
-            onClick={() => router.push(`classes/${classId}/course/${courseId}/session/${sessionId}/pre-test`)}
-            //TODO : Change this to dynamic path
-        >    
+            onClick={() => router.push(getAssignmentEndpoint(classId, courseId, sessionId, type))}
+        >
             <div className="flex h-12 w-12 shrink-0 items-center justify-center">
-                <img src={icon} alt={title} className="h-12 w-12" />
+                <img src={getAssignmentIcon(type)} alt={title} className="h-12 w-12" />
             </div>
             <div className="flex flex-col gap-0.5 w-full">
                 <div className="flex items-center gap-3">

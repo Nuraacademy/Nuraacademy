@@ -2,6 +2,8 @@
 
 import { Menu, ChevronUp, ChevronDown, FileText, BarChart, TrendingUp, ClipboardList, Star, Zap, Hand, Presentation, Building2, User, Monitor } from "lucide-react"
 import { useState } from "react"
+import { useRouter } from "next/navigation";
+import { getAssignmentEndpoint, getAssignmentIcon } from "@/utils/assignment";
 
 interface SidebarProp {
     className?: string
@@ -15,6 +17,7 @@ interface ExpandableItem {
 
 export default function Sidebar({ className, onOpenChange }: SidebarProp) {
     const [isOpen, setIsOpen] = useState(false)
+    const router = useRouter();
 
     const toggleSidebar = () => {
         const newState = !isOpen;
@@ -51,12 +54,12 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
     ]
 
     const assignments = [
-        { name: "UI/UX Design Placement Test", type: "test" },
-        { name: "Data Analytics Pre-test", type: "test" },
-        { name: "Data Analytics Post-test", type: "test" },
-        { name: "Python Assignment", type: "assignment" },
-        { name: "Python Exercise", type: "exercise" },
-        { name: "Programming Final Project", type: "project" }
+        { name: "UI/UX Design Placement Test", type: "Placement", classId: "1", courseId: "1", sessionId: "1" },
+        { name: "Data Analytics Pre-test", type: "Pre", classId: "1", courseId: "1", sessionId: "1" },
+        { name: "Data Analytics Post-test", type: "Post", classId: "1", courseId: "1", sessionId: "1" },
+        { name: "Python Assignment", type: "Assignment", classId: "1", courseId: "1", sessionId: "1" },
+        { name: "Python Exercise", type: "Exercise", classId: "1", courseId: "1", sessionId: "1" },
+        { name: "Programming Final Project", type: "Final Project", classId: "1", courseId: "1", sessionId: "1" }
     ]
 
     const feedbacks = [
@@ -70,7 +73,6 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
 
     const map_type_to_icon: Record<string, string> = {
         test: "/icons/sidebar/SubTest.svg",
-        assignment: "/icons/sidebar/SubAssignment.svg",
         exercise: "/icons/sidebar/SubExercise.svg",
         project: "/icons/sidebar/SubFinalProject.svg",
         feedback: "/icons/sidebar/SubFeedback.svg",
@@ -83,7 +85,7 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
                 <div className="w-72 h-full bg-white shadow-lg px-4 py-6 space-y-6 overflow-y-auto">
                     {/* My Class Section */}
                     <div>
-                        <div className="flex items-center gap-3 mb-3">
+                        <div className="flex items-center gap-3 mb-3 cursor-pointer" onClick={() => router.push("/classes")}>
                             <img
                                 src="/icons/sidebar/Class.svg"
                                 alt="Class Icon"
@@ -138,7 +140,7 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
 
                     {/* Assignment Section */}
                     <div>
-                        <div className="flex items-center gap-3 mb-3">
+                        <div className="flex items-center gap-3 mb-3 cursor-pointer" onClick={() => router.push("/assignment")}>
                             <img
                                 src="/icons/sidebar/Assignment.svg"
                                 alt="Assignment Icon"
@@ -152,11 +154,11 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
                                 return (
                                     <a
                                         key={index}
-                                        href="#"
+                                        href={getAssignmentEndpoint(assignment.classId, assignment.courseId, assignment.sessionId, assignment.type)}
                                         className="flex items-center gap-2 p-2 text-sm text-gray-600 hover:bg-gray-50 rounded transition-colors"
                                     >
                                         <img
-                                            src={map_type_to_icon[assignment.type]}
+                                            src={getAssignmentIcon(assignment.type)}
                                             alt={assignment.type}
                                             width={24}
                                             height={24}
