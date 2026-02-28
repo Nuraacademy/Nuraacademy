@@ -35,7 +35,7 @@ export const getAssignmentEndpoint = (
     } else if (type === "Exercise") {
         return `/classes/${classId}/course/${courseId}/session/${sessionId}/exercise`;
     } else if (type === "Final Project") {
-        return `/classes/${classId}/course/${courseId}/final-project`;
+        return `/classes/${classId}/course/${courseId}/assignment`;
     } else {
         return "";
     }

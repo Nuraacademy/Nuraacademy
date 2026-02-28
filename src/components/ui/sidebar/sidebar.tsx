@@ -80,7 +80,7 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
     }
 
     return (
-        <div className={`fixed top-0 left-0 h-screen z-50 flex items-start gap-0 ${className || ""}`}>
+        <div className={`fixed top-16 left-0 bottom-0 z-40 flex items-start gap-0 ${className || ""}`}>
             {isOpen && (
                 <div className="w-72 h-full bg-white shadow-lg px-4 py-6 space-y-6 overflow-y-auto">
                     {/* My Class Section */}
@@ -226,7 +226,7 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
             {/* Toggle button */}
             <button
                 onClick={toggleSidebar}
-                className="mt-20 flex justify-center items-center w-10 h-10 rounded-r-xl shadow-lg bg-[#D9F55C] hover:bg-[#c9e54c] transition-colors"
+                className="mt-4 flex justify-center items-center w-10 h-10 rounded-r-xl shadow-lg bg-[#D9F55C] hover:bg-[#c9e54c] transition-colors"
             >
                 <Menu size={24} className="text-black" />
             </button>
