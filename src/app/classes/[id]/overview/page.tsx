@@ -187,7 +187,7 @@ export default function CourseOverviewPage({
                             <div className="flex items-center justify-between mb-6">
                                 <h2 className="text-lg font-bold">Timeline</h2>
                                 {adminPage ? (
-                                    <NuraButton label="Add Timeline" variant="primary" className="h-6 text-sm"/>
+                                    <NuraButton label="Add Timeline" variant="primary" className="h-6 text-sm" />
                                 ) : <></>}
                             </div>
 
@@ -225,7 +225,7 @@ export default function CourseOverviewPage({
                     <section className="lg:col-span-8 flex flex-col gap-6">
                         {/* Placement Test */}
                         {classData.isEnrolled ? (
-                            <div className="bg-[#1C3A37] rounded-[2rem] px-6 py-4 flex items-center justify-between">
+                            <div className="bg-[#1C3A37] rounded-[2rem] px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
                                 <div>
                                     <h2 className="text-lg text-white">Placement Test</h2>
                                     <p className="text-xs text-white">You must take the test first before starting this class. The test results are used to determine your group.</p>
@@ -233,19 +233,19 @@ export default function CourseOverviewPage({
                                 {
                                     adminPage ? (
                                         <NuraButton label="Create Test" variant="primary" onClick={() => router.push(`/classes/${id}/test/create`)} />
-                                    ) : 
-                                    classData.isTestFinished ? (
-                                        <NuraButton label="See Result" variant="primary" onClick={() => router.push(`/classes/${id}/test?finished=true`)} />
-                                    ) :     (
-                                        <NuraButton label="Start Test" variant="primary" onClick={() => router.push(`/classes/${id}/test`)} />
-                                    )
+                                    ) :
+                                        classData.isTestFinished ? (
+                                            <NuraButton label="See Result" variant="primary" onClick={() => router.push(`/classes/${id}/test?finished=true`)} />
+                                        ) : (
+                                            <NuraButton label="Start Test" variant="primary" onClick={() => router.push(`/classes/${id}/test`)} />
+                                        )
                                 }
                             </div>
                         ) : <></>}
 
                         {/* Courses */}
                         <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 flex flex-col gap-4">
-                            <div className="flex items-center justify-between">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
                                 <h2 className="text-xl font-bold">Courses</h2>
                                 {adminPage ? (
                                     <NuraButton label="Add Course" variant="primary" />

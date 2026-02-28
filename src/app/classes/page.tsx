@@ -84,7 +84,7 @@ export default function ClassesPage() {
     const classData = MOCK_CLASSES;
 
     return (
-        <main className={`relative min-h-screen w-full overflow-hidden py-8 pr-8 transition-all duration-300 ${isSidebarOpen ? "pl-80" : "pl-8"}`}>
+        <main className={`relative min-h-screen w-full overflow-hidden py-4 px-4 md:py-8 md:pr-8 transition-all duration-300 ${isSidebarOpen ? "md:pl-80" : "md:pl-8"}`}>
             {/* Sidebar */}
             <Sidebar onOpenChange={setIsSidebarOpen} />
 
@@ -101,11 +101,11 @@ export default function ClassesPage() {
             />
 
             {/* Content */}
-            <div className="flex justify-between items-center text-black mb-10 w-full max-w-screen-2xl mx-auto">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-black mb-10 w-full max-w-screen-2xl mx-auto">
                 <h1 className="text-4xl font-bold">
                     Explore Our Classes
                 </h1>
-                <div className="relative w-64">
+                <div className="relative w-full md:w-64">
                     <NuraTextInput
                         placeholder="Search class"
                         value={searchValue}

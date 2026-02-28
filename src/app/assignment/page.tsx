@@ -88,7 +88,7 @@ export default function AssignmentPage() {
     ];
 
     return (
-        <main className={`relative min-h-screen w-full overflow-hidden py-8 pr-8 transition-all duration-300 ${isSidebarOpen ? "pl-80" : "pl-8"}`}>
+        <main className={`relative min-h-screen w-full overflow-hidden py-4 px-4 md:py-8 md:pr-8 transition-all duration-300 ${isSidebarOpen ? "md:pl-80" : "md:pl-8"}`}>
             {/* Sidebar */}
             <Sidebar onOpenChange={setIsSidebarOpen} />
 
@@ -105,21 +105,21 @@ export default function AssignmentPage() {
             />
 
             {/* Content */}
-            <div className="text-black px-12 py-6 space-y-6 w-full max-w-screen-2xl mx-auto">
+            <div className="text-black md:px-12 py-6 space-y-6 w-full max-w-screen-2xl mx-auto">
                 <h1 className="text-4xl font-bold">
                     Assignments
                 </h1>
 
-                <div className="flex justify-between items-center gap-4">
+                <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
                     <NuraSearchInput
-                        className="w-72"
+                        className="w-full md:w-72"
                         placeholder="Search"
                         value={searchValue}
                         onChange={(e) => setSearchValue(e.target.value)}
                     />
 
                     <NuraSelect
-                        className="w-48"
+                        className="w-full md:w-48"
                         value={assignmentType}
                         onChange={setAssignmentType}
                         options={[
