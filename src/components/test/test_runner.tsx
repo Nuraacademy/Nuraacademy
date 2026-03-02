@@ -1,11 +1,11 @@
-"use client"
-
 import { useEffect, useState } from "react"
 import { Clock, ChevronLeft, ChevronRight } from "lucide-react"
 import { NuraButton } from "@/components/ui/button/button"
 import { RichTextInput } from "@/components/ui/input/rich_text_input"
 import FileUploadModal from "@/components/ui/modal/file_upload_modal"
 import { ConfirmModal } from "@/components/ui/modal/confirmation_modal"
+import { toast } from "sonner"
+import { submitTestAction } from "@/app/classes/[id]/test/actions"
 
 import { IntroCard } from "@/app/classes/[id]/test/components/intro_card"
 import { FinishedCard } from "@/app/classes/[id]/test/components/finished_card"
@@ -19,6 +19,7 @@ import { TestData, PageText } from "@/app/classes/[id]/test/constants"
 
 type TestRunnerProps = {
   classId: string
+  testId: string
   objectiveQuestions: ObjectiveQuestion[]
   essayQuestions: EssayQuestion[]
   projectQuestions: ProjectQuestion[]
@@ -31,9 +32,10 @@ type TestRunnerProps = {
 
 export function TestRunner({
   classId,
-  objectiveQuestions,
-  essayQuestions,
-  projectQuestions,
+  testId,
+  objectiveQuestions = [],
+  essayQuestions = [],
+  projectQuestions = [],
   testData,
   pageText,
   autoStart = false,
@@ -43,30 +45,65 @@ export function TestRunner({
   const [hasStarted, setHasStarted] = useState(autoStart)
   const [isFinished, setIsFinished] = useState(finished)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [timeLeft, setTimeLeft] = useState(testData.durationMinutes * 60)
+  const [timeLeft, setTimeLeft] = useState((testData.durationMinutes || 60) * 60)
   const [currentType, setCurrentType] = useState<QuestionType>("objective")
   const [objectiveIndex, setObjectiveIndex] = useState(0)
   const [essayIndex, setEssayIndex] = useState(0)
   const [projectIndex, setProjectIndex] = useState(0)
-  const [objectiveAnswers, setObjectiveAnswers] = useState<Record<number, string>>({})
-  const [essayAnswers, setEssayAnswers] = useState<Record<number, string>>({})
-  const [essayFiles, setEssayFiles] = useState<Record<number, File | null>>({})
-  const [projectAnswers, setProjectAnswers] = useState<Record<number, string>>({})
-  const [projectFiles, setProjectFiles] = useState<Record<number, File | null>>({})
+  const [objectiveAnswers, setObjectiveAnswers] = useState<Record<string, string>>({})
+  const [essayAnswers, setEssayAnswers] = useState<Record<string, string>>({})
+  const [essayFiles, setEssayFiles] = useState<Record<string, File | null>>({})
+  const [projectAnswers, setProjectAnswers] = useState<Record<string, string>>({})
+  const [projectFiles, setProjectFiles] = useState<Record<string, File | null>>({})
   const [isEssayUploadModalOpen, setIsEssayUploadModalOpen] = useState(false)
   const [isProjectUploadModalOpen, setIsProjectUploadModalOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // Determine current active question safely
   const currentObjective = objectiveQuestions[objectiveIndex]
   const currentEssay = essayQuestions[essayIndex]
   const currentProject = projectQuestions[projectIndex]
+
+  // Determine initial type if objective is empty
+  useEffect(() => {
+    if (objectiveQuestions.length === 0) {
+      if (essayQuestions.length > 0) setCurrentType("essay")
+      else if (projectQuestions.length > 0) setCurrentType("project")
+    }
+  }, [objectiveQuestions, essayQuestions, projectQuestions])
 
   const handleSubmitClick = () => {
     setIsModalOpen(true)
   }
 
-  const handleConfirmSubmit = () => {
+  const handleConfirmSubmit = async () => {
     setIsModalOpen(false)
-    setIsFinished(true)
+    setIsSubmitting(true)
+
+    try {
+      const userId = "temp-user-123"; // Replaced with real session later
+      const result = await submitTestAction({
+        userId,
+        testId,
+        objectiveAnswers,
+        essayAnswers,
+        projectAnswers: {
+          ...projectAnswers,
+          // Files are handled separately in real app, here we mark them
+        }
+      });
+
+      if (result.success) {
+        setIsFinished(true)
+        toast.success("Test submitted successfully!")
+      } else {
+        toast.error(result.error || "Failed to submit test")
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred during submission")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   useEffect(() => {
@@ -98,7 +135,7 @@ export function TestRunner({
       }).length
     count +=
       projectQuestions.length -
-      Object.keys(projectFiles).filter((key) => projectFiles[Number(key)] !== null).length
+      Object.keys(projectFiles).filter((key) => projectFiles[key] !== null).length
     return count
   }
 
@@ -115,18 +152,25 @@ export function TestRunner({
     if (currentType === "objective") {
       if (objectiveIndex < objectiveQuestions.length - 1) {
         setObjectiveIndex(objectiveIndex + 1)
-      } else {
+      } else if (essayQuestions.length > 0) {
         setCurrentType("essay")
         setEssayIndex(0)
+      } else if (projectQuestions.length > 0) {
+        setCurrentType("project")
+        setProjectIndex(0)
       }
     } else if (currentType === "essay") {
       setIsEssayUploadModalOpen(false)
       if (essayIndex < essayQuestions.length - 1) {
         setEssayIndex(essayIndex + 1)
-      } else {
+      } else if (projectQuestions.length > 0) {
         setCurrentType("project")
         setProjectIndex(0)
         setIsProjectUploadModalOpen(false)
+      }
+    } else if (currentType === "project") {
+      if (projectIndex < projectQuestions.length - 1) {
+        setProjectIndex(projectIndex + 1)
       }
     }
   }
@@ -135,16 +179,23 @@ export function TestRunner({
     if (currentType === "project") {
       setIsProjectUploadModalOpen(false)
       if (projectIndex === 0) {
-        setCurrentType("essay")
-        setEssayIndex(essayQuestions.length - 1)
+        if (essayQuestions.length > 0) {
+          setCurrentType("essay")
+          setEssayIndex(essayQuestions.length - 1)
+        } else if (objectiveQuestions.length > 0) {
+          setCurrentType("objective")
+          setObjectiveIndex(objectiveQuestions.length - 1)
+        }
         return
       }
     }
     if (currentType === "essay") {
       setIsEssayUploadModalOpen(false)
       if (essayIndex === 0) {
-        setCurrentType("objective")
-        setObjectiveIndex(objectiveQuestions.length - 1)
+        if (objectiveQuestions.length > 0) {
+          setCurrentType("objective")
+          setObjectiveIndex(objectiveQuestions.length - 1)
+        }
         return
       }
     }
@@ -171,148 +222,153 @@ export function TestRunner({
       <div className="mb-6">
         <p className="text-xs font-semibold text-gray-700 mb-2">{pageText.sidebarTimeLeft}</p>
         <div
-          className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs ${
-            timeLeft < 300 ? "bg-red-100 text-red-700" : "bg-emerald-50 text-emerald-700"
-          }`}
+          className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs ${timeLeft < 300 ? "bg-red-100 text-red-700" : "bg-emerald-50 text-emerald-700"
+            }`}
         >
           <Clock size={14} className={timeLeft < 300 ? "text-red-600" : "text-emerald-600"} />
           <span className="font-medium tracking-wide">{formatTime(timeLeft)}</span>
         </div>
       </div>
 
-      <div className="mb-4">
-        <p className="text-xs font-semibold text-gray-700 mb-2">{pageText.sidebarObjective}</p>
-        <div className="grid grid-cols-5 gap-2">
-          {objectiveQuestions.map((q, index) => {
-            const isActive = currentType === "objective" && objectiveIndex === index
-            const isAnswered = !!objectiveAnswers[q.id]
+      {objectiveQuestions.length > 0 && (
+        <div className="mb-4">
+          <p className="text-xs font-semibold text-gray-700 mb-2">{pageText.sidebarObjective}</p>
+          <div className="grid grid-cols-5 gap-2">
+            {objectiveQuestions.map((q, index) => {
+              const isActive = currentType === "objective" && objectiveIndex === index
+              const isAnswered = !!objectiveAnswers[q.id]
 
-            return (
-              <button
-                key={q.id}
-                type="button"
-                onClick={() => {
-                  setCurrentType("objective")
-                  setObjectiveIndex(index)
-                }}
-                className={`w-8 h-8 rounded-md text-xs flex items-center justify-center border transition-colors ${
-                  isActive
-                    ? "bg-[#075546] text-white border-[#075546]"
-                    : isAnswered
-                    ? "bg-emerald-50 text-[#075546] border-emerald-200"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-transparent"
-                }`}
-              >
-                {q.id}
-              </button>
-            )
-          })}
+              return (
+                <button
+                  key={q.id}
+                  type="button"
+                  onClick={() => {
+                    setCurrentType("objective")
+                    setObjectiveIndex(index)
+                  }}
+                  className={`w-8 h-8 rounded-md text-xs flex items-center justify-center border transition-colors ${isActive
+                      ? "bg-[#075546] text-white border-[#075546]"
+                      : isAnswered
+                        ? "bg-emerald-50 text-[#075546] border-emerald-200"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-transparent"
+                    }`}
+                >
+                  {index + 1}
+                </button>
+              )
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
-      <div className="mb-4">
-        <p className="text-xs font-semibold text-gray-700 mb-2">{pageText.sidebarEssay}</p>
-        <div className="grid grid-cols-5 gap-2">
-          {essayQuestions.map((q, index) => {
-            const isActive = currentType === "essay" && essayIndex === index
-            const val = essayAnswers[q.id] || ""
-            const hasText = val.replace(/<[^>]+>/g, "").trim().length > 0
-            const hasFile = !!essayFiles[q.id]
-            const isAnswered = hasText || hasFile
-            return (
-              <button
-                key={q.id}
-                type="button"
-                onClick={() => {
-                  setCurrentType("essay")
-                  setEssayIndex(index)
-                }}
-                className={`w-8 h-8 rounded-md text-xs flex items-center justify-center border transition-colors ${
-                  isActive
-                    ? "bg-[#075546] text-white border-[#075546]"
-                    : isAnswered
-                    ? "bg-emerald-50 text-[#075546] border-emerald-200"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-transparent"
-                }`}
-              >
-                {q.id}
-              </button>
-            )
-          })}
+      {essayQuestions.length > 0 && (
+        <div className="mb-4">
+          <p className="text-xs font-semibold text-gray-700 mb-2">{pageText.sidebarEssay}</p>
+          <div className="grid grid-cols-5 gap-2">
+            {essayQuestions.map((q, index) => {
+              const isActive = currentType === "essay" && essayIndex === index
+              const val = essayAnswers[q.id] || ""
+              const hasText = val.replace(/<[^>]+>/g, "").trim().length > 0
+              const hasFile = !!essayFiles[q.id]
+              const isAnswered = hasText || hasFile
+              return (
+                <button
+                  key={q.id}
+                  type="button"
+                  onClick={() => {
+                    setCurrentType("essay")
+                    setEssayIndex(index)
+                  }}
+                  className={`w-8 h-8 rounded-md text-xs flex items-center justify-center border transition-colors ${isActive
+                      ? "bg-[#075546] text-white border-[#075546]"
+                      : isAnswered
+                        ? "bg-emerald-50 text-[#075546] border-emerald-200"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-transparent"
+                    }`}
+                >
+                  {index + 1}
+                </button>
+              )
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
-      <div>
-        <p className="text-xs font-semibold text-gray-700 mb-2">{pageText.sidebarProject}</p>
-        <div className="flex flex-wrap gap-2">
-          {projectQuestions.map((q, index) => {
-            const isActive = currentType === "project" && projectIndex === index
-            const isAnswered = !!projectFiles[q.id]
-            return (
-              <button
-                key={q.id}
-                type="button"
-                onClick={() => {
-                  setCurrentType("project")
-                  setProjectIndex(index)
-                }}
-                className={`w-8 h-8 rounded-md text-xs flex items-center justify-center border transition-colors ${
-                  isActive
-                    ? "bg-[#075546] text-white border-[#075546]"
-                    : isAnswered
-                    ? "bg-emerald-50 text-[#075546] border-emerald-200"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-transparent"
-                }`}
-              >
-                {q.id}
-              </button>
-            )
-          })}
+      {projectQuestions.length > 0 && (
+        <div>
+          <p className="text-xs font-semibold text-gray-700 mb-2">{pageText.sidebarProject}</p>
+          <div className="flex flex-wrap gap-2">
+            {projectQuestions.map((q, index) => {
+              const isActive = currentType === "project" && projectIndex === index
+              const isAnswered = !!projectFiles[q.id]
+              return (
+                <button
+                  key={q.id}
+                  type="button"
+                  onClick={() => {
+                    setCurrentType("project")
+                    setProjectIndex(index)
+                  }}
+                  className={`w-8 h-8 rounded-md text-xs flex items-center justify-center border transition-colors ${isActive
+                      ? "bg-[#075546] text-white border-[#075546]"
+                      : isAnswered
+                        ? "bg-emerald-50 text-[#075546] border-emerald-200"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-transparent"
+                    }`}
+                >
+                  {index + 1}
+                </button>
+              )
+            })}
+          </div>
         </div>
-      </div>
+      )}
     </aside>
   )
 
-  const renderObjectiveContent = () => (
-    <section className="flex-1">
-      <div className="flex justify-between items-center text-xs text-gray-600 mb-6">
-        <span className="font-semibold">{pageText.contentObjective}</span>
-        <span>
-          {pageText.contentQuestions} {objectiveIndex + 1} {pageText.contentOf}{" "}
-          {objectiveQuestions.length}
-        </span>
-        <span className="font-semibold">
-          {currentObjective.points} {pageText.contentPoints}
-        </span>
-      </div>
+  const renderObjectiveContent = () => {
+    if (!currentObjective) return null;
+    return (
+      <section className="flex-1">
+        <div className="flex justify-between items-center text-xs text-gray-600 mb-6">
+          <span className="font-semibold">{pageText.contentObjective}</span>
+          <span>
+            {pageText.contentQuestions} {objectiveIndex + 1} {pageText.contentOf}{" "}
+            {objectiveQuestions.length}
+          </span>
+          <span className="font-semibold">
+            {currentObjective.points} {pageText.contentPoints}
+          </span>
+        </div>
 
-      <p className="text-sm text-gray-900 mb-6 leading-relaxed">{currentObjective.question}</p>
+        <p className="text-sm text-gray-900 mb-6 leading-relaxed">{currentObjective.question}</p>
 
-      <div className="space-y-3">
-        {currentObjective.options.map((opt) => {
-          const isSelected = objectiveAnswers[currentObjective.id] === opt
-          return (
-            <button
-              key={opt}
-              type="button"
-              onClick={() =>
-                setObjectiveAnswers((prev) => ({ ...prev, [currentObjective.id]: opt }))
-              }
-              className={`w-full text-left text-sm rounded-xl px-4 py-3 border transition-colors ${
-                isSelected
-                  ? "bg-emerald-50 border-emerald-400 text-emerald-800"
-                  : "bg-gray-100 text-gray-800 border-transparent hover:bg-gray-200"
-              }`}
-            >
-              {opt}
-            </button>
-          )
-        })}
-      </div>
-    </section>
-  )
+        <div className="space-y-3">
+          {currentObjective.options.map((opt) => {
+            const isSelected = objectiveAnswers[currentObjective.id] === opt
+            return (
+              <button
+                key={opt}
+                type="button"
+                onClick={() =>
+                  setObjectiveAnswers((prev) => ({ ...prev, [currentObjective.id]: opt }))
+                }
+                className={`w-full text-left text-sm rounded-xl px-4 py-3 border transition-colors ${isSelected
+                    ? "bg-emerald-50 border-emerald-400 text-emerald-800"
+                    : "bg-gray-100 text-gray-800 border-transparent hover:bg-gray-200"
+                  }`}
+              >
+                {opt}
+              </button>
+            )
+          })}
+        </div>
+      </section>
+    )
+  }
 
   const renderEssayContent = () => {
+    if (!currentEssay) return null;
     const attachedFile = essayFiles[currentEssay.id]
     return (
       <section className="flex-1">
@@ -358,6 +414,7 @@ export function TestRunner({
   }
 
   const renderProjectContent = () => {
+    if (!currentProject) return null;
     const attachedFile = projectFiles[currentProject.id]
     return (
       <section className="flex-1">
@@ -377,7 +434,7 @@ export function TestRunner({
         </p>
 
         <ul className="list-none space-y-2 mb-6">
-          {currentProject.requirements.map((req, index) => (
+          {currentProject.requirements?.map((req, index) => (
             <li key={index} className="text-sm text-gray-900 leading-relaxed">
               <span className="font-semibold">{String.fromCharCode(97 + index)}.</span>{" "}
               {req.split("\n").map((line, lineIndex) => (
@@ -430,8 +487,8 @@ export function TestRunner({
           {currentType === "objective"
             ? renderObjectiveContent()
             : currentType === "essay"
-            ? renderEssayContent()
-            : renderProjectContent()}
+              ? renderEssayContent()
+              : renderProjectContent()}
         </div>
 
         <div className="mt-10 flex justify-between items-center text-sm text-gray-800">
@@ -446,12 +503,13 @@ export function TestRunner({
             {pageText.testPrevButton}
           </button>
 
-          {currentType === "project" && projectIndex === projectQuestions.length - 1 ? (
+          {(currentType === "project" && projectIndex === projectQuestions.length - 1) || (projectQuestions.length === 0 && currentType === "essay" && essayIndex === essayQuestions.length - 1) || (projectQuestions.length === 0 && essayQuestions.length === 0 && currentType === "objective" && objectiveIndex === objectiveQuestions.length - 1) ? (
             <NuraButton
-              label={pageText.buttonSubmit}
+              label={isSubmitting ? "Submitting..." : pageText.buttonSubmit}
               variant="primary"
               type="button"
               className="max-w-[140px]"
+              disabled={isSubmitting}
               onClick={handleSubmitClick}
             />
           ) : (
@@ -529,4 +587,5 @@ export function TestRunner({
     </div>
   )
 }
+
 

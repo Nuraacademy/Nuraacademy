@@ -1,13 +1,12 @@
-"use client"
-
 import { NuraButton } from "@/components/ui/button/button";
 import ClassCard from "@/components/ui/card/class_card";
 import HomeCard from "@/components/ui/card/home_card";
 import HomeStoriesCard from "@/components/ui/card/home_stories_card";
-import { useRouter } from "next/navigation";
+import { getTopClasses } from "@/controllers/classController";
+import Link from "next/link";
 
-export default function Home() {
-  const router = useRouter();
+export default async function Home() {
+  const topClasses = await getTopClasses(3);
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden pt-8 bg-[#F9F9EE]">
@@ -107,39 +106,20 @@ export default function Home() {
         <div className="text-center text-black px-8 py-12">
           <h2 className="text-4xl font-semibold mb-4">Our Top Classes</h2>
           <div className="flex justify-center items-start gap-8 pt-8 flex-wrap">
-            <ClassCard
-              id="1"
-              imageUrl="/example/dummy.png"
-              title="Introduction to Programming"
-              duration={55}
-              scheduleStart={new Date("2026-02-22")}
-              scheduleEnd={new Date("2026-05-31")}
-              method="Flipped Blended Classroom"
-              modules={5}
-              description="Kelas ini dirancang untuk peserta yang ingin memahami konsep dasar pemrograman menggunakan Python. Pembelajaran fokus pada pemahaman cara kerja program, penggunaan variabel, serta pengelolaan file."
-            />
-            <ClassCard
-              id="2"
-              imageUrl="/example/dummy.png"
-              title="Introduction to Programming"
-              duration={55}
-              scheduleStart={new Date("2026-02-22")}
-              scheduleEnd={new Date("2026-05-31")}
-              method="Flipped Blended Classroom"
-              modules={5}
-              description="Kelas ini dirancang untuk peserta yang ingin memahami konsep dasar pemrograman menggunakan Python. Pembelajaran fokus pada pemahaman cara kerja program, penggunaan variabel, serta pengelolaan file."
-            />
-            <ClassCard
-              id="3"
-              imageUrl="/example/dummy.png"
-              title="Introduction to Programming"
-              duration={55}
-              scheduleStart={new Date("2026-02-22")}
-              scheduleEnd={new Date("2026-05-31")}
-              method="Flipped Blended Classroom"
-              modules={5}
-              description="Kelas ini dirancang untuk peserta yang ingin memahami konsep dasar pemrograman menggunakan Python. Pembelajaran fokus pada pemahaman cara kerja program, penggunaan variabel, serta pengelolaan file."
-            />
+            {topClasses.map((cls) => (
+              <ClassCard
+                key={cls.id}
+                id={cls.id}
+                imageUrl={cls.imageUrl || "/example/dummy.png"}
+                title={cls.title}
+                duration={cls.durationHours}
+                scheduleStart={cls.scheduleStart}
+                scheduleEnd={cls.scheduleEnd}
+                method={cls.method}
+                modules={0} // We can calculate this if needed
+                description={cls.description}
+              />
+            ))}
           </div>
         </div>
       </section>
@@ -160,11 +140,12 @@ export default function Home() {
               Ambil langkah pertama menuju karier impian Anda. Belajar, berkembang,
               dan sukses bersama Nura Academy.
             </p>
-            <NuraButton
-              label="Join Now"
-              variant="primary"
-              onClick={() => router.push('/register')}
-            />
+            <Link href="/register">
+              <NuraButton
+                label="Join Now"
+                variant="primary"
+              />
+            </Link>
           </div>
         </div>
       </section>
@@ -172,3 +153,4 @@ export default function Home() {
     </div>
   );
 }
+

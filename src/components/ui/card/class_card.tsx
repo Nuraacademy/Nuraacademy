@@ -15,13 +15,21 @@ interface ClassCardProp {
     description: string,
     duration: number,
     modules: number,
-    onClick: () => void
+    onClick?: () => void
 }
 
 export default function ClassCard({
     id, imageUrl, title, method, scheduleStart, scheduleEnd, description, duration, modules, onClick
 }: ClassCardProp) {
     const router = useRouter()
+
+    const handleCardClick = () => {
+        if (onClick) {
+            onClick();
+        } else {
+            router.push(`/classes/${id}/overview`);
+        }
+    };
 
     const formatDate = (date: Date) =>
         `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
@@ -36,7 +44,7 @@ export default function ClassCard({
         } else {
             status = "Ended";
         }
-        
+
         let style;
         if (status === "Ongoing") {
             style = 'bg-[#B8FFA2] text-black';
@@ -52,7 +60,7 @@ export default function ClassCard({
     return (
         <div
             className="flex flex-col bg-white rounded-[20px] p-5 shadow-sm border border-gray-100 w-full max-w-[400px] hover:shadow-lg transition-all duration-200 cursor-pointer"
-            onClick={onClick}
+            onClick={handleCardClick}
         >
             {/* Image */}
             <div className="mb-4">

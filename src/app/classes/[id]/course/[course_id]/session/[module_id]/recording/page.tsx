@@ -1,34 +1,31 @@
-"use client"
-
-import { useParams, useRouter } from "next/navigation";
+import { getSessionDetails } from "@/controllers/courseController";
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import { NuraButton } from "@/components/ui/button/button";
-import { SESSION_DATA, SynchronousSession } from "../constants";
 import { SessionVideoPlayer } from "@/components/ui/video/session_video_player";
+import Link from "next/link";
 
-export default function SessionRecordingPage() {
-    const params = useParams();
-    const router = useRouter();
+export default async function SessionRecordingPage({ params }: { params: Promise<{ id: string, course_id: string, module_id: string }> }) {
+    const { id: classId, course_id: courseId, module_id: moduleId } = await params;
 
-    const classId = params.id as string;
-    const courseId = params.course_id as string;
-    const moduleId = params.module_id as string;
-
-    const session = SESSION_DATA.sessions[moduleId] as SynchronousSession | undefined;
+    const session = await getSessionDetails(moduleId);
 
     if (!session) {
         return <div className="p-10 text-center">Session not found</div>;
     }
 
-    if (!session.recording) {
-        return <div className="p-10 text-center">Recording is not available for this session</div>;
+    const zoomSession = session.zoomSession;
+    if (!zoomSession || !zoomSession.recordingUrl) {
+        return <div className="p-10 text-center text-gray-800">Recording is not available for this session</div>;
     }
+
+    const { course } = session;
+    const { class: classInfo } = course;
 
     const breadcrumbItems = [
         { label: "Home", href: "/" },
-        { label: SESSION_DATA.classTitle, href: `/classes/${classId}/overview` },
-        { label: SESSION_DATA.courseTitle, href: `/classes/${classId}/course/${courseId}/overview` },
-        { label: "Zoom Session", href: `/classes/${classId}/course/${courseId}/session/${moduleId}` },
+        { label: classInfo.title, href: `/classes/${classId}/overview` },
+        { label: course.title, href: `/classes/${classId}/course/${courseId}/overview` },
+        { label: session.title, href: `/classes/${classId}/course/${courseId}/session/${moduleId}` },
         { label: "Session Recording", href: "#" },
     ];
 
@@ -50,31 +47,37 @@ export default function SessionRecordingPage() {
                     {/* Time Section */}
                     <div>
                         <p className="text-sm">
-                            <span className="font-bold text-gray-900 mr-2">Time:</span>
-                            <span className="text-gray-700">{session.time}</span>
+                            <span className="font-bold text-gray-900 mr-2">Session:</span>
+                            <span className="text-gray-700">{session.title}</span>
                         </p>
+                        {session.scheduledAt && (
+                            <p className="text-sm mt-1">
+                                <span className="font-bold text-gray-900 mr-2">Scheduled:</span>
+                                <span className="text-gray-700">{session.scheduledAt.toLocaleString()}</span>
+                            </p>
+                        )}
                     </div>
 
                     <div className="border-t border-gray-100"></div>
 
                     {/* Video */}
                     <SessionVideoPlayer
-                        title={session.recording.title}
-                        url={session.recording.url}
+                        title={zoomSession.recordingTitle || "Session Recording"}
+                        url={zoomSession.recordingUrl}
                     />
 
                     {/* Footer Button */}
                     <div className="flex justify-center mt-4">
-                        <NuraButton
-                            label="Back to Session"
-                            variant="primary"
-                            className="min-w-[160px] h-10 text-sm font-bold"
-                            onClick={() => router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}`)}
-                        />
+                        <Link href={`/classes/${classId}/course/${courseId}/session/${moduleId}`}>
+                            <NuraButton
+                                label="Back to Session"
+                                variant="primary"
+                                className="min-w-[160px] h-10 text-sm font-bold"
+                            />
+                        </Link>
                     </div>
                 </div>
             </div>
         </main>
     );
 }
-

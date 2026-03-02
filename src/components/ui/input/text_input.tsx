@@ -6,6 +6,7 @@ interface TextInputProp {
     variant?: HTMLInputTypeAttribute;
     className?: string;
     value?: string;
+    defaultValue?: string;
     onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
     icon?: React.ReactNode;
     color?: string;
@@ -17,6 +18,7 @@ export const NuraTextInput = ({
     variant = 'text',
     className = "",
     value,
+    defaultValue,
     onChange,
     icon,
     color = "black"
@@ -29,6 +31,7 @@ export const NuraTextInput = ({
                     type={variant}
                     placeholder={placeholder}
                     value={value}
+                    defaultValue={defaultValue}
                     onChange={onChange}
                     className={`w-full rounded-[0.5rem] bg-white border border-${color} px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black ${icon ? "pr-10" : ""
                         } ${className}`}

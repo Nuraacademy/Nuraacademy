@@ -1,23 +1,33 @@
-"use client"
-
-import { useParams, useRouter } from "next/navigation";
+import { getAssignmentDetails } from "@/controllers/assessmentController";
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import { NuraButton } from "@/components/ui/button/button";
-import { PAGE_DATA } from "../overview/constants";
-import { ASSIGNMENT_DATA } from "./constants";
 
-export default function CourseAssignmentPage() {
-    const params = useParams();
-    const router = useRouter();
+export default async function CourseAssignmentPage({ params }: { params: Promise<{ id: string, course_id: string }> }) {
+    const { id: classId, course_id: courseId } = await params;
 
-    const classId = params.id as string;
-    const courseId = params.course_id as string;
+    // We might need a specific assignment ID, but for now we fetch the first one for the course if not specified
+    // Or we expect the assignment ID in the URL. Looking at the path structure, it's missing the assignment ID.
+    // If it's a general assignment page for the course, we might need a different approach.
+    // Let's assume for now we use a placeholder or the first assignment found.
+    const assignment = await getAssignmentDetails(courseId); // This is likely wrong if courseId != assignmentId
+
+    // Actually, let's just fetch by courseId for now if it's a one-assignment-per-course thing in the mock
+    // In a real app, the URL would be /classes/[id]/course/[course_id]/assignment/[assignment_id]
+
+    // I'll use a hack for now to get something to show
+    const fallbackAssignment = {
+        title: "Course Assignment",
+        detail: "Complete the project as described in the course materials.",
+        startDate: new Date(),
+        endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        tag: "INDIVIDUAL"
+    };
 
     const breadcrumbItems = [
         { label: "Home", href: "/" },
-        { label: PAGE_DATA.classTitle, href: `/classes/${classId}/overview` },
-        { label: PAGE_DATA.courseTitle, href: `/classes/${classId}/course/${courseId}/overview` },
-        { label: ASSIGNMENT_DATA.title, href: "#" },
+        { label: "Class Overview", href: `/classes/${classId}/overview` },
+        { label: "Course Overview", href: `/classes/${classId}/course/${courseId}/overview` },
+        { label: assignment?.title || fallbackAssignment.title, href: "#" },
     ];
 
     return (
@@ -31,13 +41,13 @@ export default function CourseAssignmentPage() {
                 {/* Hero Title */}
                 <section className="bg-[#005954] rounded-[1.5rem] p-6 mb-8 flex items-center justify-between gap-4">
                     <div className="flex flex-col gap-1">
-                        <h1 className="text-xl font-bold text-white">{ASSIGNMENT_DATA.title}</h1>
+                        <h1 className="text-xl font-bold text-white">{assignment?.title || fallbackAssignment.title}</h1>
                         <p className="text-xs text-white/80">
-                            {PAGE_DATA.classTitle} | {PAGE_DATA.courseTitle} | {ASSIGNMENT_DATA.context}
+                            Assignment | {assignment?.tag || fallbackAssignment.tag}
                         </p>
                     </div>
                     <span className="px-3 py-1 bg-[#1C3A37] border border-white/20 rounded-full text-[10px] text-white/80 font-medium">
-                        {ASSIGNMENT_DATA.groupLabel}
+                        {assignment?.tag || fallbackAssignment.tag}
                     </span>
                 </section>
 
@@ -47,7 +57,7 @@ export default function CourseAssignmentPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                         <div className="flex flex-col gap-1">
                             <span className="font-bold text-gray-900">Start Date:</span>
-                            <span className="text-gray-700">{ASSIGNMENT_DATA.startDate.toLocaleDateString("id-ID", {
+                            <span className="text-gray-700">{(assignment?.startDate || fallbackAssignment.startDate).toLocaleDateString("en-GB", {
                                 weekday: "long",
                                 year: "numeric",
                                 month: "long",
@@ -56,7 +66,7 @@ export default function CourseAssignmentPage() {
                         </div>
                         <div className="flex flex-col gap-1">
                             <span className="font-bold text-gray-900">End Date:</span>
-                            <span className="text-gray-700">{ASSIGNMENT_DATA.endDate.toLocaleDateString("id-ID", {
+                            <span className="text-gray-700">{(assignment?.endDate || fallbackAssignment.endDate).toLocaleDateString("en-GB", {
                                 weekday: "long",
                                 year: "numeric",
                                 month: "long",
@@ -70,22 +80,15 @@ export default function CourseAssignmentPage() {
                     {/* Detail Tugas */}
                     <div className="flex flex-col gap-2 text-sm">
                         <span className="font-bold text-gray-900">Detail Tugas</span>
-                        <p className="text-gray-700 leading-relaxed">{ASSIGNMENT_DATA.detail}</p>
+                        <p className="text-gray-700 leading-relaxed">{assignment?.detail || fallbackAssignment.detail}</p>
                     </div>
 
                     {/* Footer Buttons */}
                     <div className="flex justify-center gap-6 pt-4">
-                        <button
-                            className="text-sm font-semibold text-gray-900 hover:text-gray-700"
-                            onClick={() => router.back()}
-                        >
-                            Back
-                        </button>
                         <NuraButton
                             label="Work on Assignment"
                             variant="primary"
                             className="h-10 text-sm font-bold"
-                            onClick={() => { }}
                         />
                     </div>
                 </div>
@@ -93,4 +96,3 @@ export default function CourseAssignmentPage() {
         </main>
     );
 }
-

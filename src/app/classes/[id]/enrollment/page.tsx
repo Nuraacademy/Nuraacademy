@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import { NuraTextInput } from "@/components/ui/input/text_input"
 import Chip from "@/components/ui/chip/chip"
@@ -9,14 +9,17 @@ import { NuraButton } from "@/components/ui/button/button"
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb"
 import { NuraTextArea } from "@/components/ui/input/text_area"
 import WelcomingModal from "@/components/ui/modal/welcoming_modal"
+import { enrollAction } from "./actions"
+import { toast } from "sonner"
 
 export default function EnrollmentPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter()
-    const [classId, setClassId] = useState<string>("")
+    const { id: classId } = use(params)
 
-    useEffect(() => {
-        params.then(p => setClassId(p.id)).catch(() => { })
-    }, [params])
+    // In real app, this should be fetched from server component and passed as prop
+    // But for this refactor, we'll keep it simple
+    const [className, setClassName] = useState("Class")
+    const [timeline, setTimeline] = useState<any[]>([])
 
     const [formData, setFormData] = useState({
         profession: "",
@@ -27,9 +30,10 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
         finalExpectations: "",
     })
 
-    const [selectedObjectives, setSelectedObjectives] = useState<string[]>(["Job seeker", "Upskilling"])
+    const [selectedObjectives, setSelectedObjectives] = useState<string[]>([])
     const [cvFile, setCvFile] = useState<File | null>(null)
     const [isWelcomingModalOpen, setIsWelcomingModalOpen] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     const learningObjectives = [
         "Career switch",
@@ -38,6 +42,17 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
         "Certification",
         "Upskilling"
     ]
+
+    useEffect(() => {
+        // Fetch class basic info for UI
+        fetch(`/api/classes/${classId}`)
+            .then(res => res.json())
+            .then(data => {
+                setClassName(data.title)
+                setTimeline(data.classTimelines || [])
+            })
+            .catch(() => { })
+    }, [classId])
 
     const toggleObjective = (objective: string) => {
         setSelectedObjectives(prev =>
@@ -51,20 +66,44 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
         setFormData(prev => ({ ...prev, [field]: value }))
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        console.log("Enrollment data:", { ...formData, selectedObjectives, cvFile })
-        // Handle submission logic here
-        // Open welcoming modal after successful submission
-        setIsWelcomingModalOpen(true)
+        setIsSubmitting(true)
+
+        try {
+            // Mock userId for now
+            const userId = "temp-user-123"
+
+            const result = await enrollAction({
+                classId,
+                userId,
+                personalInfo: {
+                    profession: formData.profession,
+                    yoe: formData.yoe,
+                    workField: formData.workField,
+                    educationField: formData.educationField,
+                    jobIndustry: formData.jobIndustry,
+                },
+                objectives: selectedObjectives,
+                expectations: formData.finalExpectations,
+                cvUrl: cvFile ? "unsupported_for_now" : undefined // CV Upload needs more infra
+            })
+
+            if (result.success) {
+                setIsWelcomingModalOpen(true)
+            } else {
+                toast.error(result.error || "Failed to enroll")
+            }
+        } catch (error) {
+            toast.error("An unexpected error occurred")
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     const handleCancel = () => {
         router.back()
     }
-
-    // Mock class name - in real app, fetch from API
-    const className = "Foundation to Data Analytics"
 
     return (
         <main className="relative min-h-screen w-full overflow-hidden bg-white">
@@ -104,12 +143,14 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
                                     placeholder="Profession"
                                     value={formData.profession}
                                     onChange={(e) => handleInputChange("profession", e.target.value)}
+                                    color="black"
                                 />
                                 <NuraTextInput
                                     label="YoE (Years of Experience)"
                                     placeholder="YoE (Years of Experience)"
                                     value={formData.yoe}
                                     onChange={(e) => handleInputChange("yoe", e.target.value)}
+                                    color="black"
                                 />
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -118,19 +159,22 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
                                     placeholder="Work Field"
                                     value={formData.workField}
                                     onChange={(e) => handleInputChange("workField", e.target.value)}
+                                    color="black"
                                 />
                                 <NuraTextInput
                                     label="Education Field"
                                     placeholder="Education Field"
                                     value={formData.educationField}
                                     onChange={(e) => handleInputChange("educationField", e.target.value)}
+                                    color="black"
                                 />
                                 <NuraTextInput
                                     label="Job Industry"
                                     placeholder="Job Industry"
                                     value={formData.jobIndustry}
                                     onChange={(e) => handleInputChange("jobIndustry", e.target.value)}
-                                    className="md:col-span-2"
+                                    className="md:col-span-1"
+                                    color="black"
                                 />
                             </div>
                         </div>
@@ -183,9 +227,10 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
                                 className="min-w-[120px]"
                             />
                             <NuraButton
-                                label="Submit"
+                                label={isSubmitting ? "Enrolling..." : "Submit"}
                                 variant="primary"
                                 type="submit"
+                                disabled={isSubmitting}
                                 className="min-w-[120px]"
                             />
                         </div>
@@ -197,7 +242,10 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
             <WelcomingModal
                 isOpen={isWelcomingModalOpen}
                 classId={classId}
-                steps={[
+                steps={timeline.length > 0 ? timeline.map(t => ({
+                    date: new Date(t.date).toLocaleDateString('en-GB'),
+                    label: t.title
+                })) : [
                     { date: "02/03/2026", label: "Placement Test" },
                     { date: "08/03/2026", label: "Course Mapping" },
                     { date: "15/03/2026", label: "Grouping" },

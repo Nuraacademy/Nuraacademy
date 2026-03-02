@@ -1,33 +1,24 @@
-"use client"
-
-import { useEffect, useState } from "react";
+import { getClassDetails, getClassGroups } from "@/controllers/classController";
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import { NuraButton } from "@/components/ui/button/button";
-import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
 
-export default function ViewGroupPage() {
-    const router = useRouter();
-    const params = useParams();
-    const id = params.id as string;
+export default async function ViewGroupPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id: classId } = await params;
 
-    const [courseTitle, setCourseTitle] = useState("Foundation to Data Analytics");
+    const [classInfo, groups] = await Promise.all([
+        getClassDetails(classId),
+        getClassGroups(classId)
+    ]);
 
-    const groups = [
-        {
-            name: "Group 1",
-            totalMember: 4,
-            members: ["Learner A", "Learner B", "Learner C"]
-        },
-        {
-            name: "Group 2",
-            totalMember: 4,
-            members: ["Learner D", "Learner E", "Learner F"]
-        },
-        {
-            name: "Group 3",
-            totalMember: 4,
-            members: ["Learner G", "Learner H", "Learner I"]
-        }
+    if (!classInfo) {
+        return <div className="p-10 text-center">Class not found</div>;
+    }
+
+    const breadcrumbItems = [
+        { label: "Home", href: "/" },
+        { label: classInfo.title, href: `/classes/${classId}/overview` },
+        { label: "View Group", href: `/classes/${classId}/groups` },
     ];
 
     return (
@@ -35,15 +26,7 @@ export default function ViewGroupPage() {
             <div className="max-w-7xl mx-auto px-6 md:px-10 py-8">
                 {/* Breadcrumb */}
                 <div className="mb-6">
-                    <Breadcrumb
-                        items={[
-                            { label: "Home", href: "/" },
-                            { label: courseTitle, href: `/classes/${id}/overview` },
-                            { label: "Placement Test", href: `/classes/${id}/test` },
-                            { label: "Placement Test Result", href: `/classes/${id}/test/result` },
-                            { label: "View Group", href: `/classes/${id}/groups` },
-                        ]}
-                    />
+                    <Breadcrumb items={breadcrumbItems} />
                 </div>
 
                 {/* Banner */}
@@ -63,32 +46,37 @@ export default function ViewGroupPage() {
                             <div className="col-span-4 text-sm font-semibold text-black">Member List</div>
                         </div>
 
-                        {groups.map((group, index) => (
-                            <div
-                                key={index}
-                                className={`grid grid-cols-12 px-8 py-6 border-black ${index !== groups.length - 1 ? 'border-b' : ''} bg-white`}
-                            >
-                                <div className="col-span-4 text-sm text-black self-center">{group.name}</div>
-                                <div className="col-span-4 text-sm text-black text-center self-center">{group.totalMember}</div>
-                                <div className="col-span-4 text-sm text-black">
-                                    <ul className="space-y-2">
-                                        {group.members.map((member, i) => (
-                                            <li key={i}>{member}</li>
-                                        ))}
-                                    </ul>
+                        {groups.length === 0 ? (
+                            <div className="p-8 text-center text-gray-500">No groups found for this class.</div>
+                        ) : (
+                            groups.map((group, index) => (
+                                <div
+                                    key={group.id}
+                                    className={`grid grid-cols-12 px-8 py-6 border-black ${index !== groups.length - 1 ? 'border-b' : ''} bg-white`}
+                                >
+                                    <div className="col-span-4 text-sm text-black self-center">{group.name}</div>
+                                    <div className="col-span-4 text-sm text-black text-center self-center">{group.members.length}</div>
+                                    <div className="col-span-4 text-sm text-black">
+                                        <ul className="space-y-2">
+                                            {group.members.map((member) => (
+                                                <li key={member.id}>{member.user.name || "Anonymous"}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))
+                        )}
                     </div>
 
                     {/* Back Button */}
                     <div className="mt-12 flex justify-center">
-                        <NuraButton
-                            label="Back to Test Result"
-                            variant="primary"
-                            className="min-w-[200px]"
-                            onClick={() => router.push(`/classes/${id}/overview`)}
-                        />
+                        <Link href={`/classes/${classId}/overview`}>
+                            <NuraButton
+                                label="Back to Course Overview"
+                                variant="primary"
+                                className="min-w-[200px]"
+                            />
+                        </Link>
                     </div>
                 </div>
             </div>

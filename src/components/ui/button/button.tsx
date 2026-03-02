@@ -6,6 +6,7 @@ interface NuraButtonProp {
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   className?: string;
   type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
 }
 
 export const NuraButton = ({
@@ -14,8 +15,9 @@ export const NuraButton = ({
   onClick,
   className = "",
   type = 'button',
+  disabled = false,
 }: NuraButtonProp) => {
-  const baseStyles = "px-4 py-2 rounded-[1rem] font-medium text-lg transition-all duration-200 active:scale-95 flex items-center justify-center min-w-[60px] max-w-[160px]";
+  const baseStyles = "px-4 py-2 rounded-[1rem] font-medium text-lg transition-all duration-200 active:scale-95 flex items-center justify-center min-w-[60px] max-w-[160px] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100";
 
   const variants = {
     primary: "w-full bg-[#D9F55C] text-black hover:bg-[#c8e44a] hover:border-[#c8e44a]",
@@ -29,6 +31,7 @@ export const NuraButton = ({
     <button
       type={type}
       onClick={onClick}
+      disabled={disabled}
       className={`${baseStyles} ${variants[variant]} ${className}`}
     >
       {label}
