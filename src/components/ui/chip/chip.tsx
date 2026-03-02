@@ -20,7 +20,7 @@ export default function Chip({ label, variant = "default", size = "md", classNam
         if (variant === "outline") {
             return "bg-transparent border border-gray-300 text-gray-700 hover:border-gray-400 hover:text-gray-800"
         }
-        return "bg-blue-100 text-blue-800 hover:bg-blue-200 hover:text-blue-900"
+        return ""
     }
     const size_style = {
         sm: "px-2 py-1 text-xs",

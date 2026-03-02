@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { Clock, BookText } from 'lucide-react';
 import { NuraButton } from '../button/button';
+import Chip from '../chip/chip';
 
 interface ClassCardProp {
     id: string,
@@ -13,7 +14,7 @@ interface ClassCardProp {
     scheduleEnd: Date,
     description: string,
     duration: number,
-    modules: number
+    modules: number,
     onClick: () => void
 }
 
@@ -24,6 +25,29 @@ export default function ClassCard({
 
     const formatDate = (date: Date) =>
         `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+
+    const getStatus = () => {
+        const now = new Date();
+        let status;
+        if (now >= scheduleStart && now <= scheduleEnd) {
+            status = "Ongoing";
+        } else if (now < scheduleStart) {
+            status = "Not Started";
+        } else {
+            status = "Ended";
+        }
+        
+        let style;
+        if (status === "Ongoing") {
+            style = 'bg-[#B8FFA2] text-black';
+        } else if (status === "Not Started") {
+            style = 'bg-[#8FF6FF] text-black';
+        } else {
+            style = 'bg-[#A2A2A2] text-black';
+        }
+
+        return <Chip label={status} variant="default" size="sm" className={style} />;
+    }
 
     return (
         <div
@@ -41,9 +65,13 @@ export default function ClassCard({
 
             {/* Content */}
             <div className="flex flex-col flex-grow gap-4">
-                <h3 className="font-bold text-base text-gray-900 text-left leading-snug">
-                    {title}
-                </h3>
+                <div className="flex flex-row items-center justify-between gap-3">
+                    <h3 className="font-bold text-base text-gray-900 text-left leading-snug">
+                        {title}
+                    </h3>
+
+                    {getStatus()}
+                </div>
 
                 {/* Method & Schedule */}
                 <div className="grid grid-cols-2 text-gray-700 gap-4">
