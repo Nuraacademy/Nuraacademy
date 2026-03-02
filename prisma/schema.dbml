@@ -1,0 +1,458 @@
+// Nura Academy — Database Schema (DBML)
+// Generated from full application scan
+// Visualize at: https://dbdiagram.io
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+
+// UserRole: LEARNER | TRAINER | ADMIN
+// EnrollmentStatus: PENDING | ACTIVE | COMPLETED | CANCELLED
+// LearningObjective: CAREER_SWITCH | JOB_SEEKER | ACADEMIC_PURPOSE | CERTIFICATION | UPSKILLING
+// SessionType: ASYNCHRONOUS | SYNCHRONOUS | ASSIGNMENT
+// AssignmentTag: INDIVIDUAL | GROUP
+// AssignmentType: PLACEMENT | PRE_TEST | POST_TEST | ASSIGNMENT | EXERCISE | FINAL_PROJECT
+// DiscussionTopicType: LEARNING_RESOURCE | TECHNICAL_HELP | GENERAL
+
+// ─────────────────────────────────────────────
+// USER
+// ─────────────────────────────────────────────
+
+Table users {
+  id         varchar [pk]
+  email      varchar [unique, not null]
+  name       varchar
+  role       varchar [not null, default: 'LEARNER', note: 'LEARNER | TRAINER | ADMIN']
+  created_at timestamp [default: `now()`]
+  updated_at timestamp
+}
+
+// ─────────────────────────────────────────────
+// CLASS
+// ─────────────────────────────────────────────
+
+Table classes {
+  id             varchar [pk]
+  title          varchar [not null]
+  description    text    [not null]
+  image_url      varchar
+  duration_hours int     [not null]
+  schedule_start timestamp [not null]
+  schedule_end   timestamp [not null]
+  method         varchar [not null]
+  created_at     timestamp [default: `now()`]
+  updated_at     timestamp
+}
+
+Table class_learning_points {
+  id       varchar [pk]
+  class_id varchar [not null]
+  text     text    [not null]
+  order    int     [not null]
+}
+
+Table class_timelines {
+  id       varchar   [pk]
+  class_id varchar   [not null]
+  title    varchar   [not null]
+  date     timestamp [not null]
+  order    int       [not null]
+}
+
+// ─────────────────────────────────────────────
+// ENROLLMENT
+// ─────────────────────────────────────────────
+
+Table enrollments {
+  id                  varchar   [pk]
+  user_id             varchar   [not null]
+  class_id            varchar   [not null]
+  status              varchar   [not null, default: 'PENDING', note: 'PENDING | ACTIVE | COMPLETED | CANCELLED']
+  profession          varchar
+  years_of_experience int
+  work_field          varchar
+  education_field     varchar
+  job_industry        varchar
+  final_expectations  text
+  cv_file_url         varchar
+  enrolled_at         timestamp [default: `now()`]
+  updated_at          timestamp
+
+  indexes {
+    (user_id, class_id) [unique]
+  }
+}
+
+Table enrollment_learning_objectives {
+  id            varchar [pk]
+  enrollment_id varchar [not null]
+  objective     varchar [not null, note: 'CAREER_SWITCH | JOB_SEEKER | ACADEMIC_PURPOSE | CERTIFICATION | UPSKILLING']
+}
+
+// ─────────────────────────────────────────────
+// GROUP
+// ─────────────────────────────────────────────
+
+Table groups {
+  id         varchar   [pk]
+  class_id   varchar   [not null]
+  name       varchar   [not null]
+  created_at timestamp [default: `now()`]
+}
+
+Table group_members {
+  id       varchar [pk]
+  group_id varchar [not null]
+  user_id  varchar [not null]
+
+  indexes {
+    (group_id, user_id) [unique]
+  }
+}
+
+// ─────────────────────────────────────────────
+// COURSE
+// ─────────────────────────────────────────────
+
+Table courses {
+  id          varchar   [pk]
+  class_id    varchar   [not null]
+  title       varchar   [not null]
+  description text      [not null]
+  order       int       [not null]
+  created_at  timestamp [default: `now()`]
+  updated_at  timestamp
+}
+
+Table course_learning_objectives {
+  id        varchar [pk]
+  course_id varchar [not null]
+  code      varchar [not null]
+  text      text    [not null]
+  order     int     [not null]
+}
+
+Table course_entry_skills {
+  id        varchar [pk]
+  course_id varchar [not null]
+  text      text    [not null]
+  order     int     [not null]
+}
+
+Table course_tools {
+  id        varchar [pk]
+  course_id varchar [not null]
+  name      varchar [not null]
+}
+
+// ─────────────────────────────────────────────
+// SESSION
+// ─────────────────────────────────────────────
+
+Table sessions {
+  id           varchar   [pk]
+  course_id    varchar   [not null]
+  title        varchar   [not null]
+  type         varchar   [not null, note: 'ASYNCHRONOUS | SYNCHRONOUS | ASSIGNMENT']
+  scheduled_at timestamp
+  order        int       [not null]
+  created_at   timestamp [default: `now()`]
+  updated_at   timestamp
+}
+
+Table session_videos {
+  id         varchar [pk]
+  session_id varchar [unique, not null]
+  title      varchar [not null]
+  url        varchar [not null]
+}
+
+Table zoom_sessions {
+  id              varchar [pk]
+  session_id      varchar [unique, not null]
+  link            varchar [not null]
+  status          varchar [not null]
+  recording_url   varchar
+  recording_title varchar
+}
+
+Table reference_materials {
+  id          varchar [pk]
+  session_id  varchar [not null]
+  name        varchar [not null]
+  description text
+  file_url    varchar
+}
+
+// ─────────────────────────────────────────────
+// PLACEMENT TEST
+// ─────────────────────────────────────────────
+
+Table placement_tests {
+  id               varchar   [pk]
+  class_id         varchar   [unique, not null]
+  title            varchar   [not null]
+  description      text
+  intro_description text
+  duration_minutes int       [not null]
+  deadline         timestamp
+  instructions     text[]
+  created_at       timestamp [default: `now()`]
+  updated_at       timestamp
+}
+
+Table placement_objective_questions {
+  id                varchar [pk]
+  placement_test_id varchar [not null]
+  question          text    [not null]
+  options           text[]  [not null]
+  points            int     [not null]
+  order             int     [not null]
+}
+
+Table placement_essay_questions {
+  id                varchar [pk]
+  placement_test_id varchar [not null]
+  question          text    [not null]
+  points            int     [not null]
+  order             int     [not null]
+}
+
+Table placement_project_questions {
+  id                varchar [pk]
+  placement_test_id varchar [not null]
+  question          text    [not null]
+  requirements      text[]
+  points            int     [not null]
+  order             int     [not null]
+}
+
+Table test_submissions {
+  id                varchar   [pk]
+  user_id           varchar   [not null]
+  placement_test_id varchar   [not null]
+  is_finished       boolean   [not null, default: false]
+  submitted_at      timestamp
+  created_at        timestamp [default: `now()`]
+
+  indexes {
+    (user_id, placement_test_id) [unique]
+  }
+}
+
+Table objective_answers {
+  id              varchar [pk]
+  submission_id   varchar [not null]
+  question_id     varchar [not null]
+  selected_option varchar
+}
+
+Table essay_answers {
+  id            varchar [pk]
+  submission_id varchar [not null]
+  question_id   varchar [not null]
+  answer_text   text
+}
+
+Table project_answers {
+  id            varchar [pk]
+  submission_id varchar [not null]
+  question_id   varchar [not null]
+  file_url      varchar
+  answer_text   text
+}
+
+// ─────────────────────────────────────────────
+// PRE-TEST & POST-TEST
+// ─────────────────────────────────────────────
+
+Table pre_tests {
+  id               varchar   [pk]
+  session_id       varchar   [not null]
+  title            varchar   [not null]
+  duration_minutes int
+  created_at       timestamp [default: `now()`]
+}
+
+Table pre_test_questions {
+  id          varchar [pk]
+  pre_test_id varchar [not null]
+  question    text    [not null]
+  options     text[]
+  points      int     [not null]
+  order       int     [not null]
+}
+
+Table post_tests {
+  id               varchar   [pk]
+  session_id       varchar   [not null]
+  title            varchar   [not null]
+  duration_minutes int
+  created_at       timestamp [default: `now()`]
+}
+
+Table post_test_questions {
+  id           varchar [pk]
+  post_test_id varchar [not null]
+  question     text    [not null]
+  options      text[]
+  points       int     [not null]
+  order        int     [not null]
+}
+
+// ─────────────────────────────────────────────
+// EXERCISE
+// ─────────────────────────────────────────────
+
+Table exercises {
+  id         varchar   [pk]
+  session_id varchar   [not null]
+  title      varchar   [not null]
+  detail     text
+  start_date timestamp
+  end_date   timestamp
+  created_at timestamp [default: `now()`]
+}
+
+// ─────────────────────────────────────────────
+// ASSIGNMENT
+// ─────────────────────────────────────────────
+
+Table assignments {
+  id         varchar   [pk]
+  course_id  varchar   [not null]
+  session_id varchar
+  title      varchar   [not null]
+  detail     text
+  tag        varchar   [not null, note: 'INDIVIDUAL | GROUP']
+  type       varchar   [not null, note: 'PLACEMENT | PRE_TEST | POST_TEST | ASSIGNMENT | EXERCISE | FINAL_PROJECT']
+  start_date timestamp
+  end_date   timestamp
+  created_at timestamp [default: `now()`]
+  updated_at timestamp
+}
+
+Table assignment_submissions {
+  id            varchar   [pk]
+  assignment_id varchar   [not null]
+  user_id       varchar   [not null]
+  file_url      varchar
+  note          text
+  submitted_at  timestamp
+  created_at    timestamp [default: `now()`]
+
+  indexes {
+    (assignment_id, user_id) [unique]
+  }
+}
+
+// ─────────────────────────────────────────────
+// PRESENCE (ATTENDANCE)
+// ─────────────────────────────────────────────
+
+Table presences {
+  id         varchar   [pk]
+  session_id varchar   [not null]
+  user_id    varchar   [not null]
+  present    boolean   [not null, default: false]
+  created_at timestamp [default: `now()`]
+
+  indexes {
+    (session_id, user_id) [unique]
+  }
+}
+
+// ─────────────────────────────────────────────
+// DISCUSSION
+// ─────────────────────────────────────────────
+
+Table discussion_topics {
+  id         varchar   [pk]
+  class_id   varchar   [not null]
+  author_id  varchar   [not null]
+  title      varchar   [not null]
+  preview    text
+  content    text      [not null]
+  type       varchar   [not null, note: 'LEARNING_RESOURCE | TECHNICAL_HELP | GENERAL']
+  like_count int       [not null, default: 0]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp
+}
+
+Table discussion_replies {
+  id         varchar   [pk]
+  topic_id   varchar   [not null]
+  author_id  varchar   [not null]
+  content    text      [not null]
+  like_count int       [not null, default: 0]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp
+}
+
+// ─────────────────────────────────────────────
+// RELATIONSHIPS
+// ─────────────────────────────────────────────
+
+// User relationships
+Ref: enrollments.user_id > users.id
+Ref: group_members.user_id > users.id
+Ref: test_submissions.user_id > users.id
+Ref: discussion_topics.author_id > users.id
+Ref: discussion_replies.author_id > users.id
+Ref: presences.user_id > users.id
+Ref: assignment_submissions.user_id > users.id
+
+// Class relationships
+Ref: class_learning_points.class_id > classes.id [delete: cascade]
+Ref: class_timelines.class_id > classes.id [delete: cascade]
+Ref: enrollments.class_id > classes.id
+Ref: groups.class_id > classes.id
+Ref: courses.class_id > classes.id
+Ref: placement_tests.class_id > classes.id
+Ref: discussion_topics.class_id > classes.id
+
+// Enrollment relationships
+Ref: enrollment_learning_objectives.enrollment_id > enrollments.id [delete: cascade]
+
+// Group relationships
+Ref: group_members.group_id > groups.id [delete: cascade]
+
+// Course relationships
+Ref: course_learning_objectives.course_id > courses.id [delete: cascade]
+Ref: course_entry_skills.course_id > courses.id [delete: cascade]
+Ref: course_tools.course_id > courses.id [delete: cascade]
+Ref: sessions.course_id > courses.id
+Ref: assignments.course_id > courses.id
+
+// Session relationships
+Ref: session_videos.session_id > sessions.id [delete: cascade]
+Ref: zoom_sessions.session_id > sessions.id [delete: cascade]
+Ref: reference_materials.session_id > sessions.id [delete: cascade]
+Ref: pre_tests.session_id > sessions.id
+Ref: post_tests.session_id > sessions.id
+Ref: exercises.session_id > sessions.id
+Ref: presences.session_id > sessions.id
+
+// Placement Test relationships
+Ref: placement_objective_questions.placement_test_id > placement_tests.id [delete: cascade]
+Ref: placement_essay_questions.placement_test_id > placement_tests.id [delete: cascade]
+Ref: placement_project_questions.placement_test_id > placement_tests.id [delete: cascade]
+Ref: test_submissions.placement_test_id > placement_tests.id
+
+// Test Submission relationships
+Ref: objective_answers.submission_id > test_submissions.id [delete: cascade]
+Ref: objective_answers.question_id > placement_objective_questions.id
+Ref: essay_answers.submission_id > test_submissions.id [delete: cascade]
+Ref: essay_answers.question_id > placement_essay_questions.id
+Ref: project_answers.submission_id > test_submissions.id [delete: cascade]
+Ref: project_answers.question_id > placement_project_questions.id
+
+// Pre/Post Test relationships
+Ref: pre_test_questions.pre_test_id > pre_tests.id [delete: cascade]
+Ref: post_test_questions.post_test_id > post_tests.id [delete: cascade]
+
+// Assignment relationships
+Ref: assignment_submissions.assignment_id > assignments.id
+
+// Discussion relationships
+Ref: discussion_replies.topic_id > discussion_topics.id [delete: cascade]
