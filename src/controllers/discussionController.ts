@@ -1,8 +1,21 @@
 import { prisma } from '@/lib/prisma';
 import { DiscussionTopicType } from '@prisma/client';
+import { redis } from '@/lib/redis';
+
+const TOPICS_CACHE_KEY = 'topics:all';
+const CACHE_TTL = 3600;
 
 export async function getTopics(classId?: string) {
-    return prisma.discussionTopic.findMany({
+    const cacheKey = classId ? `topics:class:${classId}` : TOPICS_CACHE_KEY;
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+        return JSON.parse(cached, (key, value) =>
+            (key === 'createdAt' || key === 'updatedAt')
+                ? new Date(value) : value
+        );
+    }
+
+    const topics = await prisma.discussionTopic.findMany({
         where: classId ? { classId } : {},
         include: {
             author: {
@@ -14,6 +27,9 @@ export async function getTopics(classId?: string) {
         },
         orderBy: { createdAt: 'desc' },
     });
+
+    await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(topics));
+    return topics;
 }
 
 export async function createTopic(data: {
@@ -24,9 +40,15 @@ export async function createTopic(data: {
     preview?: string;
     type: DiscussionTopicType;
 }) {
-    return prisma.discussionTopic.create({
+    const topic = await prisma.discussionTopic.create({
         data,
     });
+
+    // Invalidate caches
+    await redis.del(TOPICS_CACHE_KEY);
+    await redis.del(`topics:class:${data.classId}`);
+
+    return topic;
 }
 
 export async function getTopicWithReplies(topicId: string) {

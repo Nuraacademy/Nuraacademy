@@ -1,4 +1,7 @@
 import { prisma } from '@/lib/prisma';
+import { redis } from '@/lib/redis';
+
+const CACHE_TTL = 3600;
 
 export async function getCoursesByClass(classId: string) {
     return prisma.course.findMany({
@@ -8,7 +11,16 @@ export async function getCoursesByClass(classId: string) {
 }
 
 export async function getCourseDetails(id: string) {
-    return prisma.course.findUnique({
+    const cacheKey = `course:details:${id}`;
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+        return JSON.parse(cached, (key, value) =>
+            (key === 'createdAt' || key === 'updatedAt' || key === 'startDate' || key === 'endDate' || key === 'scheduledAt')
+                ? new Date(value) : value
+        );
+    }
+
+    const course = await prisma.course.findUnique({
         where: { id },
         include: {
             learningObjectives: { orderBy: { order: 'asc' } },
@@ -17,10 +29,24 @@ export async function getCourseDetails(id: string) {
             sessions: { orderBy: { order: 'asc' } },
         },
     });
+
+    if (course) {
+        await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(course));
+    }
+    return course;
 }
 
 export async function getSessionDetails(id: string) {
-    return prisma.session.findUnique({
+    const cacheKey = `session:details:${id}`;
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+        return JSON.parse(cached, (key, value) =>
+            (key === 'createdAt' || key === 'updatedAt' || key === 'startDate' || key === 'endDate' || key === 'scheduledAt' || key === 'date')
+                ? new Date(value) : value
+        );
+    }
+
+    const session = await prisma.session.findUnique({
         where: { id },
         include: {
             referenceMaterials: true,
@@ -37,6 +63,11 @@ export async function getSessionDetails(id: string) {
             }
         },
     });
+
+    if (session) {
+        await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(session));
+    }
+    return session;
 }
 
 export async function markPresence(sessionId: string, userId: string) {

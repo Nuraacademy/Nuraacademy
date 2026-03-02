@@ -15,7 +15,7 @@ export default async function ClassesPage({
 
     // Filter by search query if present
     const classData = query
-        ? allClassData.filter(c =>
+        ? allClassData.filter((c: any) =>
             c.title.toLowerCase().includes(query.toLowerCase()) ||
             c.description.toLowerCase().includes(query.toLowerCase())
         )
@@ -51,7 +51,7 @@ export default async function ClassesPage({
             {/* Classes Container */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-screen-2xl mx-auto relative z-10">
                 {
-                    classData.map((item) => (
+                    allClassData.map((item: any) => (
                         <ClassCard
                             key={item.id}
                             id={item.id}

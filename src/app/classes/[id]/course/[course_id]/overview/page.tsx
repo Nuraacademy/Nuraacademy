@@ -80,7 +80,7 @@ export default async function CourseOverviewPage({ params }: { params: Promise<{
                     {course.learningObjectives.length > 0 && (
                         <CourseSection icon={<img src="/icons/Goal.svg" alt="Goal" className="w-5 h-5" />} title="Learning Objective">
                             <div className="flex flex-col gap-3">
-                                {course.learningObjectives.map((obj, index) => (
+                                {course.learningObjectives.map((obj: any, index: number) => (
                                     <div key={obj.id} className="grid grid-cols-[3rem_1fr] text-sm gap-2">
                                         <span className="text-gray-500 font-medium">{index + 1}</span>
                                         <span className="text-gray-700">{obj.text}</span>
@@ -94,7 +94,7 @@ export default async function CourseOverviewPage({ params }: { params: Promise<{
                     {course.entrySkills.length > 0 && (
                         <CourseSection icon={<img src="/icons/Skill.svg" alt="EntrySkills" className="w-5 h-5" />} title="Entry Skills">
                             <ol className="list-decimal pl-4 flex flex-col gap-3 text-sm text-gray-700">
-                                {course.entrySkills.map((skill) => (
+                                {course.entrySkills.map((skill: any) => (
                                     <li key={skill.id}>{skill.text}</li>
                                 ))}
                             </ol>
@@ -105,7 +105,7 @@ export default async function CourseOverviewPage({ params }: { params: Promise<{
                     {course.tools.length > 0 && (
                         <CourseSection icon={<img src="/icons/Tool.svg" alt="Tools" className="w-5 h-5" />} title="Tools">
                             <ul className="list-disc pl-4 flex flex-col gap-2 text-sm text-gray-700">
-                                {course.tools.map((tool) => (
+                                {course.tools.map((tool: any) => (
                                     <li key={tool.id}>{tool.name}</li>
                                 ))}
                             </ul>
@@ -114,7 +114,7 @@ export default async function CourseOverviewPage({ params }: { params: Promise<{
 
                     {/* Sessions & Assignments */}
                     <div className="flex flex-col gap-6 pt-8">
-                        {course.sessions.map((session) => (
+                        {course.sessions.map((session: any) => (
                             <Link
                                 key={session.id}
                                 href={`/classes/${classId}/course/${courseId}/session/${session.id}`}

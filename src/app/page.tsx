@@ -106,7 +106,7 @@ export default async function Home() {
         <div className="text-center text-black px-8 py-12">
           <h2 className="text-4xl font-semibold mb-4">Our Top Classes</h2>
           <div className="flex justify-center items-start gap-8 pt-8 flex-wrap">
-            {topClasses.map((cls) => (
+            {topClasses.map((cls: any) => (
               <ClassCard
                 key={cls.id}
                 id={cls.id}

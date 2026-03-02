@@ -7,7 +7,7 @@ import { TopicDialogWrapper } from "./components/topic_dialog_wrapper";
 export default async function DiscussionPage() {
     const rawTopics = await getTopics();
 
-    const topics = rawTopics.map(t => ({
+    const topics = rawTopics.map((t: any) => ({
         id: t.id,
         author: t.author?.name || "Anonymous",
         timeAgo: formatTimeAgo(t.createdAt),

@@ -32,7 +32,11 @@ export default function ClassCard({
     };
 
     const formatDate = (date: Date) =>
-        `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+        new Date(date).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
 
     const getStatus = () => {
         const now = new Date();

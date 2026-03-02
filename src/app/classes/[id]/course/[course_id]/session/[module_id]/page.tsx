@@ -123,7 +123,7 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
 
                     {/* Reference Materials */}
                     {session.referenceMaterials.length > 0 && (
-                        <ReferenceMaterials materials={session.referenceMaterials.map(m => ({
+                        <ReferenceMaterials materials={session.referenceMaterials.map((m: any) => ({
                             name: m.name,
                             description: m.description || "",
                             url: m.fileUrl || "#"

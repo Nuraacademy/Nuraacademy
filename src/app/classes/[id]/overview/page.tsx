@@ -121,7 +121,7 @@ export default async function CourseOverviewPage({
                         <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100">
                             <h2 className="text-lg font-bold mb-4">What You Will Learn</h2>
                             <ol className="list-decimal ml-5 text-sm text-gray-700 space-y-2">
-                                {classDataRaw.learningPoints.map((item, i) => (
+                                {classDataRaw.learningPoints.map((item: any, i: number) => (
                                     <li key={i}>{item.text}</li>
                                 ))}
                             </ol>
@@ -135,7 +135,7 @@ export default async function CourseOverviewPage({
 
                             {/* Timeline Items */}
                             <div className="relative pl-0">
-                                {classDataRaw.classTimelines.map((item, index) => (
+                                {classDataRaw.classTimelines.map((item: any, index: number) => (
                                     <div key={item.id} className="relative flex items-center mb-6 last:mb-0">
                                         {/* Date */}
                                         <div className="w-24 text-xs text-gray-800 font-medium">
@@ -191,7 +191,7 @@ export default async function CourseOverviewPage({
                             </div>
 
                             <div className="flex flex-col gap-4">
-                                {classDataRaw.courses.map((course) => (
+                                {classDataRaw.courses.map((course: any) => (
                                     <Link
                                         key={course.id}
                                         href={`/classes/${id}/course/${course.id}/overview`}
