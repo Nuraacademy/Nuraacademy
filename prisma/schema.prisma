@@ -6,532 +6,196 @@ datasource db {
   provider = "postgresql"
 }
 
-// ─────────────────────────────────────────────
-// USER
-// ─────────────────────────────────────────────
-
-enum UserRole {
-  LEARNER
-  TRAINER
-  ADMIN
-}
-
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  role      UserRole @default(LEARNER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  enrollments      Enrollment[]
-  groupMembers     GroupMember[]
-  testSubmissions  TestSubmission[]
-  discussionTopics DiscussionTopic[]
-  discussionReplies DiscussionReply[]
-  presences        Presence[]
-  assignments      AssignmentSubmission[]
-}
-
-// ─────────────────────────────────────────────
-// CLASS
-// ─────────────────────────────────────────────
-
 model Class {
-  id            String   @id @default(cuid())
-  title         String
-  description   String
-  imageUrl      String?
-  durationHours Int
-  scheduleStart DateTime
-  scheduleEnd   DateTime
-  method        String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  classId     Int       @id @default(autoincrement())
+  title       String
+  imgUrl      String?
+  hours       Int?
+  methods     String?
+  startDate   DateTime?
+  endDate     DateTime?
+  description String?
+  learningObjective String?
+  isDraft     Boolean   @default(false)
+  createdBy   Int?
+  deletedAt   DateTime?
 
-  courses         Course[]
-  enrollments     Enrollment[]
-  placementTests  PlacementTest[]
-  classTimelines  ClassTimeline[]
-  learningPoints  ClassLearningPoint[]
-  groups          Group[]
-  discussions     DiscussionTopic[]
+  // Relations
+  timelines   Timeline[]
+  courses     Course[]
+  enrollments Enrollment[]
+  assignments Assignment[]
+
+  @@map("classes")
 }
 
-model ClassLearningPoint {
-  id      String @id @default(cuid())
-  classId String
-  text    String
-  order   Int
+model Timeline {
+  timelineId Int      @id @default(autoincrement())
+  classId    Int
+  date       DateTime
+  activity   String
+  createdBy  Int?
+  deletedAt  DateTime?
 
-  class Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+  class Class @relation(fields: [classId], references: [classId], onDelete: Cascade)
+
+  @@map("timelines")
 }
-
-model ClassTimeline {
-  id      String   @id @default(cuid())
-  classId String
-  title   String
-  date    DateTime
-  order   Int
-
-  class Class @relation(fields: [classId], references: [id], onDelete: Cascade)
-}
-
-// ─────────────────────────────────────────────
-// ENROLLMENT
-// ─────────────────────────────────────────────
-
-enum EnrollmentStatus {
-  PENDING
-  ACTIVE
-  COMPLETED
-  CANCELLED
-}
-
-enum LearningObjective {
-  CAREER_SWITCH
-  JOB_SEEKER
-  ACADEMIC_PURPOSE
-  CERTIFICATION
-  UPSKILLING
-}
-
-model Enrollment {
-  id                String            @id @default(cuid())
-  userId            String
-  classId           String
-  status            EnrollmentStatus  @default(PENDING)
-  profession        String?
-  yearsOfExperience Int?
-  workField         String?
-  educationField    String?
-  jobIndustry       String?
-  finalExpectations String?
-  cvFileUrl         String?
-  enrolledAt        DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-
-  user                 User                       @relation(fields: [userId], references: [id])
-  class                Class                      @relation(fields: [classId], references: [id])
-  learningObjectives   EnrollmentLearningObjective[]
-
-  @@unique([userId, classId])
-}
-
-model EnrollmentLearningObjective {
-  id           String            @id @default(cuid())
-  enrollmentId String
-  objective    LearningObjective
-
-  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
-}
-
-// ─────────────────────────────────────────────
-// GROUP
-// ─────────────────────────────────────────────
-
-model Group {
-  id         String   @id @default(cuid())
-  classId    String
-  name       String
-  createdAt  DateTime @default(now())
-
-  class   Class         @relation(fields: [classId], references: [id])
-  members GroupMember[]
-}
-
-model GroupMember {
-  id      String @id @default(cuid())
-  groupId String
-  userId  String
-
-  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  user  User  @relation(fields: [userId], references: [id])
-
-  @@unique([groupId, userId])
-}
-
-// ─────────────────────────────────────────────
-// COURSE
-// ─────────────────────────────────────────────
 
 model Course {
-  id          String   @id @default(cuid())
-  classId     String
-  title       String
-  description String
-  order       Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  courseId          Int       @id @default(autoincrement())
+  classId           Int
+  title             String
+  description       String?
+  learningObjectives String?
+  entrySkills       String?
+  tools             String?
+  createdBy         Int?
+  deletedAt         DateTime?
 
-  class            Class             @relation(fields: [classId], references: [id])
-  sessions         Session[]
-  learningObjectives CourseLearningObjective[]
-  entrySkills      CourseEntrySkill[]
-  tools            CourseTool[]
-  assignments      Assignment[]
-}
+  // Relations
+  class      Class     @relation(fields: [classId], references: [classId], onDelete: Cascade)
+  sessions   Session[]
+  assignments Assignment[]
+  courseMappings CourseMapping[]
 
-model CourseLearningObjective {
-  id        String @id @default(cuid())
-  courseId  String
-  code      String
-  text      String
-  order     Int
-
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-}
-
-model CourseEntrySkill {
-  id       String @id @default(cuid())
-  courseId String
-  text     String
-  order    Int
-
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-}
-
-model CourseTool {
-  id       String @id @default(cuid())
-  courseId String
-  name     String
-
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-}
-
-// ─────────────────────────────────────────────
-// SESSION
-// ─────────────────────────────────────────────
-
-enum SessionType {
-  ASYNCHRONOUS
-  SYNCHRONOUS
-  ASSIGNMENT
+  @@map("courses")
 }
 
 model Session {
-  id          String      @id @default(cuid())
-  courseId    String
-  title       String
-  type        SessionType
-  scheduledAt DateTime?
-  order       Int
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  sessionId      Int      @id @default(autoincrement())
+  courseId       Int
+  isSynchronous  Boolean?
+  title          String
+  content        Json?
+  schedule       Json?
+  reference      Json?
+  createdBy      Int?
+  deletedAt      DateTime?
 
-  course             Course              @relation(fields: [courseId], references: [id])
-  referenceMaterials ReferenceMaterial[]
-  video              SessionVideo?
-  zoomSession        ZoomSession?
-  preSessions        PreTest[]
-  postSessions       PostTest[]
-  exercises          Exercise[]
-  presences          Presence[]
+  course   Course         @relation(fields: [courseId], references: [courseId], onDelete: Cascade)
+  ses      SES[]
+  assignments Assignment[]
+
+  @@map("sessions")
 }
 
-model SessionVideo {
-  id        String @id @default(cuid())
-  sessionId String @unique
-  title     String
-  url       String
+model Enrollment {
+  enrollmentId Int      @id @default(autoincrement())
+  userId       Int
+  classId      Int
 
-  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  class           Class           @relation(fields: [classId], references: [classId])
+  ses             SES[]
+  assignmentResults AssignmentResult[]
+  groups          Group[]
+  courseMappings  CourseMapping[]
+
+  @@map("enrollments")
 }
 
-model ZoomSession {
-  id          String  @id @default(cuid())
-  sessionId   String  @unique
-  link        String
-  status      String
-  recordingUrl String?
-  recordingTitle String?
+model SES {
+  enrollmentId Int
+  sessionId    Int
+  score        Float?
+  scoredBy     Int?
+  scoredAt     DateTime?
 
-  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-}
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [enrollmentId], onDelete: Cascade)
+  session    Session    @relation(fields: [sessionId], references: [sessionId], onDelete: Cascade)
 
-model ReferenceMaterial {
-  id          String @id @default(cuid())
-  sessionId   String
-  name        String
-  description String?
-  fileUrl     String?
-
-  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-}
-
-// ─────────────────────────────────────────────
-// PLACEMENT TEST
-// ─────────────────────────────────────────────
-
-model PlacementTest {
-  id              String   @id @default(cuid())
-  classId         String   @unique
-  title           String
-  description     String?
-  introDescription String?
-  durationMinutes Int
-  deadline        DateTime?
-  instructions    String[]
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  class               Class                @relation(fields: [classId], references: [id])
-  objectiveQuestions  PlacementObjectiveQuestion[]
-  essayQuestions      PlacementEssayQuestion[]
-  projectQuestions    PlacementProjectQuestion[]
-  submissions         TestSubmission[]
-}
-
-model PlacementObjectiveQuestion {
-  id              String @id @default(cuid())
-  placementTestId String
-  question        String
-  options         String[]
-  points          Int
-  order           Int
-
-  placementTest PlacementTest @relation(fields: [placementTestId], references: [id], onDelete: Cascade)
-  answers       ObjectiveAnswer[]
-}
-
-model PlacementEssayQuestion {
-  id              String @id @default(cuid())
-  placementTestId String
-  question        String
-  points          Int
-  order           Int
-
-  placementTest PlacementTest @relation(fields: [placementTestId], references: [id], onDelete: Cascade)
-  answers       EssayAnswer[]
-}
-
-model PlacementProjectQuestion {
-  id              String   @id @default(cuid())
-  placementTestId String
-  question        String
-  requirements    String[]
-  points          Int
-  order           Int
-
-  placementTest PlacementTest @relation(fields: [placementTestId], references: [id], onDelete: Cascade)
-  answers       ProjectAnswer[]
-}
-
-model TestSubmission {
-  id              String   @id @default(cuid())
-  userId          String
-  placementTestId String
-  isFinished      Boolean  @default(false)
-  submittedAt     DateTime?
-  createdAt       DateTime @default(now())
-
-  user          User          @relation(fields: [userId], references: [id])
-  placementTest PlacementTest @relation(fields: [placementTestId], references: [id])
-  objectiveAnswers ObjectiveAnswer[]
-  essayAnswers     EssayAnswer[]
-  projectAnswers   ProjectAnswer[]
-
-  @@unique([userId, placementTestId])
-}
-
-model ObjectiveAnswer {
-  id               String @id @default(cuid())
-  submissionId     String
-  questionId       String
-  selectedOption   String?
-
-  submission TestSubmission             @relation(fields: [submissionId], references: [id], onDelete: Cascade)
-  question   PlacementObjectiveQuestion @relation(fields: [questionId], references: [id])
-}
-
-model EssayAnswer {
-  id           String @id @default(cuid())
-  submissionId String
-  questionId   String
-  answerText   String?
-
-  submission TestSubmission         @relation(fields: [submissionId], references: [id], onDelete: Cascade)
-  question   PlacementEssayQuestion @relation(fields: [questionId], references: [id])
-}
-
-model ProjectAnswer {
-  id           String @id @default(cuid())
-  submissionId String
-  questionId   String
-  fileUrl      String?
-  answerText   String?
-
-  submission TestSubmission           @relation(fields: [submissionId], references: [id], onDelete: Cascade)
-  question   PlacementProjectQuestion @relation(fields: [questionId], references: [id])
-}
-
-// ─────────────────────────────────────────────
-// PRE-TEST & POST-TEST
-// ─────────────────────────────────────────────
-
-model PreTest {
-  id              String   @id @default(cuid())
-  sessionId       String
-  title           String
-  durationMinutes Int?
-  createdAt       DateTime @default(now())
-
-  session   Session           @relation(fields: [sessionId], references: [id])
-  questions PreTestQuestion[]
-}
-
-model PreTestQuestion {
-  id         String   @id @default(cuid())
-  preTestId  String
-  question   String
-  options    String[]
-  points     Int
-  order      Int
-
-  preTest PreTest @relation(fields: [preTestId], references: [id], onDelete: Cascade)
-}
-
-model PostTest {
-  id              String   @id @default(cuid())
-  sessionId       String
-  title           String
-  durationMinutes Int?
-  createdAt       DateTime @default(now())
-
-  session   Session            @relation(fields: [sessionId], references: [id])
-  questions PostTestQuestion[]
-}
-
-model PostTestQuestion {
-  id          String   @id @default(cuid())
-  postTestId  String
-  question    String
-  options     String[]
-  points      Int
-  order       Int
-
-  postTest PostTest @relation(fields: [postTestId], references: [id], onDelete: Cascade)
-}
-
-// ─────────────────────────────────────────────
-// EXERCISE
-// ─────────────────────────────────────────────
-
-model Exercise {
-  id        String   @id @default(cuid())
-  sessionId String
-  title     String
-  detail    String?
-  startDate DateTime?
-  endDate   DateTime?
-  createdAt DateTime @default(now())
-
-  session Session @relation(fields: [sessionId], references: [id])
-}
-
-// ─────────────────────────────────────────────
-// ASSIGNMENT
-// ─────────────────────────────────────────────
-
-enum AssignmentTag {
-  INDIVIDUAL
-  GROUP
-}
-
-enum AssignmentType {
-  PLACEMENT
-  PRE_TEST
-  POST_TEST
-  ASSIGNMENT
-  EXERCISE
-  FINAL_PROJECT
+  @@id([enrollmentId, sessionId])
+  @@map("ses")
 }
 
 model Assignment {
-  id          String         @id @default(cuid())
-  courseId    String
-  sessionId   String?
-  title       String
-  detail      String?
-  tag         AssignmentTag
-  type        AssignmentType
-  startDate   DateTime?
-  endDate     DateTime?
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  assignmentId    Int               @id @default(autoincrement())
+  classId         Int?
+  courseId        Int?
+  sessionId       Int?
+  type            String            // placement, pretest, posttest, assignment, exercise, project
+  submissionType  String?           // group, individual
+  duration        Int?
+  startDate       DateTime?
+  endDate         DateTime?
+  description     String?
+  instruction     String?
+  passingGrade    Float?
+  createdBy       Int?
+  deletedAt       DateTime?
 
-  course      Course                 @relation(fields: [courseId], references: [id])
-  submissions AssignmentSubmission[]
+  class            Class?               @relation(fields: [classId], references: [classId])
+  course           Course?              @relation(fields: [courseId], references: [courseId])
+  session          Session?             @relation(fields: [sessionId], references: [sessionId])
+  assignmentItems  AssignmentItem[]
+  assignmentResults AssignmentResult[]
+
+  @@map("assignments")
 }
 
-model AssignmentSubmission {
-  id           String    @id @default(cuid())
-  assignmentId String
-  userId       String
-  fileUrl      String?
-  note         String?
-  submittedAt  DateTime?
-  createdAt    DateTime  @default(now())
+model AssignmentItem {
+  assignmentItemId Int              @id @default(autoincrement())
+  assignmentId     Int
+  type             String           // objective, essay, project
+  question         String
+  options          Json?
+  correctAnswer    String?
+  maxScore         Float?
 
-  assignment Assignment @relation(fields: [assignmentId], references: [id])
-  user       User       @relation(fields: [userId], references: [id])
+  assignment           Assignment             @relation(fields: [assignmentId], references: [assignmentId], onDelete: Cascade)
+  assignmentItemResults AssignmentItemResult[]
 
-  @@unique([assignmentId, userId])
+  @@map("assignment_items")
 }
 
-// ─────────────────────────────────────────────
-// PRESENCE (ATTENDANCE)
-// ─────────────────────────────────────────────
+model AssignmentResult {
+  assignmentResultId Int                 @id @default(autoincrement())
+  assignmentId       Int
+  enrollmentId       Int
+  startedAt          DateTime?
+  finishedAt         DateTime?
+  status             String              // pass, not_pass
 
-model Presence {
-  id        String   @id @default(cuid())
-  sessionId String
-  userId    String
-  present   Boolean  @default(false)
-  createdAt DateTime @default(now())
+  assignment           Assignment           @relation(fields: [assignmentId], references: [assignmentId], onDelete: Cascade)
+  enrollment           Enrollment           @relation(fields: [enrollmentId], references: [enrollmentId])
+  assignmentItemResults AssignmentItemResult[]
 
-  session Session @relation(fields: [sessionId], references: [id])
-  user    User    @relation(fields: [userId], references: [id])
-
-  @@unique([sessionId, userId])
+  @@map("assignment_results")
 }
 
-// ─────────────────────────────────────────────
-// DISCUSSION
-// ─────────────────────────────────────────────
+model AssignmentItemResult {
+  assignmentItemResultId Int     @id @default(autoincrement())
+  assignmentResultId     Int
+  assignmentItemId       Int
+  answer                 String?
+  answerFiles            Json?
+  score                  Float?
+  reviewerFeedback       String?
+  reviewedBy             Int?
+  reviewedAt             DateTime?
 
-enum DiscussionTopicType {
-  LEARNING_RESOURCE
-  TECHNICAL_HELP
-  GENERAL
+  assignmentResult AssignmentResult @relation(fields: [assignmentResultId], references: [assignmentResultId], onDelete: Cascade)
+  assignmentItem   AssignmentItem   @relation(fields: [assignmentItemId], references: [assignmentItemId])
+
+  @@map("assignment_item_results")
 }
 
-model DiscussionTopic {
-  id        String              @id @default(cuid())
-  classId   String
-  authorId  String
-  title     String
-  preview   String?
-  content   String
-  type      DiscussionTopicType
-  likeCount Int                 @default(0)
-  createdAt DateTime            @default(now())
-  updatedAt DateTime            @updatedAt
+model Group {
+  groupId      Int         @id @default(autoincrement())
+  enrollmentId Int
 
-  class   Class             @relation(fields: [classId], references: [id])
-  author  User              @relation(fields: [authorId], references: [id])
-  replies DiscussionReply[]
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [enrollmentId], onDelete: Cascade)
+
+  @@map("groups")
 }
 
-model DiscussionReply {
-  id        String   @id @default(cuid())
-  topicId   String
-  authorId  String
-  content   String
-  likeCount Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model CourseMapping {
+  enrollmentId Int
+  courseId     Int
 
-  topic  DiscussionTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
-  author User            @relation(fields: [authorId], references: [id])
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [enrollmentId], onDelete: Cascade)
+  course     Course     @relation(fields: [courseId], references: [courseId], onDelete: Cascade)
+
+  @@id([enrollmentId, courseId])
+  @@map("course_mappings")
 }
