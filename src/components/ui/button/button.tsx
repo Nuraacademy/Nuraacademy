@@ -6,6 +6,8 @@ interface NuraButtonProp {
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   className?: string;
   type?: 'button' | 'submit' | 'reset';
+  isLoading?: boolean;
+  disabled?: boolean;
 }
 
 export const NuraButton = ({
@@ -14,8 +16,10 @@ export const NuraButton = ({
   onClick,
   className = "",
   type = 'button',
+  isLoading = false,
+  disabled = false,
 }: NuraButtonProp) => {
-  const baseStyles = "px-4 py-2 rounded-[1rem] font-medium text-lg transition-all duration-200 active:scale-95 flex items-center justify-center min-w-[60px] max-w-[160px]";
+  const baseStyles = "px-4 py-2 rounded-[1rem] font-medium text-lg transition-all duration-200 active:scale-95 flex items-center justify-center min-w-[60px] max-w-[200px] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100";
 
   const variants = {
     primary: "w-full bg-[#D9F55C] text-black hover:bg-[#c8e44a] hover:border-[#c8e44a]",
@@ -29,10 +33,20 @@ export const NuraButton = ({
     <button
       type={type}
       onClick={onClick}
+      disabled={disabled || isLoading}
       className={`${baseStyles} ${variants[variant]} ${className}`}
     >
-      {label}
-      {variant === "navigate" && <ChevronRight className="w-4 h-4 ml-auto" strokeWidth={3} />}
+      {isLoading ? (
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+          <span>Submitting...</span>
+        </div>
+      ) : (
+        <>
+          {label}
+          {variant === "navigate" && <ChevronRight className="w-4 h-4 ml-auto" strokeWidth={3} />}
+        </>
+      )}
     </button>
   );
 };

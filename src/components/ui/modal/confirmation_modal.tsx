@@ -11,6 +11,7 @@ export interface ConfirmModalProps {
   onCancel: () => void;
   confirmText?: string;
   cancelText?: string;
+  isLoading?: boolean;
 }
 
 export const ConfirmModal = ({
@@ -20,7 +21,8 @@ export const ConfirmModal = ({
   onConfirm,
   onCancel,
   confirmText = "Yes",
-  cancelText = "No"
+  cancelText = "No",
+  isLoading = false
 }: ConfirmModalProps) => {
   if (!isOpen) return null;
 
@@ -29,7 +31,7 @@ export const ConfirmModal = ({
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
-        onClick={onCancel}
+        onClick={!isLoading ? onCancel : undefined}
       />
 
       {/* Modal Card */}
@@ -48,6 +50,7 @@ export const ConfirmModal = ({
             label={cancelText}
             onClick={onCancel}
             variant='secondary'
+            disabled={isLoading}
           />
 
           {/* Confirm Button (Lime) */}
@@ -55,6 +58,7 @@ export const ConfirmModal = ({
             label={confirmText}
             onClick={onConfirm}
             variant='primary'
+            isLoading={isLoading}
           />
         </div>
       </div>

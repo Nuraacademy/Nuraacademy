@@ -1,5 +1,5 @@
 import { describe, test, expect, mock, beforeEach } from 'bun:test';
-import { getAssignmentsBySessionId, getAssignmentById, getAssignments } from '../assignmentController';
+import { getAssignmentsBySessionId, getAssignmentById, getAssignments, getPlacementTestByClassId, getAssignmentBySessionAndType } from '../assignmentController';
 import { AssignmentType } from '@prisma/client';
 
 mock.module('@/lib/prisma', () => ({
@@ -7,6 +7,7 @@ mock.module('@/lib/prisma', () => ({
         assignment: {
             findMany: mock(),
             findUnique: mock(),
+            findFirst: mock(),
         },
     },
 }));
@@ -80,5 +81,57 @@ describe('assignmentController', () => {
             orderBy: { createdAt: 'desc' },
         });
         expect(result).toEqual(mockAssignments as any);
+    });
+
+    test('getPlacementTestByClassId should fetch placement test for a specific class', async () => {
+        const mockAssignment = { id: 1, type: 'PLACEMENT', classId: 10 };
+        (prisma.assignment.findFirst as any).mockResolvedValue(mockAssignment);
+
+        const result = await getPlacementTestByClassId(10);
+
+        expect(prisma.assignment.findFirst).toHaveBeenCalledWith({
+            where: {
+                classId: 10,
+                type: 'PLACEMENT',
+                deletedAt: null,
+            },
+            include: {
+                class: true,
+                assignmentItems: {
+                    where: { deletedAt: null },
+                },
+            },
+        });
+        expect(result).toEqual(mockAssignment as any);
+    });
+
+    test('getAssignmentBySessionAndType should fetch specific assignment type for a session', async () => {
+        const mockAssignment = { id: 1, type: 'PRETEST', sessionId: 20 };
+        (prisma.assignment.findFirst as any).mockResolvedValue(mockAssignment);
+
+        const result = await getAssignmentBySessionAndType(20, 'PRETEST' as any);
+
+        expect(prisma.assignment.findFirst).toHaveBeenCalledWith({
+            where: {
+                sessionId: 20,
+                type: 'PRETEST' as any,
+                deletedAt: null,
+            },
+            include: {
+                session: {
+                    include: {
+                        course: {
+                            include: {
+                                class: true
+                            }
+                        }
+                    }
+                },
+                assignmentItems: {
+                    where: { deletedAt: null },
+                },
+            },
+        });
+        expect(result).toEqual(mockAssignment as any);
     });
 });

@@ -16,9 +16,12 @@ import {
   QuestionType,
 } from "@/app/classes/[id]/test/types"
 import { TestData, PageText } from "@/app/classes/[id]/test/constants"
+import { submitTest } from "@/app/actions/assignment"
 
 type TestRunnerProps = {
   classId: string
+  assignmentId: number
+  enrollmentId: number
   objectiveQuestions: ObjectiveQuestion[]
   essayQuestions: EssayQuestion[]
   projectQuestions: ProjectQuestion[]
@@ -31,6 +34,8 @@ type TestRunnerProps = {
 
 export function TestRunner({
   classId,
+  assignmentId,
+  enrollmentId,
   objectiveQuestions,
   essayQuestions,
   projectQuestions,
@@ -41,10 +46,15 @@ export function TestRunner({
   showBanner = true,
 }: TestRunnerProps) {
   const [hasStarted, setHasStarted] = useState(autoStart)
+  const [startTime, setStartTime] = useState<Date | null>(autoStart ? new Date() : null)
   const [isFinished, setIsFinished] = useState(finished)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [timeLeft, setTimeLeft] = useState(testData.durationMinutes * 60)
-  const [currentType, setCurrentType] = useState<QuestionType>("objective")
+  const [currentType, setCurrentType] = useState<QuestionType>(
+    objectiveQuestions.length > 0 ? "objective" :
+      essayQuestions.length > 0 ? "essay" : "project"
+  )
   const [objectiveIndex, setObjectiveIndex] = useState(0)
   const [essayIndex, setEssayIndex] = useState(0)
   const [projectIndex, setProjectIndex] = useState(0)
@@ -60,13 +70,60 @@ export function TestRunner({
   const currentEssay = essayQuestions[essayIndex]
   const currentProject = projectQuestions[projectIndex]
 
+  const handleStart = () => {
+    setHasStarted(true)
+    setStartTime(new Date())
+  }
+
   const handleSubmitClick = () => {
     setIsModalOpen(true)
   }
 
-  const handleConfirmSubmit = () => {
-    setIsModalOpen(false)
-    setIsFinished(true)
+  const handleConfirmSubmit = async () => {
+    setIsSubmitting(true)
+
+    try {
+      const formData = new FormData()
+      formData.append("assignmentId", assignmentId.toString())
+      formData.append("enrollmentId", enrollmentId.toString())
+      formData.append("classId", classId)
+      formData.append("startedAt", (startTime || new Date()).toISOString())
+
+      // Objective answers
+      Object.entries(objectiveAnswers).forEach(([id, value]) => {
+        formData.append(`objective_${id}`, value)
+      })
+
+      // Essay answers
+      Object.entries(essayAnswers).forEach(([id, value]) => {
+        formData.append(`essay_text_${id}`, value)
+      })
+      Object.entries(essayFiles).forEach(([id, file]) => {
+        if (file) formData.append(`essay_file_${id}`, file)
+      })
+
+      // Project answers
+      Object.entries(projectAnswers).forEach(([id, value]) => {
+        formData.append(`project_text_${id}`, value)
+      })
+      Object.entries(projectFiles).forEach(([id, file]) => {
+        if (file) formData.append(`project_file_${id}`, file)
+      })
+
+      const response = await submitTest(formData)
+
+      if (response.success) {
+        setIsModalOpen(false)
+        setIsFinished(true)
+      } else {
+        alert(response.error || "Failed to submit. Please try again.")
+      }
+    } catch (error) {
+      console.error("error submitting:", error)
+      alert("An unexpected error occurred.")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   useEffect(() => {
@@ -115,15 +172,18 @@ export function TestRunner({
     if (currentType === "objective") {
       if (objectiveIndex < objectiveQuestions.length - 1) {
         setObjectiveIndex(objectiveIndex + 1)
-      } else {
+      } else if (essayQuestions.length > 0) {
         setCurrentType("essay")
         setEssayIndex(0)
+      } else if (projectQuestions.length > 0) {
+        setCurrentType("project")
+        setProjectIndex(0)
       }
     } else if (currentType === "essay") {
       setIsEssayUploadModalOpen(false)
       if (essayIndex < essayQuestions.length - 1) {
         setEssayIndex(essayIndex + 1)
-      } else {
+      } else if (projectQuestions.length > 0) {
         setCurrentType("project")
         setProjectIndex(0)
         setIsProjectUploadModalOpen(false)
@@ -134,27 +194,25 @@ export function TestRunner({
   const handlePrev = () => {
     if (currentType === "project") {
       setIsProjectUploadModalOpen(false)
-      if (projectIndex === 0) {
+      if (projectIndex > 0) {
+        setProjectIndex(projectIndex - 1)
+      } else if (essayQuestions.length > 0) {
         setCurrentType("essay")
         setEssayIndex(essayQuestions.length - 1)
-        return
-      }
-    }
-    if (currentType === "essay") {
-      setIsEssayUploadModalOpen(false)
-      if (essayIndex === 0) {
+      } else if (objectiveQuestions.length > 0) {
         setCurrentType("objective")
         setObjectiveIndex(objectiveQuestions.length - 1)
-        return
       }
-    }
-
-    if (currentType === "objective") {
-      if (objectiveIndex > 0) setObjectiveIndex(objectiveIndex - 1)
     } else if (currentType === "essay") {
-      if (essayIndex > 0) setEssayIndex(essayIndex - 1)
-    } else if (currentType === "project") {
-      if (projectIndex > 0) setProjectIndex(projectIndex - 1)
+      setIsEssayUploadModalOpen(false)
+      if (essayIndex > 0) {
+        setEssayIndex(essayIndex - 1)
+      } else if (objectiveQuestions.length > 0) {
+        setCurrentType("objective")
+        setObjectiveIndex(objectiveQuestions.length - 1)
+      }
+    } else if (currentType === "objective") {
+      if (objectiveIndex > 0) setObjectiveIndex(objectiveIndex - 1)
     }
   }
 
@@ -171,9 +229,8 @@ export function TestRunner({
       <div className="mb-6">
         <p className="text-xs font-semibold text-gray-700 mb-2">{pageText.sidebarTimeLeft}</p>
         <div
-          className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs ${
-            timeLeft < 300 ? "bg-red-100 text-red-700" : "bg-emerald-50 text-emerald-700"
-          }`}
+          className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs ${timeLeft < 300 ? "bg-red-100 text-red-700" : "bg-emerald-50 text-emerald-700"
+            }`}
         >
           <Clock size={14} className={timeLeft < 300 ? "text-red-600" : "text-emerald-600"} />
           <span className="font-medium tracking-wide">{formatTime(timeLeft)}</span>
@@ -195,13 +252,12 @@ export function TestRunner({
                   setCurrentType("objective")
                   setObjectiveIndex(index)
                 }}
-                className={`w-8 h-8 rounded-md text-xs flex items-center justify-center border transition-colors ${
-                  isActive
-                    ? "bg-[#075546] text-white border-[#075546]"
-                    : isAnswered
+                className={`w-8 h-8 rounded-md text-xs flex items-center justify-center border transition-colors ${isActive
+                  ? "bg-[#075546] text-white border-[#075546]"
+                  : isAnswered
                     ? "bg-emerald-50 text-[#075546] border-emerald-200"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-transparent"
-                }`}
+                  }`}
               >
                 {q.id}
               </button>
@@ -227,13 +283,12 @@ export function TestRunner({
                   setCurrentType("essay")
                   setEssayIndex(index)
                 }}
-                className={`w-8 h-8 rounded-md text-xs flex items-center justify-center border transition-colors ${
-                  isActive
-                    ? "bg-[#075546] text-white border-[#075546]"
-                    : isAnswered
+                className={`w-8 h-8 rounded-md text-xs flex items-center justify-center border transition-colors ${isActive
+                  ? "bg-[#075546] text-white border-[#075546]"
+                  : isAnswered
                     ? "bg-emerald-50 text-[#075546] border-emerald-200"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-transparent"
-                }`}
+                  }`}
               >
                 {q.id}
               </button>
@@ -256,13 +311,12 @@ export function TestRunner({
                   setCurrentType("project")
                   setProjectIndex(index)
                 }}
-                className={`w-8 h-8 rounded-md text-xs flex items-center justify-center border transition-colors ${
-                  isActive
-                    ? "bg-[#075546] text-white border-[#075546]"
-                    : isAnswered
+                className={`w-8 h-8 rounded-md text-xs flex items-center justify-center border transition-colors ${isActive
+                  ? "bg-[#075546] text-white border-[#075546]"
+                  : isAnswered
                     ? "bg-emerald-50 text-[#075546] border-emerald-200"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-transparent"
-                }`}
+                  }`}
               >
                 {q.id}
               </button>
@@ -298,11 +352,10 @@ export function TestRunner({
               onClick={() =>
                 setObjectiveAnswers((prev) => ({ ...prev, [currentObjective.id]: opt }))
               }
-              className={`w-full text-left text-sm rounded-xl px-4 py-3 border transition-colors ${
-                isSelected
-                  ? "bg-emerald-50 border-emerald-400 text-emerald-800"
-                  : "bg-gray-100 text-gray-800 border-transparent hover:bg-gray-200"
-              }`}
+              className={`w-full text-left text-sm rounded-xl px-4 py-3 border transition-colors ${isSelected
+                ? "bg-emerald-50 border-emerald-400 text-emerald-800"
+                : "bg-gray-100 text-gray-800 border-transparent hover:bg-gray-200"
+                }`}
             >
               {opt}
             </button>
@@ -313,6 +366,7 @@ export function TestRunner({
   )
 
   const renderEssayContent = () => {
+    if (!currentEssay) return null
     const attachedFile = essayFiles[currentEssay.id]
     return (
       <section className="flex-1">
@@ -358,6 +412,7 @@ export function TestRunner({
   }
 
   const renderProjectContent = () => {
+    if (!currentProject) return null
     const attachedFile = projectFiles[currentProject.id]
     return (
       <section className="flex-1">
@@ -430,8 +485,8 @@ export function TestRunner({
           {currentType === "objective"
             ? renderObjectiveContent()
             : currentType === "essay"
-            ? renderEssayContent()
-            : renderProjectContent()}
+              ? renderEssayContent()
+              : renderProjectContent()}
         </div>
 
         <div className="mt-10 flex justify-between items-center text-sm text-gray-800">
@@ -446,7 +501,9 @@ export function TestRunner({
             {pageText.testPrevButton}
           </button>
 
-          {currentType === "project" && projectIndex === projectQuestions.length - 1 ? (
+          {(currentType === "project" && projectIndex === projectQuestions.length - 1) ||
+            (currentType === "essay" && essayIndex === essayQuestions.length - 1 && projectQuestions.length === 0) ||
+            (currentType === "objective" && objectiveIndex === objectiveQuestions.length - 1 && essayQuestions.length === 0 && projectQuestions.length === 0) ? (
             <NuraButton
               label={pageText.buttonSubmit}
               variant="primary"
@@ -480,12 +537,13 @@ export function TestRunner({
       ) : hasStarted ? (
         renderTestCard()
       ) : (
-        <IntroCard onStart={() => setHasStarted(true)} />
+        <IntroCard onStart={handleStart} />
       )}
 
       <ConfirmModal
         isOpen={isModalOpen}
         onConfirm={handleConfirmSubmit}
+        isLoading={isSubmitting}
         onCancel={() => setIsModalOpen(false)}
         title="Submit Test?"
         message={
