@@ -25,11 +25,13 @@ export async function getCourseById(id: number) {
             deletedAt: null,
         },
         include: {
+            class: true,
             sessions: {
                 where: { deletedAt: null },
                 orderBy: { createdAt: 'asc' },
-                // We could also fetch Assignments tied directly to this course 
-                // but often assignments sit inside sessions. We'll leave it simple.
+                include: {
+                    assignments: { where: { deletedAt: null } },
+                },
             },
         },
     });

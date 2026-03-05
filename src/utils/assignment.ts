@@ -40,3 +40,22 @@ export const getAssignmentEndpoint = (
         return "";
     }
 };
+
+export const mapPrismaAssignmentType = (type: string): AssignmentType => {
+    switch (type) {
+        case "PLACEMENT":
+            return "Placement";
+        case "PRETEST":
+            return "Pre";
+        case "POSTTEST":
+            return "Post";
+        case "ASSIGNMENT":
+            return "Assignment";
+        case "EXERCISE":
+            return "Exercise";
+        case "PROJECT":
+            return "Final Project";
+        default:
+            return "Assignment";
+    }
+};

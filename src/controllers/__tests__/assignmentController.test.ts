@@ -30,7 +30,7 @@ describe('assignmentController', () => {
             where: { sessionId: 10, deletedAt: null },
             orderBy: { createdAt: 'asc' },
         });
-        expect(result).toEqual(mockAssignments);
+        expect(result).toEqual(mockAssignments as any);
     });
 
     test('getAssignmentsBySessionId should filter by type if provided', async () => {
@@ -45,7 +45,7 @@ describe('assignmentController', () => {
             where: { sessionId: 10, type: AssignmentType.EXERCISE, deletedAt: null },
             orderBy: { createdAt: 'asc' },
         });
-        expect(result).toEqual(mockAssignments);
+        expect(result).toEqual(mockAssignments as any);
     });
 
     test('getAssignmentById should fetch a specific assignment including items', async () => {
@@ -60,6 +60,25 @@ describe('assignmentController', () => {
                 assignmentItems: { where: { deletedAt: null } },
             },
         });
-        expect(result).toEqual(mockAssignment);
+        expect(result).toEqual(mockAssignment as any);
+    });
+
+    test('getAssignments should fetch all assignments with inclusions and correct order', async () => {
+        const mockAssignments = [
+            { id: 1, title: 'A1', class: { title: 'C1' }, course: { title: 'Cr1' } },
+        ];
+        (prisma.assignment.findMany as any).mockResolvedValue(mockAssignments);
+
+        const result = await getAssignments();
+
+        expect(prisma.assignment.findMany).toHaveBeenCalledWith({
+            where: { deletedAt: null },
+            include: {
+                class: { select: { title: true } },
+                course: { select: { title: true } },
+            },
+            orderBy: { createdAt: 'desc' },
+        });
+        expect(result).toEqual(mockAssignments as any);
     });
 });

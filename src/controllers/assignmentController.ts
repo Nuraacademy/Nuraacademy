@@ -8,8 +8,28 @@ export async function getAssignmentsBySessionId(sessionId: number, type?: Assign
             ...(type && { type }),
             deletedAt: null,
         },
+    });
+}
+
+export async function getAssignments() {
+    return await prisma.assignment.findMany({
+        where: {
+            deletedAt: null,
+        },
+        include: {
+            class: {
+                select: {
+                    title: true,
+                },
+            },
+            course: {
+                select: {
+                    title: true,
+                },
+            },
+        },
         orderBy: {
-            createdAt: 'asc',
+            createdAt: 'desc',
         },
     });
 }

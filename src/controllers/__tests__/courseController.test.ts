@@ -31,10 +31,10 @@ describe('courseController', () => {
             where: { classId: 10, deletedAt: null },
             orderBy: { createdAt: 'asc' },
         });
-        expect(result).toEqual(mockCourses);
+        expect(result).toEqual(mockCourses as any);
     });
 
-    test('getCourseById should fetch a specific course by ID including sessions', async () => {
+    test('getCourseById should fetch a specific course by ID including class and sessions', async () => {
         const mockCourse = { id: 1, title: 'Course 1' };
         (prisma.course.findUnique as any).mockResolvedValue(mockCourse);
 
@@ -43,12 +43,16 @@ describe('courseController', () => {
         expect(prisma.course.findUnique).toHaveBeenCalledWith({
             where: { id: 1, deletedAt: null },
             include: {
+                class: true,
                 sessions: {
                     where: { deletedAt: null },
                     orderBy: { createdAt: 'asc' },
+                    include: {
+                        assignments: { where: { deletedAt: null } },
+                    },
                 },
             },
         });
-        expect(result).toEqual(mockCourse);
+        expect(result).toEqual(mockCourse as any);
     });
 });

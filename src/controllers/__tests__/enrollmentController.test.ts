@@ -31,11 +31,11 @@ describe('enrollmentController', () => {
                 class: { select: { title: true, isDraft: true } },
             },
         });
-        expect(result).toEqual(mockEnrollment);
+        expect(result).toEqual(mockEnrollment as any);
     });
 
     test('getEnrollmentProgress should fetch course mappings and results for an enrollment', async () => {
-        const mockProgress = { id: 1, courseMappings: [], ses: [] };
+        const mockProgress = { id: 1, courseMappings: [], ses: [], assignmentResults: [] };
         (prisma.enrollment.findUnique as any).mockResolvedValue(mockProgress);
 
         const result = await getEnrollmentProgress(1);
@@ -48,6 +48,6 @@ describe('enrollmentController', () => {
                 assignmentResults: { where: { deletedAt: null } },
             },
         });
-        expect(result).toEqual(mockProgress);
+        expect(result).toEqual(mockProgress as any);
     });
 });

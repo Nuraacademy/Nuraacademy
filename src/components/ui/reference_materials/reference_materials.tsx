@@ -19,6 +19,7 @@ const FILE_ICONS: { ext: string; src: string }[] = [
 ];
 
 function getIcon(name: string): string | null {
+    if (!name) return null;
     const match = FILE_ICONS.find(({ ext }) => name.toLowerCase().includes(ext));
     return match ? match.src : null;
 }

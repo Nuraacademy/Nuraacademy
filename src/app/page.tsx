@@ -117,6 +117,7 @@ export default function Home() {
               method="Flipped Blended Classroom"
               modules={5}
               description="Kelas ini dirancang untuk peserta yang ingin memahami konsep dasar pemrograman menggunakan Python. Pembelajaran fokus pada pemahaman cara kerja program, penggunaan variabel, serta pengelolaan file."
+              onClick={() => router.push('/classes/1/overview')}
             />
             <ClassCard
               id="2"
@@ -128,6 +129,7 @@ export default function Home() {
               method="Flipped Blended Classroom"
               modules={5}
               description="Kelas ini dirancang untuk peserta yang ingin memahami konsep dasar pemrograman menggunakan Python. Pembelajaran fokus pada pemahaman cara kerja program, penggunaan variabel, serta pengelolaan file."
+              onClick={() => router.push('/classes/2/overview')}
             />
             <ClassCard
               id="3"
@@ -139,6 +141,7 @@ export default function Home() {
               method="Flipped Blended Classroom"
               modules={5}
               description="Kelas ini dirancang untuk peserta yang ingin memahami konsep dasar pemrograman menggunakan Python. Pembelajaran fokus pada pemahaman cara kerja program, penggunaan variabel, serta pengelolaan file."
+              onClick={() => router.push('/classes/3/overview')}
             />
           </div>
         </div>

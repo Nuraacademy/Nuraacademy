@@ -30,10 +30,12 @@ export async function getSessionById(id: number) {
             deletedAt: null,
         },
         include: {
+            course: {
+                include: { class: true },
+            },
             assignments: {
                 where: { deletedAt: null },
             },
-            // You can include relations if needed here.
         },
     });
 }

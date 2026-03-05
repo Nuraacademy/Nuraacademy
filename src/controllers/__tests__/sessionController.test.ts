@@ -33,10 +33,10 @@ describe('sessionController', () => {
                 assignments: { where: { deletedAt: null } },
             },
         });
-        expect(result).toEqual(mockSessions);
+        expect(result).toEqual(mockSessions as any);
     });
 
-    test('getSessionById should fetch a specific session by ID including assignments', async () => {
+    test('getSessionById should fetch a specific session by ID including course and assignments', async () => {
         const mockSession = { id: 1, title: 'Session 1' };
         (prisma.session.findUnique as any).mockResolvedValue(mockSession);
 
@@ -45,9 +45,12 @@ describe('sessionController', () => {
         expect(prisma.session.findUnique).toHaveBeenCalledWith({
             where: { id: 1, deletedAt: null },
             include: {
+                course: {
+                    include: { class: true },
+                },
                 assignments: { where: { deletedAt: null } },
             },
         });
-        expect(result).toEqual(mockSession);
+        expect(result).toEqual(mockSession as any);
     });
 });

@@ -34,7 +34,7 @@ describe('classController', () => {
                 timelines: { where: { deletedAt: null } },
             },
         });
-        expect(result).toEqual(mockClasses);
+        expect(result).toEqual(mockClasses as any);
     });
 
     test('getClassById should fetch a specific class by ID including relations', async () => {
@@ -56,6 +56,6 @@ describe('classController', () => {
                 },
             },
         });
-        expect(result).toEqual(mockClass);
+        expect(result).toEqual(mockClass as any);
     });
 });
