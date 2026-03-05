@@ -1,134 +1,244 @@
-//Project learning_platform {
-//  Settings {
-//    database_type: 'PostgreSQL'
-//  }
-//}
+// -----------------------------------------------------------------------------
+// ENUMS
+// -----------------------------------------------------------------------------
+Enum AssignmentType {
+  PLACEMENT
+  PRETEST
+  POSTTEST
+  ASSIGNMENT
+  EXERCISE
+  PROJECT
+}
 
-// Main Classes
+Enum SubmissionType {
+  GROUP
+  INDIVIDUAL
+}
+
+Enum AssignmentItemType {
+  OBJECTIVE
+  ESSAY
+  PROJECT
+}
+
+Enum AssignmentStatus {
+  PASS
+  NOT_PASS
+}
+
+Enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  DROPPED
+}
+
+// -----------------------------------------------------------------------------
+// TABLES
+// -----------------------------------------------------------------------------
+
+Table users {
+  id integer [primary key, increment]
+  email varchar [unique, not null]
+  name varchar
+}
+
 Table classes {
-  class_id int [pk, increment]
-  title varchar(255) [not null]
-  img_url varchar(500)
-  hours int
-  methods text
-  start_date date
-  end_date date
-  description text
-  learning_objective text
-  is_draft boolean [default: false]
-  created_by int
-  deleted_at timestamp
+  id integer [primary key, increment]
+  title varchar [not null]
+  imgUrl varchar
+  hours integer
+  methods varchar
+  startDate timestamp
+  endDate timestamp
+  description varchar
+  learningObjective varchar
+  isDraft boolean [default: false]
+  createdBy integer
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp
+  deletedAt timestamp
+  
+  Note: 'Indexes: [createdBy], [isDraft], [startDate, endDate]'
 }
 
 Table timelines {
-  timeline_id int [pk, increment]
-  class_id int [ref: > classes.class_id]
-  date date [not null]
-  activity text [not null]
-  created_by int
-  deleted_at timestamp
+  id integer [primary key, increment]
+  classId integer [not null]
+  date timestamp [not null]
+  activity varchar [not null]
+  createdBy integer
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp
+  deletedAt timestamp
+  
+  Note: 'Unique: [classId, date]'
 }
 
 Table courses {
-  course_id int [pk, increment]
-  class_id int [ref: > classes.class_id]
-  title varchar(255) [not null]
-  description text
-  learning_objectives text
-  entry_skills text
-  tools text
-  created_by int
-  deleted_at timestamp
+  id integer [primary key, increment]
+  classId integer [not null]
+  title varchar [not null]
+  description varchar
+  learningObjectives varchar
+  entrySkills varchar
+  tools varchar
+  createdBy integer
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp
+  deletedAt timestamp
 }
 
 Table sessions {
-  session_id int [pk, increment]
-  course_id int [ref: > courses.course_id]
-  is_synchronous boolean
-  title varchar(255) [not null]
-  content jsonb
-  schedule jsonb
-  reference jsonb
-  created_by int
-  deleted_at timestamp
+  id integer [primary key, increment]
+  courseId integer [not null]
+  isSynchronous boolean
+  title varchar [not null]
+  content json
+  schedule json
+  reference json
+  createdBy integer
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp
+  deletedAt timestamp
 }
 
-// Enrollment & SES
 Table enrollments {
-  enrollment_id int [pk, increment]
-  user_id int [not null]
-  class_id int [ref: > classes.class_id, not null]
+  id integer [primary key, increment]
+  userId integer [not null]
+  classId integer [not null]
+  status EnrollmentStatus [default: 'ACTIVE']
+  enrolledAt timestamp [default: `now()`]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp
+  deletedAt timestamp
+  
+  Note: 'Unique: [userId, classId]'
 }
 
 Table ses {
-  enrollment_id int [ref: > enrollments.enrollment_id]
-  session_id int [ref: > sessions.session_id]
-  score decimal(5,2)
-  scored_by int
-  scored_at timestamp
-  indexes {
-    (enrollment_id, session_id) [pk]
-  }
+  enrollmentId integer [primary key]
+  sessionId integer [primary key]
+  score float
+  scoredBy integer
+  scoredAt timestamp
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp
+  deletedAt timestamp
 }
 
-// Assignments
 Table assignments {
-  assignment_id int [pk, increment]
-  class_id int [ref: > classes.class_id]
-  course_id int [ref: > courses.course_id]
-  session_id int [ref: > sessions.session_id]
-  type varchar(50) [not null, note: 'placement, pretest, posttest, assignment, exercise, project']
-  submission_type varchar(20) [note: 'group, individual']
-  duration int
-  start_date date
-  end_date date
-  description text
-  instruction text
-  passing_grade decimal(3,2)
-  created_by int
-  deleted_at timestamp
+  id integer [primary key, increment]
+  classId integer
+  courseId integer
+  sessionId integer
+  type AssignmentType [not null]
+  submissionType SubmissionType
+  duration integer
+  startDate timestamp
+  endDate timestamp
+  description varchar
+  instruction varchar
+  passingGrade float
+  createdBy integer
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp
+  deletedAt timestamp
 }
 
 Table assignment_items {
-  assignment_item_id int [pk, increment]
-  assignment_id int [ref: > assignments.assignment_id, not null]
-  type varchar(20) [not null, note: 'objective, essay, project']
-  question text [not null]
-  options jsonb
-  correct_answer text
-  max_score decimal(5,2)
+  id integer [primary key, increment]
+  assignmentId integer [not null]
+  type AssignmentItemType [not null]
+  question varchar [not null]
+  options json
+  correctAnswer varchar
+  maxScore float
+  createdBy integer
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp
+  deletedAt timestamp
 }
 
 Table assignment_results {
-  assignment_result_id int [pk, increment]
-  assignment_id int [ref: > assignments.assignment_id]
-  enrollment_id int [ref: > enrollments.enrollment_id]
-  started_at timestamp
-  finished_at timestamp
-  status varchar(20) [note: 'pass, not_pass']
+  id integer [primary key, increment]
+  assignmentId integer [not null]
+  enrollmentId integer [not null]
+  startedAt timestamp
+  finishedAt timestamp
+  status AssignmentStatus [default: 'NOT_PASS']
+  totalScore float
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp
+  deletedAt timestamp
+  
+  Note: 'Unique: [assignmentId, enrollmentId]'
 }
 
 Table assignment_item_results {
-  assignment_item_result_id int [pk, increment]
-  assignment_result_id int [ref: > assignment_results.assignment_result_id, not null]
-  assignment_item_id int [ref: > assignment_items.assignment_item_id]
-  answer text
-  answer_files jsonb
-  score decimal(5,2)
-  reviewer_feedback text
-  reviewed_by int
-  reviewed_at timestamp
+  id integer [primary key, increment]
+  assignmentResultId integer [not null]
+  assignmentItemId integer [not null]
+  answer varchar
+  answerFiles json
+  score float
+  reviewerFeedback varchar
+  reviewedBy integer
+  reviewedAt timestamp
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp
+  deletedAt timestamp
 }
 
-// Groups and Course Mapping
 Table groups {
-  group_id int [pk, increment]
-  enrollment_id int [ref: > enrollments.enrollment_id]
+  id integer [primary key, increment]
+  enrollmentId integer [not null]
+  name varchar
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp
+  deletedAt timestamp
 }
 
 Table course_mappings {
-  enrollment_id int [pk, ref: > enrollments.enrollment_id]
-  course_id int [ref: > courses.course_id]
+  enrollmentId integer [primary key]
+  courseId integer [primary key]
+  progress float [default: 0]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp
+  deletedAt timestamp
 }
 
-Ref: enrollments.class_id > classes.class_id // Additional explicit FK
+// -----------------------------------------------------------------------------
+// RELATIONSHIPS (FOREIGN KEYS)
+// -----------------------------------------------------------------------------
+
+// Class Relations
+Ref: timelines.classId > classes.id [delete: cascade]
+Ref: courses.classId > classes.id [delete: cascade]
+
+// Course Relations
+Ref: sessions.courseId > courses.id [delete: cascade]
+
+// Enrollment Relations
+Ref: enrollments.userId > users.id
+Ref: enrollments.classId > classes.id
+
+// SES (Session-Enrollment) Relations
+Ref: ses.enrollmentId > enrollments.id [delete: cascade]
+Ref: ses.sessionId > sessions.id [delete: cascade]
+
+// Assignment Hierarchy Relations
+Ref: assignments.classId > classes.id
+Ref: assignments.courseId > courses.id
+Ref: assignments.sessionId > sessions.id
+Ref: assignment_items.assignmentId > assignments.id [delete: cascade]
+
+// Result Relations
+Ref: assignment_results.assignmentId > assignments.id [delete: cascade]
+Ref: assignment_results.enrollmentId > enrollments.id
+Ref: assignment_item_results.assignmentResultId > assignment_results.id [delete: cascade]
+Ref: assignment_item_results.assignmentItemId > assignment_items.id
+
+// Group & Mapping Relations
+Ref: groups.enrollmentId > enrollments.id [delete: cascade]
+Ref: course_mappings.enrollmentId > enrollments.id [delete: cascade]
+Ref: course_mappings.courseId > courses.id [delete: cascade]

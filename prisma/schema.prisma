@@ -6,19 +6,87 @@ datasource db {
   provider = "postgresql"
 }
 
+// Enums
+enum AssignmentType {
+  PLACEMENT
+  PRETEST
+  POSTTEST
+  ASSIGNMENT
+  EXERCISE
+  PROJECT
+}
+
+enum SubmissionType {
+  GROUP
+  INDIVIDUAL
+}
+
+enum AssignmentItemType {
+  OBJECTIVE
+  ESSAY
+  PROJECT
+}
+
+enum AssignmentStatus {
+  PASS
+  NOT_PASS
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  DROPPED
+}
+
+// User model 
+model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  name  String?
+
+  enrollments Enrollment[]
+
+  @@map("users")
+}
+
+model Session {
+  id            Int       @id @default(autoincrement())
+  courseId      Int
+  isSynchronous Boolean?
+  title         String
+  content       Json?
+  schedule      Json?
+  reference     Json?
+  createdBy     Int?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  // Relations
+  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  ses         SES[]
+  assignments Assignment[] // <-- Add this line right here
+
+  @@index([courseId])
+  @@index([createdBy])
+  @@map("sessions")
+}
+
 model Class {
-  classId     Int       @id @default(autoincrement())
-  title       String
-  imgUrl      String?
-  hours       Int?
-  methods     String?
-  startDate   DateTime?
-  endDate     DateTime?
-  description String?
+  id                Int       @id @default(autoincrement())
+  title             String
+  imgUrl            String?
+  hours             Int?
+  methods           String?
+  startDate         DateTime?
+  endDate           DateTime?
+  description       String?
   learningObjective String?
-  isDraft     Boolean   @default(false)
-  createdBy   Int?
-  deletedAt   DateTime?
+  isDraft           Boolean   @default(false)
+  createdBy         Int?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
 
   // Relations
   timelines   Timeline[]
@@ -26,71 +94,73 @@ model Class {
   enrollments Enrollment[]
   assignments Assignment[]
 
+  @@index([createdBy])
+  @@index([isDraft])
+  @@index([startDate, endDate])
   @@map("classes")
 }
 
 model Timeline {
-  timelineId Int      @id @default(autoincrement())
-  classId    Int
-  date       DateTime
-  activity   String
-  createdBy  Int?
-  deletedAt  DateTime?
+  id        Int       @id @default(autoincrement())
+  classId   Int
+  date      DateTime
+  activity  String
+  createdBy Int?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
-  class Class @relation(fields: [classId], references: [classId], onDelete: Cascade)
+  class Class @relation(fields: [classId], references: [id], onDelete: Cascade)
 
+  @@index([classId, date])
+  @@unique([classId, date])
   @@map("timelines")
 }
 
 model Course {
-  courseId          Int       @id @default(autoincrement())
-  classId           Int
-  title             String
-  description       String?
+  id                 Int       @id @default(autoincrement())
+  classId            Int
+  title              String
+  description        String?
   learningObjectives String?
-  entrySkills       String?
-  tools             String?
-  createdBy         Int?
-  deletedAt         DateTime?
+  entrySkills        String?
+  tools              String?
+  createdBy          Int?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  deletedAt          DateTime?
 
-  // Relations
-  class      Class     @relation(fields: [classId], references: [classId], onDelete: Cascade)
-  sessions   Session[]
-  assignments Assignment[]
+  class          Class           @relation(fields: [classId], references: [id], onDelete: Cascade)
+  sessions       Session[]
+  assignments    Assignment[]
   courseMappings CourseMapping[]
 
+  @@index([classId])
+  @@index([createdBy])
   @@map("courses")
 }
 
-model Session {
-  sessionId      Int      @id @default(autoincrement())
-  courseId       Int
-  isSynchronous  Boolean?
-  title          String
-  content        Json?
-  schedule       Json?
-  reference      Json?
-  createdBy      Int?
-  deletedAt      DateTime?
-
-  course   Course         @relation(fields: [courseId], references: [courseId], onDelete: Cascade)
-  ses      SES[]
-  assignments Assignment[]
-
-  @@map("sessions")
-}
-
 model Enrollment {
-  enrollmentId Int      @id @default(autoincrement())
-  userId       Int
-  classId      Int
+  id         Int              @id @default(autoincrement())
+  userId     Int
+  classId    Int
+  status     EnrollmentStatus @default(ACTIVE)
+  enrolledAt DateTime         @default(now())
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  deletedAt  DateTime?
 
-  class           Class           @relation(fields: [classId], references: [classId])
-  ses             SES[]
+  user              User               @relation(fields: [userId], references: [id])
+  class             Class              @relation(fields: [classId], references: [id])
+  ses               SES[]
+  groups            Group[]
+  courseMappings    CourseMapping[]
   assignmentResults AssignmentResult[]
-  groups          Group[]
-  courseMappings  CourseMapping[]
 
+  @@unique([userId, classId])
+  @@index([userId])
+  @@index([classId])
+  @@index([status])
   @@map("enrollments")
 }
 
@@ -100,102 +170,141 @@ model SES {
   score        Float?
   scoredBy     Int?
   scoredAt     DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
 
-  enrollment Enrollment @relation(fields: [enrollmentId], references: [enrollmentId], onDelete: Cascade)
-  session    Session    @relation(fields: [sessionId], references: [sessionId], onDelete: Cascade)
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  session    Session    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   @@id([enrollmentId, sessionId])
+  @@index([sessionId])
   @@map("ses")
 }
 
 model Assignment {
-  assignmentId    Int               @id @default(autoincrement())
-  classId         Int?
-  courseId        Int?
-  sessionId       Int?
-  type            String            // placement, pretest, posttest, assignment, exercise, project
-  submissionType  String?           // group, individual
-  duration        Int?
-  startDate       DateTime?
-  endDate         DateTime?
-  description     String?
-  instruction     String?
-  passingGrade    Float?
-  createdBy       Int?
-  deletedAt       DateTime?
+  id             Int             @id @default(autoincrement())
+  classId        Int?
+  courseId       Int?
+  sessionId      Int?
+  type           AssignmentType
+  submissionType SubmissionType?
+  duration       Int?
+  startDate      DateTime?
+  endDate        DateTime?
+  description    String?
+  instruction    String?
+  passingGrade   Float?
+  createdBy      Int?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  deletedAt      DateTime?
 
-  class            Class?               @relation(fields: [classId], references: [classId])
-  course           Course?              @relation(fields: [courseId], references: [courseId])
-  session          Session?             @relation(fields: [sessionId], references: [sessionId])
-  assignmentItems  AssignmentItem[]
+  class             Class?             @relation(fields: [classId], references: [id])
+  course            Course?            @relation(fields: [courseId], references: [id])
+  session           Session?           @relation(fields: [sessionId], references: [id])
+  assignmentItems   AssignmentItem[]
   assignmentResults AssignmentResult[]
 
+  @@index([classId])
+  @@index([courseId])
+  @@index([sessionId])
+  @@index([type])
+  @@index([startDate, endDate])
   @@map("assignments")
 }
 
 model AssignmentItem {
-  assignmentItemId Int              @id @default(autoincrement())
-  assignmentId     Int
-  type             String           // objective, essay, project
-  question         String
-  options          Json?
-  correctAnswer    String?
-  maxScore         Float?
+  id             Int                @id @default(autoincrement())
+  assignmentId   Int
+  type           AssignmentItemType
+  question       String
+  options        Json?
+  correctAnswer  String?
+  maxScore       Float?
+  createdBy      Int?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  deletedAt      DateTime?
 
-  assignment           Assignment             @relation(fields: [assignmentId], references: [assignmentId], onDelete: Cascade)
+  assignment            Assignment             @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
   assignmentItemResults AssignmentItemResult[]
 
+  @@index([assignmentId])
+  @@index([type])
   @@map("assignment_items")
 }
 
 model AssignmentResult {
-  assignmentResultId Int                 @id @default(autoincrement())
-  assignmentId       Int
-  enrollmentId       Int
-  startedAt          DateTime?
-  finishedAt         DateTime?
-  status             String              // pass, not_pass
+  id           Int              @id @default(autoincrement())
+  assignmentId Int
+  enrollmentId Int
+  startedAt    DateTime?
+  finishedAt   DateTime?
+  status       AssignmentStatus @default(NOT_PASS)
+  totalScore   Float?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  deletedAt    DateTime?
 
-  assignment           Assignment           @relation(fields: [assignmentId], references: [assignmentId], onDelete: Cascade)
-  enrollment           Enrollment           @relation(fields: [enrollmentId], references: [enrollmentId])
+  assignment            Assignment             @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  enrollment            Enrollment             @relation(fields: [enrollmentId], references: [id])
   assignmentItemResults AssignmentItemResult[]
 
+  @@unique([assignmentId, enrollmentId])
+  @@index([assignmentId])
+  @@index([enrollmentId])
   @@map("assignment_results")
 }
 
 model AssignmentItemResult {
-  assignmentItemResultId Int     @id @default(autoincrement())
-  assignmentResultId     Int
-  assignmentItemId       Int
-  answer                 String?
-  answerFiles            Json?
-  score                  Float?
-  reviewerFeedback       String?
-  reviewedBy             Int?
-  reviewedAt             DateTime?
+  id                 Int       @id @default(autoincrement())
+  assignmentResultId Int
+  assignmentItemId   Int
+  answer             String?
+  answerFiles        Json?
+  score              Float?
+  reviewerFeedback   String?
+  reviewedBy         Int?
+  reviewedAt         DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  deletedAt          DateTime?
 
-  assignmentResult AssignmentResult @relation(fields: [assignmentResultId], references: [assignmentResultId], onDelete: Cascade)
-  assignmentItem   AssignmentItem   @relation(fields: [assignmentItemId], references: [assignmentItemId])
+  assignmentResult AssignmentResult @relation(fields: [assignmentResultId], references: [id], onDelete: Cascade)
+  assignmentItem   AssignmentItem   @relation(fields: [assignmentItemId], references: [id])
 
+  @@index([assignmentResultId])
+  @@index([assignmentItemId])
   @@map("assignment_item_results")
 }
 
 model Group {
-  groupId      Int         @id @default(autoincrement())
+  id           Int       @id @default(autoincrement())
   enrollmentId Int
+  name         String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
 
-  enrollment Enrollment @relation(fields: [enrollmentId], references: [enrollmentId], onDelete: Cascade)
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
 
+  @@index([enrollmentId])
   @@map("groups")
 }
 
 model CourseMapping {
   enrollmentId Int
   courseId     Int
+  progress     Float?    @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
 
-  enrollment Enrollment @relation(fields: [enrollmentId], references: [enrollmentId], onDelete: Cascade)
-  course     Course     @relation(fields: [courseId], references: [courseId], onDelete: Cascade)
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  course     Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@id([enrollmentId, courseId])
+  @@index([courseId])
   @@map("course_mappings")
 }
