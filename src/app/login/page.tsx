@@ -4,6 +4,8 @@ import { useState } from "react";
 import { NuraButton } from "@/components/ui/button/button";
 import { NuraTextInput } from "@/components/ui/input/text_input";
 import { useRouter } from "next/navigation";
+import { handleLogin } from "@/app/actions/auth";
+import { toast } from "sonner";
 
 export const dynamic = "force-dynamic";
 
@@ -11,13 +13,30 @@ export default function LoginPage() {
     const router = useRouter();
     const [identifier, setIdentifier] = useState("");
     const [password, setPassword] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log("Login form data:", {
-            identifier,
-            password,
-        });
+        setIsLoading(true);
+
+        try {
+            const formData = new FormData();
+            formData.append("identifier", identifier);
+            formData.append("password", password);
+
+            const result = await handleLogin(formData);
+
+            if (result.success) {
+                toast.success("Login successful!");
+                router.push("/classes");
+            } else {
+                toast.error(result.error || "Login failed");
+            }
+        } catch (error) {
+            toast.error("An unexpected error occurred");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -30,7 +49,7 @@ export default function LoginPage() {
                         <img
                             src="/logo/logo_nura.png"
                             alt="Nura Academy"
-                            className="h-10"
+                            className="h-10 cursor-pointer"
                             onClick={() => router.push('/')}
                         />
                     </div>
@@ -46,6 +65,7 @@ export default function LoginPage() {
                                 placeholder="Username or Email"
                                 value={identifier}
                                 onChange={(e) => setIdentifier(e.target.value)}
+                                disabled={isLoading}
                             />
                         </div>
 
@@ -56,6 +76,7 @@ export default function LoginPage() {
                                 variant="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
+                                disabled={isLoading}
                             />
                         </div>
 
@@ -63,13 +84,14 @@ export default function LoginPage() {
                             <NuraButton
                                 label="Get Started"
                                 type="submit"
+                                isLoading={isLoading}
                                 className="w-full rounded-full bg-black text-white py-2 text-sm font-medium hover:bg-gray-900 transition-colors"
                             />
                         </div>
 
                         <p className="text-center text-xs text-gray-500 mt-4">
                             Don't have an account?{" "}
-                            <a href="/register" className="font-semibold text-black">
+                            <a href="/register" className="font-semibold text-black hover:underline">
                                 Register
                             </a>
                         </p>

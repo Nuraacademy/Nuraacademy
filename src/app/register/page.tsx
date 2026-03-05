@@ -1,9 +1,9 @@
-"use client"
-
 import { useState } from "react";
 import { NuraButton } from "@/components/ui/button/button";
 import { NuraTextInput } from "@/components/ui/input/text_input";
 import { useRouter } from "next/navigation";
+import { handleRegister } from "@/app/actions/auth";
+import { toast } from "sonner";
 
 export const dynamic = "force-dynamic";
 
@@ -14,16 +14,33 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Register form data:", {
-      fullName,
-      username,
-      email,
-      password,
-      whatsapp,
-    });
+    setIsLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("fullName", fullName);
+      formData.append("username", username);
+      formData.append("email", email);
+      formData.append("password", password);
+      formData.append("whatsapp", whatsapp);
+
+      const result = await handleRegister(formData);
+
+      if (result.success) {
+        toast.success("Account created successfully!");
+        router.push("/classes");
+      } else {
+        toast.error(result.error || "Registration failed");
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -52,7 +69,7 @@ export default function RegisterPage() {
             <img
               src="/logo/logo_nura.png"
               alt="Nura Academy"
-              className="h-10"
+              className="h-10 cursor-pointer"
               onClick={() => router.push('/')}
             />
           </div>
@@ -68,6 +85,7 @@ export default function RegisterPage() {
                 placeholder="Full Name"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
+                disabled={isLoading}
               />
             </div>
 
@@ -77,6 +95,7 @@ export default function RegisterPage() {
                 placeholder="Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                disabled={isLoading}
               />
             </div>
 
@@ -86,6 +105,7 @@ export default function RegisterPage() {
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={isLoading}
               />
             </div>
 
@@ -96,6 +116,7 @@ export default function RegisterPage() {
                 variant="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading}
               />
             </div>
 
@@ -105,6 +126,7 @@ export default function RegisterPage() {
                 placeholder="WhatsApp"
                 value={whatsapp}
                 onChange={(e) => setWhatsapp(e.target.value)}
+                disabled={isLoading}
               />
             </div>
 
@@ -112,13 +134,14 @@ export default function RegisterPage() {
               <NuraButton
                 label="Create Account"
                 type="submit"
+                isLoading={isLoading}
                 className="w-full rounded-full bg-black text-white py-2 text-sm font-medium hover:bg-gray-900 transition-colors"
               />
             </div>
 
             <p className="text-center text-xs text-gray-500 mt-4">
               Already have an account?{" "}
-              <a href="/login" className="underline">
+              <a href="/login" className="underline hover:decoration-2">
                 Login
               </a>
             </p>

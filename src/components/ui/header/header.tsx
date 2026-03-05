@@ -1,16 +1,45 @@
 "use client"
 
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { NuraButton } from '../button/button';
+import { getSession, handleLogout } from '@/app/actions/auth';
+import { useEffect, useState } from 'react';
 
-export default function Header({ is_logged_in }: { is_logged_in: boolean }) {
+export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedIn?: boolean }) {
     const router = useRouter();
+    const pathname = usePathname();
+    const [isLoggedIn, setIsLoggedIn] = useState(initialIsLoggedIn);
+    const [isLoading, setIsLoading] = useState(false);
+
+    // Sync state with prop if it changes (e.g., after a server-side redirect/refresh)
+    useEffect(() => {
+        setIsLoggedIn(initialIsLoggedIn);
+    }, [initialIsLoggedIn]);
+
+    useEffect(() => {
+        const checkSession = async () => {
+            const userId = await getSession();
+            setIsLoggedIn(!!userId);
+        };
+        checkSession();
+    }, [pathname]); // Re-check on every navigation
+
+    const onLogout = async () => {
+        await handleLogout();
+        setIsLoggedIn(false);
+        router.refresh();
+    };
+
+    const onLogin = async () => {
+        router.push('/login');
+    };
+
     return (
         <main className="sticky top-0 h-16 flex justify-between text-center items-center bg-white px-4 md:px-16 py-2 z-50 shadow-sm">
             <img
                 src="/logo/logo_nura.png"
                 alt="Nura Academy"
-                className="h-10"
+                className="h-10 cursor-pointer"
                 onClick={() => router.push('/')}
             />
             <div className="flex justify-between items-center gap-8">
@@ -50,30 +79,35 @@ export default function Header({ is_logged_in }: { is_logged_in: boolean }) {
                     </button>
                 </div>
 
-                {
-                    is_logged_in ? (
-                        <div className="flex justify-end items-center">
+                {!isLoading && (
+                    <div className="flex justify-end items-center gap-4 bg-white">
+                        {isLoggedIn ? (
+                            <>
+                                <img
+                                    src="/icons/Notifications.svg"
+                                    alt="Notifications"
+                                    className="w-6 h-6 cursor-pointer"
+                                />
+                                <img
+                                    src="/icons/Profile.svg"
+                                    alt="Profile"
+                                    className="w-6 h-6 cursor-pointer"
+                                />
+                                <NuraButton
+                                    label="Logout"
+                                    variant="medium"
+                                    onClick={onLogout}
+                                />
+                            </>
+                        ) : (
                             <NuraButton
                                 label="Sign In"
                                 variant="medium"
-                                onClick={() => router.push('/login')}
+                                onClick={onLogin}
                             />
-                        </div>
-                    ) : (
-                        <div className="flex justify-end items-center gap-4 bg-white">
-                            <img
-                                src="/icons/Notifications.svg"
-                                alt="Notifications"
-                                className="w-6 h-6"
-                            />
-                            <img
-                                src="/icons/Profile.svg"
-                                alt="Profile"
-                                className="w-6 h-6"
-                            />
-                        </div>
-                    )
-                }
+                        )}
+                    </div>
+                )}
             </div>
 
         </main>

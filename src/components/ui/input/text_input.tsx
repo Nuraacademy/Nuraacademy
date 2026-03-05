@@ -9,6 +9,7 @@ interface TextInputProp {
     onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
     icon?: React.ReactNode;
     color?: string;
+    disabled?: boolean;
 }
 
 export const NuraTextInput = ({
@@ -19,7 +20,8 @@ export const NuraTextInput = ({
     value,
     onChange,
     icon,
-    color = "black"
+    color = "black",
+    disabled = false
 }: TextInputProp) => {
     return (
         <div>
@@ -30,8 +32,9 @@ export const NuraTextInput = ({
                     placeholder={placeholder}
                     value={value}
                     onChange={onChange}
+                    disabled={disabled}
                     className={`w-full rounded-[0.5rem] bg-white border border-${color} px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black ${icon ? "pr-10" : ""
-                        } ${className}`}
+                        } ${className} ${disabled ? "opacity-50 cursor-not-allowed bg-gray-50" : ""}`}
                 />
                 {icon && (
                     <div className={`absolute right-3 top-1/2 -translate-y-1/2 text-${color} [&>svg]:w-4 [&>svg]:h-4`}>

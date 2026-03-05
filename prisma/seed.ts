@@ -1,6 +1,7 @@
 import { AssignmentType, AssignmentItemType, SubmissionType, PrismaClient } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { Pool } from 'pg'
+import bcrypt from 'bcryptjs'
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL })
 const adapter = new PrismaPg(pool)
@@ -10,19 +11,25 @@ async function main() {
     console.log('🌱 Starting extended seed...')
 
     // 1. Create Users
-    const users = await prisma.user.createMany({
-        data: [
-            { email: 'admin@learning.com', name: 'Admin User' },
-            { email: 'teacher1@learning.com', name: 'John Doe - Web Instructor' },
-            { email: 'teacher2@learning.com', name: 'Sarah Lim - Data Instructor' },
-            { email: 'student1@learning.com', name: 'Alice Johnson' },
-            { email: 'student2@learning.com', name: 'Bob Smith' },
-            { email: 'student3@learning.com', name: 'Carol Wilson' },
-            { email: 'student4@learning.com', name: 'David Brown' },
-            { email: 'student5@learning.com', name: 'Eva Davis' },
-        ],
-        skipDuplicates: true,
-    })
+    const hashedPassword = await bcrypt.hash('password123', 10);
+    const userData = [
+        { email: 'admin@learning.com', username: 'admin', password: hashedPassword, name: 'Admin User' },
+        { email: 'teacher1@learning.com', username: 'teacher1', password: hashedPassword, name: 'John Doe - Web Instructor' },
+        { email: 'teacher2@learning.com', username: 'teacher2', password: hashedPassword, name: 'Sarah Lim - Data Instructor' },
+        { email: 'student1@learning.com', username: 'student1', password: hashedPassword, name: 'Alice Johnson' },
+        { email: 'student2@learning.com', username: 'student2', password: hashedPassword, name: 'Bob Smith' },
+        { email: 'student3@learning.com', username: 'student3', password: hashedPassword, name: 'Carol Wilson' },
+        { email: 'student4@learning.com', username: 'student4', password: hashedPassword, name: 'David Brown' },
+        { email: 'student5@learning.com', username: 'student5', password: hashedPassword, name: 'Eva Davis' },
+    ];
+
+    for (const user of userData) {
+        await prisma.user.upsert({
+            where: { email: user.email },
+            update: {},
+            create: user,
+        });
+    }
 
     const adminUser = await prisma.user.findUnique({ where: { email: 'admin@learning.com' } })
     const teacher1 = await prisma.user.findUnique({ where: { email: 'teacher1@learning.com' } })
@@ -375,7 +382,7 @@ async function main() {
     })
 
     console.log('✅ Extended seed completed!')
-    console.log(`📊 ${users.count} users, 2 classes`)
+    console.log(`📊 ${userData.length} users, 2 classes`)
     console.log(`📊 ${webDevCourses.length + dataScienceCourses.length} courses, ${sessions.length} sessions`)
     console.log(`📊 5 enrollments, ${assignments.length} assignments, ${assignmentItemsData.length} assignment items`)
 }
