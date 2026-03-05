@@ -8,6 +8,9 @@ export async function getAssignmentsBySessionId(sessionId: number, type?: Assign
             ...(type && { type }),
             deletedAt: null,
         },
+        orderBy: {
+            createdAt: 'asc',
+        },
     });
 }
 

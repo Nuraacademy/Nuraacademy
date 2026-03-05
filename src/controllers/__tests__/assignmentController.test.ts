@@ -1,5 +1,5 @@
 import { describe, test, expect, mock, beforeEach } from 'bun:test';
-import { getAssignmentsBySessionId, getAssignmentById } from '../assignmentController';
+import { getAssignmentsBySessionId, getAssignmentById, getAssignments } from '../assignmentController';
 import { AssignmentType } from '@prisma/client';
 
 mock.module('@/lib/prisma', () => ({

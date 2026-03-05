@@ -10,8 +10,9 @@ interface AssignmentCardProps {
     courseId: string;
     sessionId: string;
     type: AssignmentType;
+    classTitle?: string;
+    courseTitle?: string;
     className?: string;
-    courseName?: string;
 }
 
 export const AssignmentCard = ({
@@ -21,8 +22,9 @@ export const AssignmentCard = ({
     courseId,
     sessionId,
     type,
-    className = "",
-    courseName = ""
+    classTitle = "",
+    courseTitle = "",
+    className = ""
 }: AssignmentCardProps) => {
     const router = useRouter();
 
@@ -42,7 +44,7 @@ export const AssignmentCard = ({
                     </span>
                 </div>
                 <p className="text-base text-gray-700">
-                    {className} <span className="mx-2 text-gray-400">|</span> {courseName}
+                    {classTitle} <span className="mx-2 text-gray-400">|</span> {courseTitle}
                 </p>
             </div>
         </div>
