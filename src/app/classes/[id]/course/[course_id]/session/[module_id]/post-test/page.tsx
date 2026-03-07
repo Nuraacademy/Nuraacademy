@@ -1,8 +1,10 @@
+import { getCurrentUserId } from "@/lib/auth";
 import { getAssignmentBySessionAndType } from "@/controllers/assignmentController";
 import { getEnrollment } from "@/controllers/enrollmentController";
 import { mapAssignmentToTestRunner } from "@/utils/test_mapper";
 import { NotFoundState } from "@/components/ui/status/not_found_state";
 import TestPageClient from "../components/test_page_client";
+import { redirect } from "next/navigation";
 
 export default async function PostTestPage({
     params
@@ -11,10 +13,14 @@ export default async function PostTestPage({
 }) {
     const { id: classId, course_id: courseId, module_id: moduleId } = await params;
 
+    const userId = await getCurrentUserId();
+    if (!userId) {
+        redirect("/login");
+    }
+
     const assignment = await getAssignmentBySessionAndType(parseInt(moduleId), 'POSTTEST');
 
-    // For now, we assume userId = 1 if not authenticated
-    const enrollment = await getEnrollment(1, parseInt(classId));
+    const enrollment = await getEnrollment(userId, parseInt(classId));
 
     if (!assignment || !enrollment) {
         return (

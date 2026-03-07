@@ -1,31 +1,37 @@
-"use client"
-
-import { useParams, useRouter } from "next/navigation";
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
-import { NuraButton } from "@/components/ui/button/button";
+import { getSessionById, getSessionPresence } from "@/controllers/sessionController";
+import { notFound } from "next/navigation";
+import PresenceClient from "./presence_client";
 
-export default function PresenceAndSESPage() {
-    const params = useParams();
-    const router = useRouter();
+export default async function PresenceAndSESPage({
+    params
+}: {
+    params: Promise<{ id: string, course_id: string, module_id: string }>
+}) {
+    const { id: classId, course_id: courseId, module_id: moduleId } = await params;
 
-    const id = params.id as string;
-    const courseId = params.course_id as string;
-    const moduleId = params.module_id as string;
+    const [session, enrollments] = await Promise.all([
+        getSessionById(parseInt(moduleId)),
+        getSessionPresence(parseInt(moduleId))
+    ]);
 
-    const courseData = {
-        className: "Foundation to Data Analytics",
-        moduleName: "Introduction to Programming",
-    };
+    if (!session) {
+        return notFound();
+    }
 
-    const studentPresence = [
-        { name: "Learner A", status: "attend", sesScore: 15 },
-        { name: "Learner B", status: "sick", sesScore: 0 },
-        { name: "Learner C", status: "attend", sesScore: 30 },
-    ];
+    const classTitle = session.course?.class?.title || "Class";
+    const courseTitle = session.course?.title || "Course";
 
-    const handleBack = () => {
-        router.push(`/classes/${id}/course/${courseId}/session/${moduleId}`);
-    };
+    const studentPresence = enrollments.map(enrollment => {
+        const ses = enrollment.ses[0]; // Get the SES for this session
+        return {
+            name: enrollment.user?.name || enrollment.user?.username || "Unknown",
+            status: ses ? "attend" : "absent", // Simple status for now
+            sesScore: ses?.score || 0
+        };
+    });
+
+    const col1_5Style = { gridColumn: "span 1 / span 1" }; // Standardize to 1 for simplicity or use specific widths
 
     return (
         <main className="min-h-screen bg-[#F5F5EC] font-sans text-gray-800 pb-12">
@@ -36,9 +42,9 @@ export default function PresenceAndSESPage() {
                         items={[
                             { label: "Home", href: "/" },
                             { label: "Class", href: "/classes" },
-                            { label: courseData.className, href: `/classes/${id}/overview` },
-                            { label: courseData.moduleName, href: `/classes/${id}/course/${courseId}/overview` },
-                            { label: "Zoom Session", href: `/classes/${id}/course/${courseId}/session/${moduleId}` },
+                            { label: classTitle, href: `/classes/${classId}/overview` },
+                            { label: courseTitle, href: `/classes/${classId}/course/${courseId}/overview` },
+                            { label: session.title, href: `/classes/${classId}/course/${courseId}/session/${moduleId}` },
                             { label: "Presence & SES", href: "" },
                         ]}
                     />
@@ -52,8 +58,8 @@ export default function PresenceAndSESPage() {
                 {/* Content Card */}
                 <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-sm border border-gray-100">
                     <div className="mb-8">
-                        <h2 className="text-xl font-bold text-black">{courseData.moduleName}</h2>
-                        <p className="text-sm text-gray-600 mt-1">{courseData.className}</p>
+                        <h2 className="text-xl font-bold text-black">{session.title}</h2>
+                        <p className="text-sm text-gray-600 mt-1">{classTitle}</p>
                     </div>
 
                     <hr className="border-gray-200 mb-8" />
@@ -64,71 +70,63 @@ export default function PresenceAndSESPage() {
                     <div className="w-full border border-black rounded-[1.5rem] overflow-hidden">
                         {/* Table Header */}
                         <div className="grid grid-cols-12 border-b border-black bg-white px-8 py-5">
-                            <div className="col-span-3 text-sm font-semibold text-black text-left">Name</div>
-                            <div className="col-span-1.5 text-sm font-semibold text-black text-center">Attend</div>
-                            <div className="col-span-1.5 text-sm font-semibold text-black text-center">Sick</div>
-                            <div className="col-span-1.5 text-sm font-semibold text-black text-center">Permit</div>
-                            <div className="col-span-1.5 text-sm font-semibold text-black text-center">Absent</div>
-                            <div className="col-span-3 text-sm font-semibold text-black text-right">SES Score</div>
+                            <div className="col-span-4 text-sm font-semibold text-black text-left">Name</div>
+                            <div className="col-span-1 text-sm font-semibold text-black text-center">Attend</div>
+                            <div className="col-span-1 text-sm font-semibold text-black text-center">Sick</div>
+                            <div className="col-span-1 text-sm font-semibold text-black text-center">Permit</div>
+                            <div className="col-span-1 text-sm font-semibold text-black text-center">Absent</div>
+                            <div className="col-span-4 text-sm font-semibold text-black text-right">SES Score</div>
                         </div>
 
                         {/* Table Rows */}
-                        {studentPresence.map((student, index) => (
-                            <div
-                                key={index}
-                                className={`grid grid-cols-12 px-8 py-5 border-black ${index !== studentPresence.length - 1 ? 'border-b' : ''} bg-white items-center`}
-                            >
-                                <div className="col-span-3 text-sm text-black font-medium">{student.name}</div>
+                        {studentPresence.length > 0 ? (
+                            studentPresence.map((student, index) => (
+                                <div
+                                    key={index}
+                                    className={`grid grid-cols-12 px-8 py-5 border-black ${index !== studentPresence.length - 1 ? 'border-b' : ''} bg-white items-center`}
+                                >
+                                    <div className="col-span-4 text-sm text-black font-medium">{student.name}</div>
 
-                                {/* Radio Buttons Simulation */}
-                                <div className="col-span-1.5 flex justify-center">
-                                    <div className={`w-6 h-6 rounded-full border-2 border-black flex items-center justify-center p-1`}>
-                                        {student.status === "attend" && <div className="w-full h-full bg-black rounded-full" />}
+                                    {/* Radio Buttons Simulation */}
+                                    <div className="col-span-1 flex justify-center">
+                                        <div className={`w-6 h-6 rounded-full border-2 border-black flex items-center justify-center p-1`}>
+                                            {student.status === "attend" && <div className="w-full h-full bg-black rounded-full" />}
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="col-span-1.5 flex justify-center">
-                                    <div className={`w-6 h-6 rounded-full border-2 border-black flex items-center justify-center p-1`}>
-                                        {student.status === "sick" && <div className="w-full h-full bg-black rounded-full" />}
+                                    <div className="col-span-1 flex justify-center">
+                                        <div className={`w-6 h-6 rounded-full border-2 border-black flex items-center justify-center p-1`}>
+                                            {student.status === "sick" && <div className="w-full h-full bg-black rounded-full" />}
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="col-span-1.5 flex justify-center">
-                                    <div className={`w-6 h-6 rounded-full border-2 border-black flex items-center justify-center p-1`}>
-                                        {student.status === "permit" && <div className="w-full h-full bg-black rounded-full" />}
+                                    <div className="col-span-1 flex justify-center">
+                                        <div className={`w-6 h-6 rounded-full border-2 border-black flex items-center justify-center p-1`}>
+                                            {student.status === "permit" && <div className="w-full h-full bg-black rounded-full" />}
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="col-span-1.5 flex justify-center">
-                                    <div className={`w-6 h-6 rounded-full border-2 border-black flex items-center justify-center p-1`}>
-                                        {student.status === "absent" && <div className="w-full h-full bg-black rounded-full" />}
+                                    <div className="col-span-1 flex justify-center">
+                                        <div className={`w-6 h-6 rounded-full border-2 border-black flex items-center justify-center p-1`}>
+                                            {student.status === "absent" && <div className="w-full h-full bg-black rounded-full" />}
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div className="col-span-3 text-sm text-black text-right pr-4">{student.sesScore}</div>
-                            </div>
-                        ))}
+                                    <div className="col-span-4 text-sm text-black text-right pr-4">{student.sesScore}</div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="px-8 py-5 text-center text-gray-500">No students enrolled in this class.</div>
+                        )}
                     </div>
 
                     {/* Navigation Buttons */}
                     <div className="mt-12 flex justify-center">
-                        <NuraButton
-                            label="Back to Session"
-                            variant="primary"
-                            className="min-w-[200px]"
-                            onClick={handleBack}
+                        <PresenceClient
+                            classId={classId}
+                            courseId={courseId}
+                            moduleId={moduleId}
                         />
                     </div>
                 </div>
             </div>
-
-            {/* Minor Layout Correction for the Responsive Grid Columns */}
-            <style jsx>{`
-                .grid-cols-12 {
-                    display: grid;
-                    grid-template-columns: repeat(12, minmax(0, 1fr));
-                }
-                .col-span-1\\.5 {
-                    grid-column: span 1.5 / span 1.5;
-                }
-            `}</style>
         </main>
     );
 }

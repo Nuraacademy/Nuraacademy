@@ -21,6 +21,35 @@ export async function getSessionsByCourseId(courseId: number) {
 }
 
 /**
+ * Get presence data for a session, including enrolled students and their scores.
+ */
+export async function getSessionPresence(sessionId: number) {
+    const session = await prisma.session.findUnique({
+        where: { id: sessionId },
+        select: { courseId: true }
+    });
+
+    if (!session) return [];
+
+    return await prisma.enrollment.findMany({
+        where: {
+            class: {
+                courses: {
+                    some: { id: session.courseId }
+                }
+            },
+            deletedAt: null
+        },
+        include: {
+            user: true,
+            ses: {
+                where: { sessionId, deletedAt: null }
+            }
+        }
+    });
+}
+
+/**
  * Get a specific session by its ID, including references and assignments.
  */
 export async function getSessionById(id: number) {

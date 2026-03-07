@@ -43,7 +43,7 @@ export default async function SessionPage({
         : "TBA";
 
     // Build reference materials array
-    const referenceMaterials: { name: string; description: string }[] = [];
+    const referenceMaterials: { name: string; description: string; url: string }[] = [];
     if (reference) {
         if (Array.isArray(reference)) {
             referenceMaterials.push(...reference);
@@ -70,7 +70,7 @@ export default async function SessionPage({
                 {/* Hero Title with Badge */}
                 <section className="bg-[#005954] rounded-[1.5rem] p-6 mb-8 flex items-center gap-4">
                     <h1 className="text-xl font-bold text-white">
-                        {isAsync ? "Session Recording" : session.title}
+                        {session.title}
                     </h1>
                 </section>
 

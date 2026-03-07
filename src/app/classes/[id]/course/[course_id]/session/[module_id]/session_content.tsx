@@ -11,7 +11,7 @@ interface SessionContentProps {
     moduleId: string;
     isSynchronous: boolean | null;
     content: any;
-    referenceMaterials: { name: string; description: string }[];
+    referenceMaterials: { name: string; description: string; url: string }[];
 }
 
 export default function SessionContent({
@@ -67,8 +67,8 @@ export default function SessionContent({
                         <div className="flex flex-col gap-3 text-sm">
                             <p className="flex items-center gap-2">
                                 <span className="text-gray-600">Link Zoom :</span>
-                                <a href={content.zoom.link} className="text-gray-900 font-medium hover:underline flex items-center gap-1">
-                                    {content.zoom.link}
+                                <a href={content.zoom.url} className="text-gray-900 font-medium hover:underline flex items-center gap-1">
+                                    {content.zoom.url}
                                 </a>
                             </p>
                             <p className="flex items-center gap-2">
@@ -81,12 +81,12 @@ export default function SessionContent({
                                 label="Join"
                                 variant="medium"
                                 className="min-w-[120px] h-10 text-sm font-bold"
-                                onClick={() => { window.location.href = content.zoom.link; }}
+                                onClick={() => { window.location.href = content.zoom.url; }}
                             />
                             <NuraButton
                                 label="View Record"
                                 variant="secondary"
-                                className="min-w-[120px] h-10 text-sm font-bold"
+                                className="min-w-[120px] h-10 text-sm font-bold border border-black"
                                 onClick={() => {
                                     router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/recording`);
                                 }}

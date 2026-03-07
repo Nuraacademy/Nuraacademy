@@ -2,6 +2,7 @@ interface ReferenceMaterial {
     name: string;
     icon?: string;
     description: string;
+    url: string;
 }
 
 const FILE_ICONS: { ext: string; src: string }[] = [
@@ -43,9 +44,16 @@ export default function ReferenceMaterials({ materials }: ReferenceMaterialsProp
                                 ) : (
                                     <img src="/icons/file/File.svg" alt="file" className="w-5 h-5" />
                                 )}
-                                <span className="text-sm text-gray-800 font-medium">{mat.name}</span>
+                                <a
+                                    href={mat.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-sm text-gray-800 font-medium hover:underline"
+                                >
+                                    {mat.name}
+                                </a>
                             </div>
-                            <p className="text-xs text-gray-600 pl-7 leading-relaxed">
+                            <p className="text-sm text-gray-600 pl-7 leading-normal">
                                 {mat.description}
                             </p>
                         </div>

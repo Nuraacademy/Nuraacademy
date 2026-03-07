@@ -1,35 +1,64 @@
-"use client"
-
-import { useParams, useRouter } from "next/navigation";
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
-import { NuraButton } from "@/components/ui/button/button";
-import { SESSION_DATA, SynchronousSession } from "../constants";
 import { SessionVideoPlayer } from "@/components/ui/video/session_video_player";
+import { getSessionById } from "@/controllers/sessionController";
+import { notFound } from "next/navigation";
+import RecordingClient from "./recording_client";
 
-export default function SessionRecordingPage() {
-    const params = useParams();
-    const router = useRouter();
+export default async function SessionRecordingPage({
+    params
+}: {
+    params: Promise<{ id: string, course_id: string, module_id: string }>
+}) {
+    const { id: classId, course_id: courseId, module_id: moduleId } = await params;
 
-    const classId = params.id as string;
-    const courseId = params.course_id as string;
-    const moduleId = params.module_id as string;
-
-    const session = SESSION_DATA.sessions[moduleId] as SynchronousSession | undefined;
+    const session = await getSessionById(parseInt(moduleId));
 
     if (!session) {
-        return <div className="p-10 text-center">Session not found</div>;
+        return notFound();
     }
 
-    if (!session.recording) {
-        return <div className="p-10 text-center">Recording is not available for this session</div>;
+    // Parse JSON fields safely
+    const parseJson = (val: any) => {
+        if (!val) return null;
+        if (typeof val === 'object') return val;
+        try { return JSON.parse(val); } catch { return null; }
+    };
+
+    const content = parseJson(session.content);
+    const schedule = parseJson(session.schedule);
+
+    if (!content?.recording) {
+        return (
+            <main className="min-h-screen bg-[#FDFDF7] font-sans flex items-center justify-center">
+                <div className="p-10 text-center bg-white rounded-3xl shadow-sm border border-gray-100">
+                    <h2 className="text-xl font-bold mb-4">No Recording Available</h2>
+                    <p className="text-gray-600 mb-6">Recording is not available for this session at the moment.</p>
+                    <RecordingClient classId={classId} courseId={courseId} moduleId={moduleId} />
+                </div>
+            </main>
+        );
     }
+
+    const classTitle = session.course?.class?.title || "Class";
+    const courseTitle = session.course?.title || "Course";
+
+    // Build time string from schedule
+    const timeString = schedule?.date
+        ? new Date(schedule.date).toLocaleString("en-US", {
+            weekday: "long",
+            day: "2-digit",
+            month: "long",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        })
+        : "TBA";
 
     const breadcrumbItems = [
         { label: "Home", href: "/" },
-        { label: SESSION_DATA.classTitle, href: `/classes/${classId}/overview` },
-        { label: SESSION_DATA.courseTitle, href: `/classes/${classId}/course/${courseId}/overview` },
-        { label: "Zoom Session", href: `/classes/${classId}/course/${courseId}/session/${moduleId}` },
-        { label: "Session Recording", href: "#" },
+        { label: classTitle, href: `/classes/${classId}/overview` },
+        { label: courseTitle, href: `/classes/${classId}/course/${courseId}/overview` },
+        { label: session.title, href: `/classes/${classId}/course/${courseId}/session/${moduleId}` },
     ];
 
     return (
@@ -42,7 +71,7 @@ export default function SessionRecordingPage() {
 
                 {/* Hero Title */}
                 <section className="bg-[#005954] rounded-[1.5rem] p-6 mb-8 flex items-center gap-4">
-                    <h1 className="text-xl font-bold text-white">Session Recording</h1>
+                    <h1 className="text-xl font-bold text-white">{session.title}</h1>
                 </section>
 
                 {/* Main Content Card */}
@@ -51,7 +80,7 @@ export default function SessionRecordingPage() {
                     <div>
                         <p className="text-sm">
                             <span className="font-bold text-gray-900 mr-2">Time:</span>
-                            <span className="text-gray-700">{session.time}</span>
+                            <span className="text-gray-700">{timeString}</span>
                         </p>
                     </div>
 
@@ -59,17 +88,16 @@ export default function SessionRecordingPage() {
 
                     {/* Video */}
                     <SessionVideoPlayer
-                        title={session.recording.title}
-                        url={session.recording.url}
+                        title={content.recording.title}
+                        url={content.recording.url}
                     />
 
                     {/* Footer Button */}
                     <div className="flex justify-center mt-4">
-                        <NuraButton
-                            label="Back to Session"
-                            variant="primary"
-                            className="min-w-[160px] h-10 text-sm font-bold"
-                            onClick={() => router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}`)}
+                        <RecordingClient
+                            classId={classId}
+                            courseId={courseId}
+                            moduleId={moduleId}
                         />
                     </div>
                 </div>
