@@ -17,6 +17,9 @@ export async function getAllClasses() {
             timelines: {
                 where: { deletedAt: null },
             },
+            courses: {
+                where: { deletedAt: null },
+            },
         },
     });
 }

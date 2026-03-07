@@ -115,7 +115,7 @@ export default function Home() {
               scheduleStart={new Date("2026-02-22")}
               scheduleEnd={new Date("2026-05-31")}
               method="Flipped Blended Classroom"
-              modules={5}
+              courses={5}
               description="Kelas ini dirancang untuk peserta yang ingin memahami konsep dasar pemrograman menggunakan Python. Pembelajaran fokus pada pemahaman cara kerja program, penggunaan variabel, serta pengelolaan file."
               onClick={() => router.push('/classes/1/overview')}
             />
@@ -127,7 +127,7 @@ export default function Home() {
               scheduleStart={new Date("2026-02-22")}
               scheduleEnd={new Date("2026-05-31")}
               method="Flipped Blended Classroom"
-              modules={5}
+              courses={5}
               description="Kelas ini dirancang untuk peserta yang ingin memahami konsep dasar pemrograman menggunakan Python. Pembelajaran fokus pada pemahaman cara kerja program, penggunaan variabel, serta pengelolaan file."
               onClick={() => router.push('/classes/2/overview')}
             />
@@ -139,7 +139,7 @@ export default function Home() {
               scheduleStart={new Date("2026-02-22")}
               scheduleEnd={new Date("2026-05-31")}
               method="Flipped Blended Classroom"
-              modules={5}
+              courses={5}
               description="Kelas ini dirancang untuk peserta yang ingin memahami konsep dasar pemrograman menggunakan Python. Pembelajaran fokus pada pemahaman cara kerja program, penggunaan variabel, serta pengelolaan file."
               onClick={() => router.push('/classes/3/overview')}
             />

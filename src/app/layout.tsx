@@ -4,7 +4,6 @@ import { Toaster } from "sonner";
 import "./globals.css";
 import Header from "@/components/ui/header/header";
 import Footer from "@/components/ui/footer/footer";
-import { getSession } from "@/app/actions/auth";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -20,19 +19,17 @@ export const metadata: Metadata = {
   manifest: "/manifest.json"
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const userId = await getSession();
-
   return (
     <html lang="en">
       <body
         className={`${outfit.variable} antialiased`}
       >
-        <Header initialIsLoggedIn={!!userId} />
+        <Header initialIsLoggedIn={false} />
         {children}
         <Toaster position="bottom-right" richColors />
         <Footer instagram="www.google.com" youtube="www.youtube.com" x="www.x.com" />

@@ -23,9 +23,9 @@ export default function Chip({ label, variant = "default", size = "md", classNam
         return ""
     }
     const size_style = {
-        sm: "px-2 py-1 text-xs",
-        md: "px-4 py-2 text-sm",
-        lg: "px-6 py-3 text-base",
+        sm: "px-2 py-1 text-xs w-24",
+        md: "px-4 py-2 text-sm w-32",
+        lg: "px-6 py-3 text-base w-40",
     }
     const classes = `${base_style} ${getVariantStyle()} ${size_style[size]} ${className}`
 

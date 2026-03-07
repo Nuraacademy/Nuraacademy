@@ -40,11 +40,11 @@ export default function ClassesGrid({ initialClasses }: { initialClasses: any[] 
                             id={String(item.id)}
                             imageUrl={item.imgUrl}
                             title={item.title}
-                            duration={item.hours}
+                            duration={item.hours || 0}
                             scheduleStart={new Date(item.startDate)}
                             scheduleEnd={new Date(item.endDate)}
                             method={item.methods}
-                            modules={item.timelines?.length || 0} // Approximate based on timelines or relation
+                            courses={item.courses?.length || 0}
                             description={item.description}
                             onClick={() => router.push(`/classes/${item.id}/overview`)}
                         />

@@ -14,12 +14,12 @@ interface ClassCardProp {
     scheduleEnd: Date,
     description: string,
     duration: number,
-    modules: number,
+    courses: number,
     onClick: () => void
 }
 
 export default function ClassCard({
-    id, imageUrl, title, method, scheduleStart, scheduleEnd, description, duration, modules, onClick
+    id, imageUrl, title, method, scheduleStart, scheduleEnd, description, duration, courses, onClick
 }: ClassCardProp) {
     const router = useRouter()
 
@@ -36,7 +36,7 @@ export default function ClassCard({
         } else {
             status = "Ended";
         }
-        
+
         let style;
         if (status === "Ongoing") {
             style = 'bg-[#B8FFA2] text-black';
@@ -95,7 +95,7 @@ export default function ClassCard({
             </div>
 
             {/* Footer */}
-            <div className="flex flex-row items-center justify-between gap-3 mt-5">
+            <div className="grid grid-cols-2 gap-4 mt-5">
                 <div className="flex flex-row gap-4 items-center">
                     <div className="flex flex-row items-center gap-1.5 text-xs text-gray-600">
                         <Clock className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
@@ -103,7 +103,7 @@ export default function ClassCard({
                     </div>
                     <div className="flex flex-row items-center gap-1.5 text-xs text-gray-600">
                         <BookText className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
-                        <span>{modules} modules</span>
+                        <span>{courses} courses</span>
                     </div>
                 </div>
                 <NuraButton
