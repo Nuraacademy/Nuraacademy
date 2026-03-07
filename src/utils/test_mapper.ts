@@ -12,8 +12,8 @@ export function mapAssignmentToTestRunner(assignment: any) {
 
     const objectiveQuestions: ObjectiveQuestion[] = items
         .filter((item: AssignmentItem) => item.type === "OBJECTIVE")
-        .map((item: AssignmentItem, index: number) => ({
-            id: index + 1,
+        .map((item: AssignmentItem) => ({
+            id: item.id,
             question: item.question,
             options: Array.isArray(item.options) ? item.options : [],
             points: item.maxScore || 10,
@@ -21,16 +21,16 @@ export function mapAssignmentToTestRunner(assignment: any) {
 
     const essayQuestions: EssayQuestion[] = items
         .filter((item: AssignmentItem) => item.type === "ESSAY")
-        .map((item: AssignmentItem, index: number) => ({
-            id: index + 1,
+        .map((item: AssignmentItem) => ({
+            id: item.id,
             question: item.question,
             points: item.maxScore || 20,
         }));
 
     const projectQuestions: ProjectQuestion[] = items
         .filter((item: AssignmentItem) => item.type === "PROJECT")
-        .map((item: AssignmentItem, index: number) => ({
-            id: index + 1,
+        .map((item: AssignmentItem) => ({
+            id: item.id,
             question: item.question,
             requirements: Array.isArray(item.options) ? item.options : [], // requirements stored in options/json for now
             points: item.maxScore || 50,

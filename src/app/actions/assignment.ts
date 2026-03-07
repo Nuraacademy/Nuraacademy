@@ -81,7 +81,7 @@ export async function submitTest(formData: FormData) {
         revalidatePath(`/classes/${classId}/test`)
         revalidatePath(`/assignment`)
 
-        return { success: true, resultId: result.id }
+        return { success: true, resultId: result.id, totalScore: result.totalScore }
     } catch (error) {
         console.error("Submission error:", error)
         return { success: false, error: "Failed to submit assignment" }

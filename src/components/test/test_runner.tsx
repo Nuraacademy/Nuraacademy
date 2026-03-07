@@ -53,6 +53,7 @@ export function TestRunner({
   const [isFinished, setIsFinished] = useState(finished)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [totalScore, setTotalScore] = useState<number | null>(null)
   const [timeLeft, setTimeLeft] = useState(testData.durationMinutes * 60)
   const [currentType, setCurrentType] = useState<QuestionType>(
     objectiveQuestions.length > 0 ? "objective" :
@@ -117,6 +118,9 @@ export function TestRunner({
 
       if (response.success) {
         setIsModalOpen(false)
+        if (response.totalScore !== undefined) {
+          setTotalScore(response.totalScore)
+        }
         setIsFinished(true)
       } else {
         alert(response.error || "Failed to submit. Please try again.")
@@ -262,7 +266,7 @@ export function TestRunner({
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-transparent"
                   }`}
               >
-                {q.id}
+                {index + 1}
               </button>
             )
           })}
@@ -293,7 +297,7 @@ export function TestRunner({
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-transparent"
                   }`}
               >
-                {q.id}
+                {index + 1}
               </button>
             )
           })}
@@ -321,7 +325,7 @@ export function TestRunner({
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-transparent"
                   }`}
               >
-                {q.id}
+                {index + 1}
               </button>
             )
           })}
@@ -536,7 +540,13 @@ export function TestRunner({
       {showBanner && renderBanner()}
 
       {isFinished ? (
-        <FinishedCard classId={classId} testData={testData} pageText={pageText} userName={userName} />
+        <FinishedCard
+          classId={classId}
+          testData={testData}
+          pageText={pageText}
+          userName={userName}
+          totalScore={totalScore ?? undefined}
+        />
       ) : hasStarted ? (
         renderTestCard()
       ) : (

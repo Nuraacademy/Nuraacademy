@@ -132,15 +132,57 @@ export async function submitAssignment(assignmentId: number, enrollmentId: numbe
             },
         });
 
-        // 3. Prepare all item results
+        // 3. Prepare all item results and calculate objective score
+        const assignmentItems = await tx.assignmentItem.findMany({
+            where: { assignmentId, deletedAt: null }
+        });
+
         const items: Prisma.AssignmentItemResultCreateManyInput[] = [];
+        let calculatedTotalScore = 0;
 
         // Objective Answers
         for (const [id, answer] of Object.entries(data.objectiveAnswers)) {
+            const itemId = parseInt(id);
+            const assignmentItem = assignmentItems.find(i => i.id === itemId);
+
+            let itemScore = 0;
+            if (assignmentItem && assignmentItem.type === 'OBJECTIVE') {
+                const normalizedCorrect = (assignmentItem.correctAnswer || "").trim().toLowerCase();
+                const normalizedAnswer = (answer || "").trim().toLowerCase();
+
+                // 1. Literal match (after normalization)
+                let isMatch = normalizedCorrect === normalizedAnswer;
+
+                // 2. Try stripping prefixes like "a. ", "b. ", etc. if not matched literally
+                if (!isMatch) {
+                    const stripPrefix = (str: string) => str.replace(/^[a-z]\.\s*/i, "").trim();
+                    const correctNoPrefix = stripPrefix(normalizedCorrect);
+                    const answerNoPrefix = stripPrefix(normalizedAnswer);
+
+                    isMatch = correctNoPrefix === answerNoPrefix;
+                }
+
+                // 3. Fallback for single-letter answers matching prefixed correct answers or vice-versa
+                if (!isMatch) {
+                    isMatch =
+                        (normalizedCorrect.length === 1 && normalizedAnswer.startsWith(normalizedCorrect + ".")) ||
+                        (normalizedAnswer.length === 1 && normalizedCorrect.startsWith(normalizedAnswer + "."));
+                }
+
+                if (isMatch) {
+                    itemScore = assignmentItem.maxScore || 10;
+                }
+
+                console.log(`Scoring Item ${itemId}: Correct="${normalizedCorrect}", Answer="${normalizedAnswer}", Match=${isMatch}, Score=${itemScore}`);
+            }
+
+            calculatedTotalScore += itemScore;
+
             items.push({
                 assignmentResultId: result.id,
-                assignmentItemId: parseInt(id),
+                assignmentItemId: itemId,
                 answer: answer,
+                score: itemScore,
             });
         }
 
@@ -172,14 +214,20 @@ export async function submitAssignment(assignmentId: number, enrollmentId: numbe
             });
         }
 
-        // 3. Create all AssignmentItemResult records
+        // 4. Create all AssignmentItemResult records
         if (items.length > 0) {
             await tx.assignmentItemResult.createMany({
                 data: items,
             });
         }
 
-        return result;
+        // 5. Update the totalScore in AssignmentResult
+        const updatedResult = await tx.assignmentResult.update({
+            where: { id: result.id },
+            data: { totalScore: calculatedTotalScore },
+        });
+
+        return updatedResult;
     });
 }
 
