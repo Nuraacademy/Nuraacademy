@@ -11,7 +11,7 @@ interface TextAreaProp {
 export const NuraTextArea = ({
     label,
     placeholder,
-    value,
+    value = "",
     onChange,
     className
 }: TextAreaProp) => {

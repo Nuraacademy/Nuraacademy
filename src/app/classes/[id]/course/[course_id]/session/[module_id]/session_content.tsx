@@ -24,6 +24,10 @@ export default function SessionContent({
 }: SessionContentProps) {
     const router = useRouter();
 
+    const makeVideoUrl = (url: string) => {
+        return url.replace("watch?v=", "embed/");
+    };
+
     const renderAsynchronousLayout = () => (
         <>
             {/* Video */}
@@ -34,7 +38,7 @@ export default function SessionContent({
                         <iframe
                             width="100%"
                             height="100%"
-                            src={content.video.url}
+                            src={makeVideoUrl(content.video.url)}
                             title={content.video.title}
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             referrerPolicy="strict-origin-when-cross-origin"
@@ -110,11 +114,14 @@ export default function SessionContent({
     );
 
     const renderContent = () => {
-        if (isSynchronous === false) {
+        if (isSynchronous === true && content.video) {
             return renderAsynchronousLayout();
         }
         if (isSynchronous === true) {
             return renderSynchronousLayout();
+        }
+        else if (isSynchronous === false) {
+            return renderAsynchronousLayout();
         }
         // Default: just show reference materials
         return referenceMaterials.length > 0 ? <ReferenceMaterials materials={referenceMaterials} /> : null;

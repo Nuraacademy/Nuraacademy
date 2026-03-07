@@ -2,6 +2,8 @@ import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import { getSessionById } from "@/controllers/sessionController";
 import { notFound } from "next/navigation";
 import SessionContent from "./session_content";
+import Link from "next/link";
+import { Pencil } from "lucide-react";
 
 export default async function SessionPage({
     params
@@ -18,6 +20,7 @@ export default async function SessionPage({
     const classTitle = session.course?.class?.title || "Class";
     const courseTitle = session.course?.title || "Course";
     const isAsync = session.isSynchronous === false;
+    const isAdmin = true; // Mock admin flag
 
     // Parse JSON fields safely
     const parseJson = (val: any) => {
@@ -67,11 +70,20 @@ export default async function SessionPage({
                     <Breadcrumb items={breadcrumbItems} />
                 </div>
 
-                {/* Hero Title with Badge */}
-                <section className="bg-[#005954] rounded-[1.5rem] p-6 mb-8 flex items-center gap-4">
+                {/* Hero Title with Badge & Admin Edit */}
+                <section className="bg-[#005954] rounded-[1.5rem] p-6 mb-8 flex items-center justify-between gap-4">
                     <h1 className="text-xl font-bold text-white">
                         {session.title}
                     </h1>
+                    {isAdmin && (
+                        <Link
+                            href={`/classes/${classId}/course/${courseId}/session/${moduleId}/edit`}
+                            className="flex items-center gap-2 bg-white text-[#005954] px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+                        >
+                            <Pencil size={18} />
+                            Edit Session
+                        </Link>
+                    )}
                 </section>
 
                 {/* Main Content Card */}

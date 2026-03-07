@@ -17,7 +17,7 @@ export const NuraTextInput = ({
     placeholder = "",
     variant = 'text',
     className = "",
-    value,
+    value = "",
     onChange,
     icon,
     color = "black",
