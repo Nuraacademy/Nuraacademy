@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { NuraButton } from "@/components/ui/button/button";
 import { NuraTextInput } from "@/components/ui/input/text_input";

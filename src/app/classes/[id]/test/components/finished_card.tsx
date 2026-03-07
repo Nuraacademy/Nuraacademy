@@ -1,16 +1,19 @@
-import { TEST_DATA } from "../constants"
+import { TestData, PageText } from "../types"
 import { NuraButton } from "@/components/ui/button/button";
 
 interface FinishedCardProps {
     classId: string;
+    testData: TestData;
+    pageText: PageText;
+    userName?: string;
 }
 
-export function FinishedCard({ classId }: FinishedCardProps) {
+export function FinishedCard({ classId, testData, pageText, userName }: FinishedCardProps) {
     return (
         <section className="mt-6 flex flex-col items-center px-4 pb-20">
             <div className="w-full max-w-5xl bg-white rounded-[1.5rem] shadow-sm border border-gray-200 px-8 py-10 md:px-12 md:py-12 mb-8">
-                <h2 className="text-xl md:text-2xl font-bold text-gray-900">Learner A</h2>
-                <p className="text-sm md:text-base text-gray-700 mt-2 mb-8">{TEST_DATA.courseName}</p>
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900">{userName || "Learner"}</h2>
+                <p className="text-sm md:text-base text-gray-700 mt-2 mb-8">{testData.courseName}</p>
 
                 <hr className="border-gray-200 mb-8" />
 
@@ -47,12 +50,12 @@ export function FinishedCard({ classId }: FinishedCardProps) {
 
             <div className="flex justify-center gap-4">
                 <NuraButton
-                label="Back"
-                variant="secondary"
-                className="border-transparent"
-                onClick={() => {
-                    window.location.href = `/classes/${classId}/overview`
-                }}
+                    label="Back"
+                    variant="secondary"
+                    className="border-transparent"
+                    onClick={() => {
+                        window.location.href = `/classes/${classId}/overview`
+                    }}
                 />
                 <NuraButton
                     label="See Groups"

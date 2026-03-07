@@ -12,6 +12,9 @@ export async function getEnrollment(userId: number, classId: number) {
             },
         },
         include: {
+            user: {
+                select: { name: true },
+            },
             class: {
                 select: { title: true, isDraft: true },
             },

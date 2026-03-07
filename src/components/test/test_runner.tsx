@@ -14,8 +14,9 @@ import {
   EssayQuestion,
   ProjectQuestion,
   QuestionType,
+  TestData,
+  PageText
 } from "@/app/classes/[id]/test/types"
-import { TestData, PageText } from "@/app/classes/[id]/test/constants"
 import { submitTest } from "@/app/actions/assignment"
 
 type TestRunnerProps = {
@@ -27,6 +28,7 @@ type TestRunnerProps = {
   projectQuestions: ProjectQuestion[]
   testData: TestData
   pageText: PageText
+  userName?: string
   autoStart?: boolean
   finished?: boolean
   showBanner?: boolean
@@ -41,6 +43,7 @@ export function TestRunner({
   projectQuestions,
   testData,
   pageText,
+  userName,
   autoStart = false,
   finished = false,
   showBanner = true,
@@ -533,11 +536,11 @@ export function TestRunner({
       {showBanner && renderBanner()}
 
       {isFinished ? (
-        <FinishedCard classId={classId} />
+        <FinishedCard classId={classId} testData={testData} pageText={pageText} userName={userName} />
       ) : hasStarted ? (
         renderTestCard()
       ) : (
-        <IntroCard onStart={handleStart} />
+        <IntroCard onStart={handleStart} testData={testData} pageText={pageText} />
       )}
 
       <ConfirmModal

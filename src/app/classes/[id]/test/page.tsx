@@ -4,6 +4,7 @@ import { getPlacementTestByClassId } from "@/controllers/assignmentController"
 import { getEnrollment } from "@/controllers/enrollmentController"
 import { mapAssignmentToTestRunner } from "@/utils/test_mapper"
 import { NotFoundState } from "@/components/ui/status/not_found_state"
+import { getSession } from "@/app/actions/auth"
 
 export default async function PlacementTestPage({
   params,
@@ -17,9 +18,8 @@ export default async function PlacementTestPage({
 
   const assignment = await getPlacementTestByClassId(parseInt(classId))
 
-  // For now, we assume userId = 1 if not authenticated
-  // In a real app, get this from session
-  const enrollment = await getEnrollment(1, parseInt(classId))
+  const currentUserId = await getSession();
+  const enrollment = currentUserId ? await getEnrollment(currentUserId, parseInt(classId)) : null;
 
   if (!assignment || !enrollment) {
     return (
@@ -59,6 +59,7 @@ export default async function PlacementTestPage({
         classId={classId}
         assignmentId={assignment.id}
         enrollmentId={enrollment.id}
+        userName={enrollment.user?.name || undefined}
         objectiveQuestions={objectiveQuestions}
         essayQuestions={essayQuestions}
         projectQuestions={projectQuestions}

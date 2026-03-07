@@ -102,18 +102,37 @@ export async function submitAssignment(assignmentId: number, enrollmentId: numbe
     finishedAt: Date
 }) {
     return await prisma.$transaction(async (tx) => {
-        // 1. Create the overall AssignmentResult
-        const result = await tx.assignmentResult.create({
-            data: {
+        // 1. Check for existing result and update it, or create a new one
+        const result = await tx.assignmentResult.upsert({
+            where: {
+                assignmentId_enrollmentId: {
+                    assignmentId,
+                    enrollmentId,
+                },
+            },
+            update: {
+                startedAt: data.startedAt,
+                finishedAt: data.finishedAt,
+                status: 'NOT_PASS', // Reset or recalculate
+                updatedAt: new Date(),
+            },
+            create: {
                 assignmentId,
                 enrollmentId,
                 startedAt: data.startedAt,
                 finishedAt: data.finishedAt,
-                status: 'NOT_PASS', // Default or calculate based on objective answers if possible
+                status: 'NOT_PASS',
             },
         });
 
-        // 2. Prepare all item results
+        // 2. Clear existing item results for this assignment result if any
+        await tx.assignmentItemResult.deleteMany({
+            where: {
+                assignmentResultId: result.id,
+            },
+        });
+
+        // 3. Prepare all item results
         const items: Prisma.AssignmentItemResultCreateManyInput[] = [];
 
         // Objective Answers
@@ -161,5 +180,16 @@ export async function submitAssignment(assignmentId: number, enrollmentId: numbe
         }
 
         return result;
+    });
+}
+
+export async function createAssignment(data: Prisma.AssignmentCreateInput, items: Prisma.AssignmentItemCreateWithoutAssignmentInput[]) {
+    return await prisma.assignment.create({
+        data: {
+            ...data,
+            assignmentItems: {
+                create: items
+            }
+        }
     });
 }

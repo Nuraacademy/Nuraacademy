@@ -2,9 +2,10 @@ import { Assignment, AssignmentItem, AssignmentItemType } from "@prisma/client";
 import {
     ObjectiveQuestion,
     EssayQuestion,
-    ProjectQuestion
+    ProjectQuestion,
+    PageText,
+    TestData
 } from "@/app/classes/[id]/test/types";
-import { PAGE_TEXT } from "@/app/classes/[id]/test/constants";
 
 export function mapAssignmentToTestRunner(assignment: any) {
     const items = assignment.assignmentItems || [];
@@ -57,11 +58,44 @@ export function mapAssignmentToTestRunner(assignment: any) {
         ],
     };
 
-    // Update Banner Title based on type
-    const pageText = { ...PAGE_TEXT };
+    // Base UI labels
+    const pageText: PageText = {
+        bannerTitle: "Test",
+        introTitle: "Hello, Learner!",
+        infoTitle: "Detail Informasi Tes",
+        durationLabel: "Duration:",
+        durationValue: "minutes",
+        sectionLabel: "Section:",
+        sectionValue: "sections",
+        deadlineLabel: "Deadline:",
+        instructionTitle: "Instruksi",
+        buttonCancel: "Cancel",
+        buttonStart: "Start",
+        sidebarTimeLeft: "Time Left",
+        sidebarObjective: "Objective Answer",
+        buttonSubmit: "Submit Test",
+        finishedTitle: "Test Submitted!",
+        finishedDescription: "Thank you for completing the test. Your answers have been recorded. We will review your results.",
+        buttonBackToCourse: "Back to Course Overview",
+        sidebarEssay: "Essay Answer",
+        sidebarProject: "Project Answer",
+        contentObjective: "Objective",
+        contentEssay: "Essay",
+        contentProject: "Project",
+        contentQuestions: "Questions",
+        contentOf: "of",
+        contentPoints: "points",
+        contentAnswer: "Answer",
+        testPrevButton: "Previous questions",
+        testNextButton: "Next questions",
+        breadcrumbHome: "Home",
+        breadcrumbTest: "Test",
+    };
+
     if (assignment.type === "PLACEMENT") {
         pageText.bannerTitle = "Placement Test";
         pageText.breadcrumbTest = "Placement Test";
+        pageText.finishedDescription = "Thank you for completing the placement test. Your answers have been recorded. We will review your results and assign you to the appropriate group.";
     } else if (assignment.type === "PRETEST") {
         pageText.bannerTitle = "Pre-Test";
         pageText.breadcrumbTest = "Pre-Test";
