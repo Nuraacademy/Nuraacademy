@@ -347,7 +347,10 @@ export function TestRunner({
         </span>
       </div>
 
-      <p className="text-sm text-gray-900 mb-6 leading-relaxed">{currentObjective.question}</p>
+      <div
+        className="text-sm text-gray-900 mb-6 leading-relaxed prose prose-sm max-w-none"
+        dangerouslySetInnerHTML={{ __html: currentObjective.question }}
+      />
 
       <div className="space-y-3">
         {currentObjective.options.map((opt) => {
@@ -364,7 +367,7 @@ export function TestRunner({
                 : "bg-gray-100 text-gray-800 border-transparent hover:bg-gray-200"
                 }`}
             >
-              {opt}
+              <span dangerouslySetInnerHTML={{ __html: opt }} />
             </button>
           )
         })}
@@ -388,7 +391,10 @@ export function TestRunner({
           </span>
         </div>
 
-        <p className="text-sm text-gray-900 mb-4 leading-relaxed">{currentEssay.question}</p>
+        <div
+          className="text-sm text-gray-900 mb-4 leading-relaxed prose prose-sm max-w-none"
+          dangerouslySetInnerHTML={{ __html: currentEssay.question }}
+        />
 
         <p className="text-xs font-semibold text-gray-700 mb-2">{pageText.contentAnswer}</p>
 
@@ -434,9 +440,10 @@ export function TestRunner({
           </span>
         </div>
 
-        <p className="text-sm font-semibold text-gray-900 mb-4 leading-relaxed">
-          {currentProject.question}
-        </p>
+        <div
+          className="text-sm font-semibold text-gray-900 mb-4 leading-relaxed prose prose-sm max-w-none"
+          dangerouslySetInnerHTML={{ __html: currentProject.question }}
+        />
 
         <ul className="list-none space-y-2 mb-6">
           {currentProject.requirements.map((req, index) => (

@@ -15,9 +15,10 @@ export function IntroCard({ onStart, testData, pageText }: IntroCardProps) {
         <section className="mt-6 flex justify-center px-4">
             <div className="w-full max-w-5xl bg-white rounded-[2.5rem] shadow-sm border border-gray-200 px-10 py-10">
                 <h2 className="text-base font-semibold mb-4">{pageText.introTitle}</h2>
-                <p className="text-sm text-gray-700 leading-relaxed mb-8">
-                    {testData.introDescription}
-                </p>
+                <div
+                    className="text-sm text-gray-700 leading-relaxed mb-8 prose prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{ __html: testData.introDescription }}
+                />
 
                 <hr className="border-gray-200 my-6" />
 
@@ -42,9 +43,10 @@ export function IntroCard({ onStart, testData, pageText }: IntroCardProps) {
                     </div>
                 </div>
 
-                <p className="text-sm text-gray-700 leading-relaxed mb-6">
-                    {testData.testDescription}
-                </p>
+                <div
+                    className="text-sm text-gray-700 leading-relaxed mb-6 prose prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{ __html: testData.testDescription }}
+                />
 
                 <hr className="border-gray-200 my-6" />
 
@@ -52,7 +54,7 @@ export function IntroCard({ onStart, testData, pageText }: IntroCardProps) {
                     <p className="font-semibold text-sm mb-3">{pageText.instructionTitle}</p>
                     <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700">
                         {testData.instructions.map((inst, index) => (
-                            <li key={index}>{inst}</li>
+                            <li key={index} dangerouslySetInnerHTML={{ __html: inst }} />
                         ))}
                     </ol>
                 </div>
