@@ -9,14 +9,37 @@ import { NuraButton } from "@/components/ui/button/button"
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb"
 import { NuraTextArea } from "@/components/ui/input/text_area"
 import WelcomingModal from "@/components/ui/modal/welcoming_modal"
+import { handleEnrollment, checkEnrollment } from "@/app/actions/enrollment"
+import { getClassDetails } from "@/app/actions/classes"
 
 export default function EnrollmentPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter()
     const [classId, setClassId] = useState<string>("")
 
     useEffect(() => {
-        params.then(p => setClassId(p.id)).catch(() => { })
+        params.then(p => {
+            const id = p.id;
+            setClassId(id);
+            const classIdInt = parseInt(id);
+
+            // Check if user is already enrolled
+            checkEnrollment(classIdInt).then(isEnrolled => {
+                if (isEnrolled) {
+                    alert("You are already enrolled in this class.");
+                    router.replace(`/classes/${id}/overview`);
+                }
+            }).catch(() => { });
+
+            // Fetch class details
+            getClassDetails(classIdInt).then(result => {
+                if (result.success && result.class) {
+                    setClassData(result.class);
+                }
+            }).catch(() => { });
+        }).catch(() => { })
     }, [params])
+
+    const [classData, setClassData] = useState<any>(null)
 
     const [formData, setFormData] = useState({
         profession: "",
@@ -51,20 +74,64 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
         setFormData(prev => ({ ...prev, [field]: value }))
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const [error, setError] = useState<string | null>(null)
+    const [isLoading, setIsLoading] = useState(false)
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        console.log("Enrollment data:", { ...formData, selectedObjectives, cvFile })
-        // Handle submission logic here
-        // Open welcoming modal after successful submission
-        setIsWelcomingModalOpen(true)
+        setError(null)
+
+        // Validate all fields are filled
+        if (!formData.profession.trim() ||
+            !formData.yoe.trim() ||
+            !formData.workField.trim() ||
+            !formData.educationField.trim() ||
+            !formData.jobIndustry.trim() ||
+            !formData.finalExpectations.trim()) {
+            setError("Please fill in all required fields.")
+            return
+        }
+
+        if (selectedObjectives.length === 0) {
+            setError("Please select at least one learning objective.")
+            return
+        }
+
+        if (!cvFile) {
+            setError("Please upload your CV.")
+            return
+        }
+
+        setIsLoading(true)
+
+        try {
+            const result = await handleEnrollment(parseInt(classId), {
+                ...formData,
+                selectedObjectives,
+            })
+
+            if (result.success) {
+                setIsWelcomingModalOpen(true)
+            } else {
+                setError(result.error || "Failed to enroll")
+            }
+        } catch (err: any) {
+            setError(err.message || "An unexpected error occurred")
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     const handleCancel = () => {
         router.back()
     }
 
-    // Mock class name - in real app, fetch from API
-    const className = "Foundation to Data Analytics"
+    const className = classData?.title || "Class"
+
+    const timelines = classData?.timelines?.map((t: any) => ({
+        date: new Date(t.date).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
+        label: t.activity
+    })) || []
 
     return (
         <main className="relative min-h-screen w-full overflow-hidden bg-white">
@@ -94,6 +161,11 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
 
                 {/* Form Card */}
                 <div className="p-8 md:p-12">
+                    {error && (
+                        <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl">
+                            {error}
+                        </div>
+                    )}
                     <form onSubmit={handleSubmit} className="space-y-8">
                         {/* Personal Information Section */}
                         <div className="space-y-6">
@@ -183,10 +255,11 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
                                 className="min-w-[120px]"
                             />
                             <NuraButton
-                                label="Submit"
+                                label={isLoading ? "Submitting..." : "Submit"}
                                 variant="primary"
                                 type="submit"
                                 className="min-w-[120px]"
+                                disabled={isLoading}
                             />
                         </div>
                     </form>
@@ -197,13 +270,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
             <WelcomingModal
                 isOpen={isWelcomingModalOpen}
                 classId={classId}
-                steps={[
-                    { date: "02/03/2026", label: "Placement Test" },
-                    { date: "08/03/2026", label: "Course Mapping" },
-                    { date: "15/03/2026", label: "Grouping" },
-                    { date: "22/03/2026", label: "Learning" },
-                    { date: "24/05/2026", label: "Final Project" },
-                ]}
+                steps={timelines}
             />
         </main>
     )

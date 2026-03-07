@@ -150,11 +150,19 @@ model Enrollment {
   id         Int              @id @default(autoincrement())
   userId     Int
   classId    Int
-  status     EnrollmentStatus @default(ACTIVE)
-  enrolledAt DateTime         @default(now())
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
-  deletedAt  DateTime?
+  status            EnrollmentStatus @default(ACTIVE)
+  enrolledAt        DateTime         @default(now())
+  profession        String?
+  yoe               String?
+  workField         String?
+  educationField    String?
+  jobIndustry       String?
+  finalExpectations String?
+  objectives        String[]
+  cvUrl             String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  deletedAt         DateTime?
 
   user              User               @relation(fields: [userId], references: [id])
   class             Class              @relation(fields: [classId], references: [id])

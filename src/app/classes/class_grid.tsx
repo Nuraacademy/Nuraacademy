@@ -41,11 +41,12 @@ export default function ClassesGrid({ initialClasses }: { initialClasses: any[] 
                             imageUrl={item.imgUrl}
                             title={item.title}
                             duration={item.hours || 0}
-                            scheduleStart={new Date(item.startDate)}
-                            scheduleEnd={new Date(item.endDate)}
+                            scheduleStart={item.startDate ? new Date(item.startDate) : undefined}
+                            scheduleEnd={item.endDate ? new Date(item.endDate) : undefined}
                             method={item.methods}
                             courses={item.courses?.length || 0}
                             description={item.description}
+                            isEnrolled={item.isEnrolled}
                             onClick={() => router.push(`/classes/${item.id}/overview`)}
                         />
                     ))

@@ -10,26 +10,29 @@ interface ClassCardProp {
     imageUrl?: string,
     title: string,
     method: string,
-    scheduleStart: Date,
-    scheduleEnd: Date,
+    scheduleStart?: Date,
+    scheduleEnd?: Date,
     description: string,
     duration: number,
     courses: number,
+    isEnrolled: boolean,
     onClick: () => void
 }
 
 export default function ClassCard({
-    id, imageUrl, title, method, scheduleStart, scheduleEnd, description, duration, courses, onClick
+    id, imageUrl, title, method, scheduleStart, scheduleEnd, description, duration, courses, isEnrolled, onClick
 }: ClassCardProp) {
     const router = useRouter()
 
-    const formatDate = (date: Date) =>
-        `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+    const formatDate = (date?: Date) =>
+        date ? `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}` : "TBA";
 
     const getStatus = () => {
         const now = new Date();
         let status;
-        if (now >= scheduleStart && now <= scheduleEnd) {
+        if (!scheduleStart || !scheduleEnd) {
+            status = "Upcoming";
+        } else if (now >= scheduleStart && now <= scheduleEnd) {
             status = "Ongoing";
         } else if (now < scheduleStart) {
             status = "Not Started";
@@ -40,7 +43,7 @@ export default function ClassCard({
         let style;
         if (status === "Ongoing") {
             style = 'bg-[#B8FFA2] text-black';
-        } else if (status === "Not Started") {
+        } else if (status === "Not Started" || status === "Upcoming") {
             style = 'bg-[#8FF6FF] text-black';
         } else {
             style = 'bg-[#A2A2A2] text-black';
@@ -107,11 +110,11 @@ export default function ClassCard({
                     </div>
                 </div>
                 <NuraButton
-                    label="Enroll Now"
+                    label={isEnrolled ? "View Class" : "Enroll Now"}
                     variant="navigate"
                     onClick={(e) => {
                         e.stopPropagation();
-                        router.push(`/classes/${id}/enrollment`);
+                        router.push(isEnrolled ? `/classes/${id}/overview` : `/classes/${id}/enrollment`);
                     }}
                 />
             </div>

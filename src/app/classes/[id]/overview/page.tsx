@@ -1,6 +1,7 @@
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import { getClassById } from "@/controllers/classController";
 import { getEnrollment } from "@/controllers/enrollmentController";
+import { getSession } from "@/app/actions/auth";
 import { EnrollButton, AddTimelineButton, PlacementTestButton, AddCourseButton, CourseCard } from "./client_button";
 import { notFound } from "next/navigation";
 
@@ -11,10 +12,7 @@ export default async function CourseOverviewPage({
 }) {
     const { id } = await params;
 
-    // Simulate getting current user (Admin or Student)
-    // For now we'll hardcode checking student1's enrollment as an example, 
-    // or you could check session.
-    const currentUserId = 4; // student1
+    const currentUserId = await getSession();
     const adminPage = false;
 
     // Fetch live class data
@@ -24,7 +22,7 @@ export default async function CourseOverviewPage({
     }
 
     // Check if user is enrolled
-    const enrollment = await getEnrollment(currentUserId, parseInt(id));
+    const enrollment = currentUserId ? await getEnrollment(currentUserId, parseInt(id)) : null;
     const isEnrolled = !!enrollment;
 
     // Fallback image if none provided

@@ -5,9 +5,22 @@ import ClassCard from "@/components/ui/card/class_card";
 import HomeCard from "@/components/ui/card/home_card";
 import HomeStoriesCard from "@/components/ui/card/home_stories_card";
 import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { getHomeClasses } from "@/app/actions/classes";
 
 export default function Home() {
   const router = useRouter();
+  const [topClasses, setTopClasses] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    getHomeClasses().then(result => {
+      if (result.success && result.classes) {
+        setTopClasses(result.classes);
+      }
+      setIsLoading(false);
+    }).catch(() => setIsLoading(false));
+  }, []);
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden pt-8 bg-[#F9F9EE]">
@@ -107,42 +120,30 @@ export default function Home() {
         <div className="text-center text-black px-8 py-12">
           <h2 className="text-4xl font-semibold mb-4">Our Top Classes</h2>
           <div className="flex justify-center items-start gap-8 pt-8 flex-wrap">
-            <ClassCard
-              id="1"
-              imageUrl="/example/dummy.png"
-              title="Introduction to Programming"
-              duration={55}
-              scheduleStart={new Date("2026-02-22")}
-              scheduleEnd={new Date("2026-05-31")}
-              method="Flipped Blended Classroom"
-              courses={5}
-              description="Kelas ini dirancang untuk peserta yang ingin memahami konsep dasar pemrograman menggunakan Python. Pembelajaran fokus pada pemahaman cara kerja program, penggunaan variabel, serta pengelolaan file."
-              onClick={() => router.push('/classes/1/overview')}
-            />
-            <ClassCard
-              id="2"
-              imageUrl="/example/dummy.png"
-              title="Introduction to Programming"
-              duration={55}
-              scheduleStart={new Date("2026-02-22")}
-              scheduleEnd={new Date("2026-05-31")}
-              method="Flipped Blended Classroom"
-              courses={5}
-              description="Kelas ini dirancang untuk peserta yang ingin memahami konsep dasar pemrograman menggunakan Python. Pembelajaran fokus pada pemahaman cara kerja program, penggunaan variabel, serta pengelolaan file."
-              onClick={() => router.push('/classes/2/overview')}
-            />
-            <ClassCard
-              id="3"
-              imageUrl="/example/dummy.png"
-              title="Introduction to Programming"
-              duration={55}
-              scheduleStart={new Date("2026-02-22")}
-              scheduleEnd={new Date("2026-05-31")}
-              method="Flipped Blended Classroom"
-              courses={5}
-              description="Kelas ini dirancang untuk peserta yang ingin memahami konsep dasar pemrograman menggunakan Python. Pembelajaran fokus pada pemahaman cara kerja program, penggunaan variabel, serta pengelolaan file."
-              onClick={() => router.push('/classes/3/overview')}
-            />
+            {isLoading ? (
+              <div className="w-full flex justify-center py-10">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1C3A37]"></div>
+              </div>
+            ) : topClasses.length > 0 ? (
+              topClasses.map((item) => (
+                <ClassCard
+                  key={item.id}
+                  id={String(item.id)}
+                  imageUrl={item.imgUrl}
+                  title={item.title}
+                  duration={item.hours || 0}
+                  scheduleStart={item.startDate ? new Date(item.startDate) : undefined}
+                  scheduleEnd={item.endDate ? new Date(item.endDate) : undefined}
+                  method={item.methods}
+                  courses={item.courses?.length || 0}
+                  description={item.description}
+                  isEnrolled={item.isEnrolled}
+                  onClick={() => router.push(`/classes/${item.id}/overview`)}
+                />
+              ))
+            ) : (
+              <p className="text-gray-500 italic">No classes available at the moment.</p>
+            )}
           </div>
         </div>
       </section>
