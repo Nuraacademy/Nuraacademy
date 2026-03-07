@@ -19,7 +19,8 @@ export async function getCoursesByClassId(classId: number) {
  * Get a specific course by its ID, including its related sessions.
  */
 export async function getCourseById(id: number) {
-    return await prisma.course.findUnique({
+    if (!id || isNaN(id)) return null;
+    return await prisma.course.findFirst({
         where: {
             id,
             deletedAt: null,

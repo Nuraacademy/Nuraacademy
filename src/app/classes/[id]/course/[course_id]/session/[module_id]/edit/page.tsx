@@ -1,5 +1,6 @@
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import { getSessionById } from "@/controllers/sessionController";
+import { getCourseById } from "@/controllers/courseController";
 import { notFound } from "next/navigation";
 import EditSessionForm from "@/app/classes/[id]/course/[course_id]/session/[module_id]/edit/edit_form";
 
@@ -10,34 +11,52 @@ export default async function EditSessionPage({
 }) {
     const { id: classId, course_id: courseId, module_id: moduleId } = await params;
 
-    const session = await getSessionById(parseInt(moduleId));
-    if (!session) {
-        return notFound();
+    const isNew = moduleId === "new";
+
+    let sessionTitle = "New Session";
+    let classTitle = "Class";
+    let courseTitle = "Course";
+    let schedule: any = null;
+    let content: any = {};
+    let referenceMaterials: any[] = [];
+    let initialIsSynchronous = false;
+
+    if (isNew) {
+        const course = await getCourseById(parseInt(courseId));
+        if (!course) return notFound();
+        courseTitle = course.title;
+        classTitle = course.class?.title || "Class";
+    } else {
+        const session = await getSessionById(parseInt(moduleId));
+        if (!session) return notFound();
+
+        sessionTitle = session.title;
+        classTitle = session.course?.class?.title || "Class";
+        courseTitle = session.course?.title || "Course";
+        initialIsSynchronous = session.isSynchronous || false;
+
+        // Parse JSON fields safely
+        const parseJson = (val: any) => {
+            if (!val) return null;
+            if (typeof val === 'object') return val;
+            try { return JSON.parse(val); } catch { return null; }
+        };
+
+        schedule = parseJson(session.schedule);
+        content = parseJson(session.content) || {};
+        const reference = parseJson(session.reference) || [];
+
+        // Ensure reference is an array
+        referenceMaterials = Array.isArray(reference)
+            ? reference
+            : (reference.name ? [reference] : []);
     }
-
-    const classTitle = session.course?.class?.title || "Class";
-    const courseTitle = session.course?.title || "Course";
-
-    // Parse JSON fields safely
-    const parseJson = (val: any) => {
-        if (!val) return null;
-        if (typeof val === 'object') return val;
-        try { return JSON.parse(val); } catch { return null; }
-    };
-
-    const content = parseJson(session.content) || {};
-    const reference = parseJson(session.reference) || [];
-
-    // Ensure reference is an array
-    const referenceMaterials = Array.isArray(reference)
-        ? reference
-        : (reference.name ? [reference] : []);
 
     const breadcrumbItems = [
         { label: "Home", href: "/" },
         { label: classTitle, href: `/classes/${classId}/overview` },
         { label: courseTitle, href: `/classes/${classId}/course/${courseId}/overview` },
-        { label: session.title, href: `/classes/${classId}/course/${courseId}/session/${moduleId}` }
+        { label: isNew ? "New Session" : sessionTitle, href: isNew ? "#" : `/classes/${classId}/course/${courseId}/session/${moduleId}` }
     ];
 
     return (
@@ -51,7 +70,7 @@ export default async function EditSessionPage({
                 {/* Hero Title */}
                 <section className="bg-[#005954] rounded-[1.5rem] p-6 mb-8">
                     <h1 className="text-xl font-bold text-white">
-                        Edit Session: {session.title}
+                        {isNew ? "Create New Session" : `Edit Session: ${sessionTitle}`}
                     </h1>
                 </section>
 
@@ -61,6 +80,9 @@ export default async function EditSessionPage({
                         classId={classId}
                         courseId={courseId}
                         moduleId={moduleId}
+                        initialTitle={isNew ? "" : sessionTitle}
+                        initialIsSynchronous={initialIsSynchronous}
+                        initialSchedule={schedule}
                         initialContent={content}
                         initialReference={referenceMaterials}
                     />

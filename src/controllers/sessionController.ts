@@ -24,6 +24,7 @@ export async function getSessionsByCourseId(courseId: number) {
  * Get presence data for a session, including enrolled students and their scores.
  */
 export async function getSessionPresence(sessionId: number) {
+    if (!sessionId || isNaN(sessionId)) return [];
     const session = await prisma.session.findUnique({
         where: { id: sessionId },
         select: { courseId: true }
@@ -53,7 +54,8 @@ export async function getSessionPresence(sessionId: number) {
  * Get a specific session by its ID, including references and assignments.
  */
 export async function getSessionById(id: number) {
-    return await prisma.session.findUnique({
+    if (!id || isNaN(id)) return null;
+    return await prisma.session.findFirst({
         where: {
             id,
             deletedAt: null,

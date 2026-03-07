@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { updateSessionContent } from "@/app/actions/session";
+import { updateSessionContent, createSession } from "@/app/actions/session";
 import { NuraButton } from "@/components/ui/button/button";
 import { NuraTextInput } from "@/components/ui/input/text_input";
 import { NuraTextArea } from "@/components/ui/input/text_area";
@@ -18,16 +18,32 @@ export default function EditSessionForm({
     classId,
     courseId,
     moduleId,
+    initialTitle = "",
+    initialIsSynchronous = false,
+    initialSchedule,
     initialContent,
     initialReference
 }: {
     classId: string;
     courseId: string;
     moduleId: string;
+    initialTitle?: string;
+    initialIsSynchronous?: boolean;
+    initialSchedule: any;
     initialContent: any;
     initialReference: ReferenceMaterial[];
 }) {
     const router = useRouter();
+    const isNew = moduleId === "new";
+
+    const [sessionTitle, setSessionTitle] = useState(initialTitle);
+    const [isSynchronous, setIsSynchronous] = useState(initialIsSynchronous);
+
+    // State for Schedule
+    const [scheduleDate, setScheduleDate] = useState(
+        initialSchedule?.date ? new Date(initialSchedule.date).toISOString().slice(0, 16) : ""
+    );
+
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -82,18 +98,47 @@ export default function EditSessionForm({
             delete newContent.zoom;
         }
 
+        // Construct the new schedule object
+        const newSchedule = scheduleDate ? { date: new Date(scheduleDate).toISOString() } : null;
+
         try {
-            const result = await updateSessionContent(
-                moduleId,
-                classId,
-                courseId,
-                newContent,
-                references.filter(ref => ref.name || ref.url) // Filter out completely empty entries
-            );
+            const cleanReferences = references.filter(ref => ref.name || ref.url);
+
+            if (!sessionTitle.trim()) {
+                setError("Session title is required.");
+                setIsSubmitting(false);
+                return;
+            }
+
+            let result;
+            if (isNew) {
+                result = await createSession(classId, parseInt(courseId), {
+                    title: sessionTitle,
+                    isSynchronous: isSynchronous,
+                    schedule: newSchedule,
+                    content: newContent,
+                    reference: cleanReferences
+                });
+            } else {
+                result = await updateSessionContent(
+                    moduleId,
+                    classId,
+                    courseId,
+                    sessionTitle,
+                    isSynchronous,
+                    newSchedule,
+                    newContent,
+                    cleanReferences
+                );
+            }
 
             if (result.success) {
-                router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}`);
-                router.refresh(); // Ensure the page data is refreshed
+                if (isNew && "sessionId" in result && result.sessionId) {
+                    router.push(`/classes/${classId}/course/${courseId}/session/${result.sessionId}`);
+                } else {
+                    router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}`);
+                }
+                router.refresh();
             } else {
                 setError(result.error || "Something went wrong.");
             }
@@ -111,6 +156,55 @@ export default function EditSessionForm({
                     {error}
                 </div>
             )}
+
+            <div className="flex flex-col gap-6 text-sm w-full bg-gray-50 p-6 rounded-[1.5rem] border border-gray-100">
+                <div className="flex flex-col gap-2">
+                    <span className="font-bold text-gray-900">Session Settings</span>
+                    <p className="text-gray-500 text-xs">Configure the basic settings for this session.</p>
+                </div>
+                <NuraTextInput
+                    label="Session Title"
+                    placeholder="e.g. Module 1: Introduction to SQL"
+                    value={sessionTitle}
+                    onChange={(e) => setSessionTitle(e.target.value)}
+                />
+
+                <div className="flex flex-col gap-2">
+                    <label className="block text-sm font-medium mb-1 text-gray-900">Session Type</label>
+                    <div className="flex bg-white border border-gray-200 p-1 rounded-2xl w-fit">
+                        <button
+                            type="button"
+                            onClick={() => setIsSynchronous(false)}
+                            className={`rounded-xl px-6 py-1.5 text-sm transition-all ${!isSynchronous
+                                ? "bg-[#cdff2b] font-bold text-gray-900"
+                                : "text-gray-500 hover:text-gray-900"
+                                }`}
+                        >
+                            Asynchronous
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setIsSynchronous(true)}
+                            className={`rounded-xl px-6 py-1.5 text-sm transition-all ${isSynchronous
+                                ? "bg-[#cdff2b] font-bold text-gray-900"
+                                : "text-gray-500 hover:text-gray-900"
+                                }`}
+                        >
+                            Synchronous
+                        </button>
+                    </div>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                    <label className="block text-sm font-medium mb-1 text-gray-900">Schedule Date</label>
+                    <input
+                        type="datetime-local"
+                        value={scheduleDate}
+                        onChange={(e) => setScheduleDate(e.target.value)}
+                        className="w-full bg-white border border-gray-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#005954] transition-all text-gray-900 placeholder:text-gray-400"
+                    />
+                </div>
+            </div>
 
             {/* Video Section */}
             <div className="flex flex-col gap-4 text-sm w-full">
