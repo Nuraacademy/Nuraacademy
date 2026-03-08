@@ -39,31 +39,31 @@ export default async function PlacementTestPage({
   let initialScore: number | undefined;
   let courseResults: any[] | undefined;
 
-  if (finished === "true") {
-    const testResult = await getAssignmentResult(assignment.id, enrollment.id) as any;
-    if (testResult) {
-      initialScore = testResult.totalScore ?? undefined;
+  const testResult = await getAssignmentResult(assignment.id, enrollment.id) as any;
+  const isFinished = finished === "true" || !!testResult;
 
-      // Group by course and calculate pass/not pass
-      const courseMap = new Map<number, { title: string, scored: number, total: number }>();
+  if (testResult) {
+    initialScore = testResult.totalScore ?? undefined;
 
-      testResult.assignmentItemResults.forEach((ir: any) => {
-        const item = ir.assignmentItem;
-        const course = item.course;
-        if (course) {
-          const stats = courseMap.get(course.id) || { title: course.title, scored: 0, total: 0 };
-          stats.scored += ir.score || 0;
-          stats.total += item.maxScore || 10;
-          courseMap.set(course.id, stats);
-        }
-      });
+    // Group by course and calculate pass/not pass
+    const courseMap = new Map<number, { title: string, scored: number, total: number }>();
 
-      courseResults = Array.from(courseMap.entries()).map(([id, stats]) => ({
-        courseId: id,
-        courseTitle: stats.title,
-        status: (stats.scored / stats.total) >= 0.6 ? "Pass" : "Not Pass"
-      }));
-    }
+    testResult.assignmentItemResults.forEach((ir: any) => {
+      const item = ir.assignmentItem;
+      const course = item.course;
+      if (course) {
+        const stats = courseMap.get(course.id) || { title: course.title, scored: 0, total: 0 };
+        stats.scored += ir.score || 0;
+        stats.total += item.maxScore || 10;
+        courseMap.set(course.id, stats);
+      }
+    });
+
+    courseResults = Array.from(courseMap.entries()).map(([id, stats]) => ({
+      courseId: id,
+      courseTitle: stats.title,
+      status: (stats.scored / stats.total) >= 0.6 ? "Pass" : "Not Pass"
+    }));
   }
 
   const {
@@ -100,7 +100,7 @@ export default async function PlacementTestPage({
         }}
         pageText={pageText}
         autoStart={skipIntro === "1"}
-        finished={finished === "true"}
+        finished={isFinished}
         initialScore={initialScore}
       />
     </main>

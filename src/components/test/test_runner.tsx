@@ -120,7 +120,7 @@ export function TestRunner({
 
       if (response.success) {
         setIsModalOpen(false)
-        window.location.href = window.location.pathname + "?finished=true"
+        window.location.reload()
       } else {
         alert(response.error || "Failed to submit. Please try again.")
       }
