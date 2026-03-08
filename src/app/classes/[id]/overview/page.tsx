@@ -193,7 +193,7 @@ export default async function CourseOverviewPage({
                             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
                                 <h2 className="text-xl font-bold">Courses</h2>
                                 {adminPage && (
-                                    <AddCourseButton />
+                                    <AddCourseButton classId={id} />
                                 )}
                             </div>
 
@@ -203,6 +203,7 @@ export default async function CourseOverviewPage({
                                         key={course.id}
                                         classId={id}
                                         course={course}
+                                        isAdmin={adminPage}
                                     />
                                 ))}
                                 {(!classData.courses || classData.courses.length === 0) && (

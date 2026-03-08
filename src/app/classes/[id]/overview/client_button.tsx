@@ -64,19 +64,35 @@ export function PlacementTestButton({
     return <NuraButton label="Start Test" variant="primary" onClick={() => router.push(`/classes/${classId}/test`)} />
 }
 
-export function AddCourseButton() {
-    return <NuraButton label="Add Course" variant="primary" />
+export function AddCourseButton({ classId }: { classId: string }) {
+    const router = useRouter()
+    return <NuraButton label="Add Course" variant="primary" onClick={() => router.push(`/classes/${classId}/course/add`)} />
 }
 
-export function CourseCard({ classId, course }: { classId: string, course: any }) {
+export function CourseCard({ classId, course, isAdmin }: { classId: string, course: any, isAdmin: boolean }) {
     const router = useRouter()
     return (
         <div
-            className="border border-gray-200 rounded-[1.5rem] p-5 hover:border-gray-400 hover:shadow-sm transition-all duration-200 cursor-pointer"
+            className="border border-gray-200 rounded-[1.5rem] p-5 hover:border-gray-400 hover:shadow-sm transition-all duration-200 cursor-pointer group relative"
             onClick={() => router.push(`/classes/${classId}/course/${course.id}/overview`)}
         >
-            <h3 className="text-black text-medium mb-1">{course.title}</h3>
-            <p className="text-sm text-gray-600">{course.description}</p>
+            <div className="flex justify-between items-start">
+                <div>
+                    <h3 className="text-black text-medium mb-1">{course.title}</h3>
+                    <p className="text-sm text-gray-600 line-clamp-2" dangerouslySetInnerHTML={{ __html: course.description }} />
+                </div>
+                {isAdmin && (
+                    <button
+                        className="opacity-0 group-hover:opacity-100 p-2 hover:bg-gray-100 rounded-full transition-all"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/classes/${classId}/course/${course.id}/edit`);
+                        }}
+                    >
+                        <img src="/icons/Edit.svg" alt="Edit" className="w-4 h-4" />
+                    </button>
+                )}
+            </div>
         </div>
     )
 }

@@ -28,7 +28,8 @@ export async function getAllClasses() {
  * Get a specific class by its ID, including its related courses and timelines.
  */
 export async function getClassById(id: number) {
-    return await prisma.class.findUnique({
+    if (!id || isNaN(id)) return null;
+    return await prisma.class.findFirst({
         where: {
             id,
             deletedAt: null,

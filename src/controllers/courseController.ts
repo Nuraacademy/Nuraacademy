@@ -37,3 +37,19 @@ export async function getCourseById(id: number) {
         },
     });
 }
+/**
+ * Create a new course.
+ */
+export async function createCourse(data: any) {
+    return await prisma.course.create({ data });
+}
+
+/**
+ * Update an existing course.
+ */
+export async function updateCourse(id: number, data: any) {
+    return await prisma.course.update({
+        where: { id },
+        data,
+    });
+}
