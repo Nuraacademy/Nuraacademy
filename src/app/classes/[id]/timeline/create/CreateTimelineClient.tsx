@@ -25,7 +25,15 @@ const EVENTS = [
 export function CreateTimelineClient({ classData }: Props) {
     const router = useRouter()
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const [dates, setDates] = useState<Record<string, Date | null>>({})
+    const [dates, setDates] = useState<Record<string, Date | null>>(() => {
+        const initial: Record<string, Date | null> = {};
+        if (classData.timelines) {
+            classData.timelines.forEach((t: any) => {
+                initial[t.activity] = new Date(t.date);
+            });
+        }
+        return initial;
+    })
 
     const [modal, setModal] = useState<{ open: boolean, type: "success" | "error", title: string, message: string }>({
         open: false,
