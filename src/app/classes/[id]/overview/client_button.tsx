@@ -40,8 +40,9 @@ export function EnrollButton({ classId }: { classId: string }) {
     )
 }
 
-export function AddTimelineButton() {
-    return <NuraButton label="Add Timeline" variant="primary" className="h-6 text-sm" />
+export function AddTimelineButton({ classId }: { classId: string }) {
+    const router = useRouter()
+    return <NuraButton label="Add Timeline" variant="primary" className="h-6 text-sm" onClick={() => router.push(`/classes/${classId}/timeline/create`)} />
 }
 
 export function PlacementTestButton({

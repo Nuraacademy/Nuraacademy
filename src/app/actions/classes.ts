@@ -3,6 +3,8 @@
 import { getClassById, getAllClasses } from "@/controllers/classController"
 import { getSession } from "./auth"
 import { prisma } from "@/lib/prisma"
+import { saveClassTimelines } from "@/controllers/timelineController"
+import { revalidatePath } from "next/cache"
 
 export async function getClassDetails(id: number) {
     try {
@@ -48,5 +50,16 @@ export async function getHomeClasses() {
         return { success: true, classes: classesWithStatus };
     } catch (error: any) {
         return { success: false, error: error.message || "Failed to fetch top classes" };
+    }
+}
+
+export async function updateClassSchedule(classId: number, timelineData: { activity: string, date: Date }[]) {
+    try {
+        await saveClassTimelines(classId, timelineData);
+        revalidatePath(`/classes/${classId}/overview`);
+        return { success: true };
+    } catch (error: any) {
+        console.error("Failed to update class schedule:", error);
+        return { success: false, error: error.message || "Failed to update class schedule" };
     }
 }

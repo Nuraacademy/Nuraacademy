@@ -14,7 +14,7 @@ export default async function CourseOverviewPage({
     const { id } = await params;
 
     const currentUserId = await getSession();
-    const adminPage = false;
+    const adminPage = true;
 
     // Fetch live class data
     const classData = await getClassById(parseInt(id));
@@ -134,7 +134,7 @@ export default async function CourseOverviewPage({
                             <div className="flex items-center justify-between mb-6">
                                 <h2 className="text-lg font-bold">Timeline</h2>
                                 {adminPage && (
-                                    <AddTimelineButton />
+                                    <AddTimelineButton classId={id} />
                                 )}
                             </div>
 
