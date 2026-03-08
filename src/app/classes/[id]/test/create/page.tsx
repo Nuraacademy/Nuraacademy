@@ -1,4 +1,5 @@
 import { getClassById } from "@/controllers/classController";
+import { getPlacementTestByClassId } from "@/controllers/assignmentController";
 import { CreateTestClient } from "./CreateTestClient";
 import { notFound } from "next/navigation";
 
@@ -16,5 +17,7 @@ export default async function CreateTestPage({ params }: { params: Promise<{ id:
         notFound();
     }
 
-    return <CreateTestClient classData={classData} />;
+    const existingTest = await getPlacementTestByClassId(classId);
+
+    return <CreateTestClient classData={classData} existingTest={existingTest} />;
 }

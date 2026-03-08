@@ -1,5 +1,6 @@
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import { getClassById } from "@/controllers/classController";
+import { getPlacementTestByClassId, getAssignmentResult } from "@/controllers/assignmentController";
 import { getEnrollment } from "@/controllers/enrollmentController";
 import { getSession } from "@/app/actions/auth";
 import { EnrollButton, AddTimelineButton, PlacementTestButton, AddCourseButton, CourseCard, SuccessHandler } from "./client_button";
@@ -25,6 +26,16 @@ export default async function CourseOverviewPage({
     const enrollment = currentUserId ? await getEnrollment(currentUserId, parseInt(id)) : null;
     const isEnrolled = !!enrollment;
 
+    // Check placement test status
+    let isPlacementTestFinished = false;
+    if (isEnrolled && enrollment) {
+        const placementTest = await getPlacementTestByClassId(parseInt(id));
+        if (placementTest) {
+            const testResult = await getAssignmentResult(placementTest.id, enrollment.id);
+            isPlacementTestFinished = !!testResult?.finishedAt;
+        }
+    }
+
     // Fallback image if none provided
     const imageUrl = classData.imgUrl || "https://www.lackawanna.edu/wp-content/uploads/2024/08/male-tutor-teaching-university-students-in-classro-2023-11-27-05-16-59-utc.webp";
 
@@ -37,8 +48,7 @@ export default async function CourseOverviewPage({
                 <div className="mb-6">
                     <Breadcrumb
                         items={[
-                            { label: "Home", href: "/" },
-                            { label: "Class", href: "/classes" },
+                            { label: "Home", href: "/classes" },
                             { label: classData.title, href: `/classes/${id}/overview` },
                         ]}
                     />
@@ -173,8 +183,7 @@ export default async function CourseOverviewPage({
                                 <PlacementTestButton
                                     classId={id}
                                     isAdmin={adminPage}
-                                    isFinished={false // TODO: Check actual progress
-                                    }
+                                    isFinished={isPlacementTestFinished}
                                 />
                             </div>
                         )}

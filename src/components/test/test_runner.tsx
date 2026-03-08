@@ -31,6 +31,7 @@ type TestRunnerProps = {
   userName?: string
   autoStart?: boolean
   finished?: boolean
+  initialScore?: number
   showBanner?: boolean
 }
 
@@ -46,6 +47,7 @@ export function TestRunner({
   userName,
   autoStart = false,
   finished = false,
+  initialScore,
   showBanner = true,
 }: TestRunnerProps) {
   const [hasStarted, setHasStarted] = useState(autoStart)
@@ -53,7 +55,7 @@ export function TestRunner({
   const [isFinished, setIsFinished] = useState(finished)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [totalScore, setTotalScore] = useState<number | null>(null)
+  const [totalScore, setTotalScore] = useState<number | null>(initialScore ?? null)
   const [timeLeft, setTimeLeft] = useState(testData.durationMinutes * 60)
   const [currentType, setCurrentType] = useState<QuestionType>(
     objectiveQuestions.length > 0 ? "objective" :
@@ -118,10 +120,7 @@ export function TestRunner({
 
       if (response.success) {
         setIsModalOpen(false)
-        if (response.totalScore !== undefined) {
-          setTotalScore(response.totalScore)
-        }
-        setIsFinished(true)
+        window.location.href = window.location.pathname + "?finished=true"
       } else {
         alert(response.error || "Failed to submit. Please try again.")
       }
@@ -353,11 +352,11 @@ export function TestRunner({
       />
 
       <div className="space-y-3">
-        {currentObjective.options.map((opt) => {
+        {currentObjective.options.map((opt, optIndex) => {
           const isSelected = objectiveAnswers[currentObjective.id] === opt
           return (
             <button
-              key={opt}
+              key={optIndex}
               type="button"
               onClick={() =>
                 setObjectiveAnswers((prev) => ({ ...prev, [currentObjective.id]: opt }))

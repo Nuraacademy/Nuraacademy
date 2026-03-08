@@ -28,6 +28,11 @@ export interface TestData {
     deadlineValue: string
     testDescription: string
     instructions: string[]
+    courseResults?: {
+        courseId: number
+        courseTitle: string
+        status: "Pass" | "Not Pass"
+    }[]
 }
 
 export interface PageText {

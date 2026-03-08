@@ -8,7 +8,7 @@ import { M3DateTimePicker, M3TimePicker } from "@/components/ui/input/datetime_p
 import { FeedbackModal } from "@/components/ui/modal/feedback_modal";
 import { X, Plus, CheckCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { addAssignment } from "@/app/actions/assignment";
+import { addAssignment, editAssignment, removeAssignment } from "@/app/actions/assignment";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -214,7 +214,7 @@ function OpenEndedBlock({
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
-export function CreateTestClient({ classData }: { classData: any }) {
+export function CreateTestClient({ classData, existingTest }: { classData: any, existingTest?: any }) {
     const router = useRouter();
     const idRef = useRef(1);
 
@@ -251,6 +251,55 @@ export function CreateTestClient({ classData }: { classData: any }) {
     const closeModal = () => setModal((m) => ({ ...m, open: false }));
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        if (existingTest) {
+            if (existingTest.startDate) {
+                const start = new Date(existingTest.startDate);
+                setStartDate(start);
+                const hrs = start.getHours().toString().padStart(2, "0");
+                const mins = start.getMinutes().toString().padStart(2, "0");
+                setEndTime(`${hrs}:${mins}`);
+            }
+
+            const initialCourseData: Record<string, CourseQuestions> = {};
+            if (existingTest.assignmentItems) {
+                existingTest.assignmentItems.forEach((item: any) => {
+                    const cid = item.courseId;
+                    if (!cid) return;
+                    if (!initialCourseData[cid]) {
+                        initialCourseData[cid] = { objective: [], essay: [], project: [], saved: true };
+                    }
+                    if (item.type === "OBJECTIVE") {
+                        const options = item.options || [];
+                        initialCourseData[cid].objective.push({
+                            id: idRef.current++,
+                            content: item.question,
+                            answers: options.map((opt: string) => ({
+                                id: idRef.current++,
+                                text: opt,
+                                isCorrect: opt === item.correctAnswer
+                            })),
+                            score: item.maxScore || 10
+                        });
+                    } else if (item.type === "ESSAY") {
+                        initialCourseData[cid].essay.push({
+                            id: idRef.current++,
+                            content: item.question,
+                            score: item.maxScore || 20
+                        });
+                    } else if (item.type === "PROJECT") {
+                        initialCourseData[cid].project.push({
+                            id: idRef.current++,
+                            content: item.question,
+                            score: item.maxScore || 20
+                        });
+                    }
+                });
+            }
+            setCourseData(initialCourseData);
+        }
+    }, [existingTest]);
 
     // ── Open course editor ───────────────────────────────────────────────────
     const handleAddItem = (course: CourseItem) => {
@@ -353,17 +402,18 @@ export function CreateTestClient({ classData }: { classData: any }) {
 
         const itemsPayload: any[] = [];
 
-        Object.values(courseData).forEach(course => {
+        Object.entries(courseData).forEach(([courseId, course]) => {
             if (!course.saved) return;
 
             course.objective.forEach(q => {
                 if (q.content.replace(/<[^>]+>/g, "").trim()) {
                     itemsPayload.push({
+                        courseId: parseInt(courseId),
                         type: "OBJECTIVE",
                         question: q.content,
                         options: q.answers.map(a => a.text) || [],
                         correctAnswer: q.answers.find(a => a.isCorrect)?.text || "",
-                        maxScore: q.score || 20
+                        maxScore: q.score || 10
                     });
                 }
             });
@@ -371,6 +421,7 @@ export function CreateTestClient({ classData }: { classData: any }) {
             course.essay.forEach(q => {
                 if (q.content.replace(/<[^>]+>/g, "").trim()) {
                     itemsPayload.push({
+                        courseId: parseInt(courseId),
                         type: "ESSAY",
                         question: q.content,
                         maxScore: q.score || 20
@@ -381,6 +432,7 @@ export function CreateTestClient({ classData }: { classData: any }) {
             course.project.forEach(q => {
                 if (q.content.replace(/<[^>]+>/g, "").trim()) {
                     itemsPayload.push({
+                        courseId: parseInt(courseId),
                         type: "PROJECT",
                         question: q.content,
                         maxScore: q.score || 20
@@ -389,15 +441,20 @@ export function CreateTestClient({ classData }: { classData: any }) {
             });
         });
 
-        const res = await addAssignment(payload, itemsPayload);
+        let res;
+        if (existingTest) {
+            res = await editAssignment(existingTest.id, payload, itemsPayload);
+        } else {
+            res = await addAssignment(payload, itemsPayload);
+        }
         setIsSubmitting(false);
 
         if (res.success) {
             showModal({
                 open: true,
                 type: "success",
-                title: "Test Created! 🎉",
-                message: "Your placement test has been created successfully.",
+                title: existingTest ? "Test Updated! 🎉" : "Test Created! 🎉",
+                message: existingTest ? "Your placement test has been updated successfully." : "Your placement test has been created successfully.",
                 closeText: "Stay Here",
                 onConfirm: () => { closeModal(); router.push(`/classes/${classData.id}/overview`); },
                 confirmText: "Go to Overview",
@@ -418,7 +475,7 @@ export function CreateTestClient({ classData }: { classData: any }) {
         { label: "Home", href: "/" },
         { label: "Class", href: "/classes" },
         { label: classData.title || "Class Overview", href: `/classes/${classData.id}/overview` },
-        { label: "Create Placement Test", href: "#" },
+        { label: existingTest ? "Edit Placement Test" : "Create Placement Test", href: "#" },
     ];
 
     const savedCount = Object.values(courseData).filter((d) => d.saved).length;
@@ -449,7 +506,7 @@ export function CreateTestClient({ classData }: { classData: any }) {
                 {view === "overview" && (
                     <>
                         <Breadcrumb items={breadcrumbBase} />
-                        <h1 className="text-2xl font-bold mt-6 mb-6">Create Test</h1>
+                        <h1 className="text-2xl font-bold mt-6 mb-6">{existingTest ? "Edit Test" : "Create Test"}</h1>
 
                         {/* ── Form Row ── */}
                         <div className="grid grid-cols-1 md:grid-cols-[1fr_240px_180px] gap-4 items-start mb-8">
@@ -533,7 +590,7 @@ export function CreateTestClient({ classData }: { classData: any }) {
                         {/* Footer */}
                         <div className="flex justify-end items-center gap-4">
                             <NuraButton label="Cancel" variant="secondary" onClick={() => router.back()} disabled={isSubmitting} />
-                            <NuraButton label={isSubmitting ? "Creating..." : "Create"} variant="primary" onClick={handleCreate} disabled={isSubmitting} />
+                            <NuraButton label={isSubmitting ? "Saving..." : (existingTest ? "Save Changes" : "Create")} variant="primary" onClick={handleCreate} disabled={isSubmitting} />
                         </div>
                     </>
                 )}
@@ -542,7 +599,7 @@ export function CreateTestClient({ classData }: { classData: any }) {
                 {view === "editor" && selectedCourse && (
                     <>
                         <Breadcrumb items={[...breadcrumbBase, { label: selectedCourse.title, href: "#" }]} />
-                        <h1 className="text-2xl font-bold mt-6 mb-6">Create Test</h1>
+                        <h1 className="text-2xl font-bold mt-6 mb-6">{existingTest ? "Edit Test" : "Create Test"}</h1>
 
                         {/* Course Title (read-only) */}
                         <div className="mb-6">

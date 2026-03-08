@@ -140,6 +140,7 @@ model Course {
   sessions       Session[]
   assignments    Assignment[]
   courseMappings CourseMapping[]
+  assignmentItems AssignmentItem[]
 
   @@index([classId])
   @@index([createdBy])
@@ -231,6 +232,7 @@ model Assignment {
 model AssignmentItem {
   id             Int                @id @default(autoincrement())
   assignmentId   Int
+  courseId       Int?
   type           AssignmentItemType
   question       String
   options        Json?
@@ -238,13 +240,15 @@ model AssignmentItem {
   maxScore       Float?
   createdBy      Int?
   createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
+  updatedAt      DateTime           @default(now()) @updatedAt
   deletedAt      DateTime?
 
   assignment            Assignment             @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  course                Course?                @relation(fields: [courseId], references: [id])
   assignmentItemResults AssignmentItemResult[]
 
   @@index([assignmentId])
+  @@index([courseId])
   @@index([type])
   @@map("assignment_items")
 }

@@ -20,32 +20,37 @@ export function FinishedCard({ classId, testData, pageText, userName, totalScore
 
                 <h3 className="text-sm md:text-base font-bold text-gray-900 mb-6">Detail Hasil Tes</h3>
 
-                <div className="w-full border border-gray-700 rounded-2xl md:rounded-[1.5rem] overflow-hidden">
+                <div className="w-full border border-gray-200 rounded-2xl md:rounded-[1.5rem] overflow-hidden">
                     {/* Header */}
-                    <div className="flex justify-between items-center px-6 py-5 border-b border-gray-300 bg-white">
-                        <span className="text-xs md:text-sm font-semibold text-gray-900">Description</span>
-                        <span className="text-xs md:text-sm font-semibold text-gray-900">Result</span>
-                    </div>
-
-                    {/* Objective Score Row */}
                     <div className="flex justify-between items-center px-6 py-5 border-b border-gray-200 bg-white">
-                        <span className="text-xs md:text-sm text-gray-800">Objective Section Score</span>
-                        <span className="text-xs md:text-sm font-bold text-[#075546]">
-                            {totalScore ?? 0} points
-                        </span>
+                        <span className="text-xs md:text-sm font-semibold text-gray-900">Course Title</span>
+                        <span className="text-xs md:text-sm font-semibold text-gray-900">Status</span>
                     </div>
 
-                    {/* Status Row */}
-                    <div className="flex justify-between items-center px-6 py-5 bg-white">
-                        <span className="text-xs md:text-sm text-gray-800">Submission Status</span>
-                        <span className="px-5 py-1.5 bg-[#a3fa76] text-gray-900 text-xs font-medium rounded-full min-w-[80px] text-center">
-                            Submitted
-                        </span>
-                    </div>
+                    {/* Course results */}
+                    {(testData.courseResults || []).map((course, idx) => (
+                        <div key={idx} className="flex justify-between items-center px-6 py-5 border-b border-gray-200 bg-white last:border-b-0">
+                            <span className="text-xs md:text-sm text-gray-800">{course.courseTitle}</span>
+                            <span className={`px-5 py-1.5 text-gray-900 text-xs font-semibold rounded-full min-w-[80px] text-center ${course.status === "Pass" ? "bg-[#b0ff8a]" : "bg-[#ff7066]"
+                                }`}>
+                                {course.status}
+                            </span>
+                        </div>
+                    ))}
+
+                    {/* If no results, show the total score as fallback */}
+                    {(!testData.courseResults || testData.courseResults.length === 0) && (
+                        <div className="flex justify-between items-center px-6 py-5 bg-white">
+                            <span className="text-xs md:text-sm text-gray-800 italic">Objective Section Score (Legacy)</span>
+                            <span className="text-xs md:text-sm font-bold text-[#075546]">
+                                {totalScore ?? 0} points
+                            </span>
+                        </div>
+                    )}
                 </div>
 
-                <p className="mt-6 text-xs text-gray-600 italic leading-relaxed">
-                    Note: This score only includes automatically graded objective questions. Essay and Project sections will be reviewed manually.
+                <p className="mt-10 text-xs text-gray-600 italic leading-relaxed">
+                    Note: This placement test determines your initial skill level for each course.
                 </p>
             </div>
 

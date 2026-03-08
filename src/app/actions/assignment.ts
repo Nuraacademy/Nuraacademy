@@ -106,3 +106,44 @@ export async function addAssignment(payload: any, itemsPayload: any[]) {
         return { success: false, error: "Failed to create assignment" }
     }
 }
+
+import { updateAssignment, deleteAssignment } from "@/controllers/assignmentController"
+
+export async function editAssignment(assignmentId: number, payload: any, itemsPayload: any[]) {
+    try {
+        const result = await updateAssignment(assignmentId, payload, itemsPayload);
+
+        if (payload.classId) {
+            revalidatePath(`/classes/${payload.classId}/overview`)
+            revalidatePath(`/classes/${payload.classId}/test`)
+        } else if (payload.courseId) {
+            revalidatePath(`/courses/${payload.courseId}`)
+        }
+        revalidatePath(`/assignment`)
+
+        return { success: true, assignmentId: result.id }
+    } catch (error) {
+        console.error("Error updating assignment:", error)
+        return { success: false, error: "Failed to update assignment" }
+    }
+}
+
+export async function removeAssignment(assignmentId: number, classId?: number, courseId?: number) {
+    try {
+        await deleteAssignment(assignmentId);
+
+        if (classId) {
+            revalidatePath(`/classes/${classId}/overview`);
+            revalidatePath(`/classes/${classId}/test`);
+        }
+        if (courseId) {
+            revalidatePath(`/courses/${courseId}`);
+        }
+        revalidatePath(`/assignment`);
+
+        return { success: true };
+    } catch (error) {
+        console.error("Error deleting assignment:", error);
+        return { success: false, error: "Failed to delete assignment" };
+    }
+}

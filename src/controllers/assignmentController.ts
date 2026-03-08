@@ -68,6 +68,28 @@ export async function getPlacementTestByClassId(classId: number) {
     });
 }
 
+export async function getAssignmentResult(assignmentId: number, enrollmentId: number) {
+    return await prisma.assignmentResult.findUnique({
+        where: {
+            assignmentId_enrollmentId: {
+                assignmentId,
+                enrollmentId,
+            },
+        },
+        include: {
+            assignmentItemResults: {
+                include: {
+                    assignmentItem: {
+                        include: {
+                            course: true
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
 export async function getAssignmentBySessionAndType(sessionId: number, type: AssignmentType) {
     return await prisma.assignment.findFirst({
         where: {
@@ -239,5 +261,43 @@ export async function createAssignment(data: Prisma.AssignmentCreateInput, items
                 create: items
             }
         }
+    });
+}
+
+export async function updateAssignment(assignmentId: number, data: Prisma.AssignmentUpdateInput, items: Prisma.AssignmentItemCreateWithoutAssignmentInput[]) {
+    return await prisma.$transaction(async (tx) => {
+        // 1. Soft-delete existing assignment items
+        await tx.assignmentItem.updateMany({
+            where: { assignmentId, deletedAt: null },
+            data: { deletedAt: new Date() }
+        });
+
+        // 2. Update the assignment and create new items
+        return await tx.assignment.update({
+            where: { id: assignmentId },
+            data: {
+                ...data,
+                assignmentItems: {
+                    create: items
+                }
+            }
+        });
+    });
+}
+
+export async function deleteAssignment(assignmentId: number) {
+    return await prisma.$transaction(async (tx) => {
+        const now = new Date();
+        // 1. Soft-delete the assignment items
+        await tx.assignmentItem.updateMany({
+            where: { assignmentId, deletedAt: null },
+            data: { deletedAt: now }
+        });
+
+        // 2. Soft-delete the assignment
+        return await tx.assignment.update({
+            where: { id: assignmentId },
+            data: { deletedAt: now }
+        });
     });
 }
