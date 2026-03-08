@@ -27,6 +27,14 @@ enum AssignmentItemType {
   PROJECT
 }
 
+enum DiscussionType {
+  TECHNICAL_HELP
+  LEARNING_RESOURCE
+  LEARNING_PARTNER
+  COURSE_DISCUSSION
+  CAREER_PORTOS
+}
+
 enum AssignmentStatus {
   PASS
   NOT_PASS
@@ -50,7 +58,10 @@ model User {
   updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
 
-  enrollments Enrollment[]
+  enrollments        Enrollment[]
+  discussions        Discussion[]
+  discussionReplies  DiscussionReply[]
+  discussionLikes    DiscussionLike[]
 
   @@map("users")
 }
@@ -325,4 +336,53 @@ model CourseMapping {
   @@id([enrollmentId, courseId])
   @@index([courseId])
   @@map("course_mappings")
+}
+
+model Discussion {
+  id        Int            @id @default(autoincrement())
+  userId    Int
+  title     String
+  content   String
+  type      DiscussionType
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  deletedAt DateTime?
+
+  user      User              @relation(fields: [userId], references: [id])
+  replies   DiscussionReply[]
+  likes     DiscussionLike[]
+
+  @@index([userId])
+  @@index([type])
+  @@map("discussions")
+}
+
+model DiscussionReply {
+  id           Int        @id @default(autoincrement())
+  discussionId Int
+  userId       Int
+  text         String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime?
+
+  discussion Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id])
+
+  @@index([discussionId])
+  @@index([userId])
+  @@map("discussion_replies")
+}
+
+model DiscussionLike {
+  discussionId Int
+  userId       Int
+  createdAt    DateTime @default(now())
+
+  discussion Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id])
+
+  @@id([discussionId, userId])
+  @@index([userId])
+  @@map("discussion_likes")
 }

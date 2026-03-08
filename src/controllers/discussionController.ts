@@ -1,0 +1,143 @@
+import { prisma } from '@/lib/prisma';
+import { DiscussionType } from '@prisma/client';
+
+// Get all discussions with pagination and counts
+export async function getDiscussions({ skip = 0, take = 10 }: { skip?: number; take?: number } = {}) {
+    const discussions = await prisma.discussion.findMany({
+        skip,
+        take,
+        orderBy: {
+            createdAt: 'desc',
+        },
+        include: {
+            user: {
+                select: {
+                    name: true,
+                    username: true,
+                },
+            },
+            _count: {
+                select: {
+                    replies: true,
+                    likes: true,
+                },
+            },
+        },
+    });
+
+    return discussions.map(discussion => ({
+        ...discussion,
+        likeCount: discussion._count.likes,
+        repliesCount: discussion._count.replies,
+        authorName: discussion.user.name || discussion.user.username,
+    }));
+}
+
+// Get a single discussion by ID, including replies and its authors
+export async function getDiscussionById(id: number, currentUserId?: number) {
+    const discussion = await prisma.discussion.findUnique({
+        where: { id },
+        include: {
+            user: {
+                select: {
+                    name: true,
+                    username: true,
+                },
+            },
+            replies: {
+                orderBy: {
+                    createdAt: 'asc',
+                },
+                include: {
+                    user: {
+                        select: {
+                            name: true,
+                            username: true,
+                        },
+                    },
+                },
+            },
+            _count: {
+                select: {
+                    likes: true,
+                    replies: true,
+                },
+            },
+        },
+    });
+
+    if (!discussion) return null;
+
+    let isLikedByCurrentUser = false;
+    if (currentUserId) {
+        const like = await prisma.discussionLike.findUnique({
+            where: {
+                discussionId_userId: {
+                    discussionId: id,
+                    userId: currentUserId,
+                },
+            },
+        });
+        isLikedByCurrentUser = !!like;
+    }
+
+    return {
+        ...discussion,
+        likeCount: discussion._count.likes,
+        repliesCount: discussion._count.replies,
+        authorName: discussion.user.name || discussion.user.username,
+        isLikedByCurrentUser,
+        replies: discussion.replies.map(reply => ({
+            ...reply,
+            authorName: reply.user.name || reply.user.username,
+        })),
+    };
+}
+
+// Create a new discussion
+export async function createDiscussion(data: { title: string; content: string; type: DiscussionType; userId: number }) {
+    return prisma.discussion.create({
+        data,
+    });
+}
+
+// Create a new reply to a discussion
+export async function createReply(data: { discussionId: number; text: string; userId: number }) {
+    return prisma.discussionReply.create({
+        data,
+    });
+}
+
+// Toggle like on a discussion
+export async function toggleLikeDiscussion(discussionId: number, userId: number) {
+    const existingLike = await prisma.discussionLike.findUnique({
+        where: {
+            discussionId_userId: {
+                discussionId,
+                userId,
+            },
+        },
+    });
+
+    if (existingLike) {
+        // User already liked it, so unlike
+        await prisma.discussionLike.delete({
+            where: {
+                discussionId_userId: {
+                    discussionId,
+                    userId,
+                },
+            },
+        });
+        return { liked: false };
+    } else {
+        // User hasn't liked it, so like
+        await prisma.discussionLike.create({
+            data: {
+                discussionId,
+                userId,
+            },
+        });
+        return { liked: true };
+    }
+}
