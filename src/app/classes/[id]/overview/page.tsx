@@ -2,7 +2,7 @@ import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import { getClassById } from "@/controllers/classController";
 import { getEnrollment } from "@/controllers/enrollmentController";
 import { getSession } from "@/app/actions/auth";
-import { EnrollButton, AddTimelineButton, PlacementTestButton, AddCourseButton, CourseCard } from "./client_button";
+import { EnrollButton, AddTimelineButton, PlacementTestButton, AddCourseButton, CourseCard, SuccessHandler } from "./client_button";
 import { notFound } from "next/navigation";
 
 export default async function CourseOverviewPage({
@@ -30,6 +30,7 @@ export default async function CourseOverviewPage({
 
     return (
         <main className="min-h-screen bg-[#F5F5EC] font-sans text-gray-800">
+            <SuccessHandler classId={id} timelines={classData.timelines || []} />
             <div className="max-w-7xl mx-auto px-6 md:px-10 py-8">
 
                 {/* Breadcrumb */}

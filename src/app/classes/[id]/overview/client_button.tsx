@@ -1,7 +1,32 @@
 "use client"
 
 import { NuraButton } from "@/components/ui/button/button"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useEffect, useState } from "react"
+import WelcomingModal from "@/components/ui/modal/welcoming_modal"
+
+export function SuccessHandler({ classId, timelines }: { classId: string, timelines: any[] }) {
+    const searchParams = useSearchParams()
+    const [isOpen, setIsOpen] = useState(false)
+
+    useEffect(() => {
+        if (searchParams.get("enrolled") === "true") {
+            setIsOpen(true)
+        }
+    }, [searchParams])
+
+    return (
+        <WelcomingModal
+            isOpen={isOpen}
+            onClose={() => setIsOpen(false)}
+            classId={classId}
+            steps={timelines.map(t => ({
+                date: new Date(t.date).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
+                label: t.activity
+            }))}
+        />
+    )
+}
 
 export function EnrollButton({ classId }: { classId: string }) {
     const router = useRouter()
@@ -56,6 +81,7 @@ export function CourseCard({ classId, course }: { classId: string, course: any }
 }
 
 const ClientButton = {
+    SuccessHandler,
     EnrollButton,
     AddTimelineButton,
     PlacementTestButton,

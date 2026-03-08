@@ -10,6 +10,7 @@ interface RoadmapStep {
 
 interface WelcomingModalProps {
   isOpen: boolean;
+  onClose: () => void;
   classId: string;
   steps: RoadmapStep[];
 }
@@ -17,6 +18,7 @@ interface WelcomingModalProps {
 
 export default function WelcomingModal({
   isOpen,
+  onClose,
   classId,
   steps
 }: WelcomingModalProps) {
@@ -38,9 +40,9 @@ export default function WelcomingModal({
         <div className="mb-6 mt-2">
           <div className="w-24 h-24 flex items-center justify-center mx-auto">
             <img
-                src="/icons/Confetti.svg"
-                alt="Congratulation"
-                className="w-24 h-24 object-cover"
+              src="/icons/Confetti.svg"
+              alt="Congratulation"
+              className="w-24 h-24 object-cover"
             />
           </div>
         </div>
@@ -101,7 +103,7 @@ export default function WelcomingModal({
         <NuraButton
           label="Start Lesson"
           variant="primary"
-          onClick={() => router.push(`/classes/${classId}/overview`)}
+          onClick={() => { router.push(`/classes/${classId}/overview`); onClose(); }}
           className="mt-2"
         />
       </div>

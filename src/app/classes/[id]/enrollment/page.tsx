@@ -9,7 +9,7 @@ import { NuraButton } from "@/components/ui/button/button"
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb"
 import { NuraTextArea } from "@/components/ui/input/text_area"
 import WelcomingModal from "@/components/ui/modal/welcoming_modal"
-import { handleEnrollment, checkEnrollment } from "@/app/actions/enrollment"
+import { checkEnrollment } from "@/app/actions/enrollment"
 import { getClassDetails } from "@/app/actions/classes"
 
 export default function EnrollmentPage({ params }: { params: Promise<{ id: string }> }) {
@@ -105,19 +105,19 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
         setIsLoading(true)
 
         try {
-            const result = await handleEnrollment(parseInt(classId), {
-                ...formData,
-                selectedObjectives,
-            })
+            const params = new URLSearchParams({
+                profession: formData.profession,
+                yoe: formData.yoe,
+                workField: formData.workField,
+                educationField: formData.educationField,
+                jobIndustry: formData.jobIndustry,
+                finalExpectations: formData.finalExpectations,
+                objectives: JSON.stringify(selectedObjectives),
+            });
 
-            if (result.success) {
-                setIsWelcomingModalOpen(true)
-            } else {
-                setError(result.error || "Failed to enroll")
-            }
+            router.push(`/classes/${classId}/payment?${params.toString()}`);
         } catch (err: any) {
             setError(err.message || "An unexpected error occurred")
-        } finally {
             setIsLoading(false)
         }
     }
@@ -265,13 +265,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
                     </form>
                 </div>
             </div>
-
-            {/* Welcoming Modal */}
-            <WelcomingModal
-                isOpen={isWelcomingModalOpen}
-                classId={classId}
-                steps={timelines}
-            />
         </main>
     )
 }
