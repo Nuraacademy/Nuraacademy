@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import ForumTag from './ui/tag/discussion';
 import { Heart, MessageCircle, Send } from 'lucide-react';
+import { toast } from 'sonner';
 
 export interface Topic {
     id: string;
@@ -17,6 +18,13 @@ export interface Topic {
 
 export default function DiscussionList({ topics }: { topics: Topic[] }) {
     const router = useRouter();
+    const handleShare = (e: React.MouseEvent, topicId: string) => {
+        e.stopPropagation();
+        const url = `${window.location.origin}/discussions/topic?id=${topicId}`;
+        navigator.clipboard.writeText(url);
+        toast.success("Link copied to clipboard!");
+    };
+
     return (
         <div className="space-y-6 pb-20">
             {topics.map((topic) => (
@@ -53,10 +61,13 @@ export default function DiscussionList({ topics }: { topics: Topic[] }) {
                             <span className="text-sm font-semibold">{topic.repliesCount} replies</span>
                         </div>
 
-                        <div className='flex items-center gap-2 transition-colors hover:text-green-500'>
+                        <button
+                            className='flex items-center gap-2 transition-colors hover:text-green-500 hover:scale-105 transition-all'
+                            onClick={(e) => handleShare(e, topic.id)}
+                        >
                             <Send size={19} className="stroke-[1.5]" />
                             <span className="text-sm font-semibold">{Math.floor(topic.likeCount / 3)} shares</span>
-                        </div>
+                        </button>
                     </div>
                 </div>
             ))}

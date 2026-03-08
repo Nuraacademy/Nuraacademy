@@ -6,7 +6,8 @@ import {
     getDiscussionById,
     createDiscussion,
     createReply,
-    toggleLikeDiscussion
+    toggleLikeDiscussion,
+    toggleLikeReply
 } from "@/controllers/discussionController";
 import { revalidatePath } from "next/cache";
 import { DiscussionType } from "@prisma/client";
@@ -72,5 +73,20 @@ export async function toggleLikeDiscussionAction(discussionId: number) {
         return { success: true, data: result };
     } catch (error: any) {
         return { success: false, error: error.message || "Failed to toggle like" };
+    }
+}
+
+export async function toggleLikeReplyAction(replyId: number) {
+    try {
+        const userId = await getSession();
+        if (!userId) {
+            return { success: false, error: "You must be logged in to like a reply" };
+        }
+
+        const result = await toggleLikeReply(replyId, userId);
+        revalidatePath(`/discussions/topic`);
+        return { success: true, data: result };
+    } catch (error: any) {
+        return { success: false, error: error.message || "Failed to toggle like on reply" };
     }
 }

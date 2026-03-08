@@ -55,6 +55,12 @@ export async function getDiscussionById(id: number, currentUserId?: number) {
                             username: true,
                         },
                     },
+                    likes: true,
+                    _count: {
+                        select: {
+                            likes: true,
+                        },
+                    },
                 },
             },
             _count: {
@@ -90,6 +96,8 @@ export async function getDiscussionById(id: number, currentUserId?: number) {
         replies: discussion.replies.map(reply => ({
             ...reply,
             authorName: reply.user.name || reply.user.username,
+            likeCount: reply._count.likes,
+            isLikedByCurrentUser: currentUserId ? reply.likes.some(like => like.userId === currentUserId) : false,
         })),
     };
 }
@@ -135,6 +143,37 @@ export async function toggleLikeDiscussion(discussionId: number, userId: number)
         await prisma.discussionLike.create({
             data: {
                 discussionId,
+                userId,
+            },
+        });
+        return { liked: true };
+    }
+}
+// Toggle like on a reply
+export async function toggleLikeReply(replyId: number, userId: number) {
+    const existingLike = await prisma.discussionReplyLike.findUnique({
+        where: {
+            replyId_userId: {
+                replyId,
+                userId,
+            },
+        },
+    });
+
+    if (existingLike) {
+        await prisma.discussionReplyLike.delete({
+            where: {
+                replyId_userId: {
+                    replyId,
+                    userId,
+                },
+            },
+        });
+        return { liked: false };
+    } else {
+        await prisma.discussionReplyLike.create({
+            data: {
+                replyId,
                 userId,
             },
         });
