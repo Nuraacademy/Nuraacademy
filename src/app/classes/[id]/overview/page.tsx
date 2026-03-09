@@ -109,7 +109,7 @@ export default async function CourseOverviewPage({
                         </div>
 
                         {/* Enroll Button */}
-                        {!isEnrolled && (
+                        {(!isEnrolled && !adminPage) && (
                             <div className="mt-5">
                                 <EnrollButton classId={id} />
                             </div>
@@ -174,7 +174,7 @@ export default async function CourseOverviewPage({
                     {/* Right Column */}
                     <section className="lg:col-span-8 flex flex-col gap-6">
                         {/* Placement Test */}
-                        {isEnrolled && (
+                        {(isEnrolled || adminPage) && (
                             <div className="bg-[#1C3A37] rounded-[2rem] px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
                                 <div>
                                     <h2 className="text-lg text-white">Placement Test</h2>

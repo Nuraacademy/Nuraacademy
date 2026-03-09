@@ -473,7 +473,6 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
     // ── Breadcrumbs ──────────────────────────────────────────────────────────
     const breadcrumbBase = [
         { label: "Home", href: "/" },
-        { label: "Class", href: "/classes" },
         { label: classData.title || "Class Overview", href: `/classes/${classData.id}/overview` },
         { label: existingTest ? "Edit Placement Test" : "Create Placement Test", href: "#" },
     ];

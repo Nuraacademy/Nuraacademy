@@ -41,7 +41,6 @@ export default async function PresenceAndSESPage({
                     <Breadcrumb
                         items={[
                             { label: "Home", href: "/" },
-                            { label: "Class", href: "/classes" },
                             { label: classTitle, href: `/classes/${classId}/overview` },
                             { label: courseTitle, href: `/classes/${classId}/course/${courseId}/overview` },
                             { label: session.title, href: `/classes/${classId}/course/${courseId}/session/${moduleId}` },
