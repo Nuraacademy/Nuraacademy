@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache";
+import { requirePermission } from "@/lib/rbac";
 
 export async function updateSessionContent(
     moduleId: string,
@@ -14,6 +15,7 @@ export async function updateSessionContent(
     referenceData: any[]
 ) {
     try {
+        await requirePermission('Session', 'UPDATE_SESSION');
         const id = parseInt(moduleId);
 
         // Update the session in the database
@@ -41,6 +43,7 @@ export async function updateSessionContent(
 
 export async function deleteSession(sessionId: number, classId: string) {
     try {
+        await requirePermission('Session', 'DELETE_SESSION');
         await prisma.session.update({
             where: { id: sessionId },
             data: { deletedAt: new Date() }
@@ -68,6 +71,7 @@ export async function createSession(
     }
 ) {
     try {
+        await requirePermission('Session', 'CREATE_SESSION');
         const newSession = await prisma.session.create({
             data: {
                 courseId: courseId,

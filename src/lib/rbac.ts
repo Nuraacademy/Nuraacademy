@@ -1,3 +1,5 @@
+"use server";
+
 import { getSession } from "@/app/actions/auth";
 import { prisma } from "@/lib/prisma";
 

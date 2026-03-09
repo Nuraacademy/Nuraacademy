@@ -3,6 +3,7 @@ import { getCourseById } from "@/controllers/courseController";
 import { notFound } from "next/navigation";
 import CourseSessionLink from "./course_session_links";
 import AddSessionButton from "./add_session_button";
+import { hasPermission } from "@/lib/rbac";
 
 interface SectionProps {
     icon: React.ReactNode;
@@ -46,7 +47,8 @@ export default async function CourseOverviewPage({
     }
 
     const classTitle = course.class?.title || "Class";
-    const isAdmin = true; // Use real authentication later
+    const canCreateSession = await hasPermission("Session", "CREATE_SESSION");
+    const canUpdateSession = await hasPermission("Session", "UPDATE_SESSION");
 
     // Parse JSON-like string fields if they were stored as JSON strings
     const parseLearningObjectives = (raw: string | null): { id: string; text: string }[] => {
@@ -141,14 +143,14 @@ export default async function CourseOverviewPage({
                                     title: session.title,
                                     type: session.isSynchronous === true ? "Synchronous" : session.isSynchronous === false ? "Asynchronous" : "None"
                                 }}
-                                isAdmin={isAdmin}
+                                isAdmin={canUpdateSession}
                             />
                         ))}
                         {(!course.sessions || course.sessions.length === 0) && (
                             <p className="text-sm text-gray-500 italic">No sessions added yet.</p>
                         )}
 
-                        {isAdmin && (
+                        {canCreateSession && (
                             <div className="flex justify-center mt-6">
                                 <AddSessionButton classId={classId} courseId={courseId} />
                             </div>
