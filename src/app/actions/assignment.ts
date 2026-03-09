@@ -4,6 +4,7 @@ import { submitAssignment, createAssignment as createAssignmentController } from
 import { revalidatePath } from "next/cache"
 import { writeFile, mkdir } from "fs/promises"
 import { join } from "path"
+import { requirePermission } from "@/lib/rbac"
 
 export async function submitTest(formData: FormData) {
     const assignmentId = parseInt(formData.get("assignmentId") as string)
@@ -11,6 +12,8 @@ export async function submitTest(formData: FormData) {
     const classId = formData.get("classId") as string
     const startedAt = new Date(formData.get("startedAt") as string)
     const finishedAt = new Date()
+
+    await requirePermission('Assignment', 'START_ASSIGNMENT_LEARNER')
 
     const objectiveAnswers: Record<number, string> = {}
     const essayAnswers: Record<number, string> = {}
@@ -90,6 +93,7 @@ export async function submitTest(formData: FormData) {
 
 export async function addAssignment(payload: any, itemsPayload: any[]) {
     try {
+        await requirePermission('Assignment', 'CREATE_UPDATE_ASSIGNMENT')
         const result = await createAssignmentController(payload, itemsPayload);
 
         // Revalidate based on what's created (course or class path)
@@ -111,6 +115,7 @@ import { updateAssignment, deleteAssignment } from "@/controllers/assignmentCont
 
 export async function editAssignment(assignmentId: number, payload: any, itemsPayload: any[]) {
     try {
+        await requirePermission('Assignment', 'CREATE_UPDATE_ASSIGNMENT')
         const result = await updateAssignment(assignmentId, payload, itemsPayload);
 
         if (payload.classId) {
@@ -130,6 +135,7 @@ export async function editAssignment(assignmentId: number, payload: any, itemsPa
 
 export async function removeAssignment(assignmentId: number, classId?: number, courseId?: number) {
     try {
+        await requirePermission('Assignment', 'DELETE_ASSIGNMENT')
         await deleteAssignment(assignmentId);
 
         if (classId) {

@@ -10,6 +10,7 @@ import { DiscussionType } from "@prisma/client";
 import { toast } from "sonner";
 import { NuraSearchInput } from "@/components/ui/input/nura_search_input";
 import { NuraSelect } from "@/components/ui/input/nura_select";
+import { hasPermission } from "@/lib/rbac";
 
 // Mapping backend types to frontend types format
 const parseDiscussionType = (type: string) => {
@@ -30,6 +31,11 @@ export default function DiscussionPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [sortBy, setSortBy] = useState("newest");
+    const [canCreateTopic, setCanCreateTopic] = useState(false);
+
+    useEffect(() => {
+        hasPermission('Forums', 'CREATE_EDIT_TOPIC').then(setCanCreateTopic).catch(() => { });
+    }, []);
 
     const fetchDiscussions = async () => {
         setIsLoading(true);
@@ -128,12 +134,14 @@ export default function DiscussionPage() {
                                 placeholder="Sorted"
                                 className="w-48 shadow-sm"
                             />
-                            <NuraButton
-                                label="New Topic"
-                                variant="primary"
-                                onClick={() => setIsDialogOpen(true)}
-                                className="!w-auto px-8 shadow-sm"
-                            />
+                            {canCreateTopic && (
+                                <NuraButton
+                                    label="New Topic"
+                                    variant="primary"
+                                    onClick={() => setIsDialogOpen(true)}
+                                    className="!w-auto px-8 shadow-sm"
+                                />
+                            )}
                         </div>
                     </div>
                 </div>
