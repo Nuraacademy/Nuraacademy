@@ -11,6 +11,7 @@ export async function createUser(data: { email: string; name?: string; username:
   if (data.password) {
     data.password = await bcrypt.hash(data.password, 10);
   }
+  const defaultRole = await prisma.role.findUnique({ where: { name: 'Learner' } });
   return prisma.user.create({
     data: {
       email: data.email,
@@ -18,6 +19,7 @@ export async function createUser(data: { email: string; name?: string; username:
       username: data.username,
       password: data.password || '',
       whatsapp: data.whatsapp,
+      roleId: defaultRole?.id || null,
     },
   });
 }
@@ -30,6 +32,7 @@ export async function registerUser(data: {
   whatsapp: string;
 }) {
   const hashedPassword = await bcrypt.hash(data.password, 10);
+  const defaultRole = await prisma.role.findUnique({ where: { name: 'Learner' } });
   return await prisma.user.create({
     data: {
       name: data.fullName,
@@ -37,6 +40,7 @@ export async function registerUser(data: {
       email: data.email,
       password: hashedPassword,
       whatsapp: data.whatsapp,
+      roleId: defaultRole?.id || null,
     },
   });
 }
