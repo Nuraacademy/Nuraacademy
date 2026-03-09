@@ -45,23 +45,58 @@ export function AddTimelineButton({ classId }: { classId: string }) {
     return <NuraButton label="Add Timeline" variant="primary" className="h-6 text-sm" onClick={() => router.push(`/classes/${classId}/timeline/create`)} />
 }
 
+import { ConfirmModal } from "@/components/ui/modal/confirmation_modal"
+
 export function PlacementTestButton({
     classId,
     isAdmin,
-    isFinished
+    isFinished,
+    courseCount
 }: {
     classId: string,
     isAdmin: boolean,
-    isFinished: boolean
+    isFinished: boolean,
+    courseCount: number
 }) {
     const router = useRouter()
-    if (isAdmin) {
-        return <NuraButton label="Create Test" variant="primary" onClick={() => router.push(`/classes/${classId}/test/create`)} />
+    const [isModalOpen, setIsModalOpen] = useState(false)
+
+    const handleClick = () => {
+        if (courseCount === 0) {
+            setIsModalOpen(true)
+            return
+        }
+
+        if (isAdmin) {
+            router.push(`/classes/${classId}/test/create`)
+        } else if (isFinished) {
+            router.push(`/classes/${classId}/test?finished=true`)
+        } else {
+            router.push(`/classes/${classId}/test`)
+        }
     }
-    if (isFinished) {
-        return <NuraButton label="See Result" variant="primary" onClick={() => router.push(`/classes/${classId}/test?finished=true`)} />
-    }
-    return <NuraButton label="Start Test" variant="primary" onClick={() => router.push(`/classes/${classId}/test`)} />
+
+    return (
+        <>
+            <NuraButton
+                label={isAdmin ? "Create Test" : (isFinished ? "See Result" : "Start Test")}
+                variant="primary"
+                onClick={handleClick}
+            />
+            <ConfirmModal
+                isOpen={isModalOpen}
+                title="Placement Test Unavailable"
+                message={isAdmin
+                    ? "You cannot create a placement test because there are no courses added to this class yet. Please add at least one course first."
+                    : "The placement test is currently unavailable because no courses have been added to this class yet."
+                }
+                confirmText="Understood"
+                onConfirm={() => setIsModalOpen(false)}
+                onCancel={() => setIsModalOpen(false)}
+                cancelText="Close"
+            />
+        </>
+    )
 }
 
 export function AddCourseButton({ classId }: { classId: string }) {

@@ -125,21 +125,18 @@ export default function DiscussionTopicPage({
         }
     };
 
-    const handleToggleLikeReply = async (replyId: number) => {
+    const handleToggleLikeReply = async (replyId: number, index: number) => {
         if (!discussion_data) return;
 
         const prevData = discussion_data;
-        const newReplies = discussion_data.replies.map(reply => {
-            if (reply.id === replyId) {
-                const isCurrentlyLiked = reply.isLikedByCurrentUser;
-                return {
-                    ...reply,
-                    isLikedByCurrentUser: !isCurrentlyLiked,
-                    likeCount: isCurrentlyLiked ? reply.likeCount - 1 : reply.likeCount + 1
-                };
-            }
-            return reply;
-        });
+        const newReplies = [...discussion_data.replies];
+        const isCurrentlyLiked = newReplies[index].isLikedByCurrentUser;
+
+        newReplies[index] = {
+            ...newReplies[index],
+            isLikedByCurrentUser: !isCurrentlyLiked,
+            likeCount: isCurrentlyLiked ? newReplies[index].likeCount - 1 : newReplies[index].likeCount + 1
+        };
 
         setDiscussion_data({
             ...discussion_data,
@@ -284,7 +281,7 @@ export default function DiscussionTopicPage({
                                         </p>
                                         <div className="flex items-center text-gray-500 gap-8">
                                             <button
-                                                onClick={() => handleToggleLikeReply((reply as any).id)}
+                                                onClick={() => handleToggleLikeReply((reply as any).id, index)}
                                                 className={`flex items-center gap-2 transition-all hover:scale-105 ${reply.isLikedByCurrentUser ? 'text-red-500' : 'hover:text-red-500'}`}
                                             >
                                                 <Heart

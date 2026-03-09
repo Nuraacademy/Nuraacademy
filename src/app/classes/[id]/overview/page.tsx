@@ -184,6 +184,7 @@ export default async function CourseOverviewPage({
                                     classId={id}
                                     isAdmin={adminPage}
                                     isFinished={isPlacementTestFinished}
+                                    courseCount={classData.courses?.length || 0}
                                 />
                             </div>
                         )}
