@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma"
 import { getSession } from "./auth"
 import { revalidatePath } from "next/cache"
+import { requirePermission } from "@/lib/rbac"
 
 export async function handleEnrollment(classId: number, formData: any) {
     const userId = await getSession();
@@ -10,6 +11,9 @@ export async function handleEnrollment(classId: number, formData: any) {
     if (!userId) {
         throw new Error("You must be logged in to enroll in a class");
     }
+
+    // RBAC check
+    await requirePermission('Enrollment', 'LEARNER_ENROLLMENT');
 
     try {
         const enrollment = await prisma.enrollment.create({

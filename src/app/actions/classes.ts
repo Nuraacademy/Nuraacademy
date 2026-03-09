@@ -5,6 +5,7 @@ import { getSession } from "./auth"
 import { prisma } from "@/lib/prisma"
 import { saveClassTimelines } from "@/controllers/timelineController"
 import { revalidatePath } from "next/cache"
+import { requirePermission } from "@/lib/rbac"
 
 export async function getClassDetails(id: number) {
     try {
@@ -29,7 +30,7 @@ export async function getHomeClasses() {
         if (!userId) {
             return {
                 success: true,
-                classes: topClasses.map(c => ({ ...c, isEnrolled: false }))
+                classes: topClasses.map((c: any) => ({ ...c, isEnrolled: false }))
             };
         }
 
@@ -37,12 +38,12 @@ export async function getHomeClasses() {
         const enrolledClassIds = await prisma.enrollment.findMany({
             where: {
                 userId,
-                classId: { in: topClasses.map(c => c.id) }
+                classId: { in: topClasses.map((c: any) => c.id) }
             },
             select: { classId: true }
-        }).then(res => res.map(r => r.classId));
+        }).then((res: any) => res.map((r: any) => r.classId));
 
-        const classesWithStatus = topClasses.map(c => ({
+        const classesWithStatus = topClasses.map((c: any) => ({
             ...c,
             isEnrolled: enrolledClassIds.includes(c.id)
         }));
@@ -55,6 +56,7 @@ export async function getHomeClasses() {
 
 export async function updateClassSchedule(classId: number, timelineData: { activity: string, date: Date }[]) {
     try {
+        await requirePermission('Class', 'UPDATE_SCHEDULE_CLASS');
         await saveClassTimelines(classId, timelineData);
         revalidatePath(`/classes/${classId}/overview`);
         return { success: true };

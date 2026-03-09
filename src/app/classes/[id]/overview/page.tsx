@@ -3,6 +3,7 @@ import { getClassById } from "@/controllers/classController";
 import { getPlacementTestByClassId, getAssignmentResult } from "@/controllers/assignmentController";
 import { getEnrollment } from "@/controllers/enrollmentController";
 import { getSession } from "@/app/actions/auth";
+import { hasPermission } from "@/lib/rbac";
 import { EnrollButton, AddTimelineButton, PlacementTestButton, AddCourseButton, CourseCard, SuccessHandler } from "./client_button";
 import { notFound } from "next/navigation";
 
@@ -14,7 +15,10 @@ export default async function CourseOverviewPage({
     const { id } = await params;
 
     const currentUserId = await getSession();
-    const adminPage = true;
+    const canUpdateSchedule = await hasPermission('Class', 'UPDATE_SCHEDULE_CLASS');
+    const canCreateCourse = await hasPermission('Course', 'CREATE_COURSE');
+    const canUpdateCourse = await hasPermission('Course', 'UPDATE_COURSE');
+    const canCreatePlacement = await hasPermission('PlacementTest', 'CREATE');
 
     // Fetch live class data
     const classData = await getClassById(parseInt(id));
@@ -109,7 +113,7 @@ export default async function CourseOverviewPage({
                         </div>
 
                         {/* Enroll Button */}
-                        {(!isEnrolled && !adminPage) && (
+                        {(!isEnrolled && !canCreateCourse) && (
                             <div className="mt-5">
                                 <EnrollButton classId={id} />
                             </div>
@@ -133,7 +137,7 @@ export default async function CourseOverviewPage({
                         <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100">
                             <div className="flex items-center justify-between mb-6">
                                 <h2 className="text-lg font-bold">Timeline</h2>
-                                {adminPage && (
+                                {canUpdateSchedule && (
                                     <AddTimelineButton classId={id} />
                                 )}
                             </div>
@@ -174,7 +178,7 @@ export default async function CourseOverviewPage({
                     {/* Right Column */}
                     <section className="lg:col-span-8 flex flex-col gap-6">
                         {/* Placement Test */}
-                        {(isEnrolled || adminPage) && (
+                        {(isEnrolled || canCreatePlacement) && (
                             <div className="bg-[#1C3A37] rounded-[2rem] px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
                                 <div>
                                     <h2 className="text-lg text-white">Placement Test</h2>
@@ -182,7 +186,7 @@ export default async function CourseOverviewPage({
                                 </div>
                                 <PlacementTestButton
                                     classId={id}
-                                    isAdmin={adminPage}
+                                    isAdmin={canCreatePlacement}
                                     isFinished={isPlacementTestFinished}
                                     courseCount={classData.courses?.length || 0}
                                 />
@@ -193,7 +197,7 @@ export default async function CourseOverviewPage({
                         <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 flex flex-col gap-4">
                             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
                                 <h2 className="text-xl font-bold">Courses</h2>
-                                {adminPage && (
+                                {canCreateCourse && (
                                     <AddCourseButton classId={id} />
                                 )}
                             </div>
@@ -204,7 +208,7 @@ export default async function CourseOverviewPage({
                                         key={course.id}
                                         classId={id}
                                         course={course}
-                                        isAdmin={adminPage}
+                                        isAdmin={canUpdateCourse}
                                     />
                                 ))}
                                 {(!classData.courses || classData.courses.length === 0) && (
