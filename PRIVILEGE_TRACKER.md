@@ -119,7 +119,7 @@ This document tracks the implementation status of all the privileges seeded into
 ## 9.0 File management
 | Resource | Action | Description | Status |
 | :--- | :--- | :--- | :--- |
-| File | `UPLOAD_FILE` | Upload file | 🔴 Not Implemented (Feature Missing) |
+| File | `UPLOAD_FILE` | Upload file | 🟢 Implemented |
 | File | `ATTACH_FILE` | Attach file | 🔴 Not Implemented (Feature Missing) |
 | File | `DELETE_FILE` | Delete file | 🔴 Not Implemented (Feature Missing) |
 | File | `EDIT_ATTACHMENT` | Edit attachment | 🔴 Not Implemented (Feature Missing) |

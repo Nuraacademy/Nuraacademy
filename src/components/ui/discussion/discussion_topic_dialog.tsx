@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState } from 'react';
-import { NuraButton } from './ui/button/button';
-import { NuraTextInput } from './ui/input/text_input';
-import { NuraTextArea } from './ui/input/text_area';
-import { NuraSelect } from './ui/input/nura_select';
+import { NuraButton } from '../button/button';
+import { NuraTextInput } from '../input/text_input';
+import { NuraTextArea } from '../input/text_area';
+import { NuraSelect } from '../input/nura_select';
 
 interface DiscussionTopicDialogProp {
   isOpen: boolean;

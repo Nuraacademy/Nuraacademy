@@ -2,8 +2,8 @@
 
 import Sidebar from "@/components/ui/sidebar/sidebar";
 import { useEffect, useState, useMemo } from "react";
-import DiscussionList, { Topic } from "@/components/discussion_list";
-import { DiscussionTopicDialog } from "@/components/discussion_topic_dialog";
+import DiscussionList, { Topic } from "@/components/ui/discussion/discussion_list";
+import { DiscussionTopicDialog } from "@/components/ui/discussion/discussion_topic_dialog";
 import { NuraButton } from "@/components/ui/button/button";
 import { getDiscussionsAction, createDiscussionAction } from "@/app/actions/discussion";
 import { DiscussionType } from "@prisma/client";

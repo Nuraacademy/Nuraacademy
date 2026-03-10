@@ -1,6 +1,6 @@
 "use client";
 
-import { DiscussionTopicDialog } from '@/components/discussion_topic_dialog';
+import { DiscussionTopicDialog } from '@/components/ui/discussion/discussion_topic_dialog';
 import { useEffect, useState, use, useMemo } from 'react';
 import Breadcrumb from '@/components/ui/breadcrumb/breadcrumb';
 import { NuraButton } from '@/components/ui/button/button';

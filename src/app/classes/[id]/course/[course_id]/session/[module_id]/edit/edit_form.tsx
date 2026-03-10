@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { updateSessionContent, createSession } from "@/app/actions/session";
+import { updateSessionContent, createSession, uploadSessionFile } from "@/app/actions/session";
 import { NuraButton } from "@/components/ui/button/button";
 import { NuraTextInput } from "@/components/ui/input/text_input";
 import { NuraTextArea } from "@/components/ui/input/text_area";
 import { Trash2, Plus } from "lucide-react";
+import FileUpload from "@/components/ui/upload/file_upload";
+import { M3DateTimePicker } from "@/components/ui/input/datetime_picker";
 
 interface ReferenceMaterial {
     name: string;
@@ -39,9 +41,14 @@ export default function EditSessionForm({
     const [sessionTitle, setSessionTitle] = useState(initialTitle);
     const [isSynchronous, setIsSynchronous] = useState(initialIsSynchronous);
 
+    // State for Async Content Type (Video vs File)
+    const [asyncContentType, setAsyncContentType] = useState<'video' | 'file'>(
+        initialContent?.file ? 'file' : 'video'
+    );
+
     // State for Schedule
-    const [scheduleDate, setScheduleDate] = useState(
-        initialSchedule?.date ? new Date(initialSchedule.date).toISOString().slice(0, 16) : ""
+    const [scheduleDate, setScheduleDate] = useState<Date | null>(
+        initialSchedule?.date ? new Date(initialSchedule.date) : null
     );
 
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,6 +57,11 @@ export default function EditSessionForm({
     // State for Video
     const [videoUrl, setVideoUrl] = useState(initialContent?.video?.url || "");
     const [videoTitle, setVideoTitle] = useState(initialContent?.video?.title || "");
+
+    // State for File (PDF)
+    const [fileUrl, setFileUrl] = useState(initialContent?.file?.url || "");
+    const [fileTitle, setFileTitle] = useState(initialContent?.file?.title || "");
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
     // State for Zoom
     const [zoomUrl, setZoomUrl] = useState(initialContent?.zoom?.url || "");
@@ -81,34 +93,63 @@ export default function EditSessionForm({
         setIsSubmitting(true);
         setError(null);
 
-        // Construct the new content object
-        const newContent = {
-            ...initialContent,
-        };
-
-        if (videoUrl || videoTitle) {
-            newContent.video = { url: videoUrl, title: videoTitle };
-        } else {
-            delete newContent.video;
-        }
-
-        if (zoomUrl) {
-            newContent.zoom = { url: zoomUrl, status: zoomStatus };
-        } else {
-            delete newContent.zoom;
-        }
-
-        // Construct the new schedule object
-        const newSchedule = scheduleDate ? { date: new Date(scheduleDate).toISOString() } : null;
-
         try {
-            const cleanReferences = references.filter(ref => ref.name || ref.url);
-
             if (!sessionTitle.trim()) {
                 setError("Session title is required.");
                 setIsSubmitting(false);
                 return;
             }
+
+            // Construct the new content object
+            const newContent = {
+                ...initialContent,
+            };
+
+            // Handle Asynchronous Content
+            if (!isSynchronous) {
+                if (asyncContentType === 'video') {
+                    if (videoUrl || videoTitle) {
+                        newContent.video = { url: videoUrl, title: videoTitle };
+                    } else {
+                        delete newContent.video;
+                    }
+                    delete newContent.file;
+                } else if (asyncContentType === 'file') {
+                    let finalFileUrl = fileUrl;
+
+                    // Upload file if selected
+                    if (selectedFile) {
+                        const formData = new FormData();
+                        formData.append("file", selectedFile);
+                        const uploadRes = await uploadSessionFile(formData);
+                        if (uploadRes.success && uploadRes.url) {
+                            finalFileUrl = uploadRes.url;
+                        } else {
+                            setError(uploadRes.error || "Failed to upload file");
+                            setIsSubmitting(false);
+                            return;
+                        }
+                    }
+
+                    if (finalFileUrl || fileTitle) {
+                        newContent.file = { url: finalFileUrl, title: fileTitle };
+                    } else {
+                        delete newContent.file;
+                    }
+                    delete newContent.video;
+                }
+            }
+
+            if (zoomUrl) {
+                newContent.zoom = { url: zoomUrl, status: zoomStatus };
+            } else {
+                delete newContent.zoom;
+            }
+
+            // Construct the new schedule object
+            const newSchedule = scheduleDate ? { date: scheduleDate.toISOString() } : null;
+
+            const cleanReferences = references.filter(ref => ref.name || ref.url);
 
             let result;
             if (isNew) {
@@ -143,6 +184,7 @@ export default function EditSessionForm({
                 setError(result.error || "Something went wrong.");
             }
         } catch (err) {
+            console.error(err);
             setError("Failed to save changes. Please try again.");
         } finally {
             setIsSubmitting(false);
@@ -195,56 +237,104 @@ export default function EditSessionForm({
                     </div>
                 </div>
 
-                <div className="flex flex-col gap-2">
-                    <label className="block text-sm font-medium mb-1 text-gray-900">Schedule Date</label>
-                    <input
-                        type="datetime-local"
-                        value={scheduleDate}
-                        onChange={(e) => setScheduleDate(e.target.value)}
-                        className="w-full bg-white border border-gray-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#005954] transition-all text-gray-900 placeholder:text-gray-400"
-                    />
-                </div>
+                <M3DateTimePicker
+                    label="Schedule Date"
+                    value={scheduleDate}
+                    onChange={(date) => setScheduleDate(date)}
+                    required
+                />
             </div>
 
-            {/* Video Section */}
-            <div className="flex flex-col gap-4 text-sm w-full">
-                <span className="font-bold text-gray-900">Video Recording</span>
-                <div className="flex flex-col gap-4">
-                    <NuraTextInput
-                        label="Video URL (Youtube URL)"
-                        placeholder="https://www.youtube.com/watch?v=..."
-                        value={videoUrl}
-                        onChange={(e) => setVideoUrl(e.target.value)}
-                    />
-                    <NuraTextInput
-                        label="Video Title"
-                        placeholder="Module 1: Getting Started..."
-                        value={videoTitle}
-                        onChange={(e) => setVideoTitle(e.target.value)}
-                    />
+            {!isSynchronous && (
+                <div className="flex flex-col gap-6 w-full bg-gray-50 p-6 rounded-[1.5rem] border border-gray-100">
+                    <div className="flex flex-col gap-2">
+                        <span className="font-bold text-gray-900">Asynchronous Content Type</span>
+                        <p className="text-gray-500 text-xs">Choose the type of content for this asynchronous session.</p>
+                    </div>
+                    <div className="flex bg-white border border-gray-200 p-1 rounded-2xl w-fit">
+                        <button
+                            type="button"
+                            onClick={() => setAsyncContentType('video')}
+                            className={`rounded-xl px-6 py-1.5 text-sm transition-all ${asyncContentType === 'video'
+                                ? "bg-[#cdff2b] font-bold text-gray-900"
+                                : "text-gray-500 hover:text-gray-900"
+                                }`}
+                        >
+                            Video
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setAsyncContentType('file')}
+                            className={`rounded-xl px-6 py-1.5 text-sm transition-all ${asyncContentType === 'file'
+                                ? "bg-[#cdff2b] font-bold text-gray-900"
+                                : "text-gray-500 hover:text-gray-900"
+                                }`}
+                        >
+                            File (PDF)
+                        </button>
+                    </div>
+
+                    {asyncContentType === 'video' ? (
+                        <div className="flex flex-col gap-4 mt-2">
+                            <NuraTextInput
+                                label="Video URL (Youtube URL)"
+                                placeholder="https://www.youtube.com/watch?v=..."
+                                value={videoUrl}
+                                onChange={(e) => setVideoUrl(e.target.value)}
+                            />
+                            <NuraTextInput
+                                label="Video Title"
+                                placeholder="Module 1: Getting Started..."
+                                value={videoTitle}
+                                onChange={(e) => setVideoTitle(e.target.value)}
+                            />
+                        </div>
+                    ) : (
+                        <div className="flex flex-col gap-4 mt-2">
+                            <div className="flex flex-col gap-2">
+                                <label className="block text-sm font-medium mb-1 text-gray-900">PDF File</label>
+                                {fileUrl && !selectedFile && (
+                                    <p className="text-xs text-[#005954] mb-2 font-medium">Current file: {fileUrl.split('/').pop()}</p>
+                                )}
+                                <FileUpload
+                                    onFileSelect={(file) => setSelectedFile(file)}
+                                    accept=".pdf"
+                                    supportedFileType=".pdf"
+                                />
+                            </div>
+                            <NuraTextInput
+                                label="File Title"
+                                placeholder="e.g. Module 1 Handbook"
+                                value={fileTitle}
+                                onChange={(e) => setFileTitle(e.target.value)}
+                            />
+                        </div>
+                    )}
                 </div>
-            </div>
+            )}
 
             <div className="border-t border-gray-100" />
 
             {/* Zoom Section */}
-            <div className="flex flex-col gap-4 text-sm w-full">
-                <span className="font-bold text-gray-900">Live Zoom Link</span>
-                <div className="flex flex-col gap-4">
-                    <NuraTextInput
-                        label="Zoom URL"
-                        placeholder="https://zoom.us/j/..."
-                        value={zoomUrl}
-                        onChange={(e) => setZoomUrl(e.target.value)}
-                    />
-                    <NuraTextInput
-                        label="Status"
-                        placeholder="Scheduled"
-                        value={zoomStatus}
-                        onChange={(e) => setZoomStatus(e.target.value)}
-                    />
+            {isSynchronous && (
+                <div className="flex flex-col gap-4 text-sm w-full">
+                    <span className="font-bold text-gray-900">Live Zoom Link</span>
+                    <div className="flex flex-col gap-4">
+                        <NuraTextInput
+                            label="Zoom URL"
+                            placeholder="https://zoom.us/j/..."
+                            value={zoomUrl}
+                            onChange={(e) => setZoomUrl(e.target.value)}
+                        />
+                        <NuraTextInput
+                            label="Status"
+                            placeholder="Scheduled"
+                            value={zoomStatus}
+                            onChange={(e) => setZoomStatus(e.target.value)}
+                        />
+                    </div>
                 </div>
-            </div>
+            )}
 
             <div className="border-t border-gray-100" />
 
@@ -311,7 +401,7 @@ export default function EditSessionForm({
                     className="min-w-[120px] h-10 text-sm font-bold border border-black"
                     onClick={(e) => {
                         e.preventDefault();
-                        router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}`);
+                        router.push(`/classes/${classId}/course/${courseId}/overview`);
                     }}
                 />
                 <NuraButton
