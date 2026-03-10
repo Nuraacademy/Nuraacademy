@@ -7,6 +7,7 @@ import HomeStoriesCard from "@/components/ui/card/home_stories_card";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { getHomeClasses } from "@/app/actions/classes";
+import Image from "next/image";
 
 export default function Home() {
   const router = useRouter();
@@ -23,14 +24,16 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden pt-8 bg-[#F9F9EE]">
+    <div className="relative min-h-screen w-full overflow-hidden bg-[#F9F9EE]">
 
       {/* Section 1 - Hero */}
-      <section>
-        <img
-          src="background/HomeBG.svg"
+      <section className="relative py-8">
+        <Image
+          src="/background/HomeBG.svg"
           alt="Background"
-          className="absolute inset-0 h-90 w-full object-cover -z-0"
+          fill
+          priority
+          className="object-cover -z-0"
         />
         <div className="relative z-10 text-center text-white px-8 py-2 mb-4">
           <h1 className="text-4xl font-semibold mb-4">
@@ -148,13 +151,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Section 5 - CTA Footer */}
       <section className="w-full flex justify-center px-4 py-12">
-        <div className="relative w-full max-w-6xl rounded-[40px] overflow-hidden">
-          <img
+        <div className="relative w-full max-w-6xl rounded-[40px] overflow-hidden min-h-[300px]">
+          <Image
             src="/background/HomeFooterBG.svg"
             alt="CTA Background"
-            className="absolute inset-0 h-full w-full object-cover"
+            fill
+            className="object-cover"
           />
           <div className="relative flex flex-col items-center justify-center text-center text-white px-6 py-16 gap-6">
             <h2 className="text-4xl font-semibold">

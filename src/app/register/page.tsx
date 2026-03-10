@@ -6,6 +6,7 @@ import { NuraTextInput } from "@/components/ui/input/text_input";
 import { useRouter } from "next/navigation";
 import { handleRegister } from "@/app/actions/auth";
 import { toast } from "sonner";
+import Image from "next/image";
 
 export const dynamic = "force-dynamic";
 
@@ -49,10 +50,12 @@ export default function RegisterPage() {
     <main className="min-h-screen w-full bg-white flex items-stretch">
       {/* Left image panel */}
       <section className="relative hidden md:flex w-1/2 items-center justify-center overflow-hidden">
-        <img
+        <Image
           src="/background/RegisterBG.svg"
           alt="Register background"
-          className="absolute inset-0 h-full w-full object-cover"
+          fill
+          priority
+          className="object-cover"
         />
 
         <div className="relative z-10 max-w-md px-10 text-white text-center">
@@ -68,10 +71,12 @@ export default function RegisterPage() {
         <div className="w-full max-w-md bg-white rounded-none md:rounded-[32px] shadow-none px-4 md:px-10 py-8 md:py-12">
           {/* Logo */}
           <div className="flex justify-center mb-8">
-            <img
+            <Image
               src="/logo/logo_nura.png"
               alt="Nura Academy"
-              className="h-10 cursor-pointer"
+              width={120}
+              height={40}
+              className="h-10 cursor-pointer object-contain"
               onClick={() => router.push('/')}
             />
           </div>

@@ -48,7 +48,7 @@ export async function submitTest(formData: FormData) {
 
     // Essay Files
     for (const [key, value] of formData.entries()) {
-        const isFile = value && typeof value === 'object' && 'size' in value && 'name' in value;
+        const isFile = value && typeof value !== 'string';
         if (key.startsWith("essay_file_") && isFile && (value as any).size > 0) {
             const id = parseInt(key.replace("essay_file_", ""))
             const file = value as unknown as { name: string, arrayBuffer: () => Promise<ArrayBuffer> }

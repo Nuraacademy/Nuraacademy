@@ -4,6 +4,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { NuraButton } from '../button/button';
 import { getSession, handleLogout } from '@/app/actions/auth';
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 
 export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedIn?: boolean }) {
     const router = useRouter();
@@ -36,10 +37,12 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
 
     return (
         <main className="sticky top-0 h-16 flex justify-between text-center items-center bg-white px-4 md:px-16 py-2 z-50 shadow-sm">
-            <img
+            <Image
                 src="/logo/logo_nura.png"
                 alt="Nura Academy"
-                className="h-10 cursor-pointer"
+                width={80}
+                height={40}
+                className="cursor-pointer object-contain"
                 onClick={() => router.push('/')}
             />
             <div className="flex justify-between items-center gap-8">
@@ -48,10 +51,11 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
                         className="flex justify-center items-center gap-2 w-32 h-12 rounded-lg hover:bg-gray-100 transition-colors px-4 text-s text-black bg-white"
                         onClick={() => router.push('/classes')}
                     >
-                        <img
+                        <Image
                             src="/icons/Home.svg"
                             alt="Home"
-                            className="w-6 h-6"
+                            width={24}
+                            height={24}
                         />
                         Home
                     </button>
@@ -59,10 +63,11 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
                         className="flex justify-center items-center gap-2 w-32 h-12 rounded-lg hover:bg-gray-100 transition-colors px-4 text-s text-black bg-white"
                         onClick={() => router.push('/discussions')}
                     >
-                        <img
+                        <Image
                             src="/icons/Forums.svg"
                             alt="Forums"
-                            className="w-6 h-6"
+                            width={24}
+                            height={24}
                         />
                         Forums
                     </button>
@@ -70,10 +75,11 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
                         className="flex justify-center items-center gap-2 w-32 h-12 rounded-lg hover:bg-gray-100 transition-colors px-4 text-s text-black bg-white"
                         onClick={() => router.push('/blogs')}
                     >
-                        <img
+                        <Image
                             src="/icons/Blogs.svg"
                             alt="Blogs"
-                            className="w-6 h-6"
+                            width={24}
+                            height={24}
                         />
                         Blogs
                     </button>
@@ -83,15 +89,19 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
                     <div className="flex justify-end items-center gap-4 bg-white">
                         {isLoggedIn ? (
                             <>
-                                <img
+                                <Image
                                     src="/icons/Notifications.svg"
                                     alt="Notifications"
-                                    className="w-6 h-6 cursor-pointer"
+                                    width={24}
+                                    height={24}
+                                    className="cursor-pointer"
                                 />
-                                <img
+                                <Image
                                     src="/icons/Profile.svg"
                                     alt="Profile"
-                                    className="w-6 h-6 cursor-pointer"
+                                    width={24}
+                                    height={24}
+                                    className="cursor-pointer"
                                 />
                                 <NuraButton
                                     label="Logout"

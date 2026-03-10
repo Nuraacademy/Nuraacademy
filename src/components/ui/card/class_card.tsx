@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Clock, BookText } from 'lucide-react';
 import { NuraButton } from '../button/button';
 import Chip from '../chip/chip';
+import Image from 'next/image';
 
 interface ClassCardProp {
     id: string,
@@ -58,11 +59,13 @@ export default function ClassCard({
             onClick={onClick}
         >
             {/* Image */}
-            <div className="mb-4">
-                <img
+            <div className="mb-4 relative h-44 w-full">
+                <Image
                     src={imageUrl || "/example/dummy.png"}
                     alt={title}
-                    className="h-44 w-full object-cover rounded-2xl"
+                    fill
+                    className="object-cover rounded-2xl"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
             </div>
 
