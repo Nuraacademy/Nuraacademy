@@ -13,6 +13,7 @@ interface SessionContentProps {
     isSynchronous: boolean | null;
     content: any;
     referenceMaterials: { name: string; description: string; url: string }[];
+    isAdmin: boolean;
 }
 
 export default function SessionContent({
@@ -21,7 +22,8 @@ export default function SessionContent({
     moduleId,
     isSynchronous,
     content,
-    referenceMaterials
+    referenceMaterials,
+    isAdmin
 }: SessionContentProps) {
     const router = useRouter();
 
@@ -54,6 +56,8 @@ export default function SessionContent({
                 <PDFViewer
                     url={content.file.url}
                     title={content.file.title}
+                    editUrl={`/classes/${classId}/course/${courseId}/session/${moduleId}/edit`}
+                    isAdmin={isAdmin}
                 />
             )}
 

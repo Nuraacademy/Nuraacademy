@@ -107,6 +107,7 @@ export default async function SessionPage({
                         isSynchronous={session.isSynchronous}
                         content={content}
                         referenceMaterials={referenceMaterials}
+                        isAdmin={canUpdateSession}
                     />
                 </div>
             </div>
