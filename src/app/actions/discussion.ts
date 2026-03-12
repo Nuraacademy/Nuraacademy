@@ -11,6 +11,7 @@ import {
 } from "@/controllers/discussionController";
 import { revalidatePath } from "next/cache";
 import { DiscussionType } from "@prisma/client";
+import { requirePermission } from "@/lib/rbac";
 
 export async function getDiscussionsAction(skip?: number, take?: number) {
     try {
@@ -37,6 +38,7 @@ export async function createDiscussionAction(title: string, content: string, typ
         if (!userId) {
             return { success: false, error: "You must be logged in to post" };
         }
+        await requirePermission('Forums', 'CREATE_EDIT_TOPIC');
 
         const discussion = await createDiscussion({ title, content, type, userId });
         revalidatePath("/discussions");
@@ -52,6 +54,7 @@ export async function createReplyAction(discussionId: number, text: string) {
         if (!userId) {
             return { success: false, error: "You must be logged in to reply" };
         }
+        await requirePermission('Forums', 'REPLY_TOPIC');
 
         const reply = await createReply({ discussionId, text, userId });
         revalidatePath(`/discussions/topic`);

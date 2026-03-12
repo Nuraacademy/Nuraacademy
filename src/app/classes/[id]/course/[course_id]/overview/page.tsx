@@ -3,6 +3,7 @@ import { getCourseById } from "@/controllers/courseController";
 import { notFound } from "next/navigation";
 import CourseSessionLink from "./course_session_links";
 import AddSessionButton from "./add_session_button";
+import { hasPermission } from "@/lib/rbac";
 
 interface SectionProps {
     icon: React.ReactNode;
@@ -46,7 +47,8 @@ export default async function CourseOverviewPage({
     }
 
     const classTitle = course.class?.title || "Class";
-    const isAdmin = true; // Use real authentication later
+    const canCreateSession = await hasPermission("Session", "CREATE_SESSION");
+    const canUpdateSession = await hasPermission("Session", "UPDATE_SESSION");
 
     // Parse JSON-like string fields if they were stored as JSON strings
     const parseLearningObjectives = (raw: string | null): { id: string; text: string }[] => {
@@ -87,23 +89,26 @@ export default async function CourseOverviewPage({
                     {/* Course Description */}
                     {course.description && (
                         <CourseSection icon={<img src="/icons/Information.svg" alt="Information" className="w-5 h-5" />} title="Course Description">
-                            <p className="text-sm text-gray-700 leading-relaxed">
-                                {course.description}
-                            </p>
+                            <div
+                                className="text-sm text-gray-700 leading-relaxed rich-text"
+                                dangerouslySetInnerHTML={{ __html: course.description }}
+                            />
                         </CourseSection>
                     )}
 
                     {/* Learning Objective */}
                     {learningObjectives.length > 0 && (
                         <CourseSection icon={<img src="/icons/Goal.svg" alt="Goal" className="w-5 h-5" />} title="Learning Objective">
-                            <div className="flex flex-col gap-3">
+                            <ol className="list-decimal pl-4 flex flex-col gap-3 text-sm text-gray-700">
                                 {learningObjectives.map((obj, index) => (
-                                    <div key={obj.id || index} className="grid grid-cols-[3rem_1fr] text-sm gap-2">
-                                        <span className="text-gray-500 font-medium">{obj.id}</span>
-                                        <span className="text-gray-700">{obj.text}</span>
-                                    </div>
+                                    <li key={obj.id || index}>
+                                        <div
+                                            className="rich-text"
+                                            dangerouslySetInnerHTML={{ __html: obj.text }}
+                                        />
+                                    </li>
                                 ))}
-                            </div>
+                            </ol>
                         </CourseSection>
                     )}
 
@@ -112,7 +117,12 @@ export default async function CourseOverviewPage({
                         <CourseSection icon={<img src="/icons/Skill.svg" alt="EntrySkills" className="w-5 h-5" />} title="Entry Skills">
                             <ol className="list-decimal pl-4 flex flex-col gap-3 text-sm text-gray-700">
                                 {entrySkills.map((skill, i) => (
-                                    <li key={i}>{skill}</li>
+                                    <li key={i}>
+                                        <div 
+                                            className="rich-text"
+                                            dangerouslySetInnerHTML={{ __html: skill }}
+                                        />
+                                    </li>
                                 ))}
                             </ol>
                         </CourseSection>
@@ -123,7 +133,9 @@ export default async function CourseOverviewPage({
                         <CourseSection icon={<img src="/icons/Tool.svg" alt="Tools" className="w-5 h-5" />} title="Tools">
                             <ul className="list-disc pl-4 flex flex-col gap-2 text-sm text-gray-700">
                                 {tools.map((tool, i) => (
-                                    <li key={i}>{tool}</li>
+                                    <li key={i}>
+                                        <div dangerouslySetInnerHTML={{ __html: tool }} className="rich-text" />
+                                    </li>
                                 ))}
                             </ul>
                         </CourseSection>
@@ -141,14 +153,14 @@ export default async function CourseOverviewPage({
                                     title: session.title,
                                     type: session.isSynchronous === true ? "Synchronous" : session.isSynchronous === false ? "Asynchronous" : "None"
                                 }}
-                                isAdmin={isAdmin}
+                                isAdmin={canUpdateSession}
                             />
                         ))}
                         {(!course.sessions || course.sessions.length === 0) && (
                             <p className="text-sm text-gray-500 italic">No sessions added yet.</p>
                         )}
 
-                        {isAdmin && (
+                        {canCreateSession && (
                             <div className="flex justify-center mt-6">
                                 <AddSessionButton classId={classId} courseId={courseId} />
                             </div>

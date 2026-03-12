@@ -2,6 +2,35 @@
 
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache";
+import { requirePermission } from "@/lib/rbac";
+import { writeFile, mkdir } from "fs/promises"
+import { join } from "path"
+
+export async function uploadSessionFile(formData: FormData) {
+    try {
+        await requirePermission('File', 'UPLOAD_FILE');
+
+        const file = formData.get("file") as File
+        if (!file) {
+            return { success: false, error: "No file provided" }
+        }
+
+        const bytes = await file.arrayBuffer()
+        const buffer = Buffer.from(bytes)
+
+        const uploadDir = join(process.cwd(), "public", "uploads")
+        await mkdir(uploadDir, { recursive: true })
+
+        const filename = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`
+        const path = join(uploadDir, filename)
+        await writeFile(path, buffer)
+
+        return { success: true, url: `/uploads/${filename}` }
+    } catch (error) {
+        console.error("Failed to upload file:", error);
+        return { success: false, error: "Failed to upload file" };
+    }
+}
 
 export async function updateSessionContent(
     moduleId: string,
@@ -14,6 +43,7 @@ export async function updateSessionContent(
     referenceData: any[]
 ) {
     try {
+        await requirePermission('Session', 'UPDATE_SESSION');
         const id = parseInt(moduleId);
 
         // Update the session in the database
@@ -41,6 +71,7 @@ export async function updateSessionContent(
 
 export async function deleteSession(sessionId: number, classId: string) {
     try {
+        await requirePermission('Session', 'DELETE_SESSION');
         await prisma.session.update({
             where: { id: sessionId },
             data: { deletedAt: new Date() }
@@ -68,6 +99,7 @@ export async function createSession(
     }
 ) {
     try {
+        await requirePermission('Session', 'CREATE_SESSION');
         const newSession = await prisma.session.create({
             data: {
                 courseId: courseId,

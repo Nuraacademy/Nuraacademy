@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { X, Upload, FileText } from "lucide-react";
-import { LimeButton } from "./lime_button";
+import { NuraButton } from "../button/button";
 
 interface SelectedFile {
     file: File
@@ -136,9 +136,9 @@ export function UploadModal({ onClose, onUploadSuccess }: UploadModalProps) {
 
                 {/* Footer Action */}
                 <div className="mt-8 flex justify-end">
-                    <LimeButton 
+                    <NuraButton 
                         label="Attach File" 
-                        variant="solid" 
+                        variant="primary" 
                         className="min-w-[180px]" 
                         onClick={() => {
                             if (file && file.progress === 100) {

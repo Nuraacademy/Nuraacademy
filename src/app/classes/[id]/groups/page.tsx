@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import { NuraButton } from "@/components/ui/button/button";
 import { useRouter, useParams } from "next/navigation";
+import { hasPermission } from "@/lib/rbac";
 
 export default function ViewGroupPage() {
     const router = useRouter();
@@ -11,6 +12,11 @@ export default function ViewGroupPage() {
     const id = params.id as string;
 
     const [courseTitle, setCourseTitle] = useState("Foundation to Data Analytics");
+    const [canEditGroups, setCanEditGroups] = useState(false);
+
+    useEffect(() => {
+        hasPermission("GroupMapping", "UPDATE").then(setCanEditGroups);
+    }, []);
 
     const groups = [
         {
@@ -59,8 +65,9 @@ export default function ViewGroupPage() {
                     <div className="w-full border border-black rounded-[1.5rem] overflow-hidden">
                         <div className="grid grid-cols-12 border-b border-black bg-white px-8 py-4">
                             <div className="col-span-4 text-sm font-semibold text-black">Group Name</div>
-                            <div className="col-span-4 text-sm font-semibold text-black text-center">Total Member</div>
-                            <div className="col-span-4 text-sm font-semibold text-black">Member List</div>
+                            <div className="col-span-3 text-sm font-semibold text-black text-center">Total Member</div>
+                            <div className="col-span-3 text-sm font-semibold text-black">Member List</div>
+                            <div className="col-span-2 text-sm font-semibold text-black text-right">Actions</div>
                         </div>
 
                         {groups.map((group, index) => (
@@ -69,13 +76,20 @@ export default function ViewGroupPage() {
                                 className={`grid grid-cols-12 px-8 py-6 border-black ${index !== groups.length - 1 ? 'border-b' : ''} bg-white`}
                             >
                                 <div className="col-span-4 text-sm text-black self-center">{group.name}</div>
-                                <div className="col-span-4 text-sm text-black text-center self-center">{group.totalMember}</div>
-                                <div className="col-span-4 text-sm text-black">
+                                <div className="col-span-3 text-sm text-black text-center self-center">{group.totalMember}</div>
+                                <div className="col-span-3 text-sm text-black">
                                     <ul className="space-y-2">
                                         {group.members.map((member, i) => (
                                             <li key={i}>{member}</li>
                                         ))}
                                     </ul>
+                                </div>
+                                <div className="col-span-2 text-sm text-black text-right self-center">
+                                    {canEditGroups && (
+                                        <button className="text-blue-600 hover:text-blue-800 font-semibold" onClick={() => alert("Edit Group logic here")}>
+                                            Edit
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         ))}

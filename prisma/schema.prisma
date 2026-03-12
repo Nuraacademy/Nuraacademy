@@ -54,10 +54,12 @@ model User {
   password  String
   name      String?
   whatsapp  String?
+  roleId    Int?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
 
+  role               Role?             @relation(fields: [roleId], references: [id])
   enrollments        Enrollment[]
   discussions        Discussion[]
   discussionReplies  DiscussionReply[]
@@ -400,4 +402,42 @@ model DiscussionReplyLike {
   @@id([replyId, userId])
   @@index([userId])
   @@map("discussion_reply_likes")
+}
+
+// RBAC Models
+model Role {
+  id          Int              @id @default(autoincrement())
+  name        String           @unique
+  description String?
+  isSystem    Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  
+  permissions RolePermission[]
+  users       User[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          Int              @id @default(autoincrement())
+  resource    String
+  action      String
+  description String?
+  
+  roles       RolePermission[]
+
+  @@unique([resource, action])
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       Int
+  permissionId Int
+  
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
 }

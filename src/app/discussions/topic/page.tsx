@@ -1,6 +1,6 @@
 "use client";
 
-import { DiscussionTopicDialog } from '@/components/discussion_topic_dialog';
+import { DiscussionTopicDialog } from '@/components/ui/discussion/discussion_topic_dialog';
 import { useEffect, useState, use, useMemo } from 'react';
 import Breadcrumb from '@/components/ui/breadcrumb/breadcrumb';
 import { NuraButton } from '@/components/ui/button/button';
@@ -9,6 +9,7 @@ import { getDiscussionByIdAction, createReplyAction, toggleLikeDiscussionAction,
 import { toast } from 'sonner';
 import { Heart, MessageCircle, Send } from 'lucide-react';
 import { NuraSelect } from '@/components/ui/input/nura_select';
+import { hasPermission } from '@/lib/rbac';
 
 // Mapping backend types to frontend types format
 const parseDiscussionType = (type: string) => {
@@ -32,6 +33,11 @@ export default function DiscussionTopicPage({
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [sortRepliesBy, setSortRepliesBy] = useState("newest");
+    const [canReply, setCanReply] = useState(false);
+
+    useEffect(() => {
+        hasPermission('Forums', 'REPLY_TOPIC').then(setCanReply).catch(() => { });
+    }, []);
 
     const [discussion_data, setDiscussion_data] = useState<{
         id: number;
@@ -258,12 +264,14 @@ export default function DiscussionTopicPage({
                                         placeholder="Sorted"
                                         className="w-40 shadow-sm"
                                     />
-                                    <NuraButton
-                                        label="Add Reply"
-                                        variant="primary"
-                                        onClick={() => setIsDialogOpen(true)}
-                                        className="!w-auto px-8 shadow-sm"
-                                    />
+                                    {canReply && (
+                                        <NuraButton
+                                            label="Add Reply"
+                                            variant="primary"
+                                            onClick={() => setIsDialogOpen(true)}
+                                            className="!w-auto px-8 shadow-sm"
+                                        />
+                                    )}
                                 </div>
                             </div>
 

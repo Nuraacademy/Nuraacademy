@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import SessionContent from "./session_content";
 import Link from "next/link";
 import { Pencil } from "lucide-react";
+import { hasPermission } from "@/lib/rbac";
 
 export default async function SessionPage({
     params
@@ -20,7 +21,7 @@ export default async function SessionPage({
     const classTitle = session.course?.class?.title || "Class";
     const courseTitle = session.course?.title || "Course";
     const isAsync = session.isSynchronous === false;
-    const isAdmin = true; // Mock admin flag
+    const canUpdateSession = await hasPermission("Session", "UPDATE_SESSION");
 
     // Parse JSON fields safely
     const parseJson = (val: any) => {
@@ -75,7 +76,7 @@ export default async function SessionPage({
                     <h1 className="text-xl font-bold text-white">
                         {session.title}
                     </h1>
-                    {isAdmin && (
+                    {canUpdateSession && (
                         <Link
                             href={`/classes/${classId}/course/${courseId}/session/${moduleId}/edit`}
                             className="flex items-center gap-2 bg-white text-[#005954] px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors"

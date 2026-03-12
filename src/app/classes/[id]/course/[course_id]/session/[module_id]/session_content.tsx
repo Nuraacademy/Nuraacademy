@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { ExternalLink } from "lucide-react";
 import { NuraButton } from "@/components/ui/button/button";
 import ReferenceMaterials from "@/components/ui/reference_materials/reference_materials";
+import PDFViewer from "@/components/ui/video/pdf_viewer";
 
 interface SessionContentProps {
     classId: string;
@@ -46,6 +47,14 @@ export default function SessionContent({
                         </iframe>
                     </div>
                 </div>
+            )}
+
+            {/* Asynchronous File (PDF) */}
+            {content?.file && (
+                <PDFViewer
+                    url={content.file.url}
+                    title={content.file.title}
+                />
             )}
 
             {/* Reference Materials */}
@@ -114,7 +123,7 @@ export default function SessionContent({
     );
 
     const renderContent = () => {
-        if (isSynchronous === true && content.video) {
+        if (isSynchronous === true && (content.video || content.file)) {
             return renderAsynchronousLayout();
         }
         if (isSynchronous === true) {

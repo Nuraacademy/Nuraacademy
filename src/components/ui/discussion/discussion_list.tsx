@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from 'next/navigation';
-import ForumTag from './ui/tag/discussion';
+import ForumTag from '../tag/discussion';
 import { Heart, MessageCircle, Send } from 'lucide-react';
 import { toast } from 'sonner';
 

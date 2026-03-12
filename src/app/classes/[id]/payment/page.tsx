@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import { getClassDetails } from "@/app/actions/classes";
 import { handleEnrollment } from "@/app/actions/enrollment";
+import { hasPermission } from "@/lib/rbac";
 import { NuraButton } from "@/components/ui/button/button";
 import Link from "next/link";
 
@@ -24,7 +25,14 @@ export default function PaymentPage({ params }: PaymentPageProps) {
 
     useEffect(() => {
         setIsLoading(true);
-        getClassDetails(parseInt(id)).then(result => {
+        getClassDetails(parseInt(id)).then(async result => {
+            const canPay = await hasPermission("Enrollment", "PAYMENT_GATEWAY");
+            if (!canPay) {
+                alert("You do not have permission to access the payment gateway.");
+                router.replace(`/classes/${id}/overview`);
+                return;
+            }
+
             if (result.success && result.class) {
                 setClassData(result.class);
             }

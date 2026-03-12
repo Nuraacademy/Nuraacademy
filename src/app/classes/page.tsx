@@ -1,6 +1,7 @@
 import { getAllClasses } from "@/controllers/classController"
 import ClassesGrid from "./class_grid"
 import SidebarWrapper from "./sidebar_wrapper"
+import Image from "next/image"
 
 export default async function ClassesPage() {
     // Fetch live data from the database
@@ -12,16 +13,23 @@ export default async function ClassesPage() {
             <SidebarWrapper />
 
             {/* Background Image */}
-            <img
-                src="/background/PolygonBGTop.svg"
-                alt="Background"
-                className="absolute -z-10 h-[40rem] object-cover top-0 left-0"
-            />
-            <img
-                src="/background/PolygonBGBot.svg"
-                alt="Background"
-                className="absolute -z-10 h-[40rem] object-cover bottom-0 right-0"
-            />
+            <div className="absolute -z-10 h-[40rem] w-full top-0 left-0 pointer-events-none">
+                <Image
+                    src="/background/PolygonBGTop.svg"
+                    alt="Background"
+                    fill
+                    priority
+                    className="object-cover"
+                />
+            </div>
+            <div className="absolute -z-10 h-[40rem] w-full bottom-0 right-0 pointer-events-none">
+                <Image
+                    src="/background/PolygonBGBot.svg"
+                    alt="Background"
+                    fill
+                    className="object-cover"
+                />
+            </div>
 
             {/* Render the interactive grid using Client Component */}
             <ClassesGrid initialClasses={classes} />

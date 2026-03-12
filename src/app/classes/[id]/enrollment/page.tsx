@@ -11,6 +11,7 @@ import { NuraTextArea } from "@/components/ui/input/text_area"
 import WelcomingModal from "@/components/ui/modal/welcoming_modal"
 import { checkEnrollment } from "@/app/actions/enrollment"
 import { getClassDetails } from "@/app/actions/classes"
+import { hasPermission } from "@/lib/rbac"
 
 export default function EnrollmentPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter()
@@ -21,6 +22,15 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
             const id = p.id;
             setClassId(id);
             const classIdInt = parseInt(id);
+
+            // Check permissions
+            hasPermission("Enrollment", "CHECKOUT_CLASS").then(canCheckout => {
+                if (!canCheckout) {
+                    alert("You do not have permission to checkout this class.");
+                    router.replace(`/classes/${id}/overview`);
+                    return;
+                }
+            }).catch(() => { });
 
             // Check if user is already enrolled
             checkEnrollment(classIdInt).then(isEnrolled => {
