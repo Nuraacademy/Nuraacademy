@@ -54,8 +54,8 @@ This document tracks the implementation status of all the privileges seeded into
 ## 4.0 Class
 | Resource | Action | Description | Status |
 | :--- | :--- | :--- | :--- |
-| Class | `CREATE_UPDATE_CLASS` | Create/ update class | 🔴 Not Implemented (Feature Missing) |
-| Class | `DELETE_CLASS` | Delete class | 🔴 Not Implemented (Feature Missing) |
+| Class | `CREATE_UPDATE_CLASS` | Create/ update class | 🟢 Implemented |
+| Class | `DELETE_CLASS` | Delete class | 🟢 Implemented |
 | Class | `SEARCH_VIEW_CLASS` | Search & view class | 🟢 Implemented (Public View) |
 | Class | `UPDATE_SCHEDULE_CLASS` | Update schedule class | 🟢 Implemented |
 | PlacementTest | `PLACEMENT_TEST_CREATE` | Placement test create | 🟢 Implemented |

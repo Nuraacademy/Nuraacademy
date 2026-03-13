@@ -98,7 +98,7 @@ export default async function CourseOverviewPage({
                         <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-sm mb-5">
                             <div>
                                 <p className="font-semibold text-white/80 mb-0.5">Methods</p>
-                                <p>{classData.methods}</p>
+                                <div dangerouslySetInnerHTML={{ __html: classData.methods }} />
                             </div>
                             <div>
                                 <p className="font-semibold text-white/80 mb-0.5">Schedules</p>
@@ -109,7 +109,7 @@ export default async function CourseOverviewPage({
                         {/* Description */}
                         <div className="text-sm leading-relaxed text-white/90">
                             <p className="font-semibold text-white/80 mb-1">Description</p>
-                            <p>{classData.description}</p>
+                            <div dangerouslySetInnerHTML={{ __html: classData.description }} />
                         </div>
 
                         {/* Enroll Button */}
@@ -129,7 +129,7 @@ export default async function CourseOverviewPage({
                         {classData.learningObjective && (
                             <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100">
                                 <h2 className="text-lg font-bold mb-4">What You Will Learn</h2>
-                                <p className="text-sm text-gray-700">{classData.learningObjective}</p>
+                                <div className="text-sm text-gray-700" dangerouslySetInnerHTML={{ __html: classData.learningObjective }} />
                             </div>
                         )}
 

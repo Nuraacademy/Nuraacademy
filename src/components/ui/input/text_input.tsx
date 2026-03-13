@@ -7,6 +7,8 @@ interface TextInputProp {
     className?: string;
     value?: string;
     onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+    onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+    onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
     icon?: React.ReactNode;
     color?: string;
     disabled?: boolean;
@@ -19,6 +21,8 @@ export const NuraTextInput = ({
     className = "",
     value = "",
     onChange,
+    onKeyDown,
+    onBlur,
     icon,
     color = "black",
     disabled = false
@@ -32,6 +36,8 @@ export const NuraTextInput = ({
                     placeholder={placeholder}
                     value={value}
                     onChange={onChange}
+                    onKeyDown={onKeyDown}
+                    onBlur={onBlur}
                     disabled={disabled}
                     className={`w-full rounded-[0.5rem] bg-white border border-${color} px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black ${icon ? "pr-10" : ""
                         } ${className} ${disabled ? "opacity-50 cursor-not-allowed bg-gray-50" : ""}`}

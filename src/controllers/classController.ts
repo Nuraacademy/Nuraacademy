@@ -45,3 +45,60 @@ export async function getClassById(id: number) {
         },
     });
 }
+/**
+ * Create a new class.
+ */
+export async function createClass(data: {
+    title: string;
+    imgUrl?: string;
+    hours?: number;
+    modules?: number;
+    methods?: string;
+    startDate?: Date;
+    endDate?: Date;
+    description?: string;
+    previewVideoUrl?: string;
+    keywords?: string[];
+    curricula?: string[];
+    isDraft?: boolean;
+    createdBy?: number;
+}) {
+    return await prisma.class.create({
+        data,
+    });
+}
+
+/**
+ * Update an existing class.
+ */
+export async function updateClass(id: number, data: {
+    title?: string;
+    imgUrl?: string;
+    hours?: number;
+    modules?: number;
+    methods?: string;
+    startDate?: Date;
+    endDate?: Date;
+    description?: string;
+    previewVideoUrl?: string;
+    keywords?: string[];
+    curricula?: string[];
+    isDraft?: boolean;
+}) {
+    return await prisma.class.update({
+        where: { id },
+        data,
+    });
+}
+
+/**
+ * Soft delete a class.
+ */
+export async function deleteClass(id: number) {
+    return await prisma.class.update({
+        where: { id },
+        data: {
+            deletedAt: new Date(),
+        },
+    });
+}

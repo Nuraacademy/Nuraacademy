@@ -6,7 +6,382 @@ datasource db {
   provider = "postgresql"
 }
 
-// Enums
+model User {
+  id                   Int                   @id @default(autoincrement())
+  email                String                @unique
+  username             String                @unique
+  password             String
+  name                 String?
+  whatsapp             String?
+  createdAt            DateTime              @default(now())
+  deletedAt            DateTime?
+  updatedAt            DateTime              @default(now()) @updatedAt
+  roleId               Int?
+  discussionLikes      DiscussionLike[]
+  discussionReplies    DiscussionReply[]
+  discussionReplyLikes DiscussionReplyLike[]
+  discussions          Discussion[]
+  enrollments          Enrollment[]
+  role                 Role?                 @relation(fields: [roleId], references: [id])
+
+  @@map("users")
+}
+
+model Session {
+  id            Int          @id @default(autoincrement())
+  courseId      Int
+  isSynchronous Boolean?
+  title         String
+  content       Json?
+  schedule      Json?
+  reference     Json?
+  createdBy     Int?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  deletedAt     DateTime?
+  assignments   Assignment[]
+  ses           SES[]
+  course        Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+  @@index([createdBy])
+  @@map("sessions")
+}
+
+model Class {
+  id                Int          @id @default(autoincrement())
+  title             String
+  imgUrl            String?
+  hours             Int?
+  methods           String?
+  startDate         DateTime?
+  endDate           DateTime?
+  description       String?
+  learningObjective String?
+  isDraft           Boolean      @default(false)
+  createdBy         Int?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  deletedAt         DateTime?
+  curricula         String[]
+  keywords          String[]
+  modules           Int?
+  previewVideoUrl   String?
+  assignments       Assignment[]
+  courses           Course[]
+  enrollments       Enrollment[]
+  timelines         Timeline[]
+
+  @@index([createdBy])
+  @@index([isDraft])
+  @@index([startDate, endDate])
+  @@map("classes")
+}
+
+model Timeline {
+  id        Int       @id @default(autoincrement())
+  classId   Int
+  date      DateTime
+  activity  String
+  createdBy Int?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  class     Class     @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  @@unique([classId, date])
+  @@index([classId, date])
+  @@map("timelines")
+}
+
+model Course {
+  id                 Int              @id @default(autoincrement())
+  classId            Int
+  title              String
+  description        String?
+  learningObjectives String?
+  entrySkills        String?
+  tools              String?
+  createdBy          Int?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  deletedAt          DateTime?
+  assignmentItems    AssignmentItem[]
+  assignments        Assignment[]
+  courseMappings     CourseMapping[]
+  class              Class            @relation(fields: [classId], references: [id], onDelete: Cascade)
+  sessions           Session[]
+
+  @@index([classId])
+  @@index([createdBy])
+  @@map("courses")
+}
+
+model Enrollment {
+  id                Int                @id @default(autoincrement())
+  userId            Int
+  classId           Int
+  status            EnrollmentStatus   @default(ACTIVE)
+  enrolledAt        DateTime           @default(now())
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  deletedAt         DateTime?
+  cvUrl             String?
+  educationField    String?
+  finalExpectations String?
+  jobIndustry       String?
+  objectives        String[]
+  profession        String?
+  workField         String?
+  yoe               String?
+  assignmentResults AssignmentResult[]
+  courseMappings    CourseMapping[]
+  class             Class              @relation(fields: [classId], references: [id])
+  user              User               @relation(fields: [userId], references: [id])
+  groups            Group[]
+  ses               SES[]
+
+  @@unique([userId, classId])
+  @@index([userId])
+  @@index([classId])
+  @@index([status])
+  @@map("enrollments")
+}
+
+model SES {
+  enrollmentId Int
+  sessionId    Int
+  score        Float?
+  scoredBy     Int?
+  scoredAt     DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime?
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  session      Session    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@id([enrollmentId, sessionId])
+  @@index([sessionId])
+  @@map("ses")
+}
+
+model Assignment {
+  id                Int                @id @default(autoincrement())
+  classId           Int?
+  courseId          Int?
+  sessionId         Int?
+  type              AssignmentType
+  submissionType    SubmissionType?
+  duration          Int?
+  startDate         DateTime?
+  endDate           DateTime?
+  description       String?
+  instruction       String?
+  passingGrade      Float?
+  createdBy         Int?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  deletedAt         DateTime?
+  assignmentItems   AssignmentItem[]
+  assignmentResults AssignmentResult[]
+  class             Class?             @relation(fields: [classId], references: [id])
+  course            Course?            @relation(fields: [courseId], references: [id])
+  session           Session?           @relation(fields: [sessionId], references: [id])
+
+  @@index([classId])
+  @@index([courseId])
+  @@index([sessionId])
+  @@index([type])
+  @@index([startDate, endDate])
+  @@map("assignments")
+}
+
+model AssignmentItem {
+  id                    Int                    @id @default(autoincrement())
+  assignmentId          Int
+  type                  AssignmentItemType
+  question              String
+  options               Json?
+  correctAnswer         String?
+  maxScore              Float?
+  createdBy             Int?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @default(now()) @updatedAt
+  deletedAt             DateTime?
+  courseId              Int?
+  assignmentItemResults AssignmentItemResult[]
+  assignment            Assignment             @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  course                Course?                @relation(fields: [courseId], references: [id])
+
+  @@index([assignmentId])
+  @@index([courseId])
+  @@index([type])
+  @@map("assignment_items")
+}
+
+model AssignmentResult {
+  id                    Int                    @id @default(autoincrement())
+  assignmentId          Int
+  enrollmentId          Int
+  startedAt             DateTime?
+  finishedAt            DateTime?
+  status                AssignmentStatus       @default(NOT_PASS)
+  totalScore            Float?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  deletedAt             DateTime?
+  assignmentItemResults AssignmentItemResult[]
+  assignment            Assignment             @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  enrollment            Enrollment             @relation(fields: [enrollmentId], references: [id])
+
+  @@unique([assignmentId, enrollmentId])
+  @@index([assignmentId])
+  @@index([enrollmentId])
+  @@map("assignment_results")
+}
+
+model AssignmentItemResult {
+  id                 Int              @id @default(autoincrement())
+  assignmentResultId Int
+  assignmentItemId   Int
+  answer             String?
+  answerFiles        Json?
+  score              Float?
+  reviewerFeedback   String?
+  reviewedBy         Int?
+  reviewedAt         DateTime?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  deletedAt          DateTime?
+  assignmentItem     AssignmentItem   @relation(fields: [assignmentItemId], references: [id])
+  assignmentResult   AssignmentResult @relation(fields: [assignmentResultId], references: [id], onDelete: Cascade)
+
+  @@index([assignmentResultId])
+  @@index([assignmentItemId])
+  @@map("assignment_item_results")
+}
+
+model Group {
+  id           Int        @id @default(autoincrement())
+  enrollmentId Int
+  name         String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime?
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  @@index([enrollmentId])
+  @@map("groups")
+}
+
+model CourseMapping {
+  enrollmentId Int
+  courseId     Int
+  progress     Float?     @default(0)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime?
+  course       Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  @@id([enrollmentId, courseId])
+  @@index([courseId])
+  @@map("course_mappings")
+}
+
+model Discussion {
+  id        Int               @id @default(autoincrement())
+  userId    Int
+  title     String
+  content   String
+  type      DiscussionType
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  deletedAt DateTime?
+  likes     DiscussionLike[]
+  replies   DiscussionReply[]
+  user      User              @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([type])
+  @@map("discussions")
+}
+
+model DiscussionReply {
+  id           Int                   @id @default(autoincrement())
+  discussionId Int
+  userId       Int
+  text         String
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  deletedAt    DateTime?
+  discussion   Discussion            @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+  user         User                  @relation(fields: [userId], references: [id])
+  likes        DiscussionReplyLike[]
+
+  @@index([discussionId])
+  @@index([userId])
+  @@map("discussion_replies")
+}
+
+model DiscussionLike {
+  discussionId Int
+  userId       Int
+  createdAt    DateTime   @default(now())
+  discussion   Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id])
+
+  @@id([discussionId, userId])
+  @@index([userId])
+  @@map("discussion_likes")
+}
+
+model DiscussionReplyLike {
+  replyId   Int
+  userId    Int
+  createdAt DateTime        @default(now())
+  reply     DiscussionReply @relation(fields: [replyId], references: [id], onDelete: Cascade)
+  user      User            @relation(fields: [userId], references: [id])
+
+  @@id([replyId, userId])
+  @@index([userId])
+  @@map("discussion_reply_likes")
+}
+
+model Role {
+  id          Int              @id @default(autoincrement())
+  name        String           @unique
+  description String?
+  isSystem    Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  permissions RolePermission[]
+  users       User[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          Int              @id @default(autoincrement())
+  resource    String
+  action      String
+  description String?
+  roles       RolePermission[]
+
+  @@unique([resource, action])
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       Int
+  permissionId Int
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
 enum AssignmentType {
   PLACEMENT
   PRETEST
@@ -44,400 +419,4 @@ enum EnrollmentStatus {
   ACTIVE
   COMPLETED
   DROPPED
-}
-
-// User model 
-model User {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique
-  username  String    @unique
-  password  String
-  name      String?
-  whatsapp  String?
-  roleId    Int?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now()) @updatedAt
-  deletedAt DateTime?
-
-  role               Role?             @relation(fields: [roleId], references: [id])
-  enrollments        Enrollment[]
-  discussions        Discussion[]
-  discussionReplies  DiscussionReply[]
-  discussionLikes    DiscussionLike[]
-  discussionReplyLikes  DiscussionReplyLike[]
-
-  @@map("users")
-}
-
-model Session {
-  id            Int       @id @default(autoincrement())
-  courseId      Int
-  isSynchronous Boolean?
-  title         String
-  content       Json?
-  schedule      Json?
-  reference     Json?
-  createdBy     Int?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  deletedAt     DateTime?
-
-  // Relations
-  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  ses         SES[]
-  assignments Assignment[] // <-- Add this line right here
-
-  @@index([courseId])
-  @@index([createdBy])
-  @@map("sessions")
-}
-
-model Class {
-  id                Int       @id @default(autoincrement())
-  title             String
-  imgUrl            String?
-  hours             Int?
-  methods           String?
-  startDate         DateTime?
-  endDate           DateTime?
-  description       String?
-  learningObjective String?
-  isDraft           Boolean   @default(false)
-  createdBy         Int?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  deletedAt         DateTime?
-
-  // Relations
-  timelines   Timeline[]
-  courses     Course[]
-  enrollments Enrollment[]
-  assignments Assignment[]
-
-  @@index([createdBy])
-  @@index([isDraft])
-  @@index([startDate, endDate])
-  @@map("classes")
-}
-
-model Timeline {
-  id        Int       @id @default(autoincrement())
-  classId   Int
-  date      DateTime
-  activity  String
-  createdBy Int?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-
-  class Class @relation(fields: [classId], references: [id], onDelete: Cascade)
-
-  @@index([classId, date])
-  @@unique([classId, date])
-  @@map("timelines")
-}
-
-model Course {
-  id                 Int       @id @default(autoincrement())
-  classId            Int
-  title              String
-  description        String?
-  learningObjectives String?
-  entrySkills        String?
-  tools              String?
-  createdBy          Int?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
-  deletedAt          DateTime?
-
-  class          Class           @relation(fields: [classId], references: [id], onDelete: Cascade)
-  sessions       Session[]
-  assignments    Assignment[]
-  courseMappings CourseMapping[]
-  assignmentItems AssignmentItem[]
-
-  @@index([classId])
-  @@index([createdBy])
-  @@map("courses")
-}
-
-model Enrollment {
-  id         Int              @id @default(autoincrement())
-  userId     Int
-  classId    Int
-  status            EnrollmentStatus @default(ACTIVE)
-  enrolledAt        DateTime         @default(now())
-  profession        String?
-  yoe               String?
-  workField         String?
-  educationField    String?
-  jobIndustry       String?
-  finalExpectations String?
-  objectives        String[]
-  cvUrl             String?
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
-  deletedAt         DateTime?
-
-  user              User               @relation(fields: [userId], references: [id])
-  class             Class              @relation(fields: [classId], references: [id])
-  ses               SES[]
-  groups            Group[]
-  courseMappings    CourseMapping[]
-  assignmentResults AssignmentResult[]
-
-  @@unique([userId, classId])
-  @@index([userId])
-  @@index([classId])
-  @@index([status])
-  @@map("enrollments")
-}
-
-model SES {
-  enrollmentId Int
-  sessionId    Int
-  score        Float?
-  scoredBy     Int?
-  scoredAt     DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  deletedAt    DateTime?
-
-  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
-  session    Session    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-
-  @@id([enrollmentId, sessionId])
-  @@index([sessionId])
-  @@map("ses")
-}
-
-model Assignment {
-  id             Int             @id @default(autoincrement())
-  classId        Int?
-  courseId       Int?
-  sessionId      Int?
-  type           AssignmentType
-  submissionType SubmissionType?
-  duration       Int?
-  startDate      DateTime?
-  endDate        DateTime?
-  description    String?
-  instruction    String?
-  passingGrade   Float?
-  createdBy      Int?
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  deletedAt      DateTime?
-
-  class             Class?             @relation(fields: [classId], references: [id])
-  course            Course?            @relation(fields: [courseId], references: [id])
-  session           Session?           @relation(fields: [sessionId], references: [id])
-  assignmentItems   AssignmentItem[]
-  assignmentResults AssignmentResult[]
-
-  @@index([classId])
-  @@index([courseId])
-  @@index([sessionId])
-  @@index([type])
-  @@index([startDate, endDate])
-  @@map("assignments")
-}
-
-model AssignmentItem {
-  id             Int                @id @default(autoincrement())
-  assignmentId   Int
-  courseId       Int?
-  type           AssignmentItemType
-  question       String
-  options        Json?
-  correctAnswer  String?
-  maxScore       Float?
-  createdBy      Int?
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @default(now()) @updatedAt
-  deletedAt      DateTime?
-
-  assignment            Assignment             @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  course                Course?                @relation(fields: [courseId], references: [id])
-  assignmentItemResults AssignmentItemResult[]
-
-  @@index([assignmentId])
-  @@index([courseId])
-  @@index([type])
-  @@map("assignment_items")
-}
-
-model AssignmentResult {
-  id           Int              @id @default(autoincrement())
-  assignmentId Int
-  enrollmentId Int
-  startedAt    DateTime?
-  finishedAt   DateTime?
-  status       AssignmentStatus @default(NOT_PASS)
-  totalScore   Float?
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
-  deletedAt    DateTime?
-
-  assignment            Assignment             @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  enrollment            Enrollment             @relation(fields: [enrollmentId], references: [id])
-  assignmentItemResults AssignmentItemResult[]
-
-  @@unique([assignmentId, enrollmentId])
-  @@index([assignmentId])
-  @@index([enrollmentId])
-  @@map("assignment_results")
-}
-
-model AssignmentItemResult {
-  id                 Int       @id @default(autoincrement())
-  assignmentResultId Int
-  assignmentItemId   Int
-  answer             String?
-  answerFiles        Json?
-  score              Float?
-  reviewerFeedback   String?
-  reviewedBy         Int?
-  reviewedAt         DateTime?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
-  deletedAt          DateTime?
-
-  assignmentResult AssignmentResult @relation(fields: [assignmentResultId], references: [id], onDelete: Cascade)
-  assignmentItem   AssignmentItem   @relation(fields: [assignmentItemId], references: [id])
-
-  @@index([assignmentResultId])
-  @@index([assignmentItemId])
-  @@map("assignment_item_results")
-}
-
-model Group {
-  id           Int       @id @default(autoincrement())
-  enrollmentId Int
-  name         String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  deletedAt    DateTime?
-
-  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
-
-  @@index([enrollmentId])
-  @@map("groups")
-}
-
-model CourseMapping {
-  enrollmentId Int
-  courseId     Int
-  progress     Float?    @default(0)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  deletedAt    DateTime?
-
-  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
-  course     Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  @@id([enrollmentId, courseId])
-  @@index([courseId])
-  @@map("course_mappings")
-}
-
-model Discussion {
-  id        Int            @id @default(autoincrement())
-  userId    Int
-  title     String
-  content   String
-  type      DiscussionType
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-  deletedAt DateTime?
-
-  user      User              @relation(fields: [userId], references: [id])
-  replies   DiscussionReply[]
-  likes     DiscussionLike[]
-
-  @@index([userId])
-  @@index([type])
-  @@map("discussions")
-}
-
-model DiscussionReply {
-  id           Int        @id @default(autoincrement())
-  discussionId Int
-  userId       Int
-  text         String
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  deletedAt    DateTime?
-
-  discussion Discussion            @relation(fields: [discussionId], references: [id], onDelete: Cascade)
-  user       User                  @relation(fields: [userId], references: [id])
-  likes      DiscussionReplyLike[]
-
-  @@index([discussionId])
-  @@index([userId])
-  @@map("discussion_replies")
-}
-
-model DiscussionLike {
-  discussionId Int
-  userId       Int
-  createdAt    DateTime @default(now())
-
-  discussion Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
-  user       User       @relation(fields: [userId], references: [id])
-
-  @@id([discussionId, userId])
-  @@index([userId])
-  @@map("discussion_likes")
-}
-
-model DiscussionReplyLike {
-  replyId   Int
-  userId    Int
-  createdAt DateTime @default(now())
-
-  reply DiscussionReply @relation(fields: [replyId], references: [id], onDelete: Cascade)
-  user  User            @relation(fields: [userId], references: [id])
-
-  @@id([replyId, userId])
-  @@index([userId])
-  @@map("discussion_reply_likes")
-}
-
-// RBAC Models
-model Role {
-  id          Int              @id @default(autoincrement())
-  name        String           @unique
-  description String?
-  isSystem    Boolean          @default(false)
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  
-  permissions RolePermission[]
-  users       User[]
-
-  @@map("roles")
-}
-
-model Permission {
-  id          Int              @id @default(autoincrement())
-  resource    String
-  action      String
-  description String?
-  
-  roles       RolePermission[]
-
-  @@unique([resource, action])
-  @@map("permissions")
-}
-
-model RolePermission {
-  roleId       Int
-  permissionId Int
-  
-  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
-
-  @@id([roleId, permissionId])
-  @@map("role_permissions")
 }
