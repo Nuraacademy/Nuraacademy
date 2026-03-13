@@ -76,23 +76,23 @@ function ObjectiveBlock({
 }: {
     question: ObjectiveQuestion;
     index: number;
-    onChange: (q: ObjectiveQuestion) => void;
+    onChange: (updater: (prev: ObjectiveQuestion) => ObjectiveQuestion) => void;
     onRemove: () => void;
     idRef: React.MutableRefObject<number>;
 }) {
     const setCorrect = (answerId: number) => {
-        onChange({ ...question, answers: question.answers.map((a) => ({ ...a, isCorrect: a.id === answerId })) });
+        onChange((prev) => ({ ...prev, answers: prev.answers.map((a) => ({ ...a, isCorrect: a.id === answerId })) }));
     };
     const updateAnswerText = (answerId: number, text: string) => {
-        onChange({ ...question, answers: question.answers.map((a) => (a.id === answerId ? { ...a, text } : a)) });
+        onChange((prev) => ({ ...prev, answers: prev.answers.map((a) => (a.id === answerId ? { ...a, text } : a)) }));
     };
     const addAnswer = () => {
         if (question.answers.length >= 6) return;
-        onChange({ ...question, answers: [...question.answers, makeAnswer(idRef)] });
+        onChange((prev) => ({ ...prev, answers: [...prev.answers, makeAnswer(idRef)] }));
     };
     const removeAnswer = (answerId: number) => {
         if (question.answers.length <= 2) return;
-        onChange({ ...question, answers: question.answers.filter((a) => a.id !== answerId) });
+        onChange((prev) => ({ ...prev, answers: prev.answers.filter((a) => a.id !== answerId) }));
     };
 
     const hasError =
@@ -110,7 +110,7 @@ function ObjectiveBlock({
                 </button>
             </div>
 
-            <RichTextInput value={question.content} onChange={(val) => onChange({ ...question, content: val })} />
+            <RichTextInput value={question.content} onChange={(val) => onChange((prev) => ({ ...prev, content: val }))} />
 
             {/* Answers */}
             <div className="mt-4 space-y-2">
@@ -124,34 +124,42 @@ function ObjectiveBlock({
                         </button>
                     )}
                 </div>
-                {question.answers.map((ans) => (
-                    <div key={ans.id} className="flex gap-2 items-center">
-                        <input
-                            type="text"
-                            placeholder="Answer option..."
-                            value={ans.text}
-                            onChange={(e) => updateAnswerText(ans.id, e.target.value)}
-                            className={`flex-1 rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#D9F55C] bg-white ${!ans.text.trim() ? "border-orange-200" : "border-gray-300"}`}
-                        />
-                        <button
-                            type="button"
-                            onClick={() => setCorrect(ans.id)}
-                            className={`px-3 py-2 rounded-lg text-xs font-semibold border transition-all shrink-0 ${ans.isCorrect
-                                ? "bg-[#D9F55C] border-[#D9F55C] text-black shadow-sm"
-                                : "bg-white border-gray-300 text-gray-400 hover:border-gray-400"
-                                }`}
-                        >
-                            {ans.isCorrect ? "✓ Correct" : "Incorrect"}
-                        </button>
-                        <button
-                            onClick={() => removeAnswer(ans.id)}
-                            disabled={question.answers.length <= 2}
-                            className="text-gray-300 hover:text-red-400 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                        >
-                            <X size={14} />
-                        </button>
-                    </div>
-                ))}
+                {question.answers.map((ans) => {
+                    const isDuplicate = question.answers.filter(a => a.text.trim().toLowerCase() === ans.text.trim().toLowerCase() && a.text.trim() !== "").length > 1;
+                    return (
+                        <div key={ans.id} className="flex gap-2 items-center">
+                            <input
+                                type="text"
+                                placeholder="Answer option..."
+                                value={ans.text}
+                                onChange={(e) => updateAnswerText(ans.id, e.target.value)}
+                                className={`flex-1 rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#D9F55C] bg-white ${(!ans.text.trim() || isDuplicate) ? "border-orange-500 ring-1 ring-orange-500" : "border-gray-300"}`}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setCorrect(ans.id)}
+                                className={`px-3 py-2 rounded-lg text-xs font-semibold border transition-all shrink-0 ${ans.isCorrect
+                                    ? "bg-[#D9F55C] border-[#D9F55C] text-black shadow-sm"
+                                    : "bg-white border-gray-300 text-gray-400 hover:border-gray-400"
+                                    }`}
+                            >
+                                {ans.isCorrect ? "✓ Correct" : "Incorrect"}
+                            </button>
+                            <button
+                                onClick={() => removeAnswer(ans.id)}
+                                disabled={question.answers.length <= 2}
+                                className="text-gray-300 hover:text-red-400 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                            >
+                                <X size={14} />
+                            </button>
+                        </div>
+                    );
+                })}
+                {(() => {
+                    const texts = question.answers.map(a => a.text.trim().toLowerCase()).filter(t => t !== "");
+                    const hasDuplicates = new Set(texts).size !== texts.length;
+                    return hasDuplicates && <p className="text-orange-500 text-xs">All answer options must be unique.</p>;
+                })()}
                 {!question.answers.some((a) => a.isCorrect) && (
                     <p className="text-orange-500 text-xs">Mark one answer as correct.</p>
                 )}
@@ -165,7 +173,7 @@ function ObjectiveBlock({
                     min={1}
                     value={question.score || ""}
                     placeholder="e.g. 10"
-                    onChange={(e) => onChange({ ...question, score: Math.max(0, Number(e.target.value)) })}
+                    onChange={(e) => onChange((prev) => ({ ...prev, score: Math.max(0, Number(e.target.value)) }))}
                     className={`w-28 rounded-lg border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#D9F55C] bg-white ${question.score <= 0 ? "border-orange-200" : "border-gray-300"}`}
                 />
                 {question.score <= 0 && <span className="text-orange-500 text-xs">Required</span>}
@@ -181,7 +189,7 @@ function OpenEndedBlock({
 }: {
     question: EssayQuestion | ProjectQuestion;
     index: number;
-    onChange: (q: EssayQuestion | ProjectQuestion) => void;
+    onChange: (updater: (prev: any) => any) => void;
     onRemove: () => void;
     label: string;
 }) {
@@ -195,7 +203,7 @@ function OpenEndedBlock({
                     <X size={15} />
                 </button>
             </div>
-            <RichTextInput value={question.content} onChange={(val) => onChange({ ...question, content: val })} />
+            <RichTextInput value={question.content} onChange={(val) => onChange((prev) => ({ ...prev, content: val }))} />
             <div className="mt-4 flex items-center gap-3">
                 <label className="text-xs font-medium text-gray-500 shrink-0">Score</label>
                 <input
@@ -203,7 +211,7 @@ function OpenEndedBlock({
                     min={1}
                     value={question.score || ""}
                     placeholder="e.g. 20"
-                    onChange={(e) => onChange({ ...question, score: Math.max(0, Number(e.target.value)) })}
+                    onChange={(e) => onChange((prev) => ({ ...prev, score: Math.max(0, Number(e.target.value)) }))}
                     className={`w-28 rounded-lg border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#D9F55C] bg-white ${question.score <= 0 ? "border-orange-200" : "border-gray-300"}`}
                 />
                 {question.score <= 0 && <span className="text-orange-500 text-xs">Required</span>}
@@ -325,6 +333,13 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
             if (!q.answers.some((a) => a.isCorrect)) errors.push(`Objective Q${i + 1}: mark one answer as correct.`);
             if (q.answers.some((a) => !a.text.trim())) errors.push(`Objective Q${i + 1}: all answer options must be filled.`);
             if (q.score <= 0) errors.push(`Objective Q${i + 1}: score must be > 0.`);
+
+            // Uniqueness check for answers
+            const texts = q.answers.map(a => a.text.trim().toLowerCase()).filter(t => t !== "");
+            const hasDuplicates = new Set(texts).size !== texts.length;
+            if (hasDuplicates) {
+                errors.push(`Objective Q${i + 1}: all answer options must be unique.`);
+            }
         });
         essayQuestions.forEach((q, i) => {
             if (!q.content.replace(/<[^>]+>/g, "").trim()) errors.push(`Essay Q${i + 1}: question text is required.`);
@@ -620,8 +635,8 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                     question={q}
                                     index={i}
                                     idRef={idRef}
-                                    onChange={(updated) =>
-                                        setObjectiveQuestions((prev) => prev.map((item) => (item.id === updated.id ? updated : item)))
+                                    onChange={(updater) =>
+                                        setObjectiveQuestions((prev) => prev.map((item) => (item.id === q.id ? updater(item) : item)))
                                     }
                                     onRemove={() =>
                                         setObjectiveQuestions((prev) => prev.filter((item) => item.id !== q.id))
@@ -648,8 +663,8 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                     question={q}
                                     index={i}
                                     label="Question"
-                                    onChange={(updated) =>
-                                        setEssayQuestions((prev) => prev.map((item) => (item.id === updated.id ? updated as EssayQuestion : item)))
+                                    onChange={(updater) =>
+                                        setEssayQuestions((prev) => prev.map((item) => (item.id === q.id ? updater(item) : item)))
                                     }
                                     onRemove={() =>
                                         setEssayQuestions((prev) => prev.filter((item) => item.id !== q.id))
@@ -676,8 +691,8 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                     question={q}
                                     index={i}
                                     label="Question"
-                                    onChange={(updated) =>
-                                        setProjectQuestions((prev) => prev.map((item) => (item.id === updated.id ? updated as ProjectQuestion : item)))
+                                    onChange={(updater) =>
+                                        setProjectQuestions((prev) => prev.map((item) => (item.id === q.id ? updater(item) : item)))
                                     }
                                     onRemove={() =>
                                         setProjectQuestions((prev) => prev.filter((item) => item.id !== q.id))

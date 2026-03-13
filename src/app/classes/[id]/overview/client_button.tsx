@@ -114,7 +114,7 @@ export function CourseCard({ classId, course, isAdmin }: { classId: string, cour
             <div className="flex justify-between items-start">
                 <div>
                     <h3 className="text-black text-medium mb-1">{course.title}</h3>
-                    <p className="text-sm text-gray-600 line-clamp-2" dangerouslySetInnerHTML={{ __html: course.description }} />
+                    <div className="text-sm text-gray-600 line-clamp-2" dangerouslySetInnerHTML={{ __html: course.description }} />
                 </div>
                 {isAdmin && (
                     <button

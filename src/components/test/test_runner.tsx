@@ -366,7 +366,7 @@ export function TestRunner({
                 : "bg-gray-100 text-gray-800 border-transparent hover:bg-gray-200"
                 }`}
             >
-              <span dangerouslySetInnerHTML={{ __html: opt }} />
+              <div dangerouslySetInnerHTML={{ __html: opt }} />
             </button>
           )
         })}
