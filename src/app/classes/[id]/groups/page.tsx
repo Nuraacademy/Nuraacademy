@@ -46,7 +46,6 @@ export default function ViewGroupPage() {
                             { label: "Home", href: "/" },
                             { label: courseTitle, href: `/classes/${id}/overview` },
                             { label: "Placement Test", href: `/classes/${id}/test` },
-                            { label: "Placement Test Result", href: `/classes/${id}/test/result` },
                             { label: "View Group", href: `/classes/${id}/groups` },
                         ]}
                     />
