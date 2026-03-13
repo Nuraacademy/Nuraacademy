@@ -77,12 +77,20 @@ export function PlacementTestButton({
     }
 
     return (
-        <>
+        <div className="flex gap-4">
             <NuraButton
-                label={isAdmin ? "Create Test" : (isFinished ? "See Result" : "Start Test")}
+                label={isAdmin ? (courseCount > 0 ? "Edit Test" : "Create Test") : (isFinished ? "See Result" : "Start Test")}
                 variant="primary"
                 onClick={handleClick}
             />
+            {isAdmin && (
+                <NuraButton
+                    label="Mapping"
+                    variant="secondary"
+                    className="!bg-transparent !text-white !border-white/50 !border !font-semibold"
+                    onClick={() => router.push(`/classes/${classId}/placement/results`)}
+                />
+            )}
             <ConfirmModal
                 isOpen={isModalOpen}
                 title="Placement Test Unavailable"
@@ -95,7 +103,7 @@ export function PlacementTestButton({
                 onCancel={() => setIsModalOpen(false)}
                 cancelText="Close"
             />
-        </>
+        </div>
     )
 }
 

@@ -102,6 +102,7 @@ model Course {
   learningObjectives String?
   entrySkills        String?
   tools              String?
+  threshold          Float?           @default(0)
   createdBy          Int?
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
