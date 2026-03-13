@@ -10,23 +10,30 @@ const prisma = new PrismaClient({ adapter })
 async function main() {
     console.log('🌱 Starting extended seed...')
 
+    // 0. Ensure Roles exist (or fetch them)
+    const adminRole = await prisma.role.findUnique({ where: { name: 'Admin' } });
+    const teacherRole = await prisma.role.findUnique({ where: { name: 'Instructur' } });
+    const studentRole = await prisma.role.findUnique({ where: { name: 'Learner' } });
+
     // 1. Create Users
     const hashedPassword = await bcrypt.hash('password123', 10);
     const userData = [
-        { email: 'admin@learning.com', username: 'admin', password: hashedPassword, name: 'Admin User' },
-        { email: 'teacher1@learning.com', username: 'teacher1', password: hashedPassword, name: 'John Doe - Web Instructor' },
-        { email: 'teacher2@learning.com', username: 'teacher2', password: hashedPassword, name: 'Sarah Lim - Data Instructor' },
-        { email: 'student1@learning.com', username: 'student1', password: hashedPassword, name: 'Alice Johnson' },
-        { email: 'student2@learning.com', username: 'student2', password: hashedPassword, name: 'Bob Smith' },
-        { email: 'student3@learning.com', username: 'student3', password: hashedPassword, name: 'Carol Wilson' },
-        { email: 'student4@learning.com', username: 'student4', password: hashedPassword, name: 'David Brown' },
-        { email: 'student5@learning.com', username: 'student5', password: hashedPassword, name: 'Eva Davis' },
+        { email: 'admin@learning.com', username: 'admin', password: hashedPassword, name: 'Admin User', roleId: adminRole?.id },
+        { email: 'teacher1@learning.com', username: 'teacher1', password: hashedPassword, name: 'John Doe - Web Instructor', roleId: teacherRole?.id },
+        { email: 'teacher2@learning.com', username: 'teacher2', password: hashedPassword, name: 'Sarah Lim - Data Instructor', roleId: teacherRole?.id },
+        { email: 'student1@learning.com', username: 'student1', password: hashedPassword, name: 'Alice Johnson', roleId: studentRole?.id },
+        { email: 'student2@learning.com', username: 'student2', password: hashedPassword, name: 'Bob Smith', roleId: studentRole?.id },
+        { email: 'student3@learning.com', username: 'student3', password: hashedPassword, name: 'Carol Wilson', roleId: studentRole?.id },
+        { email: 'student4@learning.com', username: 'student4', password: hashedPassword, name: 'David Brown', roleId: studentRole?.id },
+        { email: 'student5@learning.com', username: 'student5', password: hashedPassword, name: 'Eva Davis', roleId: studentRole?.id },
     ];
 
     for (const user of userData) {
         await prisma.user.upsert({
             where: { email: user.email },
-            update: {},
+            update: {
+                roleId: user.roleId
+            },
             create: user,
         });
     }
