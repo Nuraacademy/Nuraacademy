@@ -119,3 +119,43 @@ export async function createSession(
         return { success: false, error: "Failed to create session" };
     }
 }
+
+export async function updatePresence(
+    sessionId: number,
+    classId: string,
+    courseId: string,
+    updates: { enrollmentId: number; status: string; score: number }[]
+) {
+    try {
+        await requirePermission('Presence', 'CREATE_UPDATE_PRESENCE_SES');
+
+        // Execute updates in a transaction
+        await prisma.$transaction(
+            updates.map(update => prisma.sES.upsert({
+                where: {
+                    enrollmentId_sessionId: {
+                        enrollmentId: update.enrollmentId,
+                        sessionId: sessionId
+                    }
+                },
+                update: {
+                    status: update.status,
+                    score: update.score,
+                    updatedAt: new Date()
+                },
+                create: {
+                    enrollmentId: update.enrollmentId,
+                    sessionId: sessionId,
+                    status: update.status,
+                    score: update.score
+                }
+            }))
+        );
+
+        revalidatePath(`/classes/${classId}/course/${courseId}/session/${sessionId}/presence`);
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to update presence:", error);
+        return { success: false, error: "Failed to update presence" };
+    }
+}

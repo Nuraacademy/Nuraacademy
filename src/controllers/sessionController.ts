@@ -39,6 +39,11 @@ export async function getSessionPresence(sessionId: number) {
                     some: { id: session.courseId }
                 }
             },
+            user: {
+                role: {
+                    name: "Learner"
+                }
+            },
             deletedAt: null
         },
         include: {

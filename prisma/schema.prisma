@@ -152,6 +152,7 @@ model Enrollment {
 model SES {
   enrollmentId Int
   sessionId    Int
+  status       String?    @default("absent")
   score        Float?
   scoredBy     Int?
   scoredAt     DateTime?

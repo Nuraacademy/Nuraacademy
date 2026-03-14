@@ -13,8 +13,8 @@ This document tracks the implementation status of all the privileges seeded into
 | Enrollment | `LEARNER_ENROLLMENT` | Learner enrollment | 🟢 Implemented |
 | Enrollment | `CHECKOUT_CLASS` | Check out class | 🟢 Implemented |
 | Enrollment | `PAYMENT_GATEWAY` | Payment gateway | 🟢 Implemented |
-| CourseMapping | `MANAGE` | Course mapping | 🔴 Not Implemented (Feature Missing) (Feature Missing) |
-| GroupMapping | `CREATE` | Create Group mapping | 🔴 Not Implemented (Feature Missing) (Feature Missing) |
+| CourseMapping | `MANAGE` | Course mapping | 🟢 Implemented |
+| GroupMapping | `CREATE` | Create Group mapping | 🟢 Implemented |
 | GroupMapping | `UPDATE` | Edit group mapping | 🟢 Implemented |
 
 ## 2.0 Course
@@ -33,13 +33,13 @@ This document tracks the implementation status of all the privileges seeded into
 | Recording | `ADD_RECORDING` | Add recording | 🔴 Not Implemented (Feature Missing) (Feature Missing) |
 | Recording | `UPDATE_RECORDING` | Update recording | 🔴 Not Implemented (Feature Missing) (Feature Missing) |
 | Recording | `DELETE_RECORDING` | Delete recording | 🔴 Not Implemented (Feature Missing) (Feature Missing) |
-| Presence | `CREATE_UPDATE_PRESENCE_SES` | Create/ update presence & SES | 🔴 Not Implemented (Feature Missing) (Feature Missing) |
+| Presence | `CREATE_UPDATE_PRESENCE_SES` | Create/ update presence & SES | � Implemented |
 
 ## 3.0 Assignment
 | Resource | Action | Description | Status |
 | :--- | :--- | :--- | :--- |
 | Assignment | `CREATE_UPDATE_ASSIGNMENT` | Create/ update assignment | 🟢 Implemented |
-| Assignment | `PRE_POST_TEST` | Pre-post test | 🔴 Not Implemented (Feature Missing) |
+| Assignment | `PRE_POST_TEST` | Pre-post test | 🔴 Not Implemented (Feature Missing) (Feature Missing) |
 | Assignment | `COURSE_ASSIGNMENT` | Course assignment | 🔴 Not Implemented (Feature Missing) |
 | Assignment | `EXERCISES` | Exercises | 🔴 Not Implemented (Feature Missing) |
 | Assignment | `FINAL_PROJECT` | Final project | 🔴 Not Implemented (Feature Missing) |
@@ -47,9 +47,9 @@ This document tracks the implementation status of all the privileges seeded into
 | Assignment | `DELETE_ASSIGNMENT` | Delete assignment | 🟢 Implemented |
 | Assignment | `START_ASSIGNMENT_INSTRUCTOR` | Start assignment (instructur/ trainer) | 🔴 Not Implemented (Feature Missing) |
 | Assignment | `START_ASSIGNMENT_LEARNER` | Start assignment (learner) | 🟢 Implemented |
-| Assignment | `VIEW_ASSIGNMENT_RESULT` | View assignment result | 🔴 Not Implemented (Feature Missing) |
-| Assignment | `CHECK_ASSIGNMENT_RESULT` | Check assignment result | 🔴 Not Implemented (Feature Missing) |
-| Assignment | `VIEW_ASSIGNMENT_SCORE` | View assignment score | 🔴 Not Implemented (Feature Missing) |
+| Assignment | `VIEW_ASSIGNMENT_RESULT` | View assignment result | 🟢 Implemented |
+| Assignment | `CHECK_ASSIGNMENT_RESULT` | Check assignment result | 🟢 Implemented |
+| Assignment | `VIEW_ASSIGNMENT_SCORE` | View assignment score | 🟢 Implemented |
 
 ## 4.0 Class
 | Resource | Action | Description | Status |
@@ -59,10 +59,10 @@ This document tracks the implementation status of all the privileges seeded into
 | Class | `SEARCH_VIEW_CLASS` | Search & view class | 🟢 Implemented (Public View) |
 | Class | `UPDATE_SCHEDULE_CLASS` | Update schedule class | 🟢 Implemented |
 | PlacementTest | `PLACEMENT_TEST_CREATE` | Placement test create | 🟢 Implemented |
-| PlacementTest | `PLACEMENT_TEST_UPDATE` | Placement test update | 🔴 Not Implemented (Feature Missing) |
+| PlacementTest | `PLACEMENT_TEST_UPDATE` | Placement test update | � Implemented |
 | PlacementTest | `PLACEMENT_TEST_VIEW_SEARCH` | Placement test view & search | 🔴 Not Implemented (Feature Missing) |
-| PlacementTest | `PLACEMENT_TEST_VIEW_DETAIL` | Placement test view detail | 🔴 Not Implemented (Feature Missing) |
-| PlacementTest | `PLACEMENT_TEST_CHECKING` | Placement test checking | 🔴 Not Implemented (Feature Missing) |
+| PlacementTest | `PLACEMENT_TEST_VIEW_DETAIL` | Placement test view detail | � Implemented |
+| PlacementTest | `PLACEMENT_TEST_CHECKING` | Placement test checking | � Implemented |
 | Curricula | `UPLOAD_CURRICULA` | Upload curricula | 🔴 Not Implemented (Feature Missing) |
 | Curricula | `UPDATE_CURRICULA` | Update curricula | 🔴 Not Implemented (Feature Missing) |
 | Curricula | `DELETE_CURRICULA` | Delete curricula | 🔴 Not Implemented (Feature Missing) |
