@@ -99,7 +99,6 @@ export default function LearnerGroupClient({
                     <Breadcrumb
                         items={[
                             { label: "Home", href: "/" },
-                            { label: "Placement Test", href: `/classes/${classId}/test` },
                             { label: classTitle, href: `/classes/${classId}/overview` },
                             { label: "Learner Group", href: "#" },
                         ]}

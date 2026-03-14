@@ -29,7 +29,6 @@ export default async function ViewGroupPage({ params }: { params: Promise<{ id: 
                         items={[
                             { label: "Home", href: "/" },
                             { label: classData.title, href: `/classes/${classId}/overview` },
-                            { label: "Placement Test", href: `/classes/${classId}/test` },
                             { label: "View Group", href: "#" },
                         ]}
                     />

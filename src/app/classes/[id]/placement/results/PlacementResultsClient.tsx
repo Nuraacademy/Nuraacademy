@@ -38,7 +38,6 @@ export default function PlacementResultsClient({
                         items={[
                             { label: "Home", href: "/" },
                             { label: classTitle, href: `/classes/${classId}/overview` },
-                            { label: "Placement Test", href: `/classes/${classId}/test` },
                             { label: "Results", href: "#" },
                         ]}
                     />
