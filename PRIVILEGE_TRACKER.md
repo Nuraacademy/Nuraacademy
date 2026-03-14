@@ -22,7 +22,7 @@ This document tracks the implementation status of all the privileges seeded into
 | :--- | :--- | :--- | :--- |
 | Course | `CREATE_COURSE` | Create course | 🟢 Implemented |
 | Course | `UPDATE_COURSE` | Update course | 🟢 Implemented |
-| Course | `DELETE_COURSE` | Delete course | 🔴 Not Implemented (Feature Missing) (Feature Missing) |
+| Course | `DELETE_COURSE` | Delete course | 🟢 Implemented |
 | Course | `VIEW_SEARCH_COURSE` | View & search course | 🔴 Not Implemented (Feature Missing) (Feature Missing) |
 | Course | `VIEW_DETAIL_COURSE` | View detail course | 🟢 Implemented (Public View) |
 | Session | `CREATE_SESSION` | Create session | 🟢 Implemented |

@@ -25,3 +25,17 @@ export async function upsertCourse(classId: number, courseId: number | null, dat
         return { success: false, error: error.message || "Failed to save course" };
     }
 }
+
+export async function deleteCourseAction(classId: number, courseId: number) {
+    try {
+        await requirePermission('Course', 'DELETE_COURSE');
+        const { deleteCourse } = await import("@/controllers/courseController");
+        await deleteCourse(courseId);
+
+        revalidatePath(`/classes/${classId}/overview`);
+        return { success: true };
+    } catch (error: any) {
+        console.error("Delete Course Error:", error);
+        return { success: false, error: error.message || "Failed to delete course" };
+    }
+}
