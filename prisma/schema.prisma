@@ -63,14 +63,14 @@ model Class {
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
   deletedAt         DateTime?
-  curricula         String[]
+  courses           Course[]
+  enrollments       Enrollment[]
+  timelines         Timeline[]
+  curricula         Curricula[]    @relation("ClassCurricula")
   keywords          String[]
   modules           Int?
   previewVideoUrl   String?
   assignments       Assignment[]
-  courses           Course[]
-  enrollments       Enrollment[]
-  timelines         Timeline[]
 
   @@index([createdBy])
   @@index([isDraft])
@@ -92,6 +92,20 @@ model Timeline {
   @@unique([classId, date])
   @@index([classId, date])
   @@map("timelines")
+}
+
+model Curricula {
+  id        Int       @id @default(autoincrement())
+  title     String
+  fileUrl   String?
+  status    String    @default("Active")
+  createdBy Int?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  classes   Class[]   @relation("ClassCurricula")
+
+  @@map("curricula")
 }
 
 model Course {

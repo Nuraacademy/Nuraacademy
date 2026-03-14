@@ -59,15 +59,14 @@ This document tracks the implementation status of all the privileges seeded into
 | Class | `SEARCH_VIEW_CLASS` | Search & view class | 🟢 Implemented (Public View) |
 | Class | `UPDATE_SCHEDULE_CLASS` | Update schedule class | 🟢 Implemented |
 | PlacementTest | `PLACEMENT_TEST_CREATE` | Placement test create | 🟢 Implemented |
-| PlacementTest | `PLACEMENT_TEST_UPDATE` | Placement test update | � Implemented |
-| PlacementTest | `PLACEMENT_TEST_VIEW_SEARCH` | Placement test view & search | 🔴 Not Implemented (Feature Missing) |
-| PlacementTest | `PLACEMENT_TEST_VIEW_DETAIL` | Placement test view detail | � Implemented |
-| PlacementTest | `PLACEMENT_TEST_CHECKING` | Placement test checking | � Implemented |
-| Curricula | `UPLOAD_CURRICULA` | Upload curricula | 🔴 Not Implemented (Feature Missing) |
-| Curricula | `UPDATE_CURRICULA` | Update curricula | 🔴 Not Implemented (Feature Missing) |
-| Curricula | `DELETE_CURRICULA` | Delete curricula | 🔴 Not Implemented (Feature Missing) |
-| Curricula | `SEARCH_VIEW_CURRICULA` | Search & view curricula | 🔴 Not Implemented (Feature Missing) |
-| Curricula | `VIEW_DETAIL_CURRICULA` | View detail curricula | 🔴 Not Implemented (Feature Missing) |
+| PlacementTest | `PLACEMENT_TEST_UPDATE` | Placement test update | 🟢 Implemented |
+| PlacementTest | `PLACEMENT_TEST_VIEW_DETAIL` | Placement test view detail | 🟢 Implemented |
+| PlacementTest | `PLACEMENT_TEST_CHECKING` | Placement test checking | 🟢 Implemented |
+| Curricula | `UPLOAD_CURRICULA` | Upload curricula | 🟢 Implemented |
+| Curricula | `UPDATE_CURRICULA` | Update curricula | 🟢 Implemented |
+| Curricula | `DELETE_CURRICULA` | Delete curricula | 🟢 Implemented |
+| Curricula | `SEARCH_VIEW_CURRICULA` | Curricula view & search | 🟢 Implemented |
+| Curricula | `VIEW_DETAIL_CURRICULA` | Curricula view detail | 🟢 Implemented |
 
 ## 5.0 Forums
 | Resource | Action | Description | Status |

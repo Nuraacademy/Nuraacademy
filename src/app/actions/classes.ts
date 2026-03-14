@@ -103,3 +103,12 @@ export async function deleteClassAction(id: number) {
         return { success: false, error: error.message || "Failed to delete class" };
     }
 }
+export async function getClassesAction() {
+    try {
+        await requirePermission('Class', 'SEARCH_VIEW_CLASS');
+        const classes = await getAllClasses();
+        return { success: true, classes };
+    } catch (error: any) {
+        return { success: false, error: error.message || "Failed to fetch classes" };
+    }
+}

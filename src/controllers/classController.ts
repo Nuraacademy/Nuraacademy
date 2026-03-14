@@ -45,9 +45,6 @@ export async function getClassById(id: number) {
         },
     });
 }
-/**
- * Create a new class.
- */
 export async function createClass(data: {
     title: string;
     imgUrl?: string;
@@ -59,12 +56,18 @@ export async function createClass(data: {
     description?: string;
     previewVideoUrl?: string;
     keywords?: string[];
-    curricula?: string[];
+    curriculaIds?: number[];
     isDraft?: boolean;
     createdBy?: number;
 }) {
+    const { curriculaIds, ...rest } = data;
     return await prisma.class.create({
-        data,
+        data: {
+            ...rest,
+            curricula: curriculaIds ? {
+                connect: curriculaIds.map(id => ({ id }))
+            } : undefined
+        },
     });
 }
 
@@ -82,12 +85,18 @@ export async function updateClass(id: number, data: {
     description?: string;
     previewVideoUrl?: string;
     keywords?: string[];
-    curricula?: string[];
+    curriculaIds?: number[];
     isDraft?: boolean;
 }) {
+    const { curriculaIds, ...rest } = data;
     return await prisma.class.update({
         where: { id },
-        data,
+        data: {
+            ...rest,
+            curricula: curriculaIds ? {
+                set: curriculaIds.map(id => ({ id }))
+            } : undefined
+        },
     });
 }
 

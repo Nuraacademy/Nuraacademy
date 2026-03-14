@@ -11,9 +11,9 @@ interface FileUploadProps {
     className?: string
 }
 
-export default function FileUpload({ 
-    onFileSelect, 
-    maxSizeMB = 5, 
+export default function FileUpload({
+    onFileSelect,
+    maxSizeMB = 5,
     accept = ".pdf",
     supportedFileType = ".pdf",
     className = ""
@@ -63,6 +63,7 @@ export default function FileUpload({
 
     const removeFile = () => {
         setFile(null)
+        onFileSelect?.(null as any) // Explicitly clear parent state
         if (fileInputRef.current) fileInputRef.current.value = ""
     }
 

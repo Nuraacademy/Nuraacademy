@@ -8,6 +8,9 @@ import { NuraButton } from "@/components/ui/button/button"
 import { X, Plus, Upload, Image as ImageIcon, Video, Search } from "lucide-react"
 import { createClassAction, updateClassAction } from "@/app/actions/classes"
 import Image from "next/image"
+import { getCurriculaList } from "@/app/actions/curricula"
+import { useEffect } from "react"
+import { NuraSelect } from "@/components/ui/input/nura_select"
 
 interface AddClassClientProps {
     classData?: any;
@@ -31,8 +34,20 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
     // Tags state
     const [keywordInput, setKeywordInput] = useState("");
     const [keywords, setKeywords] = useState<string[]>(classData?.keywords || []);
-    const [curriculaInput, setCurriculaInput] = useState("");
-    const [curricula, setCurricula] = useState<string[]>(classData?.curricula || []);
+    const [allCurricula, setAllCurricula] = useState<any[]>([]);
+    const [selectedCurriculaIds, setSelectedCurriculaIds] = useState<number[]>(
+        classData?.curricula?.map((c: any) => c.id) || []
+    );
+
+    useEffect(() => {
+        const fetchCurricula = async () => {
+            const res = await getCurriculaList();
+            if (res.success && res.curricula) {
+                setAllCurricula(res.curricula);
+            }
+        };
+        fetchCurricula();
+    }, []);
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -47,15 +62,12 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
         setKeywords(keywords.filter(k => k !== tag));
     };
 
-    const handleAddCurricula = () => {
-        if (curriculaInput.trim() && !curricula.includes(curriculaInput.trim())) {
-            setCurricula([...curricula, curriculaInput.trim()]);
-            setCurriculaInput("");
+    const handleCurriculaChange = (id: number) => {
+        if (selectedCurriculaIds.includes(id)) {
+            setSelectedCurriculaIds(selectedCurriculaIds.filter(i => i !== id));
+        } else {
+            setSelectedCurriculaIds([...selectedCurriculaIds, id]);
         }
-    };
-
-    const handleRemoveCurricula = (tag: string) => {
-        setCurricula(curricula.filter(c => c !== tag));
     };
 
     const validate = () => {
@@ -81,7 +93,7 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
             imgUrl,
             previewVideoUrl,
             keywords,
-            curricula,
+            curriculaIds: selectedCurriculaIds,
         };
 
         const res = isEditing
@@ -228,24 +240,24 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                 {/* Curricula */}
                 <div>
                     <label className="block text-sm font-semibold mb-2 font-medium">Curricula</label>
-                    <div className="relative">
-                        <NuraTextInput
-                            placeholder="Curricula"
-                            value={curriculaInput}
-                            onChange={(e) => setCurriculaInput(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleAddCurricula()}
-                            icon={<Search strokeWidth={1.5} className="text-gray-400" />}
-                        />
-                    </div>
+                    <NuraSelect
+                        placeholder="Select Curricula"
+                        options={allCurricula.map(c => ({ label: c.title, value: String(c.id) }))}
+                        value=""
+                        onChange={(val) => handleCurriculaChange(Number(val))}
+                    />
                     <div className="flex flex-wrap gap-3 mt-4 text-sm">
-                        {curricula.map(tag => (
-                            <span key={tag} className="flex items-center gap-2 px-6 py-2 border border-gray-200 rounded-full bg-white shadow-sm">
-                                {tag}
-                                <button onClick={() => handleRemoveCurricula(tag)} className="text-gray-400 hover:text-red-500 transition-colors">
-                                    <X size={14} />
-                                </button>
-                            </span>
-                        ))}
+                        {selectedCurriculaIds.map(id => {
+                            const cur = allCurricula.find(c => c.id === id);
+                            return (
+                                <span key={id} className="flex items-center gap-2 px-6 py-2 border border-gray-200 rounded-full bg-white shadow-sm">
+                                    {cur?.title || `ID: ${id}`}
+                                    <button onClick={() => handleCurriculaChange(id)} className="text-gray-400 hover:text-red-500 transition-colors">
+                                        <X size={14} />
+                                    </button>
+                                </span>
+                            );
+                        })}
                     </div>
                 </div>
 
