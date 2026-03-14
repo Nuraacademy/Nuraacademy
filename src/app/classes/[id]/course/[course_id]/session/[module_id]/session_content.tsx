@@ -127,9 +127,6 @@ export default function SessionContent({
     );
 
     const renderContent = () => {
-        if (isSynchronous === true && (content?.video || content?.file) && content?.zoom?.startTime && new Date() > new Date(content.zoom.startTime)) {
-            return renderAsynchronousLayout();
-        }
         if (isSynchronous === true) {
             return renderSynchronousLayout();
         }

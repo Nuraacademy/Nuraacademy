@@ -61,6 +61,10 @@ export default async function SessionRecordingPage({
         { label: session.title, href: `/classes/${classId}/course/${courseId}/session/${moduleId}` },
     ];
 
+    const makeVideoUrl = (url: string) => {
+        return url.replace("watch?v=", "embed/");
+    };
+
     return (
         <main className="min-h-screen bg-[#FDFDF7] font-sans pb-16">
             <div className="max-w-7xl mx-auto px-6 md:px-10 py-8">
@@ -86,11 +90,21 @@ export default async function SessionRecordingPage({
 
                     <div className="border-t border-gray-100"></div>
 
-                    {/* Video */}
-                    <SessionVideoPlayer
-                        title={content.recording.title}
-                        url={content.recording.url}
-                    />
+                    {/* Video - Render Asynchronous Layout Style */}
+                    <div className="flex flex-col gap-4">
+                        <h2 className="text-sm font-bold text-gray-900">Recording: {content.recording.title}</h2>
+                        <div className="relative w-full aspect-video rounded-3xl overflow-hidden group cursor-pointer shadow-lg">
+                            <iframe
+                                width="100%"
+                                height="100%"
+                                src={makeVideoUrl(content.recording.url)}
+                                title={content.recording.title}
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                referrerPolicy="strict-origin-when-cross-origin"
+                                allowFullScreen>
+                            </iframe>
+                        </div>
+                    </div>
 
                     {/* Footer Button */}
                     <div className="flex justify-center mt-4">
