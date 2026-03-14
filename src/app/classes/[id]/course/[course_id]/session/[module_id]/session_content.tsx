@@ -5,6 +5,9 @@ import { ExternalLink } from "lucide-react";
 import { NuraButton } from "@/components/ui/button/button";
 import ReferenceMaterials from "@/components/ui/reference_materials/reference_materials";
 import PDFViewer from "@/components/ui/video/pdf_viewer";
+import { startSessionAction } from "@/app/actions/session";
+import { toast } from "sonner";
+import { useState } from "react";
 
 interface SessionContentProps {
     classId: string;
@@ -26,6 +29,20 @@ export default function SessionContent({
     isAdmin
 }: SessionContentProps) {
     const router = useRouter();
+
+    const [isStarting, setIsStarting] = useState(false);
+
+    const handleJoin = async () => {
+        setIsStarting(true);
+        const result = await startSessionAction(classId, courseId, moduleId);
+        setIsStarting(false);
+
+        if (result.success && result.url) {
+            window.location.href = result.url;
+        } else {
+            toast.error(result.error || "Failed to start session");
+        }
+    };
 
     const makeVideoUrl = (url: string) => {
         return url.replace("watch?v=", "embed/");
@@ -95,10 +112,11 @@ export default function SessionContent({
                         </div>
                         <div className="flex gap-4">
                             <NuraButton
-                                label="Join"
+                                label={isStarting ? "Starting..." : "Join"}
                                 variant="medium"
                                 className="min-w-[120px] h-10 text-sm font-bold"
-                                onClick={() => { window.location.href = content.zoom.url; }}
+                                onClick={handleJoin}
+                                disabled={isStarting}
                             />
                             <NuraButton
                                 label="View Record"

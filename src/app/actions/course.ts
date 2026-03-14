@@ -39,3 +39,20 @@ export async function deleteCourseAction(classId: number, courseId: number) {
         return { success: false, error: error.message || "Failed to delete course" };
     }
 }
+
+export async function searchCoursesAction(query: string) {
+    try {
+        const { hasPermission } = await import("@/lib/rbac");
+        const canSearch = await hasPermission('Course', 'VIEW_SEARCH_COURSE');
+        if (!canSearch) {
+            await requirePermission('Course', 'VIEW_SEARCH_COURSE');
+        }
+
+        const { searchCourses } = await import("@/controllers/courseController");
+        const courses = await searchCourses(query);
+        return { success: true, courses };
+    } catch (error: any) {
+        console.error("Search Course Error:", error);
+        return { success: false, error: error.message || "Failed to search courses" };
+    }
+}
