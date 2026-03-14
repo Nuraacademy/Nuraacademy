@@ -10,14 +10,14 @@ export default async function CreateGroupPage({ params }: { params: Promise<{ id
 
     if (!classData) return notFound();
 
-    // We need both the group summary and the individual learner status (to allow re-assigning)
-    const groupsMap = await getClassGroupsSummary(classId);
+    // Use getLearnerCourseStatus to get identifying details (enrollmentId) and current groupings
+    const statusData = await getLearnerCourseStatus(classId);
 
     return (
         <CreateGroupClient
             classId={classId}
             classTitle={classData.title}
-            groups={groupsMap}
+            learners={statusData.learners}
         />
     );
 }
