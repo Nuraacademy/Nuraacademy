@@ -78,16 +78,6 @@ export default async function ViewGroupPage({ params }: { params: Promise<{ id: 
                                         {group.members.length === 0 && <span className="text-gray-400 italic">No members assigned yet.</span>}
                                     </div>
                                 </div>
-                                <div className="col-span-2 text-right">
-                                    {canManageGroups && (
-                                        <Link
-                                            href={`/classes/${classId}/placement/learner-group`}
-                                            className="text-[#00524D] text-sm font-bold hover:underline"
-                                        >
-                                            Edit
-                                        </Link>
-                                    )}
-                                </div>
                             </div>
                         ))}
                         {groups.length === 0 && (
