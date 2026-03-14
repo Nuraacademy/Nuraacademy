@@ -39,7 +39,7 @@ This document tracks the implementation status of all the privileges seeded into
 | Resource | Action | Description | Status |
 | :--- | :--- | :--- | :--- |
 | Assignment | `CREATE_UPDATE_ASSIGNMENT` | Create/ update assignment | 🟢 Implemented |
-| Assignment | `PRE_POST_TEST` | Pre-post test | 🔴 Not Implemented (Feature Missing) (Feature Missing) |
+| Assignment | `PRE_POST_TEST` | Pre-post test | 🟢 Implemented |
 | Assignment | `COURSE_ASSIGNMENT` | Course assignment | 🔴 Not Implemented (Feature Missing) |
 | Assignment | `EXERCISES` | Exercises | 🔴 Not Implemented (Feature Missing) |
 | Assignment | `FINAL_PROJECT` | Final project | 🔴 Not Implemented (Feature Missing) |

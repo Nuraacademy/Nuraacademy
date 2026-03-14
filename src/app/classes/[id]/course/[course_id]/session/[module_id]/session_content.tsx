@@ -160,23 +160,46 @@ export default function SessionContent({
             {renderContent()}
 
             {/* Footer Buttons */}
-            <div className="flex justify-center gap-4 mt-6">
-                <NuraButton
-                    label="Pre-test"
-                    variant="primary"
-                    className="min-w-[160px] h-10 text-sm font-bold"
-                    onClick={() => {
-                        router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/pre-test`);
-                    }}
-                />
-                <NuraButton
-                    label="Post-test"
-                    variant="primary"
-                    className="min-w-[160px] h-10 text-sm font-bold"
-                    onClick={() => {
-                        router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/post-test`);
-                    }}
-                />
+            <div className="flex flex-col items-center gap-4 mt-10">
+                <div className="flex justify-center gap-4">
+                    <div className="flex flex-col items-center gap-2">
+                        <NuraButton
+                            label="Pre-test"
+                            variant="primary"
+                            className="min-w-[160px] h-10 text-sm font-bold"
+                            onClick={() => {
+                                router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/pre-test`);
+                            }}
+                        />
+                        {isAdmin && (
+                            <button
+                                onClick={() => router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/pre-test/edit`)}
+                                className="text-[10px] font-bold text-[#005954] hover:underline uppercase tracking-wider"
+                            >
+                                Manage Pre-test
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="flex flex-col items-center gap-2">
+                        <NuraButton
+                            label="Post-test"
+                            variant="primary"
+                            className="min-w-[160px] h-10 text-sm font-bold"
+                            onClick={() => {
+                                router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/post-test`);
+                            }}
+                        />
+                        {isAdmin && (
+                            <button
+                                onClick={() => router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/post-test/edit`)}
+                                className="text-[10px] font-bold text-[#005954] hover:underline uppercase tracking-wider"
+                            >
+                                Manage Post-test
+                            </button>
+                        )}
+                    </div>
+                </div>
             </div>
         </>
     );
