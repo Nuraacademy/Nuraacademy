@@ -12,7 +12,11 @@ export async function getLearnerPlacementResults(classId: number) {
     if (!placementTest) return [];
 
     const enrollments = await prisma.enrollment.findMany({
-        where: { classId, deletedAt: null },
+        where: {
+            classId,
+            deletedAt: null,
+            user: { role: { name: 'Learner' } }
+        },
         include: {
             user: { select: { id: true, name: true, username: true } },
             assignmentResults: {
@@ -154,7 +158,11 @@ export async function getLearnerCourseStatus(classId: number) {
     });
 
     const enrollments = await prisma.enrollment.findMany({
-        where: { classId, deletedAt: null },
+        where: {
+            classId,
+            deletedAt: null,
+            user: { role: { name: 'Learner' } }
+        },
         include: {
             user: { select: { name: true, username: true } },
             assignmentResults: {
@@ -218,7 +226,11 @@ export async function updateCourseThresholds(thresholds: { courseId: number, thr
  */
 export async function getClassGroupsSummary(classId: number) {
     const enrollments = await prisma.enrollment.findMany({
-        where: { classId, deletedAt: null },
+        where: {
+            classId,
+            deletedAt: null,
+            user: { role: { name: 'Learner' } }
+        },
         include: {
             user: { select: { name: true, username: true } },
             groups: { where: { deletedAt: null } }

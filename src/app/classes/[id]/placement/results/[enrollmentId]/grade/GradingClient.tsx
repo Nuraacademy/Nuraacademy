@@ -38,10 +38,28 @@ export default function GradingClient({
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleScoreChange = (resultItemId: number, value: string, maxScore: number) => {
+        // Validation happens reactively based on the scores state
+        if (value === "") {
+            setScores(prev => {
+                const next = { ...prev };
+                delete next[resultItemId];
+                return next;
+            });
+            return;
+        }
+
         const numValue = parseFloat(value);
         if (isNaN(numValue)) return;
-        if (numValue < 0 || numValue > maxScore) return;
+
+        // Allow values for validation feedback (handled in UI via getValidationError)
         setScores(prev => ({ ...prev, [resultItemId]: numValue }));
+    };
+
+    const getValidationError = (score: number | undefined, maxScore: number) => {
+        if (score === undefined || score === null) return "Score is required";
+        if (score < 0) return "Cannot be negative";
+        if (score > maxScore) return `Max is ${maxScore}`;
+        return null;
     };
 
     const calculateCurrentTotal = () => {
@@ -61,6 +79,17 @@ export default function GradingClient({
         .reduce((acc, item) => acc + (item.maxScore || 0), 0);
 
     const onSubmit = async () => {
+        // Validation before submission
+        const allScorableItems = [...initialData.essay, ...initialData.project];
+        const hasErrors = allScorableItems.some(item =>
+            getValidationError(scores[item.resultItemId], item.maxScore) !== null
+        );
+
+        if (hasErrors) {
+            toast.error("Please correct all validation errors before submitting.");
+            return;
+        }
+
         setIsSubmitting(true);
         const res = await submitGradingAction(classId, initialData.id, scores);
         setIsSubmitting(false);
@@ -155,8 +184,8 @@ export default function GradingClient({
                                     {initialData.essay.map((item, idx) => (
                                         <tr key={item.id} className="border-b border-gray-100 last:border-0">
                                             <td className="px-6 py-5 text-sm text-gray-600 font-medium align-top">{idx + 1}</td>
-                                            <td className="px-6 py-5 text-sm text-black align-top">{item.question}</td>
-                                            <td className="px-6 py-5 text-sm text-gray-600 italic leading-relaxed whitespace-pre-wrap">{item.givenAnswer || "-"}</td>
+                                            <td className="px-6 py-5 text-sm text-black align-top" dangerouslySetInnerHTML={{ __html: item.question }} />
+                                            <td className="px-6 py-5 text-sm text-gray-600 italic leading-relaxed whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: item.givenAnswer || "-" }} />
                                             <td className="px-6 py-5 text-right align-top">
                                                 <div className="flex items-center justify-end gap-2">
                                                     <input
@@ -164,11 +193,22 @@ export default function GradingClient({
                                                         value={scores[item.resultItemId] ?? ""}
                                                         placeholder="Score"
                                                         onChange={(e) => handleScoreChange(item.resultItemId, e.target.value, item.maxScore)}
-                                                        className="w-16 border-b border-gray-300 text-right text-sm focus:border-[#00524D] outline-none font-bold"
+                                                        className={`w-16 border-b text-right text-sm focus:border-[#00524D] outline-none font-bold transition-colors ${getValidationError(scores[item.resultItemId], item.maxScore)
+                                                                ? "border-red-500 text-red-600"
+                                                                : "border-gray-300 text-black"
+                                                            }`}
                                                     />
                                                     <span className="text-gray-400 text-sm font-medium">/{item.maxScore}</span>
-                                                    <Pencil size={14} className="text-gray-300" />
+                                                    <Pencil
+                                                        size={14}
+                                                        className={getValidationError(scores[item.resultItemId], item.maxScore) ? "text-red-400" : "text-gray-300"}
+                                                    />
                                                 </div>
+                                                {getValidationError(scores[item.resultItemId], item.maxScore) && (
+                                                    <p className="text-[10px] text-red-500 mt-1 font-medium italic">
+                                                        {getValidationError(scores[item.resultItemId], item.maxScore)}
+                                                    </p>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}
@@ -200,7 +240,7 @@ export default function GradingClient({
                                     {initialData.project.map((item, idx) => (
                                         <tr key={item.id} className="border-b border-gray-100 last:border-0">
                                             <td className="px-6 py-5 text-sm text-gray-600 font-medium align-top">{idx + 1}</td>
-                                            <td className="px-6 py-5 text-sm text-black align-top">{item.question}</td>
+                                            <td className="px-6 py-5 text-sm text-black align-top" dangerouslySetInnerHTML={{ __html: item.question }} />
                                             <td className="px-6 py-5 text-sm align-top">
                                                 <div className="space-y-2">
                                                     {(item.answerFiles as string[] || []).map((file, fIdx) => (
