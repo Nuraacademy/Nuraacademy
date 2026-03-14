@@ -150,7 +150,7 @@ export async function getLearnerCourseStatus(classId: number) {
         include: { assignmentItems: { where: { deletedAt: null } } },
     });
 
-    if (!placementTest) return { learners: [], courses: [] };
+    if (!placementTest) return { learners: [], courses: [], groups: [] };
 
     const courses = await prisma.course.findMany({
         where: { classId, deletedAt: null },
@@ -203,9 +203,12 @@ export async function getLearnerCourseStatus(classId: number) {
         };
     });
 
+    const groups = Array.from(new Set(enrollments.flatMap(e => e.groups.map(g => g.name)).filter(Boolean))) as string[];
+
     return {
         learners: learnersStatus,
         courses: courses.map(c => ({ id: c.id, title: c.title, threshold: (c as any).threshold })),
+        groups,
     };
 }
 
