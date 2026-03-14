@@ -140,8 +140,14 @@ export default function EditSessionForm({
                 }
             }
 
-            if (zoomUrl) {
-                newContent.zoom = { url: zoomUrl, status: zoomStatus };
+            // Handle Zoom / Synchronous Settings
+            if (isSynchronous) {
+                newContent.zoom = {
+                    ...initialContent?.zoom,
+                    url: zoomUrl,
+                    status: zoomStatus,
+                    startTime: scheduleDate ? scheduleDate.toISOString() : initialContent?.zoom?.startTime
+                };
             } else {
                 delete newContent.zoom;
             }
