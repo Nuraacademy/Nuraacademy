@@ -65,7 +65,7 @@ export default async function PlacementTestPage({
       return {
         courseId: id,
         courseTitle: stats.title,
-        status: stats.scored > threshold ? "Pass" : "Not Pass"
+        status: stats.scored >= threshold ? "Pass" : "Not Pass"
       };
     });
   }

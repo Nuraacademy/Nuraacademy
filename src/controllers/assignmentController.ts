@@ -260,18 +260,40 @@ export async function submitAssignment(assignmentId: number, enrollmentId: numbe
     });
 }
 
-export async function createAssignment(data: Prisma.AssignmentCreateInput, items: Prisma.AssignmentItemCreateWithoutAssignmentInput[]) {
-    return await prisma.assignment.create({
-        data: {
-            ...data,
-            assignmentItems: {
-                create: items
+export async function createAssignment(
+    data: Prisma.AssignmentCreateInput,
+    items: Prisma.AssignmentItemCreateWithoutAssignmentInput[],
+    thresholds?: { courseId: number, threshold: number }[]
+) {
+    return await prisma.$transaction(async (tx) => {
+        const assignment = await tx.assignment.create({
+            data: {
+                ...data,
+                assignmentItems: {
+                    create: items
+                }
+            }
+        });
+
+        if (thresholds && thresholds.length > 0) {
+            for (const { courseId, threshold } of thresholds) {
+                await tx.course.update({
+                    where: { id: courseId },
+                    data: { threshold }
+                });
             }
         }
+
+        return assignment;
     });
 }
 
-export async function updateAssignment(assignmentId: number, data: Prisma.AssignmentUpdateInput, items: Prisma.AssignmentItemCreateWithoutAssignmentInput[]) {
+export async function updateAssignment(
+    assignmentId: number,
+    data: Prisma.AssignmentUpdateInput,
+    items: Prisma.AssignmentItemCreateWithoutAssignmentInput[],
+    thresholds?: { courseId: number, threshold: number }[]
+) {
     return await prisma.$transaction(async (tx) => {
         // 1. Soft-delete existing assignment items
         await tx.assignmentItem.updateMany({
@@ -280,7 +302,7 @@ export async function updateAssignment(assignmentId: number, data: Prisma.Assign
         });
 
         // 2. Update the assignment and create new items
-        return await tx.assignment.update({
+        const updated = await tx.assignment.update({
             where: { id: assignmentId },
             data: {
                 ...data,
@@ -289,6 +311,17 @@ export async function updateAssignment(assignmentId: number, data: Prisma.Assign
                 }
             }
         });
+
+        if (thresholds && thresholds.length > 0) {
+            for (const { courseId, threshold } of thresholds) {
+                await tx.course.update({
+                    where: { id: courseId },
+                    data: { threshold }
+                });
+            }
+        }
+
+        return updated;
     });
 }
 

@@ -238,6 +238,9 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
     // Per-course saved questions
     const [courseData, setCourseData] = useState<Record<string, CourseQuestions>>({});
 
+    // Per-course thresholds
+    const [thresholds, setThresholds] = useState<Record<string, number>>({});
+
     // Editor state
     const [objectiveQuestions, setObjectiveQuestions] = useState<ObjectiveQuestion[]>([]);
     const [essayQuestions, setEssayQuestions] = useState<EssayQuestion[]>([]);
@@ -271,10 +274,18 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
             }
 
             const initialCourseData: Record<string, CourseQuestions> = {};
+            const initialThresholds: Record<string, number> = {};
+
             if (existingTest.assignmentItems) {
                 existingTest.assignmentItems.forEach((item: any) => {
                     const cid = item.courseId;
                     if (!cid) return;
+
+                    // Initialize threshold from course if not set
+                    if (item.course && item.course.threshold !== undefined && !initialThresholds[cid]) {
+                        initialThresholds[cid] = item.course.threshold;
+                    }
+
                     if (!initialCourseData[cid]) {
                         initialCourseData[cid] = { objective: [], essay: [], project: [], saved: true };
                     }
@@ -306,6 +317,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                 });
             }
             setCourseData(initialCourseData);
+            setThresholds(initialThresholds);
         }
     }, [existingTest]);
 
@@ -375,6 +387,20 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                 saved: true,
             },
         }));
+
+        // Calculate and set default threshold (80%) if not already set or if it was 0
+        const currentMax = objectiveQuestions.reduce((a, b) => a + b.score, 0) +
+            essayQuestions.reduce((a, b) => a + b.score, 0) +
+            projectQuestions.reduce((a, b) => a + b.score, 0);
+
+        setThresholds(prev => {
+            const existing = prev[selectedCourse!.id];
+            if (existing === undefined || existing === 0) {
+                return { ...prev, [selectedCourse!.id]: Math.round(currentMax * 0.8) };
+            }
+            return prev;
+        });
+
         showModal({
             open: true,
             type: "success",
@@ -456,11 +482,16 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
             });
         });
 
+        const thresholdsPayload = Object.entries(thresholds).map(([courseId, value]) => ({
+            courseId: parseInt(courseId),
+            threshold: value
+        }));
+
         let res;
         if (existingTest) {
-            res = await editAssignment(existingTest.id, payload, itemsPayload);
+            res = await editAssignment(existingTest.id, payload, itemsPayload, thresholdsPayload);
         } else {
-            res = await addAssignment(payload, itemsPayload);
+            res = await addAssignment(payload, itemsPayload, thresholdsPayload);
         }
         setIsSubmitting(false);
 
@@ -573,29 +604,39 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                         <div className="bg-[#F2F5DC] rounded-[2rem] p-5 space-y-3 mb-10">
                             {classData.courses?.map((course: any) => {
                                 const saved = courseData[course.id]?.saved;
+                                const courseMax = saved
+                                    ? courseData[course.id].objective.reduce((a, b) => a + b.score, 0) +
+                                    courseData[course.id].essay.reduce((a, b) => a + b.score, 0) +
+                                    courseData[course.id].project.reduce((a, b) => a + b.score, 0)
+                                    : 0;
                                 const totalQ = saved
                                     ? courseData[course.id].objective.length +
                                     courseData[course.id].essay.length +
                                     courseData[course.id].project.length
                                     : 0;
+
                                 return (
                                     <div key={course.id} className={`bg-white rounded-2xl px-5 py-3.5 flex items-center justify-between shadow-sm transition-all ${saved ? "ring-2 ring-[#D9F55C]/60" : ""}`}>
                                         <div className="flex items-center gap-3">
                                             {saved && <CheckCircle size={16} className="text-green-500 shrink-0" />}
-                                            <div>
-                                                <span className="text-sm text-gray-800">{course.title}</span>
+                                            <div className="flex flex-col">
+                                                <span className="text-sm font-semibold text-gray-800">{course.title}</span>
                                                 {saved && (
-                                                    <p className="text-xs text-gray-400 mt-0.5">
+                                                    <p className="text-[10px] text-gray-400 mt-0.5">
                                                         {totalQ} question{totalQ !== 1 ? "s" : ""} added
                                                     </p>
                                                 )}
                                             </div>
                                         </div>
-                                        <NuraButton
-                                            label={saved ? "Edit" : "Add Item"}
-                                            variant="primary"
-                                            onClick={() => handleAddItem(course)}
-                                        />
+
+                                        <div className="flex items-center gap-6">
+                                            <NuraButton
+                                                label={saved ? "Edit" : "Add Item"}
+                                                variant={saved ? "secondary" : "primary"}
+                                                className={saved ? "!h-10 !min-w-[80px] !text-sm" : "!h-10 !min-w-[120px] !text-sm"}
+                                                onClick={() => handleAddItem(course)}
+                                            />
+                                        </div>
                                     </div>
                                 );
                             })}
@@ -615,12 +656,47 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                         <Breadcrumb items={[...breadcrumbBase, { label: selectedCourse.title, href: "#" }]} />
                         <h1 className="text-2xl font-bold mt-6 mb-6">{existingTest ? "Edit Test" : "Create Test"}</h1>
 
-                        {/* Course Title (read-only) */}
-                        <div className="mb-6">
-                            <label className="block text-sm font-semibold mb-1">Course Title</label>
-                            <div className="w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-700">
-                                {selectedCourse.title}
+                        {/* Course Title & Passing Grade */}
+                        <div className="grid grid-cols-1 md:grid-cols-[1fr_240px] gap-6 mb-8">
+                            <div>
+                                <label className="block text-sm font-semibold mb-1">Course Title</label>
+                                <div className="w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-700">
+                                    {selectedCourse.title}
+                                </div>
                             </div>
+
+                            {(() => {
+                                const currentMax = objectiveQuestions.reduce((a, b) => a + b.score, 0) +
+                                    essayQuestions.reduce((a, b) => a + b.score, 0) +
+                                    projectQuestions.reduce((a, b) => a + b.score, 0);
+                                const threshold = thresholds[selectedCourse.id] ?? 0;
+                                const isError = threshold < 0 || threshold > currentMax;
+
+                                return (
+                                    <div className="flex flex-col">
+                                        <label className="block text-sm font-semibold mb-1">Passing Grade</label>
+                                        <div className={`flex items-center gap-2 border-b-2 transition-colors pb-1.5 ${isError ? "border-red-500" : "border-gray-200 focus-within:border-[#D9F55C]"}`}>
+                                            <input
+                                                type="number"
+                                                value={thresholds[selectedCourse.id] ?? ""}
+                                                onChange={(e) => {
+                                                    const val = parseFloat(e.target.value);
+                                                    setThresholds(prev => ({ ...prev, [selectedCourse.id]: isNaN(val) ? 0 : val }));
+                                                }}
+                                                className="flex-1 text-right text-base font-bold text-black outline-none bg-transparent"
+                                                placeholder="e.g. 80"
+                                            />
+                                            <span className="text-gray-400 text-sm font-medium shrink-0">/ {currentMax}</span>
+                                        </div>
+                                        {threshold > currentMax && (
+                                            <span className="text-[10px] text-red-500 font-bold mt-1 italic">Cannot exceed max score ({currentMax})</span>
+                                        )}
+                                        {threshold < 0 && (
+                                            <span className="text-[10px] text-red-500 font-bold mt-1 italic">Cannot be negative</span>
+                                        )}
+                                    </div>
+                                );
+                            })()}
                         </div>
 
                         {/* ── Objective Questions ── */}
