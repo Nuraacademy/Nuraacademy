@@ -2,6 +2,7 @@ import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import { getCourseById } from "@/controllers/courseController";
 import { notFound } from "next/navigation";
 import CourseSessionLink from "./course_session_links";
+import CourseAssignmentLink from "./course_assignment_link";
 import AddSessionButton from "./add_session_button";
 import { hasPermission } from "@/lib/rbac";
 
@@ -143,6 +144,7 @@ export default async function CourseOverviewPage({
 
                     {/* Sessions & Assignments */}
                     <div className="flex flex-col gap-6 pt-8">
+                        {/* Sessions */}
                         {course.sessions?.map((session) => (
                             <CourseSessionLink
                                 key={session.id}
@@ -156,8 +158,18 @@ export default async function CourseOverviewPage({
                                 isAdmin={canUpdateSession}
                             />
                         ))}
-                        {(!course.sessions || course.sessions.length === 0) && (
-                            <p className="text-sm text-gray-500 italic">No sessions added yet.</p>
+
+                        {/* Course-level assignments (ASSIGNMENT / EXERCISE) */}
+                        {(course as any).assignments?.map((assignment: any) => (
+                            <CourseAssignmentLink
+                                key={`a-${assignment.id}`}
+                                assignment={assignment}
+                                isAdmin={canUpdateSession}
+                            />
+                        ))}
+
+                        {(!course.sessions || course.sessions.length === 0) && (!(course as any).assignments || (course as any).assignments.length === 0) && (
+                            <p className="text-sm text-gray-500 italic">No sessions or assignments added yet.</p>
                         )}
 
                         {canCreateSession && (

@@ -34,6 +34,15 @@ export async function getCourseById(id: number) {
                     assignments: { where: { deletedAt: null } },
                 },
             },
+            // Course-level assignments (ASSIGNMENT, EXERCISE) — no session attached
+            assignments: {
+                where: {
+                    deletedAt: null,
+                    sessionId: null,
+                    type: { in: ['ASSIGNMENT', 'EXERCISE'] },
+                },
+                orderBy: { createdAt: 'asc' },
+            },
         },
     });
 }

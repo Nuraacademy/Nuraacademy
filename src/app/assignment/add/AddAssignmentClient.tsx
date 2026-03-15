@@ -104,8 +104,8 @@ export function AddAssignmentClient({ classes }: { classes: any[] }) {
     const isSessionLevel = assignmentType === "PRETEST" || assignmentType === "POSTTEST";
     const courseEnabled = isCourseLevel || isSessionLevel;
     const sessionEnabled = isSessionLevel;
-    // ASSIGNMENT and PROJECT support group/individual submission
-    const hasSubmissionType = assignmentType === "ASSIGNMENT" || assignmentType === "PROJECT";
+    // ASSIGNMENT, EXERCISE and PROJECT support group/individual submission
+    const hasSubmissionType = assignmentType === "ASSIGNMENT" || assignmentType === "PROJECT" || assignmentType === "EXERCISE";
 
     // ── Hierarchical handlers ────────────────────────────────────────────────
 
