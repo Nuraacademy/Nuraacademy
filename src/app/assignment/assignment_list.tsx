@@ -13,9 +13,10 @@ import Link from "next/link";
 interface AssignmentListProps {
     initialAssignments: any[];
     canAddAssignment: boolean;
+    canDeleteAssignment: boolean;
 }
 
-export default function AssignmentList({ initialAssignments, canAddAssignment }: AssignmentListProps) {
+export default function AssignmentList({ initialAssignments, canAddAssignment, canDeleteAssignment }: AssignmentListProps) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [searchValue, setSearchValue] = useState("");
     const [assignmentType, setAssignmentType] = useState("all");
@@ -98,6 +99,7 @@ export default function AssignmentList({ initialAssignments, canAddAssignment }:
                             classTitle={assignment.class?.title || "Unknown Class"}
                             courseTitle={assignment.course?.title}
                             type={mapPrismaAssignmentType(assignment.type)}
+                            isAdmin={canDeleteAssignment}
                         />
                     ))}
                     {filteredAssignments.length === 0 && (

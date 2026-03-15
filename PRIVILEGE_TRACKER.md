@@ -42,7 +42,7 @@ This document tracks the implementation status of all the privileges seeded into
 | Assignment | `PRE_POST_TEST` | Pre-post test | 🟢 Implemented |
 | Assignment | `SEARCH_VIEW_ASSIGNMENT` | Search & view assignment | 🟢 Implemented |
 | Assignment | `DELETE_ASSIGNMENT` | Delete assignment | 🟢 Implemented |
-| Assignment | `START_ASSIGNMENT_INSTRUCTOR` | Start assignment (instructur/ trainer) | 🔴 Not Implemented (Feature Missing) |
+| Assignment | `START_ASSIGNMENT_INSTRUCTOR` | Start assignment (instructur/ trainer) | 🟢 Implemented |
 | Assignment | `START_ASSIGNMENT_LEARNER` | Start assignment (learner) | 🟢 Implemented |
 | Assignment | `VIEW_ASSIGNMENT_RESULT` | View assignment result | 🟢 Implemented |
 | Assignment | `CHECK_ASSIGNMENT_RESULT` | Check assignment result | 🟢 Implemented |

@@ -1,7 +1,11 @@
 "use client"
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAssignmentIcon, getAssignmentEndpoint, AssignmentType } from "@/utils/assignment";
+import { ConfirmModal } from "@/components/ui/modal/confirmation_modal";
+import { toast } from "sonner";
+import { removeAssignment } from "@/app/actions/assignment";
 
 interface AssignmentCardProps {
     id?: number;
@@ -14,6 +18,7 @@ interface AssignmentCardProps {
     classTitle?: string;
     courseTitle?: string;
     className?: string;
+    isAdmin?: boolean;
 }
 
 export const AssignmentCard = ({
@@ -26,9 +31,26 @@ export const AssignmentCard = ({
     type,
     classTitle = "",
     courseTitle = "",
-    className = ""
+    className = "",
+    isAdmin = false
 }: AssignmentCardProps) => {
     const router = useRouter();
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+
+    const handleDelete = async () => {
+        if (!id) return;
+        setIsDeleting(true);
+        const result = await removeAssignment(id, parseInt(classId), courseId ? parseInt(courseId) : undefined);
+        setIsDeleting(false);
+        setIsConfirmOpen(false);
+
+        if (result.success) {
+            toast.success("Assignment deleted successfully");
+        } else {
+            toast.error(result.error || "Failed to delete assignment");
+        }
+    };
 
     const handleClick = () => {
         if (id && type !== "Placement") {
@@ -39,11 +61,13 @@ export const AssignmentCard = ({
     };
 
     return (
+        <>
         <div
-            className={`flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-md cursor-pointer ${className}`}
+            className={`flex items-center justify-between gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-gray-400 hover:shadow-md cursor-pointer group relative ${className}`}
             onClick={handleClick}
         >
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center">
+            <div className="flex flex-1 items-center gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center">
                 <img src={getAssignmentIcon(type)} alt={title} className="h-12 w-12" />
             </div>
             <div className="flex flex-col gap-0.5 w-full">
@@ -53,10 +77,46 @@ export const AssignmentCard = ({
                         {tag}
                     </span>
                 </div>
-                <p className="text-base text-gray-700">
-                    {classTitle} {courseTitle && <><span className="mx-2 text-gray-400">|</span> {courseTitle}</>}
-                </p>
+                    <p className="text-base text-gray-700">
+                        {classTitle} {courseTitle && <><span className="mx-2 text-gray-400">|</span> {courseTitle}</>}
+                    </p>
+                </div>
             </div>
+            
+            {isAdmin && id && (
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                        className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-red-500"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setIsConfirmOpen(true);
+                        }}
+                        disabled={isDeleting}
+                    >
+                        <img src="/icons/Delete.svg" alt="Delete" className="w-5 h-5" />
+                    </button>
+                    <button
+                        className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-gray-900"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/assignment/add?id=${id}`);
+                        }}
+                    >
+                        <img src="/icons/Edit.svg" alt="Edit" className="w-5 h-5" />
+                    </button>
+                </div>
+            )}
         </div>
+
+        <ConfirmModal
+            isOpen={isConfirmOpen}
+            title="Delete Assignment"
+            message={`Are you sure you want to delete "${title}"? This action cannot be undone.`}
+            confirmText="Delete"
+            onConfirm={handleDelete}
+            onCancel={() => setIsConfirmOpen(false)}
+            isLoading={isDeleting}
+        />
+        </>
     );
 };

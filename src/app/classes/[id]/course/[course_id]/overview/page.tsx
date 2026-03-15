@@ -163,6 +163,8 @@ export default async function CourseOverviewPage({
                         {(course as any).assignments?.map((assignment: any) => (
                             <CourseAssignmentLink
                                 key={`a-${assignment.id}`}
+                                classId={classId}
+                                courseId={courseId}
                                 assignment={assignment}
                                 isAdmin={canUpdateSession}
                             />

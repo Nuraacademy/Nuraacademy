@@ -7,6 +7,7 @@ import WelcomingModal from "@/components/ui/modal/welcoming_modal"
 import { ConfirmModal } from "@/components/ui/modal/confirmation_modal"
 import { toast } from "sonner"
 import { deleteCourseAction } from "@/app/actions/course"
+import { removeAssignment } from "@/app/actions/assignment"
 
 export function SuccessHandler({ classId, timelines }: { classId: string, timelines: any[] }) {
     const searchParams = useSearchParams()
@@ -184,13 +185,29 @@ export function CourseCard({ classId, course, isAdmin }: { classId: string, cour
 
 export function ProjectCard({ classId, assignment, isAdmin }: { classId: string, assignment: any, isAdmin: boolean }) {
     const router = useRouter()
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
     const submissionLabel = assignment.submissionType === "GROUP" ? "Group" : "Individual"
     const submissionColor = assignment.submissionType === "GROUP"
         ? "bg-purple-50 text-purple-700 border border-purple-200"
         : "bg-blue-50 text-blue-700 border border-blue-200"
 
+    const handleDelete = async () => {
+        setIsDeleting(true);
+        const result = await removeAssignment(assignment.id, parseInt(classId), assignment.courseId);
+        setIsDeleting(false);
+        setIsConfirmOpen(false);
+
+        if (result.success) {
+            toast.success("Assignment deleted successfully");
+        } else {
+            toast.error(result.error || "Failed to delete assignment");
+        }
+    };
+
     return (
+        <>
         <div
             className="border border-gray-200 rounded-[1.5rem] p-5 hover:border-gray-400 hover:shadow-sm transition-all duration-200 cursor-pointer group relative"
             onClick={() => router.push(`/assignment/${assignment.id}`)}
@@ -215,6 +232,16 @@ export function ProjectCard({ classId, assignment, isAdmin }: { classId: string,
                 {isAdmin && (
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
+                            className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-red-500"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIsConfirmOpen(true);
+                            }}
+                            disabled={isDeleting}
+                        >
+                            <img src="/icons/Delete.svg" alt="Delete" className="w-5 h-5" />
+                        </button>
+                        <button
                             className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-gray-900"
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -227,6 +254,17 @@ export function ProjectCard({ classId, assignment, isAdmin }: { classId: string,
                 )}
             </div>
         </div>
+
+        <ConfirmModal
+            isOpen={isConfirmOpen}
+            title="Delete Assignment"
+            message={`Are you sure you want to delete "${assignment.title}"? This action cannot be undone.`}
+            confirmText="Delete"
+            onConfirm={handleDelete}
+            onCancel={() => setIsConfirmOpen(false)}
+            isLoading={isDeleting}
+        />
+        </>
     )
 }
 
