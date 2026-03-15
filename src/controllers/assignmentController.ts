@@ -14,7 +14,39 @@ export async function getAssignmentsBySessionId(sessionId: number, type?: Assign
     });
 }
 
-export async function getAssignments() {
+export async function getAssignments(userId?: number) {
+    if (userId) {
+        // Fetch user's enrollments to know which classes they are in
+        const enrollments = await prisma.enrollment.findMany({
+            where: { userId, deletedAt: null },
+            select: { classId: true }
+        });
+        const enrolledClassIds = enrollments.map(e => e.classId);
+
+        // Fetch assignments for those classes, excluding those finished by the user
+        return await prisma.assignment.findMany({
+            where: {
+                classId: { in: enrolledClassIds },
+                deletedAt: null,
+                // Check for results where this user hasn't finished
+                NOT: {
+                    assignmentResults: {
+                        some: {
+                            enrollment: { userId: userId },
+                            finishedAt: { not: null }
+                        }
+                    }
+                }
+            },
+            include: {
+                class: { select: { title: true } },
+                course: { select: { title: true } },
+            },
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+
+    // Default admin/instructor view (fetch all)
     return await prisma.assignment.findMany({
         where: {
             deletedAt: null,

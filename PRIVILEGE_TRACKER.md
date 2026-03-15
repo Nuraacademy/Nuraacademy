@@ -40,10 +40,7 @@ This document tracks the implementation status of all the privileges seeded into
 | :--- | :--- | :--- | :--- |
 | Assignment | `CREATE_UPDATE_ASSIGNMENT` | Create/ update assignment | 🟢 Implemented |
 | Assignment | `PRE_POST_TEST` | Pre-post test | 🟢 Implemented |
-| Assignment | `COURSE_ASSIGNMENT` | Course assignment | 🔴 Not Implemented (Feature Missing) |
-| Assignment | `EXERCISES` | Exercises | 🔴 Not Implemented (Feature Missing) |
-| Assignment | `FINAL_PROJECT` | Final project | 🔴 Not Implemented (Feature Missing) |
-| Assignment | `SEARCH_VIEW_ASSIGNMENT` | Search & view assignment | 🔴 Not Implemented (Feature Missing) |
+| Assignment | `SEARCH_VIEW_ASSIGNMENT` | Search & view assignment | 🟢 Implemented |
 | Assignment | `DELETE_ASSIGNMENT` | Delete assignment | 🟢 Implemented |
 | Assignment | `START_ASSIGNMENT_INSTRUCTOR` | Start assignment (instructur/ trainer) | 🔴 Not Implemented (Feature Missing) |
 | Assignment | `START_ASSIGNMENT_LEARNER` | Start assignment (learner) | 🟢 Implemented |

@@ -51,6 +51,7 @@ export function AddAssignmentClient({ classes }: { classes: any[] }) {
     // Overview fields
     const [title, setTitle] = useState("");
     const [assignmentType, setAssignmentType] = useState("");
+    const [submissionType, setSubmissionType] = useState<"INDIVIDUAL" | "GROUP">("INDIVIDUAL");
     const [selectedClassId, setSelectedClassId] = useState<number | null>(null);
     const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
     const [selectedSessionId, setSelectedSessionId] = useState<number | null>(null);
@@ -103,6 +104,8 @@ export function AddAssignmentClient({ classes }: { classes: any[] }) {
     const isSessionLevel = assignmentType === "PRETEST" || assignmentType === "POSTTEST";
     const courseEnabled = isCourseLevel || isSessionLevel;
     const sessionEnabled = isSessionLevel;
+    // ASSIGNMENT and PROJECT support group/individual submission
+    const hasSubmissionType = assignmentType === "ASSIGNMENT" || assignmentType === "PROJECT";
 
     // ── Hierarchical handlers ────────────────────────────────────────────────
 
@@ -156,6 +159,9 @@ export function AddAssignmentClient({ classes }: { classes: any[] }) {
         setSimpleProject([]);
         setOverviewErrors({});
 
+        // Reset submission type on type change
+        setSubmissionType("INDIVIDUAL");
+
         if (selectedClassId) {
             triggerExistingCheck(val, selectedClassId, selectedCourseId, selectedSessionId);
         }
@@ -185,6 +191,7 @@ export function AddAssignmentClient({ classes }: { classes: any[] }) {
     const loadExistingTest = (test: any, classCourses: any[]) => {
         setExistingTestId(test.id);
         setTitle(test.title || "");
+        setSubmissionType(test.submissionType === "GROUP" ? "GROUP" : "INDIVIDUAL");
         setStartDate(test.startDate ? new Date(test.startDate) : null);
         if (test.startDate) {
             const d = new Date(test.startDate);
@@ -396,6 +403,7 @@ export function AddAssignmentClient({ classes }: { classes: any[] }) {
             courseId: isClassLevel ? null : selectedCourseId,
             sessionId: sessionEnabled ? selectedSessionId : null,
             type: assignmentType,
+            submissionType: hasSubmissionType ? submissionType : null,
             startDate: start,
         };
 
@@ -519,9 +527,8 @@ export function AddAssignmentClient({ classes }: { classes: any[] }) {
                             />
                         </div>
 
-                        {/* ── Row 2: Type + Class + Course + Session ── */}
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mb-8">
-                            {/* Type */}
+                        {/* ── Row 2: Type + Submission + Class + Course + Session ── */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end mb-8">
                             <div>
                                 <label className="block text-sm font-semibold mb-1">Type</label>
                                 <NuraSelect
@@ -540,6 +547,30 @@ export function AddAssignmentClient({ classes }: { classes: any[] }) {
                                 {overviewErrors.type && <p className="text-orange-500 text-xs mt-1">{overviewErrors.type}</p>}
                             </div>
 
+                            {/* Submission Type — only for ASSIGNMENT / PROJECT */}
+                            <div>
+                                <label className={`block text-sm font-semibold mb-1 ${!hasSubmissionType ? "text-gray-300" : ""}`}>
+                                    Submission
+                                </label>
+                                <div className={`flex rounded-full border overflow-hidden h-[42px] text-sm font-medium transition-opacity ${!hasSubmissionType ? "opacity-30 pointer-events-none border-gray-200" : "border-gray-300"}`}>
+                                    <button
+                                        type="button"
+                                        onClick={() => setSubmissionType("INDIVIDUAL")}
+                                        className={`flex-1 px-4 transition-colors ${submissionType === "INDIVIDUAL" ? "bg-black text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}
+                                    >
+                                        Individual
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setSubmissionType("GROUP")}
+                                        className={`flex-1 px-4 transition-colors border-l ${submissionType === "GROUP" ? "bg-black text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}
+                                    >
+                                        Group
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end mb-8">
                             {/* Class */}
                             <div>
                                 <label className="block text-sm font-semibold mb-1">Class</label>
