@@ -2,11 +2,12 @@
 
 import ClassCard from "@/components/ui/card/class_card"
 import { NuraTextInput } from "@/components/ui/input/text_input"
+import { NuraButton } from "@/components/ui/button/button"
 import { Search } from "lucide-react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 
-export default function ClassesGrid({ initialClasses }: { initialClasses: any[] }) {
+export default function ClassesGrid({ initialClasses, canCreate, canDelete }: { initialClasses: any[], canCreate?: boolean, canDelete?: boolean }) {
     const [searchValue, setSearchValue] = useState("");
     const router = useRouter();
 
@@ -21,13 +22,23 @@ export default function ClassesGrid({ initialClasses }: { initialClasses: any[] 
                 <h1 className="text-4xl font-bold">
                     Explore Our Classes
                 </h1>
-                <div className="relative w-full md:w-64">
-                    <NuraTextInput
-                        placeholder="Search class"
-                        value={searchValue}
-                        onChange={(e) => setSearchValue(e.target.value)}
-                        icon={<Search strokeWidth={1.5} />}
-                    />
+                <div className="flex items-center gap-4 w-full md:w-auto">
+                    <div className="relative w-full md:w-64">
+                        <NuraTextInput
+                            placeholder="Search class"
+                            value={searchValue}
+                            onChange={(e) => setSearchValue(e.target.value)}
+                            icon={<Search strokeWidth={1.5} />}
+                        />
+                    </div>
+                    {canCreate && (
+                        <NuraButton
+                            label="Add Class"
+                            variant="primary"
+                            onClick={() => router.push('/classes/add')}
+                            className="shrink-0"
+                        />
+                    )}
                 </div>
             </div>
 
@@ -47,6 +58,8 @@ export default function ClassesGrid({ initialClasses }: { initialClasses: any[] 
                             courses={item.courses?.length || 0}
                             description={item.description}
                             isEnrolled={item.isEnrolled}
+                            canEdit={canCreate}
+                            canDelete={canDelete}
                             onClick={() => router.push(`/classes/${item.id}/overview`)}
                         />
                     ))

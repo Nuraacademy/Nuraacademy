@@ -5,6 +5,8 @@ import { Clock, BookText } from 'lucide-react';
 import { NuraButton } from '../button/button';
 import Chip from '../chip/chip';
 import Image from 'next/image';
+import { Pencil, Trash2 } from 'lucide-react';
+import { deleteClassAction } from '@/app/actions/classes';
 
 interface ClassCardProp {
     id: string,
@@ -17,11 +19,13 @@ interface ClassCardProp {
     duration: number,
     courses: number,
     isEnrolled: boolean,
+    canEdit?: boolean,
+    canDelete?: boolean,
     onClick: () => void
 }
 
 export default function ClassCard({
-    id, imageUrl, title, method, scheduleStart, scheduleEnd, description, duration, courses, isEnrolled, onClick
+    id, imageUrl, title, method, scheduleStart, scheduleEnd, description, duration, courses, isEnrolled, canEdit, canDelete, onClick
 }: ClassCardProp) {
     const router = useRouter()
 
@@ -53,6 +57,21 @@ export default function ClassCard({
         return <Chip label={status} variant="default" size="sm" className={style} />;
     }
 
+    const handleDelete = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (confirm("Are you sure you want to delete this class?")) {
+            const res = await deleteClassAction(Number(id));
+            if (!res.success) {
+                alert(res.error || "Failed to delete class");
+            }
+        }
+    };
+
+    const handleEdit = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        router.push(`/classes/${id}/edit`);
+    };
+
     return (
         <div
             className="flex flex-col bg-white rounded-[20px] p-5 shadow-sm border border-gray-100 w-full max-w-[400px] hover:shadow-lg transition-all duration-200 cursor-pointer"
@@ -83,7 +102,7 @@ export default function ClassCard({
                 <div className="grid grid-cols-2 text-gray-700 gap-4">
                     <div className="flex flex-col items-start text-left text-xs gap-1.5">
                         <span className="font-bold text-gray-900">Methods</span>
-                        <span className="text-gray-700">{method}</span>
+                        <div className="text-gray-700" dangerouslySetInnerHTML={{ __html: method }} />
                     </div>
                     <div className="flex flex-col items-start text-left text-xs gap-1.5">
                         <span className="font-bold text-gray-900">Schedules</span>
@@ -94,14 +113,12 @@ export default function ClassCard({
                 {/* Description */}
                 <div className="text-left text-xs text-gray-700 flex flex-col gap-1.5">
                     <span className="font-bold text-gray-900">Description</span>
-                    <p className="leading-relaxed line-clamp-4">
-                        {description}
-                    </p>
+                    <div className="leading-relaxed line-clamp-4" dangerouslySetInnerHTML={{ __html: description }} />
                 </div>
             </div>
 
             {/* Footer */}
-            <div className="grid grid-cols-2 gap-4 mt-5">
+            <div className="flex flex-row items-center justify-between gap-4 mt-5">
                 <div className="flex flex-row gap-4 items-center">
                     <div className="flex flex-row items-center gap-1.5 text-xs text-gray-600">
                         <Clock className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
@@ -112,14 +129,35 @@ export default function ClassCard({
                         <span>{courses} courses</span>
                     </div>
                 </div>
-                <NuraButton
-                    label={isEnrolled ? "View Class" : "Enroll Now"}
-                    variant="navigate"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        router.push(isEnrolled ? `/classes/${id}/overview` : `/classes/${id}/enrollment`);
-                    }}
-                />
+                <div className="flex items-center gap-2">
+                    {canDelete && (
+                        <button
+                            onClick={handleDelete}
+                            className="p-2 rounded-lg border border-gray-200 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all"
+                        >
+                            <Trash2 size={16} />
+                        </button>
+                    )}
+                    {canEdit && (
+                        <button
+                            onClick={handleEdit}
+                            className="p-2 rounded-lg bg-[#D9F55C] text-black hover:bg-[#c8e44a] transition-all"
+                        >
+                            <Pencil size={16} />
+                        </button>
+                    )}
+                    { !canEdit && (
+                        <NuraButton
+                            label={isEnrolled ? "View" : "Enroll"}
+                            variant="navigate"
+                            className="!w-fit !max-w-none !px-6 !text-sm"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(isEnrolled ? `/classes/${id}/overview` : `/classes/${id}/enrollment`);
+                            }}
+                        />
+                    )}
+                </div>
             </div>
         </div>
     );

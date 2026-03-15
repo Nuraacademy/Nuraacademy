@@ -2,8 +2,8 @@
 
 import { useRouter, usePathname } from 'next/navigation';
 import { NuraButton } from '../button/button';
-import { getSession, handleLogout } from '@/app/actions/auth';
-import { useEffect, useState } from 'react';
+import { getSession, getFullSession, handleLogout } from '@/app/actions/auth';
+import { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 
 export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedIn?: boolean }) {
@@ -11,6 +11,19 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
     const pathname = usePathname();
     const [isLoggedIn, setIsLoggedIn] = useState(initialIsLoggedIn);
     const [isLoading, setIsLoading] = useState(false);
+    const [showDropdown, setShowDropdown] = useState(false);
+    const [userData, setUserData] = useState<{ username: string; role: string; name?: string | null } | null>(null);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    const getInitials = (name?: string | null, username?: string) => {
+        const displayName = name || username || 'User';
+        return displayName
+            .split(' ')
+            .map(word => word[0])
+            .join('')
+            .toUpperCase()
+            .slice(0, 2);
+    };
 
     // Sync state with prop if it changes (e.g., after a server-side redirect/refresh)
     useEffect(() => {
@@ -19,11 +32,29 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
 
     useEffect(() => {
         const checkSession = async () => {
-            const userId = await getSession();
-            setIsLoggedIn(!!userId);
+            const session = await getSession();
+            setIsLoggedIn(!!session);
         };
         checkSession();
     }, [pathname]); // Re-check on every navigation
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setShowDropdown(false);
+            }
+        };
+
+        if (showDropdown) {
+            document.addEventListener('mousedown', handleClickOutside);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showDropdown]);
 
     const onLogout = async () => {
         await handleLogout();
@@ -96,18 +127,57 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
                                     height={24}
                                     className="cursor-pointer"
                                 />
-                                <Image
-                                    src="/icons/Profile.svg"
-                                    alt="Profile"
-                                    width={24}
-                                    height={24}
-                                    className="cursor-pointer"
-                                />
-                                <NuraButton
-                                    label="Logout"
-                                    variant="medium"
-                                    onClick={onLogout}
-                                />
+                                <div className="relative" ref={dropdownRef}>
+                                    <Image
+                                        src="/icons/Profile.svg"
+                                        alt="Profile"
+                                        width={24}
+                                        height={24}
+                                        className="cursor-pointer hover:opacity-80 transition-opacity"
+                                        onClick={async () => {
+                                            if (!showDropdown) {
+                                                const session = await getFullSession();
+                                                if (session) {
+                                                    setUserData({
+                                                        username: session.username,
+                                                        role: session.role,
+                                                        name: session.name
+                                                    });
+                                                }
+                                            }
+                                            setShowDropdown(!showDropdown);
+                                        }}
+                                    />
+                                    {showDropdown && (
+                                        <div className="absolute right-0 mt-6 w-64 bg-white rounded-xl shadow-lg border border-gray-100 py-4 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                                            <div className="px-4 pb-4 mb-3 border-b border-gray-50 flex items-center gap-3">
+                                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
+                                                    {getInitials(userData?.username, userData?.name)}
+                                                </div>
+                                                <div className="flex flex-col truncate">
+                                                    <p className="text-start text-sm font-semibold text-gray-900 truncate">
+                                                        {userData?.name || 'Username'}
+                                                    </p>
+                                                    <p className="text-start text-xs text-gray-500">
+                                                        @{userData?.username || 'Username'}
+                                                    </p>
+                                                    <p className="text-start text-xs text-gray-500">
+                                                        {userData?.role || 'Role'}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="px-2">
+                                                <button
+                                                    className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2"
+                                                    onClick={onLogout}
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                                                    Logout
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             </>
                         ) : (
                             <NuraButton

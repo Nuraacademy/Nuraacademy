@@ -2,6 +2,7 @@ import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import { getSessionById, getSessionPresence } from "@/controllers/sessionController";
 import { notFound } from "next/navigation";
 import PresenceClient from "./presence_client";
+import { hasPermission } from "@/lib/rbac";
 
 export default async function PresenceAndSESPage({
     params
@@ -10,9 +11,10 @@ export default async function PresenceAndSESPage({
 }) {
     const { id: classId, course_id: courseId, module_id: moduleId } = await params;
 
-    const [session, enrollments] = await Promise.all([
+    const [session, enrollments, canEdit] = await Promise.all([
         getSessionById(parseInt(moduleId)),
-        getSessionPresence(parseInt(moduleId))
+        getSessionPresence(parseInt(moduleId)),
+        hasPermission('Presence', 'CREATE_UPDATE_PRESENCE_SES')
     ]);
 
     if (!session) {
@@ -22,31 +24,38 @@ export default async function PresenceAndSESPage({
     const classTitle = session.course?.class?.title || "Class";
     const courseTitle = session.course?.title || "Course";
 
+    const STATUS_SCORES: Record<string, number> = {
+        "attend": 4,
+        "sick": 3,
+        "permit": 2,
+        "absent": 0
+    };
+
     const studentPresence = enrollments.map(enrollment => {
         const ses = enrollment.ses[0]; // Get the SES for this session
+        const status = ses?.status || "absent";
         return {
+            enrollmentId: enrollment.id,
             name: enrollment.user?.name || enrollment.user?.username || "Unknown",
-            status: ses ? "attend" : "absent", // Simple status for now
-            sesScore: ses?.score || 0
+            status: status,
+            sesScore: STATUS_SCORES[status] || 0
         };
     });
 
-    const col1_5Style = { gridColumn: "span 1 / span 1" }; // Standardize to 1 for simplicity or use specific widths
+    const breadcrumbItems = [
+        { label: "Home", href: "/" },
+        { label: classTitle, href: `/classes/${classId}/overview` },
+        { label: courseTitle, href: `/classes/${classId}/course/${courseId}/overview` },
+        { label: session.title, href: `/classes/${classId}/course/${courseId}/session/${moduleId}` },
+        { label: "Presence & SES", href: "" },
+    ];
 
     return (
         <main className="min-h-screen bg-[#F5F5EC] font-sans text-gray-800 pb-12">
             <div className="max-w-7xl mx-auto px-6 md:px-10 py-8">
                 {/* Breadcrumb */}
                 <div className="mb-6">
-                    <Breadcrumb
-                        items={[
-                            { label: "Home", href: "/" },
-                            { label: classTitle, href: `/classes/${classId}/overview` },
-                            { label: courseTitle, href: `/classes/${classId}/course/${courseId}/overview` },
-                            { label: session.title, href: `/classes/${classId}/course/${courseId}/session/${moduleId}` },
-                            { label: "Presence & SES", href: "" },
-                        ]}
-                    />
+                    <Breadcrumb items={breadcrumbItems} />
                 </div>
 
                 {/* Banner */}
@@ -65,65 +74,14 @@ export default async function PresenceAndSESPage({
 
                     <h3 className="text-lg font-bold text-black mb-6">Student Presence List</h3>
 
-                    {/* Presence Table */}
-                    <div className="w-full border border-black rounded-[1.5rem] overflow-hidden">
-                        {/* Table Header */}
-                        <div className="grid grid-cols-12 border-b border-black bg-white px-8 py-5">
-                            <div className="col-span-4 text-sm font-semibold text-black text-left">Name</div>
-                            <div className="col-span-1 text-sm font-semibold text-black text-center">Attend</div>
-                            <div className="col-span-1 text-sm font-semibold text-black text-center">Sick</div>
-                            <div className="col-span-1 text-sm font-semibold text-black text-center">Permit</div>
-                            <div className="col-span-1 text-sm font-semibold text-black text-center">Absent</div>
-                            <div className="col-span-4 text-sm font-semibold text-black text-right">SES Score</div>
-                        </div>
-
-                        {/* Table Rows */}
-                        {studentPresence.length > 0 ? (
-                            studentPresence.map((student, index) => (
-                                <div
-                                    key={index}
-                                    className={`grid grid-cols-12 px-8 py-5 border-black ${index !== studentPresence.length - 1 ? 'border-b' : ''} bg-white items-center`}
-                                >
-                                    <div className="col-span-4 text-sm text-black font-medium">{student.name}</div>
-
-                                    {/* Radio Buttons Simulation */}
-                                    <div className="col-span-1 flex justify-center">
-                                        <div className={`w-6 h-6 rounded-full border-2 border-black flex items-center justify-center p-1`}>
-                                            {student.status === "attend" && <div className="w-full h-full bg-black rounded-full" />}
-                                        </div>
-                                    </div>
-                                    <div className="col-span-1 flex justify-center">
-                                        <div className={`w-6 h-6 rounded-full border-2 border-black flex items-center justify-center p-1`}>
-                                            {student.status === "sick" && <div className="w-full h-full bg-black rounded-full" />}
-                                        </div>
-                                    </div>
-                                    <div className="col-span-1 flex justify-center">
-                                        <div className={`w-6 h-6 rounded-full border-2 border-black flex items-center justify-center p-1`}>
-                                            {student.status === "permit" && <div className="w-full h-full bg-black rounded-full" />}
-                                        </div>
-                                    </div>
-                                    <div className="col-span-1 flex justify-center">
-                                        <div className={`w-6 h-6 rounded-full border-2 border-black flex items-center justify-center p-1`}>
-                                            {student.status === "absent" && <div className="w-full h-full bg-black rounded-full" />}
-                                        </div>
-                                    </div>
-
-                                    <div className="col-span-4 text-sm text-black text-right pr-4">{student.sesScore}</div>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="px-8 py-5 text-center text-gray-500">No students enrolled in this class.</div>
-                        )}
-                    </div>
-
-                    {/* Navigation Buttons */}
-                    <div className="mt-12 flex justify-center">
-                        <PresenceClient
-                            classId={classId}
-                            courseId={courseId}
-                            moduleId={moduleId}
-                        />
-                    </div>
+                    {/* Interactive Table via Client Component */}
+                    <PresenceClient
+                        classId={classId}
+                        courseId={courseId}
+                        moduleId={moduleId}
+                        initialStudents={studentPresence}
+                        canEdit={canEdit}
+                    />
                 </div>
             </div>
         </main>

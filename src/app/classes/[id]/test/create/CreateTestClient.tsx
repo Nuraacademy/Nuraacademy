@@ -76,23 +76,23 @@ function ObjectiveBlock({
 }: {
     question: ObjectiveQuestion;
     index: number;
-    onChange: (q: ObjectiveQuestion) => void;
+    onChange: (updater: (prev: ObjectiveQuestion) => ObjectiveQuestion) => void;
     onRemove: () => void;
     idRef: React.MutableRefObject<number>;
 }) {
     const setCorrect = (answerId: number) => {
-        onChange({ ...question, answers: question.answers.map((a) => ({ ...a, isCorrect: a.id === answerId })) });
+        onChange((prev) => ({ ...prev, answers: prev.answers.map((a) => ({ ...a, isCorrect: a.id === answerId })) }));
     };
     const updateAnswerText = (answerId: number, text: string) => {
-        onChange({ ...question, answers: question.answers.map((a) => (a.id === answerId ? { ...a, text } : a)) });
+        onChange((prev) => ({ ...prev, answers: prev.answers.map((a) => (a.id === answerId ? { ...a, text } : a)) }));
     };
     const addAnswer = () => {
         if (question.answers.length >= 6) return;
-        onChange({ ...question, answers: [...question.answers, makeAnswer(idRef)] });
+        onChange((prev) => ({ ...prev, answers: [...prev.answers, makeAnswer(idRef)] }));
     };
     const removeAnswer = (answerId: number) => {
         if (question.answers.length <= 2) return;
-        onChange({ ...question, answers: question.answers.filter((a) => a.id !== answerId) });
+        onChange((prev) => ({ ...prev, answers: prev.answers.filter((a) => a.id !== answerId) }));
     };
 
     const hasError =
@@ -110,7 +110,7 @@ function ObjectiveBlock({
                 </button>
             </div>
 
-            <RichTextInput value={question.content} onChange={(val) => onChange({ ...question, content: val })} />
+            <RichTextInput value={question.content} onChange={(val) => onChange((prev) => ({ ...prev, content: val }))} />
 
             {/* Answers */}
             <div className="mt-4 space-y-2">
@@ -124,34 +124,42 @@ function ObjectiveBlock({
                         </button>
                     )}
                 </div>
-                {question.answers.map((ans) => (
-                    <div key={ans.id} className="flex gap-2 items-center">
-                        <input
-                            type="text"
-                            placeholder="Answer option..."
-                            value={ans.text}
-                            onChange={(e) => updateAnswerText(ans.id, e.target.value)}
-                            className={`flex-1 rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#D9F55C] bg-white ${!ans.text.trim() ? "border-orange-200" : "border-gray-300"}`}
-                        />
-                        <button
-                            type="button"
-                            onClick={() => setCorrect(ans.id)}
-                            className={`px-3 py-2 rounded-lg text-xs font-semibold border transition-all shrink-0 ${ans.isCorrect
-                                ? "bg-[#D9F55C] border-[#D9F55C] text-black shadow-sm"
-                                : "bg-white border-gray-300 text-gray-400 hover:border-gray-400"
-                                }`}
-                        >
-                            {ans.isCorrect ? "✓ Correct" : "Incorrect"}
-                        </button>
-                        <button
-                            onClick={() => removeAnswer(ans.id)}
-                            disabled={question.answers.length <= 2}
-                            className="text-gray-300 hover:text-red-400 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                        >
-                            <X size={14} />
-                        </button>
-                    </div>
-                ))}
+                {question.answers.map((ans) => {
+                    const isDuplicate = question.answers.filter(a => a.text.trim().toLowerCase() === ans.text.trim().toLowerCase() && a.text.trim() !== "").length > 1;
+                    return (
+                        <div key={ans.id} className="flex gap-2 items-center">
+                            <input
+                                type="text"
+                                placeholder="Answer option..."
+                                value={ans.text}
+                                onChange={(e) => updateAnswerText(ans.id, e.target.value)}
+                                className={`flex-1 rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#D9F55C] bg-white ${(!ans.text.trim() || isDuplicate) ? "border-orange-500 ring-1 ring-orange-500" : "border-gray-300"}`}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setCorrect(ans.id)}
+                                className={`px-3 py-2 rounded-lg text-xs font-semibold border transition-all shrink-0 ${ans.isCorrect
+                                    ? "bg-[#D9F55C] border-[#D9F55C] text-black shadow-sm"
+                                    : "bg-white border-gray-300 text-gray-400 hover:border-gray-400"
+                                    }`}
+                            >
+                                {ans.isCorrect ? "✓ Correct" : "Incorrect"}
+                            </button>
+                            <button
+                                onClick={() => removeAnswer(ans.id)}
+                                disabled={question.answers.length <= 2}
+                                className="text-gray-300 hover:text-red-400 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                            >
+                                <X size={14} />
+                            </button>
+                        </div>
+                    );
+                })}
+                {(() => {
+                    const texts = question.answers.map(a => a.text.trim().toLowerCase()).filter(t => t !== "");
+                    const hasDuplicates = new Set(texts).size !== texts.length;
+                    return hasDuplicates && <p className="text-orange-500 text-xs">All answer options must be unique.</p>;
+                })()}
                 {!question.answers.some((a) => a.isCorrect) && (
                     <p className="text-orange-500 text-xs">Mark one answer as correct.</p>
                 )}
@@ -165,7 +173,7 @@ function ObjectiveBlock({
                     min={1}
                     value={question.score || ""}
                     placeholder="e.g. 10"
-                    onChange={(e) => onChange({ ...question, score: Math.max(0, Number(e.target.value)) })}
+                    onChange={(e) => onChange((prev) => ({ ...prev, score: Math.max(0, Number(e.target.value)) }))}
                     className={`w-28 rounded-lg border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#D9F55C] bg-white ${question.score <= 0 ? "border-orange-200" : "border-gray-300"}`}
                 />
                 {question.score <= 0 && <span className="text-orange-500 text-xs">Required</span>}
@@ -181,7 +189,7 @@ function OpenEndedBlock({
 }: {
     question: EssayQuestion | ProjectQuestion;
     index: number;
-    onChange: (q: EssayQuestion | ProjectQuestion) => void;
+    onChange: (updater: (prev: any) => any) => void;
     onRemove: () => void;
     label: string;
 }) {
@@ -195,7 +203,7 @@ function OpenEndedBlock({
                     <X size={15} />
                 </button>
             </div>
-            <RichTextInput value={question.content} onChange={(val) => onChange({ ...question, content: val })} />
+            <RichTextInput value={question.content} onChange={(val) => onChange((prev) => ({ ...prev, content: val }))} />
             <div className="mt-4 flex items-center gap-3">
                 <label className="text-xs font-medium text-gray-500 shrink-0">Score</label>
                 <input
@@ -203,7 +211,7 @@ function OpenEndedBlock({
                     min={1}
                     value={question.score || ""}
                     placeholder="e.g. 20"
-                    onChange={(e) => onChange({ ...question, score: Math.max(0, Number(e.target.value)) })}
+                    onChange={(e) => onChange((prev) => ({ ...prev, score: Math.max(0, Number(e.target.value)) }))}
                     className={`w-28 rounded-lg border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#D9F55C] bg-white ${question.score <= 0 ? "border-orange-200" : "border-gray-300"}`}
                 />
                 {question.score <= 0 && <span className="text-orange-500 text-xs">Required</span>}
@@ -229,6 +237,9 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
 
     // Per-course saved questions
     const [courseData, setCourseData] = useState<Record<string, CourseQuestions>>({});
+
+    // Per-course thresholds
+    const [thresholds, setThresholds] = useState<Record<string, number>>({});
 
     // Editor state
     const [objectiveQuestions, setObjectiveQuestions] = useState<ObjectiveQuestion[]>([]);
@@ -263,10 +274,18 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
             }
 
             const initialCourseData: Record<string, CourseQuestions> = {};
+            const initialThresholds: Record<string, number> = {};
+
             if (existingTest.assignmentItems) {
                 existingTest.assignmentItems.forEach((item: any) => {
                     const cid = item.courseId;
                     if (!cid) return;
+
+                    // Initialize threshold from course if not set
+                    if (item.course && item.course.threshold !== undefined && !initialThresholds[cid]) {
+                        initialThresholds[cid] = item.course.threshold;
+                    }
+
                     if (!initialCourseData[cid]) {
                         initialCourseData[cid] = { objective: [], essay: [], project: [], saved: true };
                     }
@@ -298,6 +317,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                 });
             }
             setCourseData(initialCourseData);
+            setThresholds(initialThresholds);
         }
     }, [existingTest]);
 
@@ -325,6 +345,13 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
             if (!q.answers.some((a) => a.isCorrect)) errors.push(`Objective Q${i + 1}: mark one answer as correct.`);
             if (q.answers.some((a) => !a.text.trim())) errors.push(`Objective Q${i + 1}: all answer options must be filled.`);
             if (q.score <= 0) errors.push(`Objective Q${i + 1}: score must be > 0.`);
+
+            // Uniqueness check for answers
+            const texts = q.answers.map(a => a.text.trim().toLowerCase()).filter(t => t !== "");
+            const hasDuplicates = new Set(texts).size !== texts.length;
+            if (hasDuplicates) {
+                errors.push(`Objective Q${i + 1}: all answer options must be unique.`);
+            }
         });
         essayQuestions.forEach((q, i) => {
             if (!q.content.replace(/<[^>]+>/g, "").trim()) errors.push(`Essay Q${i + 1}: question text is required.`);
@@ -360,6 +387,20 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                 saved: true,
             },
         }));
+
+        // Calculate and set default threshold (80%) if not already set or if it was 0
+        const currentMax = objectiveQuestions.reduce((a, b) => a + b.score, 0) +
+            essayQuestions.reduce((a, b) => a + b.score, 0) +
+            projectQuestions.reduce((a, b) => a + b.score, 0);
+
+        setThresholds(prev => {
+            const existing = prev[selectedCourse!.id];
+            if (existing === undefined || existing === 0) {
+                return { ...prev, [selectedCourse!.id]: Math.round(currentMax * 0.8) };
+            }
+            return prev;
+        });
+
         showModal({
             open: true,
             type: "success",
@@ -441,11 +482,16 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
             });
         });
 
+        const thresholdsPayload = Object.entries(thresholds).map(([courseId, value]) => ({
+            courseId: parseInt(courseId),
+            threshold: value
+        }));
+
         let res;
         if (existingTest) {
-            res = await editAssignment(existingTest.id, payload, itemsPayload);
+            res = await editAssignment(existingTest.id, payload, itemsPayload, thresholdsPayload);
         } else {
-            res = await addAssignment(payload, itemsPayload);
+            res = await addAssignment(payload, itemsPayload, thresholdsPayload);
         }
         setIsSubmitting(false);
 
@@ -558,29 +604,39 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                         <div className="bg-[#F2F5DC] rounded-[2rem] p-5 space-y-3 mb-10">
                             {classData.courses?.map((course: any) => {
                                 const saved = courseData[course.id]?.saved;
+                                const courseMax = saved
+                                    ? courseData[course.id].objective.reduce((a, b) => a + b.score, 0) +
+                                    courseData[course.id].essay.reduce((a, b) => a + b.score, 0) +
+                                    courseData[course.id].project.reduce((a, b) => a + b.score, 0)
+                                    : 0;
                                 const totalQ = saved
                                     ? courseData[course.id].objective.length +
                                     courseData[course.id].essay.length +
                                     courseData[course.id].project.length
                                     : 0;
+
                                 return (
                                     <div key={course.id} className={`bg-white rounded-2xl px-5 py-3.5 flex items-center justify-between shadow-sm transition-all ${saved ? "ring-2 ring-[#D9F55C]/60" : ""}`}>
                                         <div className="flex items-center gap-3">
                                             {saved && <CheckCircle size={16} className="text-green-500 shrink-0" />}
-                                            <div>
-                                                <span className="text-sm text-gray-800">{course.title}</span>
+                                            <div className="flex flex-col">
+                                                <span className="text-sm font-semibold text-gray-800">{course.title}</span>
                                                 {saved && (
-                                                    <p className="text-xs text-gray-400 mt-0.5">
+                                                    <p className="text-[10px] text-gray-400 mt-0.5">
                                                         {totalQ} question{totalQ !== 1 ? "s" : ""} added
                                                     </p>
                                                 )}
                                             </div>
                                         </div>
-                                        <NuraButton
-                                            label={saved ? "Edit" : "Add Item"}
-                                            variant="primary"
-                                            onClick={() => handleAddItem(course)}
-                                        />
+
+                                        <div className="flex items-center gap-6">
+                                            <NuraButton
+                                                label={saved ? "Edit" : "Add Item"}
+                                                variant={saved ? "secondary" : "primary"}
+                                                className={saved ? "!h-10 !min-w-[80px] !text-sm" : "!h-10 !min-w-[120px] !text-sm"}
+                                                onClick={() => handleAddItem(course)}
+                                            />
+                                        </div>
                                     </div>
                                 );
                             })}
@@ -600,12 +656,47 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                         <Breadcrumb items={[...breadcrumbBase, { label: selectedCourse.title, href: "#" }]} />
                         <h1 className="text-2xl font-bold mt-6 mb-6">{existingTest ? "Edit Test" : "Create Test"}</h1>
 
-                        {/* Course Title (read-only) */}
-                        <div className="mb-6">
-                            <label className="block text-sm font-semibold mb-1">Course Title</label>
-                            <div className="w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-700">
-                                {selectedCourse.title}
+                        {/* Course Title & Passing Grade */}
+                        <div className="grid grid-cols-1 md:grid-cols-[1fr_240px] gap-6 mb-8">
+                            <div>
+                                <label className="block text-sm font-semibold mb-1">Course Title</label>
+                                <div className="w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-700">
+                                    {selectedCourse.title}
+                                </div>
                             </div>
+
+                            {(() => {
+                                const currentMax = objectiveQuestions.reduce((a, b) => a + b.score, 0) +
+                                    essayQuestions.reduce((a, b) => a + b.score, 0) +
+                                    projectQuestions.reduce((a, b) => a + b.score, 0);
+                                const threshold = thresholds[selectedCourse.id] ?? 0;
+                                const isError = threshold < 0 || threshold > currentMax;
+
+                                return (
+                                    <div className="flex flex-col">
+                                        <label className="block text-sm font-semibold mb-1">Passing Grade</label>
+                                        <div className={`flex items-center gap-2 border-b-2 transition-colors pb-1.5 ${isError ? "border-red-500" : "border-gray-200 focus-within:border-[#D9F55C]"}`}>
+                                            <input
+                                                type="number"
+                                                value={thresholds[selectedCourse.id] ?? ""}
+                                                onChange={(e) => {
+                                                    const val = parseFloat(e.target.value);
+                                                    setThresholds(prev => ({ ...prev, [selectedCourse.id]: isNaN(val) ? 0 : val }));
+                                                }}
+                                                className="flex-1 text-right text-base font-bold text-black outline-none bg-transparent"
+                                                placeholder="e.g. 80"
+                                            />
+                                            <span className="text-gray-400 text-sm font-medium shrink-0">/ {currentMax}</span>
+                                        </div>
+                                        {threshold > currentMax && (
+                                            <span className="text-[10px] text-red-500 font-bold mt-1 italic">Cannot exceed max score ({currentMax})</span>
+                                        )}
+                                        {threshold < 0 && (
+                                            <span className="text-[10px] text-red-500 font-bold mt-1 italic">Cannot be negative</span>
+                                        )}
+                                    </div>
+                                );
+                            })()}
                         </div>
 
                         {/* ── Objective Questions ── */}
@@ -620,8 +711,8 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                     question={q}
                                     index={i}
                                     idRef={idRef}
-                                    onChange={(updated) =>
-                                        setObjectiveQuestions((prev) => prev.map((item) => (item.id === updated.id ? updated : item)))
+                                    onChange={(updater) =>
+                                        setObjectiveQuestions((prev) => prev.map((item) => (item.id === q.id ? updater(item) : item)))
                                     }
                                     onRemove={() =>
                                         setObjectiveQuestions((prev) => prev.filter((item) => item.id !== q.id))
@@ -648,8 +739,8 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                     question={q}
                                     index={i}
                                     label="Question"
-                                    onChange={(updated) =>
-                                        setEssayQuestions((prev) => prev.map((item) => (item.id === updated.id ? updated as EssayQuestion : item)))
+                                    onChange={(updater) =>
+                                        setEssayQuestions((prev) => prev.map((item) => (item.id === q.id ? updater(item) : item)))
                                     }
                                     onRemove={() =>
                                         setEssayQuestions((prev) => prev.filter((item) => item.id !== q.id))
@@ -676,8 +767,8 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                     question={q}
                                     index={i}
                                     label="Question"
-                                    onChange={(updated) =>
-                                        setProjectQuestions((prev) => prev.map((item) => (item.id === updated.id ? updated as ProjectQuestion : item)))
+                                    onChange={(updater) =>
+                                        setProjectQuestions((prev) => prev.map((item) => (item.id === q.id ? updater(item) : item)))
                                     }
                                     onRemove={() =>
                                         setProjectQuestions((prev) => prev.filter((item) => item.id !== q.id))

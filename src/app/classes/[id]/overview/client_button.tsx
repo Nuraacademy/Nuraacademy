@@ -4,6 +4,9 @@ import { NuraButton } from "@/components/ui/button/button"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import WelcomingModal from "@/components/ui/modal/welcoming_modal"
+import { ConfirmModal } from "@/components/ui/modal/confirmation_modal"
+import { toast } from "sonner"
+import { deleteCourseAction } from "@/app/actions/course"
 
 export function SuccessHandler({ classId, timelines }: { classId: string, timelines: any[] }) {
     const searchParams = useSearchParams()
@@ -45,7 +48,6 @@ export function AddTimelineButton({ classId }: { classId: string }) {
     return <NuraButton label="Add Timeline" variant="primary" className="h-6 text-sm" onClick={() => router.push(`/classes/${classId}/timeline/create`)} />
 }
 
-import { ConfirmModal } from "@/components/ui/modal/confirmation_modal"
 
 export function PlacementTestButton({
     classId,
@@ -77,12 +79,20 @@ export function PlacementTestButton({
     }
 
     return (
-        <>
+        <div className="flex gap-4">
             <NuraButton
-                label={isAdmin ? "Create Test" : (isFinished ? "See Result" : "Start Test")}
+                label={isAdmin ? (courseCount > 0 ? "Edit Test" : "Create Test") : (isFinished ? "See Result" : "Start Test")}
                 variant="primary"
                 onClick={handleClick}
             />
+            {isAdmin && (
+                <NuraButton
+                    label="Mapping"
+                    variant="secondary"
+                    className="!bg-transparent !text-white !border-white/50 !border !font-semibold"
+                    onClick={() => router.push(`/classes/${classId}/placement/results`)}
+                />
+            )}
             <ConfirmModal
                 isOpen={isModalOpen}
                 title="Placement Test Unavailable"
@@ -95,7 +105,7 @@ export function PlacementTestButton({
                 onCancel={() => setIsModalOpen(false)}
                 cancelText="Close"
             />
-        </>
+        </div>
     )
 }
 
@@ -106,29 +116,69 @@ export function AddCourseButton({ classId }: { classId: string }) {
 
 export function CourseCard({ classId, course, isAdmin }: { classId: string, course: any, isAdmin: boolean }) {
     const router = useRouter()
+    const [isDeleting, setIsDeleting] = useState(false)
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+
+    const handleDelete = async () => {
+        setIsDeleting(true)
+        const result = await deleteCourseAction(parseInt(classId), course.id)
+        setIsDeleting(false)
+        setIsConfirmOpen(false)
+
+        if (result.success) {
+            toast.success("Course deleted successfully")
+        } else {
+            toast.error(result.error || "Failed to delete course")
+        }
+    }
+
     return (
-        <div
-            className="border border-gray-200 rounded-[1.5rem] p-5 hover:border-gray-400 hover:shadow-sm transition-all duration-200 cursor-pointer group relative"
-            onClick={() => router.push(`/classes/${classId}/course/${course.id}/overview`)}
-        >
-            <div className="flex justify-between items-start">
+        <>
+            <div
+                className="border border-gray-200 rounded-[1.5rem] p-5 hover:border-gray-400 hover:shadow-sm transition-all duration-200 cursor-pointer group relative"
+                onClick={() => router.push(`/classes/${classId}/course/${course.id}/overview`)}
+            >
+                <div className="flex justify-between items-start">
                 <div>
                     <h3 className="text-black text-medium mb-1">{course.title}</h3>
-                    <p className="text-sm text-gray-600 line-clamp-2" dangerouslySetInnerHTML={{ __html: course.description }} />
+                    <div className="text-sm text-gray-600 line-clamp-2" dangerouslySetInnerHTML={{ __html: course.description }} />
+                    </div>
+                    {isAdmin && (
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                                className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-red-500"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsConfirmOpen(true);
+                                }}
+                                disabled={isDeleting}
+                            >
+                                <img src="/icons/Delete.svg" alt="Delete" className="w-5 h-5" />
+                            </button>
+                            <button
+                                className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-gray-900"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    router.push(`/classes/${classId}/course/${course.id}/edit`);
+                                }}
+                            >
+                                <img src="/icons/Edit.svg" alt="Edit" className="w-5 h-5" />
+                            </button>
+                        </div>
+                    )}
                 </div>
-                {isAdmin && (
-                    <button
-                        className="opacity-0 group-hover:opacity-100 p-2 hover:bg-gray-100 rounded-full transition-all"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            router.push(`/classes/${classId}/course/${course.id}/edit`);
-                        }}
-                    >
-                        <img src="/icons/Edit.svg" alt="Edit" className="w-4 h-4" />
-                    </button>
-                )}
             </div>
-        </div>
+
+            <ConfirmModal
+                isOpen={isConfirmOpen}
+                title="Delete Course"
+                message={`Are you sure you want to delete "${course.title}"? This action cannot be undone.`}
+                confirmText="Delete"
+                onConfirm={handleDelete}
+                onCancel={() => setIsConfirmOpen(false)}
+                isLoading={isDeleting}
+            />
+        </>
     )
 }
 

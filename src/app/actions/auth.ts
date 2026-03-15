@@ -3,6 +3,7 @@
 import { loginUser, registerUser } from "@/controllers/userController";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
 
 export async function handleLogin(formData: FormData) {
     const identifier = formData.get("identifier") as string;
@@ -80,4 +81,23 @@ export async function getSession() {
     const cookieStore = await cookies();
     const userId = cookieStore.get("user_id")?.value;
     return userId ? parseInt(userId) : null;
+}
+
+export async function getFullSession() {
+    const userId = await getSession();
+    if (!userId) return null;
+
+    const user = await prisma.user.findUnique({
+        where: { id: userId },
+        include: { role: true }
+    });
+
+    if (!user) return null;
+
+    return {
+        id: user.id,
+        username: user.username,
+        name: user.name,
+        role: user.role?.name || 'Member'
+    };
 }

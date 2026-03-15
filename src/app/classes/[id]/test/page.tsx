@@ -59,11 +59,15 @@ export default async function PlacementTestPage({
       }
     });
 
-    courseResults = Array.from(courseMap.entries()).map(([id, stats]) => ({
-      courseId: id,
-      courseTitle: stats.title,
-      status: (stats.scored / stats.total) >= 0.6 ? "Pass" : "Not Pass"
-    }));
+    courseResults = Array.from(courseMap.entries()).map(([id, stats]) => {
+      const ir = testResult.assignmentItemResults.find((r: any) => r.assignmentItem.courseId === id);
+      const threshold = ir?.assignmentItem?.course?.threshold ?? 0;
+      return {
+        courseId: id,
+        courseTitle: stats.title,
+        status: stats.scored >= threshold ? "Pass" : "Not Pass"
+      };
+    });
   }
 
   const {

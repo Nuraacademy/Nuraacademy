@@ -44,3 +44,16 @@ export async function getEnrollmentProgress(enrollmentId: number) {
         },
     });
 }
+/**
+ * Get enrollment by ID with user details.
+ */
+export async function getEnrollmentById(id: number) {
+    return await prisma.enrollment.findUnique({
+        where: { id, deletedAt: null },
+        include: {
+            user: {
+                select: { id: true, name: true, username: true },
+            },
+        },
+    });
+}

@@ -67,6 +67,10 @@ export default function EditSessionForm({
     const [zoomUrl, setZoomUrl] = useState(initialContent?.zoom?.url || "");
     const [zoomStatus, setZoomStatus] = useState(initialContent?.zoom?.status || "Scheduled");
 
+    // State for Recording (Synchronous)
+    const [recordingUrl, setRecordingUrl] = useState(initialContent?.recording?.url || "");
+    const [recordingTitle, setRecordingTitle] = useState(initialContent?.recording?.title || "");
+
     // State for References
     const [references, setReferences] = useState<ReferenceMaterial[]>(
         initialReference.length > 0 ? initialReference : []
@@ -140,10 +144,24 @@ export default function EditSessionForm({
                 }
             }
 
-            if (zoomUrl) {
-                newContent.zoom = { url: zoomUrl, status: zoomStatus };
+            // Handle Zoom / Synchronous Settings
+            if (isSynchronous) {
+                newContent.zoom = {
+                    ...initialContent?.zoom,
+                    url: zoomUrl,
+                    status: zoomStatus,
+                    startTime: scheduleDate ? scheduleDate.toISOString() : initialContent?.zoom?.startTime
+                };
+                // Store recording info separately in content
+                if (recordingUrl || recordingTitle) {
+                    newContent.recording = { url: recordingUrl, title: recordingTitle };
+                } else {
+                    delete newContent.recording;
+                }
             } else {
                 delete newContent.zoom;
+                // If it's asynchronous, we use video/file fields, but keep recording if it exists?
+                // Actually usually recording is specifically for synchronous session records.
             }
 
             // Construct the new schedule object
@@ -331,6 +349,24 @@ export default function EditSessionForm({
                             placeholder="Scheduled"
                             value={zoomStatus}
                             onChange={(e) => setZoomStatus(e.target.value)}
+                        />
+                    </div>
+                    <div className="flex flex-col gap-2 mt-4">
+                        <span className="font-bold text-gray-900">Recording (Optional)</span>
+                        <p className="text-gray-500 text-xs">Add a link to the session recording once it's available.</p>
+                    </div>
+                    <div className="flex flex-col gap-4">
+                        <NuraTextInput
+                            label="Recording URL (Youtube URL)"
+                            placeholder="https://www.youtube.com/watch?v=..."
+                            value={recordingUrl}
+                            onChange={(e) => setRecordingUrl(e.target.value)}
+                        />
+                        <NuraTextInput
+                            label="Recording Title"
+                            placeholder="Recording: Module 1..."
+                            value={recordingTitle}
+                            onChange={(e) => setRecordingTitle(e.target.value)}
                         />
                     </div>
                 </div>

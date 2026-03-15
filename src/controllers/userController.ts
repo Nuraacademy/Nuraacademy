@@ -54,6 +54,9 @@ export async function loginUser(identifier: string, password: string) {
       ],
       deletedAt: null,
     },
+    include: {
+      role: true
+    }
   });
 
   if (!user) {
@@ -64,6 +67,19 @@ export async function loginUser(identifier: string, password: string) {
 
   if (!isPasswordValid) {
     throw new Error('Invalid password');
+  }
+
+  // Lazy role assignment: if user has no role, make them a Learner
+  if (!user.roleId) {
+    const defaultRole = await prisma.role.findUnique({ where: { name: 'Learner' } });
+    if (defaultRole) {
+      const updatedUser = await prisma.user.update({
+        where: { id: user.id },
+        data: { roleId: defaultRole.id },
+        include: { role: true }
+      });
+      return updatedUser;
+    }
   }
 
   return user;

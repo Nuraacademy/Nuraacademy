@@ -13,8 +13,8 @@ This document tracks the implementation status of all the privileges seeded into
 | Enrollment | `LEARNER_ENROLLMENT` | Learner enrollment | 🟢 Implemented |
 | Enrollment | `CHECKOUT_CLASS` | Check out class | 🟢 Implemented |
 | Enrollment | `PAYMENT_GATEWAY` | Payment gateway | 🟢 Implemented |
-| CourseMapping | `MANAGE` | Course mapping | 🔴 Not Implemented (Feature Missing) (Feature Missing) |
-| GroupMapping | `CREATE` | Create Group mapping | 🔴 Not Implemented (Feature Missing) (Feature Missing) |
+| CourseMapping | `MANAGE` | Course mapping | 🟢 Implemented |
+| GroupMapping | `CREATE` | Create Group mapping | 🟢 Implemented |
 | GroupMapping | `UPDATE` | Edit group mapping | 🟢 Implemented |
 
 ## 2.0 Course
@@ -22,24 +22,24 @@ This document tracks the implementation status of all the privileges seeded into
 | :--- | :--- | :--- | :--- |
 | Course | `CREATE_COURSE` | Create course | 🟢 Implemented |
 | Course | `UPDATE_COURSE` | Update course | 🟢 Implemented |
-| Course | `DELETE_COURSE` | Delete course | 🔴 Not Implemented (Feature Missing) (Feature Missing) |
-| Course | `VIEW_SEARCH_COURSE` | View & search course | 🔴 Not Implemented (Feature Missing) (Feature Missing) |
+| Course | `DELETE_COURSE` | Delete course | 🟢 Implemented |
+| Course | `VIEW_SEARCH_COURSE` | View & search course | 🟢 Implemented |
 | Course | `VIEW_DETAIL_COURSE` | View detail course | 🟢 Implemented (Public View) |
 | Session | `CREATE_SESSION` | Create session | 🟢 Implemented |
 | Session | `UPDATE_SESSION` | Update session | 🟢 Implemented |
 | Session | `DELETE_SESSION` | Delete session | 🟢 Implemented |
 | Session | `VIEW_SESSION` | View session | 🟢 Implemented (Public View) |
-| Session | `START_SESSION` | Start session | 🔴 Not Implemented (Feature Missing) (Feature Missing) |
-| Recording | `ADD_RECORDING` | Add recording | 🔴 Not Implemented (Feature Missing) (Feature Missing) |
-| Recording | `UPDATE_RECORDING` | Update recording | 🔴 Not Implemented (Feature Missing) (Feature Missing) |
-| Recording | `DELETE_RECORDING` | Delete recording | 🔴 Not Implemented (Feature Missing) (Feature Missing) |
-| Presence | `CREATE_UPDATE_PRESENCE_SES` | Create/ update presence & SES | 🔴 Not Implemented (Feature Missing) (Feature Missing) |
+| Session | `START_SESSION` | Start session | 🟢 Implemented |
+| Recording | `ADD_RECORDING` | Add recording | 🟢 Implemented |
+| Recording | `UPDATE_RECORDING` | Update recording | 🟢 Implemented |
+| Recording | `DELETE_RECORDING` | Delete recording | 🟢 Implemented |
+| Presence | `CREATE_UPDATE_PRESENCE_SES` | Create/ update presence & SES | 🟢 Implemented |
 
 ## 3.0 Assignment
 | Resource | Action | Description | Status |
 | :--- | :--- | :--- | :--- |
 | Assignment | `CREATE_UPDATE_ASSIGNMENT` | Create/ update assignment | 🟢 Implemented |
-| Assignment | `PRE_POST_TEST` | Pre-post test | 🔴 Not Implemented (Feature Missing) |
+| Assignment | `PRE_POST_TEST` | Pre-post test | 🟢 Implemented |
 | Assignment | `COURSE_ASSIGNMENT` | Course assignment | 🔴 Not Implemented (Feature Missing) |
 | Assignment | `EXERCISES` | Exercises | 🔴 Not Implemented (Feature Missing) |
 | Assignment | `FINAL_PROJECT` | Final project | 🔴 Not Implemented (Feature Missing) |
@@ -47,27 +47,26 @@ This document tracks the implementation status of all the privileges seeded into
 | Assignment | `DELETE_ASSIGNMENT` | Delete assignment | 🟢 Implemented |
 | Assignment | `START_ASSIGNMENT_INSTRUCTOR` | Start assignment (instructur/ trainer) | 🔴 Not Implemented (Feature Missing) |
 | Assignment | `START_ASSIGNMENT_LEARNER` | Start assignment (learner) | 🟢 Implemented |
-| Assignment | `VIEW_ASSIGNMENT_RESULT` | View assignment result | 🔴 Not Implemented (Feature Missing) |
-| Assignment | `CHECK_ASSIGNMENT_RESULT` | Check assignment result | 🔴 Not Implemented (Feature Missing) |
-| Assignment | `VIEW_ASSIGNMENT_SCORE` | View assignment score | 🔴 Not Implemented (Feature Missing) |
+| Assignment | `VIEW_ASSIGNMENT_RESULT` | View assignment result | 🟢 Implemented |
+| Assignment | `CHECK_ASSIGNMENT_RESULT` | Check assignment result | 🟢 Implemented |
+| Assignment | `VIEW_ASSIGNMENT_SCORE` | View assignment score | 🟢 Implemented |
 
 ## 4.0 Class
 | Resource | Action | Description | Status |
 | :--- | :--- | :--- | :--- |
-| Class | `CREATE_UPDATE_CLASS` | Create/ update class | 🔴 Not Implemented (Feature Missing) |
-| Class | `DELETE_CLASS` | Delete class | 🔴 Not Implemented (Feature Missing) |
+| Class | `CREATE_UPDATE_CLASS` | Create/ update class | 🟢 Implemented |
+| Class | `DELETE_CLASS` | Delete class | 🟢 Implemented |
 | Class | `SEARCH_VIEW_CLASS` | Search & view class | 🟢 Implemented (Public View) |
 | Class | `UPDATE_SCHEDULE_CLASS` | Update schedule class | 🟢 Implemented |
 | PlacementTest | `PLACEMENT_TEST_CREATE` | Placement test create | 🟢 Implemented |
-| PlacementTest | `PLACEMENT_TEST_UPDATE` | Placement test update | 🔴 Not Implemented (Feature Missing) |
-| PlacementTest | `PLACEMENT_TEST_VIEW_SEARCH` | Placement test view & search | 🔴 Not Implemented (Feature Missing) |
-| PlacementTest | `PLACEMENT_TEST_VIEW_DETAIL` | Placement test view detail | 🔴 Not Implemented (Feature Missing) |
-| PlacementTest | `PLACEMENT_TEST_CHECKING` | Placement test checking | 🔴 Not Implemented (Feature Missing) |
-| Curricula | `UPLOAD_CURRICULA` | Upload curricula | 🔴 Not Implemented (Feature Missing) |
-| Curricula | `UPDATE_CURRICULA` | Update curricula | 🔴 Not Implemented (Feature Missing) |
-| Curricula | `DELETE_CURRICULA` | Delete curricula | 🔴 Not Implemented (Feature Missing) |
-| Curricula | `SEARCH_VIEW_CURRICULA` | Search & view curricula | 🔴 Not Implemented (Feature Missing) |
-| Curricula | `VIEW_DETAIL_CURRICULA` | View detail curricula | 🔴 Not Implemented (Feature Missing) |
+| PlacementTest | `PLACEMENT_TEST_UPDATE` | Placement test update | 🟢 Implemented |
+| PlacementTest | `PLACEMENT_TEST_VIEW_DETAIL` | Placement test view detail | 🟢 Implemented |
+| PlacementTest | `PLACEMENT_TEST_CHECKING` | Placement test checking | 🟢 Implemented |
+| Curricula | `UPLOAD_CURRICULA` | Upload curricula | 🟢 Implemented |
+| Curricula | `UPDATE_CURRICULA` | Update curricula | 🟢 Implemented |
+| Curricula | `DELETE_CURRICULA` | Delete curricula | 🟢 Implemented |
+| Curricula | `SEARCH_VIEW_CURRICULA` | Curricula view & search | 🟢 Implemented |
+| Curricula | `VIEW_DETAIL_CURRICULA` | Curricula view detail | 🟢 Implemented |
 
 ## 5.0 Forums
 | Resource | Action | Description | Status |

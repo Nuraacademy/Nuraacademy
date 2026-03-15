@@ -5,6 +5,9 @@ import { ExternalLink } from "lucide-react";
 import { NuraButton } from "@/components/ui/button/button";
 import ReferenceMaterials from "@/components/ui/reference_materials/reference_materials";
 import PDFViewer from "@/components/ui/video/pdf_viewer";
+import { startSessionAction } from "@/app/actions/session";
+import { toast } from "sonner";
+import { useState } from "react";
 
 interface SessionContentProps {
     classId: string;
@@ -13,6 +16,7 @@ interface SessionContentProps {
     isSynchronous: boolean | null;
     content: any;
     referenceMaterials: { name: string; description: string; url: string }[];
+    isAdmin: boolean;
 }
 
 export default function SessionContent({
@@ -21,9 +25,24 @@ export default function SessionContent({
     moduleId,
     isSynchronous,
     content,
-    referenceMaterials
+    referenceMaterials,
+    isAdmin
 }: SessionContentProps) {
     const router = useRouter();
+
+    const [isStarting, setIsStarting] = useState(false);
+
+    const handleJoin = async () => {
+        setIsStarting(true);
+        const result = await startSessionAction(classId, courseId, moduleId);
+        setIsStarting(false);
+
+        if (result.success && result.url) {
+            window.location.href = result.url;
+        } else {
+            toast.error(result.error || "Failed to start session");
+        }
+    };
 
     const makeVideoUrl = (url: string) => {
         return url.replace("watch?v=", "embed/");
@@ -54,6 +73,8 @@ export default function SessionContent({
                 <PDFViewer
                     url={content.file.url}
                     title={content.file.title}
+                    editUrl={`/classes/${classId}/course/${courseId}/session/${moduleId}/edit`}
+                    isAdmin={isAdmin}
                 />
             )}
 
@@ -91,10 +112,11 @@ export default function SessionContent({
                         </div>
                         <div className="flex gap-4">
                             <NuraButton
-                                label="Join"
+                                label={isStarting ? "Starting..." : "Join"}
                                 variant="medium"
                                 className="min-w-[120px] h-10 text-sm font-bold"
-                                onClick={() => { window.location.href = content.zoom.url; }}
+                                onClick={handleJoin}
+                                disabled={isStarting}
                             />
                             <NuraButton
                                 label="View Record"
@@ -123,9 +145,6 @@ export default function SessionContent({
     );
 
     const renderContent = () => {
-        if (isSynchronous === true && (content.video || content.file)) {
-            return renderAsynchronousLayout();
-        }
         if (isSynchronous === true) {
             return renderSynchronousLayout();
         }
@@ -141,23 +160,46 @@ export default function SessionContent({
             {renderContent()}
 
             {/* Footer Buttons */}
-            <div className="flex justify-center gap-4 mt-6">
-                <NuraButton
-                    label="Pre-test"
-                    variant="primary"
-                    className="min-w-[160px] h-10 text-sm font-bold"
-                    onClick={() => {
-                        router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/pre-test`);
-                    }}
-                />
-                <NuraButton
-                    label="Post-test"
-                    variant="primary"
-                    className="min-w-[160px] h-10 text-sm font-bold"
-                    onClick={() => {
-                        router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/post-test`);
-                    }}
-                />
+            <div className="flex flex-col items-center gap-4 mt-10">
+                <div className="flex justify-center gap-4">
+                    <div className="flex flex-col items-center gap-2">
+                        <NuraButton
+                            label="Pre-test"
+                            variant="primary"
+                            className="min-w-[160px] h-10 text-sm font-bold"
+                            onClick={() => {
+                                router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/pre-test`);
+                            }}
+                        />
+                        {isAdmin && (
+                            <button
+                                onClick={() => router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/pre-test/edit`)}
+                                className="text-[10px] font-bold text-[#005954] hover:underline uppercase tracking-wider"
+                            >
+                                Manage Pre-test
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="flex flex-col items-center gap-2">
+                        <NuraButton
+                            label="Post-test"
+                            variant="primary"
+                            className="min-w-[160px] h-10 text-sm font-bold"
+                            onClick={() => {
+                                router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/post-test`);
+                            }}
+                        />
+                        {isAdmin && (
+                            <button
+                                onClick={() => router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/post-test/edit`)}
+                                className="text-[10px] font-bold text-[#005954] hover:underline uppercase tracking-wider"
+                            >
+                                Manage Post-test
+                            </button>
+                        )}
+                    </div>
+                </div>
             </div>
         </>
     );

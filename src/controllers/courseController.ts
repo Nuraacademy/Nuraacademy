@@ -53,3 +53,30 @@ export async function updateCourse(id: number, data: any) {
         data,
     });
 }
+
+/**
+ * Soft delete a course.
+ */
+export async function deleteCourse(id: number) {
+    return await prisma.course.update({
+        where: { id },
+        data: { deletedAt: new Date() },
+    });
+}
+/**
+ * Search courses by title or description.
+ */
+export async function searchCourses(query: string) {
+    return await prisma.course.findMany({
+        where: {
+            OR: [
+                { title: { contains: query, mode: 'insensitive' } },
+                { description: { contains: query, mode: 'insensitive' } },
+            ],
+            deletedAt: null,
+        },
+        orderBy: {
+            title: 'asc',
+        },
+    });
+}

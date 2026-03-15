@@ -45,3 +45,69 @@ export async function getClassById(id: number) {
         },
     });
 }
+export async function createClass(data: {
+    title: string;
+    imgUrl?: string;
+    hours?: number;
+    modules?: number;
+    methods?: string;
+    startDate?: Date;
+    endDate?: Date;
+    description?: string;
+    previewVideoUrl?: string;
+    keywords?: string[];
+    curriculaIds?: number[];
+    isDraft?: boolean;
+    createdBy?: number;
+}) {
+    const { curriculaIds, ...rest } = data;
+    return await prisma.class.create({
+        data: {
+            ...rest,
+            curricula: curriculaIds ? {
+                connect: curriculaIds.map(id => ({ id }))
+            } : undefined
+        },
+    });
+}
+
+/**
+ * Update an existing class.
+ */
+export async function updateClass(id: number, data: {
+    title?: string;
+    imgUrl?: string;
+    hours?: number;
+    modules?: number;
+    methods?: string;
+    startDate?: Date;
+    endDate?: Date;
+    description?: string;
+    previewVideoUrl?: string;
+    keywords?: string[];
+    curriculaIds?: number[];
+    isDraft?: boolean;
+}) {
+    const { curriculaIds, ...rest } = data;
+    return await prisma.class.update({
+        where: { id },
+        data: {
+            ...rest,
+            curricula: curriculaIds ? {
+                set: curriculaIds.map(id => ({ id }))
+            } : undefined
+        },
+    });
+}
+
+/**
+ * Soft delete a class.
+ */
+export async function deleteClass(id: number) {
+    return await prisma.class.update({
+        where: { id },
+        data: {
+            deletedAt: new Date(),
+        },
+    });
+}
