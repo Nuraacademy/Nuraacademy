@@ -5,9 +5,9 @@ import { getAssignmentById } from "@/controllers/assignmentController";
 export default async function AddAssignmentPage({
     searchParams,
 }: {
-    searchParams: Promise<{ id?: string }>;
+    searchParams: Promise<{ id?: string, classId?: string, courseId?: string, sessionId?: string, type?: string }>;
 }) {
-    const { id } = await searchParams;
+    const { id, classId, courseId, sessionId, type } = await searchParams;
     const classes = await getAllClasses();
 
     let initialAssignment = null;
@@ -18,5 +18,12 @@ export default async function AddAssignmentPage({
         }
     }
 
-    return <AddAssignmentClient classes={classes} initialAssignment={initialAssignment} />;
+    const prefillData = {
+        classId: classId ? parseInt(classId) : undefined,
+        courseId: courseId ? parseInt(courseId) : undefined,
+        sessionId: sessionId ? parseInt(sessionId) : undefined,
+        type: type,
+    };
+
+    return <AddAssignmentClient classes={classes} initialAssignment={initialAssignment} prefillData={prefillData} />;
 }

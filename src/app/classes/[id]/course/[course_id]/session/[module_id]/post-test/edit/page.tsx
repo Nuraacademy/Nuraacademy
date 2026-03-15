@@ -1,7 +1,5 @@
+import { redirect } from "next/navigation";
 import { getAssignmentBySessionAndType } from "@/controllers/assignmentController";
-import { getSessionById } from "@/controllers/sessionController";
-import { CreateSessionTestClient } from "../../components/CreateSessionTestClient";
-import { notFound } from "next/navigation";
 import { hasPermission } from "@/lib/rbac";
 
 export default async function EditPostTestPage({
@@ -21,19 +19,11 @@ export default async function EditPostTestPage({
         );
     }
 
-    const session = await getSessionById(parseInt(moduleId));
-    if (!session) return notFound();
-
     const assignment = await getAssignmentBySessionAndType(parseInt(moduleId), 'POSTTEST');
 
-    return (
-        <CreateSessionTestClient
-            classId={parseInt(classId)}
-            courseId={parseInt(courseId)}
-            sessionId={parseInt(moduleId)}
-            sessionTitle={session.title}
-            type="POSTTEST"
-            existingTest={assignment}
-        />
-    );
+    if (assignment) {
+        redirect(`/assignment/add?id=${assignment.id}`);
+    } else {
+        redirect(`/assignment/add?classId=${classId}&courseId=${courseId}&sessionId=${moduleId}&type=POSTTEST`);
+    }
 }

@@ -41,7 +41,7 @@ export function FinishedCard({ classId, testData, pageText, userName, totalScore
                     {/* If no results, show the total score as fallback */}
                     {(!testData.courseResults || testData.courseResults.length === 0) && (
                         <div className="flex justify-between items-center px-6 py-5 bg-white">
-                            <span className="text-xs md:text-sm text-gray-800 italic">Objective Section Score (Legacy)</span>
+                            <span className="text-xs md:text-sm text-gray-800 italic">{testData.courseName}</span>
                             <span className="text-xs md:text-sm font-bold text-[#075546]">
                                 {totalScore ?? 0} points
                             </span>

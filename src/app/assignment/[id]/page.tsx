@@ -66,13 +66,13 @@ export default async function AssignmentRunnerPage({
     pageText.breadcrumbTest = typeLabel[assignment.type] ?? "Assignment";
 
     const isAssignmentOrProject = assignment.type === "ASSIGNMENT" || assignment.type === "PROJECT";
-    const classTitle = (assignment as any).class?.title || "Class Overview";
-    const courseTitle = (assignment as any).course?.title || "Course";
+    const classTitle = (assignment as any).class?.title;
+    const courseTitle = (assignment as any).course?.title;
 
     const breadcrumbs = [
         { label: "Home", href: "/" },
-        ...(courseTitle ? [{ label: courseTitle, href: "#" }] : []),
-        ...(classTitle ? [{ label: classTitle, href: "#" }] : []),
+        ...(classTitle ? [{ label: classTitle, href: `/classes/${classId}/overview` }] : []),
+        ...(courseTitle ? [{ label: courseTitle, href: `/classes/${classId}/course/${assignment.courseId}/overview` }] : []),
         { label: (assignment as any).title || typeLabel[assignment.type] || "Assignment", href: "#" },
     ];
 

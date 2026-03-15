@@ -40,7 +40,15 @@ interface CourseQuestions {
 
 // ─── Main Client ─────────────────────────────────────────────────────────────
 
-export function AddAssignmentClient({ classes, initialAssignment }: { classes: any[], initialAssignment?: any }) {
+export function AddAssignmentClient({
+    classes,
+    initialAssignment,
+    prefillData
+}: {
+    classes: any[],
+    initialAssignment?: any,
+    prefillData?: { classId?: number, courseId?: number, sessionId?: number, type?: string }
+}) {
     const router = useRouter();
     const idRef = useRef(1);
 
@@ -98,26 +106,54 @@ export function AddAssignmentClient({ classes, initialAssignment }: { classes: a
 
     // ── Pre-fill from initialAssignment (when navigating from ProjectCard edit) ─
     useEffect(() => {
-        if (!initialAssignment) return;
-        const a = initialAssignment;
+        if (initialAssignment) {
+            const a = initialAssignment;
 
-        // Set the dropdowns first
-        setAssignmentType(a.type || "");
-        if (a.classId) setSelectedClassId(a.classId);
-        if (a.courseId) setSelectedCourseId(a.courseId);
-        if (a.sessionId) setSelectedSessionId(a.sessionId);
+            // Set the dropdowns first
+            setAssignmentType(a.type || "");
+            if (a.classId) setSelectedClassId(a.classId);
+            if (a.courseId) setSelectedCourseId(a.courseId);
+            if (a.sessionId) setSelectedSessionId(a.sessionId);
 
-        // Fetch courses for that class so session dropdowns work
-        if (a.classId) {
-            import("@/app/actions/assignmentActions").then(({ fetchCoursesByClassIdAction }) => {
-                fetchCoursesByClassIdAction(a.classId).then(res => {
-                    if (res.success && res.courses) setCourses(res.courses);
+            // Fetch courses for that class so session dropdowns work
+            if (a.classId) {
+                import("@/app/actions/assignmentActions").then(({ fetchCoursesByClassIdAction }) => {
+                    fetchCoursesByClassIdAction(a.classId).then(res => {
+                        if (res.success && res.courses) setCourses(res.courses);
+                    });
                 });
-            });
-        }
+            }
 
-        // Load the question data and metadata (title, dates, submissionType, etc.)
-        loadExistingTest(a, []);
+            // Load the question data and metadata (title, dates, submissionType, etc.)
+            loadExistingTest(a, []);
+        } else if (prefillData) {
+            if (prefillData.type) {
+                setAssignmentType(prefillData.type);
+                if (prefillData.type === "PRETEST") setTitle("Pre-Test");
+                if (prefillData.type === "POSTTEST") setTitle("Post-Test");
+                if (prefillData.type === "PRETEST" || prefillData.type === "POSTTEST") {
+                    setSimpleObjective([makeObjectiveQuestion(idRef)]);
+                }
+            }
+            if (prefillData.classId) setSelectedClassId(prefillData.classId);
+            if (prefillData.courseId) setSelectedCourseId(prefillData.courseId);
+            if (prefillData.sessionId) setSelectedSessionId(prefillData.sessionId);
+
+            if (prefillData.classId) {
+                import("@/app/actions/assignmentActions").then(({ fetchCoursesByClassIdAction }) => {
+                    fetchCoursesByClassIdAction(prefillData.classId!).then(res => {
+                        if (res.success && res.courses) setCourses(res.courses);
+                    });
+                });
+            }
+            if (prefillData.courseId) {
+                import("@/app/actions/assignmentActions").then(({ fetchSessionsByCourseIdAction }) => {
+                    fetchSessionsByCourseIdAction(prefillData.courseId!).then(res => {
+                        if (res.success && res.sessions) setSessions(res.sessions);
+                    });
+                });
+            }
+        }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
