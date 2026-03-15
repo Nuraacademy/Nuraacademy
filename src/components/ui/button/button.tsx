@@ -8,6 +8,8 @@ interface NuraButtonProp {
   type?: 'button' | 'submit' | 'reset';
   isLoading?: boolean;
   disabled?: boolean;
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
 }
 
 export const NuraButton = ({
@@ -18,6 +20,8 @@ export const NuraButton = ({
   type = 'button',
   isLoading = false,
   disabled = false,
+  leftIcon,
+  rightIcon,
 }: NuraButtonProp) => {
   const baseStyles = "px-4 py-2 rounded-[1rem] font-medium text-lg transition-all duration-200 active:scale-95 flex items-center justify-center min-w-[60px] max-w-[200px] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100";
 
@@ -43,8 +47,12 @@ export const NuraButton = ({
         </div>
       ) : (
         <>
+        <div className="flex items-center gap-2">
+          {leftIcon}
           {label}
+          {rightIcon}
           {variant === "navigate" && <ChevronRight className="w-4 h-4 ml-auto" strokeWidth={3} />}
+        </div>
         </>
       )}
     </button>

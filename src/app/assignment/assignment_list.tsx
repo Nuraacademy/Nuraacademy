@@ -3,15 +3,19 @@
 import { useState } from "react";
 import { NuraSelect } from "@/components/ui/input/nura_select";
 import { NuraSearchInput } from "@/components/ui/input/nura_search_input";
+import { NuraButton } from "@/components/ui/button/button";
 import Sidebar from "@/components/ui/sidebar/sidebar";
 import { AssignmentCard } from "@/components/ui/card/assignment_card";
 import { mapPrismaAssignmentType } from "@/utils/assignment";
 
+import Link from "next/link";
+
 interface AssignmentListProps {
     initialAssignments: any[];
+    canAddAssignment: boolean;
 }
 
-export default function AssignmentList({ initialAssignments }: AssignmentListProps) {
+export default function AssignmentList({ initialAssignments, canAddAssignment }: AssignmentListProps) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [searchValue, setSearchValue] = useState("");
     const [assignmentType, setAssignmentType] = useState("all");
@@ -53,22 +57,32 @@ export default function AssignmentList({ initialAssignments }: AssignmentListPro
                         value={searchValue}
                         onChange={(e) => setSearchValue(e.target.value)}
                     />
+                    <div className="flex gap-2">
+                        <NuraSelect
+                            className="w-full md:w-48"
+                            value={assignmentType}
+                            onChange={setAssignmentType}
+                            options={[
+                                { label: "All", value: "all" },
+                                { label: "Placement Test", value: "PLACEMENT" },
+                                { label: "Pre Test", value: "PRETEST" },
+                                { label: "Post Test", value: "POSTTEST" },
+                                { label: "Assignment", value: "ASSIGNMENT" },
+                                { label: "Exercise", value: "EXERCISE" },
+                                { label: "Final Project", value: "PROJECT" },
+                            ]}
+                            placeholder="Type"
+                        />
 
-                    <NuraSelect
-                        className="w-full md:w-48"
-                        value={assignmentType}
-                        onChange={setAssignmentType}
-                        options={[
-                            { label: "All", value: "all" },
-                            { label: "Placement Test", value: "PLACEMENT" },
-                            { label: "Pre Test", value: "PRETEST" },
-                            { label: "Post Test", value: "POSTTEST" },
-                            { label: "Assignment", value: "ASSIGNMENT" },
-                            { label: "Exercise", value: "EXERCISE" },
-                            { label: "Final Project", value: "PROJECT" },
-                        ]}
-                        placeholder="Type"
-                    />
+                        {canAddAssignment && (
+                            <Link href="/assignment/add">
+                                <NuraButton
+                                    label="Add Assignment"
+                                    variant="primary"
+                                />
+                            </Link>
+                        )}
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 pb-20">
@@ -81,7 +95,7 @@ export default function AssignmentList({ initialAssignments }: AssignmentListPro
                             courseId={String(assignment.courseId)}
                             sessionId={String(assignment.sessionId)}
                             classTitle={assignment.class?.title || "Unknown Class"}
-                            courseTitle={assignment.course?.title || "Unknown Course"}
+                            courseTitle={assignment.course?.title}
                             type={mapPrismaAssignmentType(assignment.type)}
                         />
                     ))}

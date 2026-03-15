@@ -39,6 +39,7 @@ model Session {
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   deletedAt     DateTime?
+  type          SessionType  @default(SESSION)
   assignments   Assignment[]
   ses           SES[]
   course        Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
@@ -63,14 +64,14 @@ model Class {
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
   deletedAt         DateTime?
-  courses           Course[]
-  enrollments       Enrollment[]
-  timelines         Timeline[]
-  curricula         Curricula[]    @relation("ClassCurricula")
   keywords          String[]
   modules           Int?
   previewVideoUrl   String?
   assignments       Assignment[]
+  courses           Course[]
+  enrollments       Enrollment[]
+  timelines         Timeline[]
+  curricula         Curricula[]  @relation("ClassCurricula")
 
   @@index([createdBy])
   @@index([isDraft])
@@ -116,11 +117,12 @@ model Course {
   learningObjectives String?
   entrySkills        String?
   tools              String?
-  threshold          Float?           @default(0)
   createdBy          Int?
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
   deletedAt          DateTime?
+  threshold          Float?           @default(0)
+  type               CourseType       @default(COURSE)
   assignmentItems    AssignmentItem[]
   assignments        Assignment[]
   courseMappings     CourseMapping[]
@@ -166,13 +168,13 @@ model Enrollment {
 model SES {
   enrollmentId Int
   sessionId    Int
-  status       String?    @default("absent")
   score        Float?
   scoredBy     Int?
   scoredAt     DateTime?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   deletedAt    DateTime?
+  status       String?    @default("absent")
   enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
   session      Session    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
@@ -183,6 +185,7 @@ model SES {
 
 model Assignment {
   id                Int                @id @default(autoincrement())
+  title             String?
   classId           Int?
   courseId          Int?
   sessionId         Int?
@@ -435,4 +438,15 @@ enum EnrollmentStatus {
   ACTIVE
   COMPLETED
   DROPPED
+}
+
+enum CourseType {
+  COURSE
+  FINAL_PROJECT
+}
+
+enum SessionType {
+  SESSION
+  EXERCISE
+  ASSIGNMENT
 }

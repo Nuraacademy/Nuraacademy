@@ -182,9 +182,10 @@ interface M3DateTimePickerProps {
     onChange: (d: Date) => void;
     error?: string;
     required?: boolean;
+    className?: string;
 }
 
-export function M3DateTimePicker({ label, value, onChange, error, required }: M3DateTimePickerProps) {
+export function M3DateTimePicker({ label, value, onChange, error, required, className }: M3DateTimePickerProps) {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
 
@@ -201,7 +202,7 @@ export function M3DateTimePicker({ label, value, onChange, error, required }: M3
         : "";
 
     return (
-        <div className="relative" ref={ref}>
+        <div className={`relative ${className}`} ref={ref}>
             {label && (
                 <label className="block text-sm font-semibold mb-1">
                     {label} {required && <span className="text-red-400">*</span>}
@@ -238,9 +239,10 @@ interface M3TimePickerProps {
     onChange: (v: string) => void;
     error?: string;
     required?: boolean;
+    className?: string;
 }
 
-export function M3TimePicker({ label, value, onChange, error, required }: M3TimePickerProps) {
+export function M3TimePicker({ label, value, onChange, error, required, className }: M3TimePickerProps) {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
 
@@ -263,7 +265,7 @@ export function M3TimePicker({ label, value, onChange, error, required }: M3Time
     const display = value || "";
 
     return (
-        <div className="relative" ref={ref}>
+        <div className={`relative ${className}`} ref={ref}>
             {label && (
                 <label className="block text-sm font-semibold mb-1">
                     {label} {required && <span className="text-red-400">*</span>}

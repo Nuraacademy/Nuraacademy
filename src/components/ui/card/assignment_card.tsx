@@ -38,13 +38,13 @@ export const AssignmentCard = ({
             </div>
             <div className="flex flex-col gap-0.5 w-full">
                 <div className="flex items-center gap-3">
-                    <h3 className="text-lg font-bold text-black">{title}</h3>
+                    <h3 className="text-lg text-black">{title}</h3>
                     <span className="rounded-full border border-black px-3 py-0 text-xs font-medium text-black">
                         {tag}
                     </span>
                 </div>
                 <p className="text-base text-gray-700">
-                    {classTitle} <span className="mx-2 text-gray-400">|</span> {courseTitle}
+                    {classTitle} {courseTitle && <><span className="mx-2 text-gray-400">|</span> {courseTitle}</>}
                 </p>
             </div>
         </div>

@@ -68,6 +68,28 @@ export async function getPlacementTestByClassId(classId: number) {
     });
 }
 
+export async function findExistingAssignment(params: {
+    classId: number,
+    courseId?: number | null,
+    sessionId?: number | null,
+    type: AssignmentType
+}) {
+    return await prisma.assignment.findFirst({
+        where: {
+            classId: params.classId,
+            courseId: params.courseId ?? null,
+            sessionId: params.sessionId ?? null,
+            type: params.type,
+            deletedAt: null,
+        },
+        include: {
+            assignmentItems: {
+                where: { deletedAt: null },
+            },
+        },
+    });
+}
+
 export async function getAssignmentResult(assignmentId: number, enrollmentId: number) {
     return await prisma.assignmentResult.findUnique({
         where: {
