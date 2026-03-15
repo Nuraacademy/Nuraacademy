@@ -4,6 +4,7 @@ import { getAssignmentById, getAssignmentResult } from "@/controllers/assignment
 import { getEnrollment } from "@/controllers/enrollmentController";
 import { mapAssignmentToTestRunner } from "@/utils/test_mapper";
 import { NotFoundState } from "@/components/ui/status/not_found_state";
+import { AssignmentIntroCard } from "./components/assignment_intro";
 import { getSession } from "@/app/actions/auth";
 import { NuraButton } from "@/components/ui/button/button";
 import { notFound } from "next/navigation";
@@ -59,36 +60,56 @@ export default async function AssignmentRunnerPage({
         POSTTEST: "Post-Test",
         ASSIGNMENT: "Assignment",
         EXERCISE: "Exercise",
-        PROJECT: "Final Project",
+        PROJECT: "Project",
     };
     pageText.bannerTitle = typeLabel[assignment.type] ?? pageText.bannerTitle;
     pageText.breadcrumbTest = typeLabel[assignment.type] ?? "Assignment";
 
+    const isAssignmentOrProject = assignment.type === "ASSIGNMENT" || assignment.type === "PROJECT";
+    const classTitle = (assignment as any).class?.title || "Class Overview";
+    const courseTitle = (assignment as any).course?.title || "Course";
+
+    const breadcrumbs = [
+        { label: "Home", href: "/" },
+        ...(courseTitle ? [{ label: courseTitle, href: "#" }] : []),
+        ...(classTitle ? [{ label: classTitle, href: "#" }] : []),
+        { label: (assignment as any).title || typeLabel[assignment.type] || "Assignment", href: "#" },
+    ];
+
     return (
         <main className="min-h-screen w-full bg-[#F9F9F0]">
             <div className="px-6 pt-6">
-                <Breadcrumb
-                    items={[
-                        { label: "Home", href: "/" },
-                        { label: "Assignments", href: "/assignment" },
-                        { label: (assignment as any).title || "Assignment", href: "#" },
-                    ]}
-                />
+                <Breadcrumb items={breadcrumbs} />
             </div>
 
-            <TestRunner
-                classId={classId ?? ""}
-                assignmentId={assignment.id}
-                enrollmentId={enrollment.id}
-                objectiveQuestions={objectiveQuestions}
-                essayQuestions={essayQuestions}
-                projectQuestions={projectQuestions}
-                testData={testData}
-                pageText={pageText}
-                autoStart={skipIntro === "1"}
-                finished={isFinished}
-                initialScore={initialScore}
-            />
+            {isAssignmentOrProject && skipIntro !== "1" ? (
+                <AssignmentIntroCard
+                    assignmentId={assignment.id}
+                    title={(assignment as any).title || typeLabel[assignment.type]}
+                    description={assignment.description || ""}
+                    startDate={(assignment as any).startDate || null}
+                    endDate={assignment.endDate || null}
+                    isSubmitted={isFinished}
+                    classTitle={classTitle}
+                    courseTitle={courseTitle}
+                    type={assignment.type}
+                    isGroup={(assignment as any).submissionType === "GROUP"}
+                />
+            ) : (
+                <TestRunner
+                    classId={classId ?? ""}
+                    assignmentId={assignment.id}
+                    enrollmentId={enrollment.id}
+                    objectiveQuestions={objectiveQuestions}
+                    essayQuestions={essayQuestions}
+                    projectQuestions={projectQuestions}
+                    testData={testData}
+                    pageText={pageText}
+                    autoStart={skipIntro === "1" || (!isAssignmentOrProject)}
+                    finished={isFinished}
+                    initialScore={initialScore}
+                />
+            )}
         </main>
     );
 }

@@ -91,6 +91,8 @@ export async function getAssignmentById(id: number) {
             deletedAt: null,
         },
         include: {
+            class: { select: { title: true } },
+            course: { select: { title: true } },
             assignmentItems: {
                 where: { deletedAt: null },
             },
