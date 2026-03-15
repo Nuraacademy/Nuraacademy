@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { getAssignmentIcon, getAssignmentEndpoint, AssignmentType } from "@/utils/assignment";
 
 interface AssignmentCardProps {
+    id?: number;
     title: string;
     tag: "Individual" | "Group";
     classId: string;
@@ -16,6 +17,7 @@ interface AssignmentCardProps {
 }
 
 export const AssignmentCard = ({
+    id,
     title,
     tag,
     classId,
@@ -28,10 +30,18 @@ export const AssignmentCard = ({
 }: AssignmentCardProps) => {
     const router = useRouter();
 
+    const handleClick = () => {
+        if (id && type !== "Placement") {
+            router.push(`/assignment/${id}`);
+        } else {
+            router.push(getAssignmentEndpoint(classId, courseId, sessionId, type));
+        }
+    };
+
     return (
         <div
-            className={`flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-md ${className}`}
-            onClick={() => router.push(getAssignmentEndpoint(classId, courseId, sessionId, type))}
+            className={`flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-md cursor-pointer ${className}`}
+            onClick={handleClick}
         >
             <div className="flex h-12 w-12 shrink-0 items-center justify-center">
                 <img src={getAssignmentIcon(type)} alt={title} className="h-12 w-12" />

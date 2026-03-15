@@ -22,7 +22,7 @@ export default function CourseAssignmentLink({ assignment, isAdmin }: CourseAssi
     return (
         <div
             className="flex items-center justify-between group cursor-pointer border-b border-gray-100 last:border-0 pb-6 last:pb-0"
-            onClick={() => router.push(`/assignment`)}
+            onClick={() => router.push(`/assignment/${assignment.id}`)}
         >
             <div className="flex items-center gap-3">
                 <div className="text-gray-700">

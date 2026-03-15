@@ -89,6 +89,7 @@ export default function AssignmentList({ initialAssignments, canAddAssignment }:
                     {filteredAssignments.map((assignment) => (
                         <AssignmentCard
                             key={assignment.id}
+                            id={assignment.id}
                             title={assignment.title}
                             tag={assignment.submissionType === "GROUP" ? "Group" : "Individual"}
                             classId={String(assignment.classId)}

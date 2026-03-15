@@ -193,7 +193,7 @@ export function ProjectCard({ classId, assignment, isAdmin }: { classId: string,
     return (
         <div
             className="border border-gray-200 rounded-[1.5rem] p-5 hover:border-gray-400 hover:shadow-sm transition-all duration-200 cursor-pointer group relative"
-            onClick={() => router.push(`/assignment`)}
+            onClick={() => router.push(`/assignment/${assignment.id}`)}
         >
             <div className="flex justify-between items-start">
                 <div className="flex-1">
