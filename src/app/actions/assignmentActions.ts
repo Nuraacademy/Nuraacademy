@@ -52,3 +52,14 @@ export async function fetchExistingAssignmentAction(params: {
         return { success: false, error: error.message || "Failed to fetch existing assignment" };
     }
 }
+
+export async function fetchAssignmentByIdAction(id: number) {
+    try {
+        const { getAssignmentById } = await import("@/controllers/assignmentController");
+        const assignment = await getAssignmentById(id);
+        return { success: true, assignment };
+    } catch (error: any) {
+        console.error("fetchAssignmentByIdAction Error:", error);
+        return { success: false, error: error.message || "Failed to fetch assignment" };
+    }
+}

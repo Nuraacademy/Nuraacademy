@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, CheckCircle } from "lucide-react";
 import { addAssignment, editAssignment } from "@/app/actions/assignment";
@@ -40,7 +40,7 @@ interface CourseQuestions {
 
 // ─── Main Client ─────────────────────────────────────────────────────────────
 
-export function AddAssignmentClient({ classes }: { classes: any[] }) {
+export function AddAssignmentClient({ classes, initialAssignment }: { classes: any[], initialAssignment?: any }) {
     const router = useRouter();
     const idRef = useRef(1);
 
@@ -95,6 +95,31 @@ export function AddAssignmentClient({ classes }: { classes: any[] }) {
 
     const showModal = (opts: typeof modal) => setModal({ ...opts, open: true });
     const closeModal = () => setModal((m) => ({ ...m, open: false }));
+
+    // ── Pre-fill from initialAssignment (when navigating from ProjectCard edit) ─
+    useEffect(() => {
+        if (!initialAssignment) return;
+        const a = initialAssignment;
+
+        // Set the dropdowns first
+        setAssignmentType(a.type || "");
+        if (a.classId) setSelectedClassId(a.classId);
+        if (a.courseId) setSelectedCourseId(a.courseId);
+        if (a.sessionId) setSelectedSessionId(a.sessionId);
+
+        // Fetch courses for that class so session dropdowns work
+        if (a.classId) {
+            import("@/app/actions/assignmentActions").then(({ fetchCoursesByClassIdAction }) => {
+                fetchCoursesByClassIdAction(a.classId).then(res => {
+                    if (res.success && res.courses) setCourses(res.courses);
+                });
+            });
+        }
+
+        // Load the question data and metadata (title, dates, submissionType, etc.)
+        loadExistingTest(a, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // Type rules
     const isPlacement = assignmentType === "PLACEMENT";

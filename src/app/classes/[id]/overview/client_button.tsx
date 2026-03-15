@@ -218,7 +218,7 @@ export function ProjectCard({ classId, assignment, isAdmin }: { classId: string,
                             className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-gray-900"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                router.push(`/assignment/add`);
+                                router.push(`/assignment/add?id=${assignment.id}`);
                             }}
                         >
                             <img src="/icons/Edit.svg" alt="Edit" className="w-5 h-5" />
