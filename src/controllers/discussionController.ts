@@ -180,3 +180,61 @@ export async function toggleLikeReply(replyId: number, userId: number) {
         return { liked: true };
     }
 }
+
+// Delete a discussion
+export async function deleteDiscussion(id: number, userId: number, isAdmin: boolean) {
+    const discussion = await prisma.discussion.findUnique({ where: { id } });
+    if (!discussion) throw new Error("Discussion not found");
+
+    if (!isAdmin && discussion.userId !== userId) {
+        throw new Error("Unauthorized to delete this discussion");
+    }
+
+    return prisma.discussion.delete({
+        where: { id },
+    });
+}
+
+// Edit a discussion
+export async function editDiscussion(id: number, data: { title: string; content: string; type: DiscussionType }, userId: number, isAdmin: boolean) {
+    const discussion = await prisma.discussion.findUnique({ where: { id } });
+    if (!discussion) throw new Error("Discussion not found");
+
+    if (!isAdmin && discussion.userId !== userId) {
+        throw new Error("Unauthorized to edit this discussion");
+    }
+
+    return prisma.discussion.update({
+        where: { id },
+        data,
+    });
+}
+
+// Edit a reply
+export async function editReply(id: number, text: string, userId: number, isAdmin: boolean) {
+    const reply = await prisma.discussionReply.findUnique({ where: { id } });
+    if (!reply) throw new Error("Reply not found");
+
+    if (!isAdmin && reply.userId !== userId) {
+        throw new Error("Unauthorized to edit this reply");
+    }
+
+    return prisma.discussionReply.update({
+        where: { id },
+        data: { text },
+    });
+}
+
+// Delete a reply
+export async function deleteReply(id: number, userId: number, isAdmin: boolean) {
+    const reply = await prisma.discussionReply.findUnique({ where: { id } });
+    if (!reply) throw new Error("Reply not found");
+
+    if (!isAdmin && reply.userId !== userId) {
+        throw new Error("Unauthorized to delete this reply");
+    }
+
+    return prisma.discussionReply.delete({
+        where: { id },
+    });
+}

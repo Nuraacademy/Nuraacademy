@@ -5,11 +5,14 @@ import { useEffect, useState, use, useMemo } from 'react';
 import Breadcrumb from '@/components/ui/breadcrumb/breadcrumb';
 import { NuraButton } from '@/components/ui/button/button';
 import ForumTag from '@/components/ui/tag/discussion';
-import { getDiscussionByIdAction, createReplyAction, toggleLikeDiscussionAction, toggleLikeReplyAction } from '@/app/actions/discussion';
+import { getDiscussionByIdAction, createReplyAction, toggleLikeDiscussionAction, toggleLikeReplyAction, deleteDiscussionAction, editReplyAction, deleteReplyAction, editDiscussionAction } from '@/app/actions/discussion';
+import { getSession } from '@/app/actions/auth';
 import { toast } from 'sonner';
-import { Heart, MessageCircle, Send } from 'lucide-react';
+import { Heart, MessageCircle, Send, Edit, Trash2 } from 'lucide-react';
 import { NuraSelect } from '@/components/ui/input/nura_select';
 import { hasPermission } from '@/lib/rbac';
+import { useRouter } from 'next/navigation';
+import { ConfirmModal } from '@/components/ui/modal/confirmation_modal';
 
 // Mapping backend types to frontend types format
 const parseDiscussionType = (type: string) => {
@@ -30,17 +33,68 @@ export default function DiscussionTopicPage({
 }) {
     const params = use(searchParams);
     const idStr = params.id;
+    const router = useRouter();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [sortRepliesBy, setSortRepliesBy] = useState("newest");
-    const [canReply, setCanReply] = useState(false);
+
+    // Permissions & State
+    const [perms, setPerms] = useState({
+        replySelf: false,
+        replyOthers: false,
+        deleteSelfTopic: false,
+        deleteOthersTopic: false,
+        editSelfReply: false,
+        editOthersReply: false,
+        deleteSelfReply: false,
+        deleteOthersReply: false,
+        createEditTopic: false,
+    });
+    const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+
+    // Modals
+    const [isEditTopicModalOpen, setIsEditTopicModalOpen] = useState(false);
+    const [isDeleteTopicModalOpen, setIsDeleteTopicModalOpen] = useState(false);
+    const [isDeleteReplyModalOpen, setIsDeleteReplyModalOpen] = useState(false);
+    const [replyToDelete, setReplyToDelete] = useState<number | null>(null);
+    const [replyToEdit, setReplyToEdit] = useState<{ id: number, text: string } | null>(null);
 
     useEffect(() => {
-        hasPermission('Forums', 'REPLY_TOPIC').then(setCanReply).catch(() => { });
+        Promise.all([
+            hasPermission('Forums', 'REPLY_SELF_TOPIC'),
+            hasPermission('Forums', 'REPLY_OTHERS_TOPIC'),
+            hasPermission('Forums', 'DELETE_SELF_TOPIC'),
+            hasPermission('Forums', 'DELETE_OTHERS_TOPIC'),
+            hasPermission('Forums', 'EDIT_SELF_REPLY'),
+            hasPermission('Forums', 'EDIT_OTHERS_REPLY'),
+            hasPermission('Forums', 'DELETE_SELF_REPLY'),
+            hasPermission('Forums', 'DELETE_OTHERS_REPLY'),
+            hasPermission('Forums', 'CREATE_EDIT_TOPIC'),
+            getSession()
+        ]).then(([
+            replySelf, replyOthers, 
+            delSelfTopic, delOthersTopic, 
+            editSelfReply, editOthersReply, 
+            delSelfReply, delOthersReply,
+            createEditTopic,
+            sessionUserId
+        ]) => {
+            setPerms({
+                replySelf, replyOthers,
+                deleteSelfTopic: delSelfTopic,
+                deleteOthersTopic: delOthersTopic,
+                editSelfReply, editOthersReply,
+                deleteSelfReply: delSelfReply,
+                deleteOthersReply: delOthersReply,
+                createEditTopic,
+            });
+            setCurrentUserId(sessionUserId);
+        }).catch(console.error);
     }, []);
 
     const [discussion_data, setDiscussion_data] = useState<{
         id: number;
+        userId: number;
         author: string;
         timeAgo: string;
         title: string;
@@ -51,6 +105,7 @@ export default function DiscussionTopicPage({
         isLikedByCurrentUser: boolean;
         replies: {
             id: number;
+            userId: number;
             author: string;
             timeAgo: string;
             text: string;
@@ -67,6 +122,7 @@ export default function DiscussionTopicPage({
         if (res.success && res.data) {
             setDiscussion_data({
                 id: res.data.id,
+                userId: res.data.userId,
                 author: res.data.authorName,
                 timeAgo: "12 hours ago", // Placeholder for visual consistency with image
                 title: res.data.title,
@@ -77,6 +133,7 @@ export default function DiscussionTopicPage({
                 isLikedByCurrentUser: res.data.isLikedByCurrentUser,
                 replies: res.data.replies.map((r: any) => ({
                     id: r.id,
+                    userId: r.userId,
                     author: r.authorName,
                     timeAgo: "8 hours ago", // Placeholder
                     text: r.text,
@@ -131,17 +188,20 @@ export default function DiscussionTopicPage({
         }
     };
 
-    const handleToggleLikeReply = async (replyId: number, index: number) => {
+    const handleToggleLikeReply = async (replyId: number) => {
         if (!discussion_data) return;
+
+        const originalIndex = discussion_data.replies.findIndex(r => r.id === replyId);
+        if (originalIndex === -1) return;
 
         const prevData = discussion_data;
         const newReplies = [...discussion_data.replies];
-        const isCurrentlyLiked = newReplies[index].isLikedByCurrentUser;
+        const isCurrentlyLiked = newReplies[originalIndex].isLikedByCurrentUser;
 
-        newReplies[index] = {
-            ...newReplies[index],
+        newReplies[originalIndex] = {
+            ...newReplies[originalIndex],
             isLikedByCurrentUser: !isCurrentlyLiked,
-            likeCount: isCurrentlyLiked ? newReplies[index].likeCount - 1 : newReplies[index].likeCount + 1
+            likeCount: isCurrentlyLiked ? newReplies[originalIndex].likeCount - 1 : newReplies[originalIndex].likeCount + 1
         };
 
         setDiscussion_data({
@@ -154,6 +214,55 @@ export default function DiscussionTopicPage({
             toast.error(res.error || "Failed to toggle like on reply.");
             setDiscussion_data(prevData);
         }
+    };
+
+    const handleDeleteTopic = async () => {
+        if (!discussion_data) return;
+        const res = await deleteDiscussionAction(discussion_data.id);
+        if (res.success) {
+            toast.success("Topic deleted successfully!");
+            router.push('/discussions');
+        } else {
+            toast.error(res.error || "Failed to delete topic.");
+            setIsDeleteTopicModalOpen(false);
+        }
+    };
+
+    const handleEditTopicConfirm = async ({ title, description, type }: { title: string; description: string; type?: string }) => {
+        if (!discussion_data) return;
+        const res = await editDiscussionAction(discussion_data.id, title, description, type as any);
+        if (res.success) {
+            toast.success("Topic updated successfully!");
+            fetchDiscussion();
+        } else {
+            toast.error(res.error || "Failed to update topic.");
+        }
+        setIsEditTopicModalOpen(false);
+    };
+
+    const handleDeleteReplyConfirm = async () => {
+        if (!replyToDelete) return;
+        const res = await deleteReplyAction(replyToDelete);
+        if (res.success) {
+            toast.success("Reply deleted successfully!");
+            fetchDiscussion();
+        } else {
+            toast.error(res.error || "Failed to delete reply.");
+        }
+        setIsDeleteReplyModalOpen(false);
+        setReplyToDelete(null);
+    };
+
+    const handleEditReplyConfirm = async (description: string) => {
+        if (!replyToEdit) return;
+        const res = await editReplyAction(replyToEdit.id, description);
+        if (res.success) {
+            toast.success("Reply edited successfully!");
+            fetchDiscussion();
+        } else {
+            toast.error(res.error || "Failed to edit reply.");
+        }
+        setReplyToEdit(null);
     };
 
     const sortedReplies = useMemo(() => {
@@ -213,11 +322,33 @@ export default function DiscussionTopicPage({
                                 <span>{discussion_data.timeAgo}</span>
                             </div>
 
-                            <div className="flex items-center flex-wrap gap-4 mb-6">
-                                <h2 className="text-3xl font-bold text-gray-900 leading-tight">
-                                    {discussion_data.title}
-                                </h2>
-                                <ForumTag type={discussion_data.type} />
+                            <div className="flex items-center justify-between mb-6">
+                                <div className="flex items-center flex-wrap gap-4">
+                                    <h2 className="text-3xl font-bold text-gray-900 leading-tight">
+                                        {discussion_data.title}
+                                    </h2>
+                                    <ForumTag type={discussion_data.type} />
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    {(perms.createEditTopic || currentUserId === discussion_data.userId) && (
+                                        <button
+                                            onClick={() => setIsEditTopicModalOpen(true)}
+                                            className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
+                                            title="Edit Topic"
+                                        >
+                                            <Edit size={20} />
+                                        </button>
+                                    )}
+                                    {(perms.deleteOthersTopic || (perms.deleteSelfTopic && currentUserId === discussion_data.userId)) && (
+                                        <button
+                                            onClick={() => setIsDeleteTopicModalOpen(true)}
+                                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors flex-shrink-0"
+                                            title="Delete Topic"
+                                        >
+                                            <Trash2 size={20} />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
 
                             <p className="text-gray-700 leading-[1.7] text-lg mb-10 max-w-5xl">
@@ -264,7 +395,7 @@ export default function DiscussionTopicPage({
                                         placeholder="Sorted"
                                         className="w-40 shadow-sm"
                                     />
-                                    {canReply && (
+                                    {(perms.replyOthers || (perms.replySelf && currentUserId === discussion_data.userId)) && (
                                         <NuraButton
                                             label="Add Reply"
                                             variant="primary"
@@ -279,17 +410,42 @@ export default function DiscussionTopicPage({
                             <div className="flex flex-col gap-10">
                                 {sortedReplies.map((reply, index) => (
                                     <div key={index} className="border-b border-gray-100 pb-10 last:border-0 last:pb-0">
-                                        <div className="flex items-center text-gray-400 text-sm font-medium mb-4">
-                                            <span>{reply.author}</span>
-                                            <span className="mx-2 text-[10px]">●</span>
-                                            <span>{reply.timeAgo}</span>
+                                        <div className="flex items-center justify-between mb-4">
+                                            <div className="flex items-center text-gray-400 text-sm font-medium">
+                                                <span>{reply.author}</span>
+                                                <span className="mx-2 text-[10px]">●</span>
+                                                <span>{reply.timeAgo}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                {(perms.editOthersReply || (perms.editSelfReply && currentUserId === reply.userId)) && (
+                                                    <button
+                                                        onClick={() => setReplyToEdit({ id: reply.id, text: reply.text })}
+                                                        className="p-1.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
+                                                        title="Edit Reply"
+                                                    >
+                                                        <Edit size={16} />
+                                                    </button>
+                                                )}
+                                                {(perms.deleteOthersReply || (perms.deleteSelfReply && currentUserId === reply.userId)) && (
+                                                    <button
+                                                        onClick={() => {
+                                                            setReplyToDelete(reply.id);
+                                                            setIsDeleteReplyModalOpen(true);
+                                                        }}
+                                                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                                                        title="Delete Reply"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
-                                        <p className="text-gray-700 leading-[1.7] text-lg mb-6">
+                                        <p className="text-gray-700 leading-[1.7] text-lg mb-6 whitespace-pre-wrap">
                                             {reply.text}
                                         </p>
                                         <div className="flex items-center text-gray-500 gap-8">
                                             <button
-                                                onClick={() => handleToggleLikeReply((reply as any).id, index)}
+                                                onClick={() => handleToggleLikeReply((reply as any).id)}
                                                 className={`flex items-center gap-2 transition-all hover:scale-105 ${reply.isLikedByCurrentUser ? 'text-red-500' : 'hover:text-red-500'}`}
                                             >
                                                 <Heart
@@ -324,6 +480,46 @@ export default function DiscussionTopicPage({
                     onConfirm={({ title, description }: { title: string; description: string }) => handleConfirm(description)}
                     onCancel={() => setIsDialogOpen(false)}
                     isReply={true}
+                />
+
+                <DiscussionTopicDialog
+                    isOpen={isEditTopicModalOpen}
+                    onConfirm={handleEditTopicConfirm}
+                    onCancel={() => setIsEditTopicModalOpen(false)}
+                    initialData={{ 
+                        title: discussion_data?.title || "", 
+                        content: discussion_data?.content || "",
+                        type: discussion_data?.type.toUpperCase().replace(" ", "_") // Simple mapping back
+                    }}
+                />
+
+                <DiscussionTopicDialog
+                    isOpen={!!replyToEdit}
+                    onConfirm={({ title, description }: { title: string; description: string }) => handleEditReplyConfirm(description)}
+                    onCancel={() => setReplyToEdit(null)}
+                    isReply={true}
+                    initialData={{ title: "", content: replyToEdit?.text || "" }}
+                />
+
+                <ConfirmModal
+                    isOpen={isDeleteTopicModalOpen}
+                    title="Delete Topic"
+                    message="Are you sure you want to delete this topic? This action cannot be undone."
+                    onConfirm={handleDeleteTopic}
+                    onCancel={() => setIsDeleteTopicModalOpen(false)}
+                    confirmText="Delete"
+                />
+
+                <ConfirmModal
+                    isOpen={isDeleteReplyModalOpen}
+                    title="Delete Reply"
+                    message="Are you sure you want to delete this reply? This action cannot be undone."
+                    onConfirm={handleDeleteReplyConfirm}
+                    onCancel={() => {
+                        setIsDeleteReplyModalOpen(false);
+                        setReplyToDelete(null);
+                    }}
+                    confirmText="Delete"
                 />
             </div>
         </main>

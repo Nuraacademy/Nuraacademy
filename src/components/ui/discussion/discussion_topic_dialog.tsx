@@ -11,6 +11,7 @@ interface DiscussionTopicDialogProp {
   onConfirm: (data: { title: string; description: string; type?: string }) => void;
   onCancel: () => void;
   isReply?: boolean;
+  initialData?: { title?: string; content?: string; type?: string };
 }
 
 export const DiscussionTopicDialog = ({
@@ -18,10 +19,19 @@ export const DiscussionTopicDialog = ({
   onConfirm,
   onCancel,
   isReply,
+  initialData,
 }: DiscussionTopicDialogProp) => {
-  const [topicTitle, setTopicTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [topicType, setTopicType] = useState("TECHNICAL_HELP");
+  const [topicTitle, setTopicTitle] = React.useState("");
+  const [description, setDescription] = React.useState("");
+  const [topicType, setTopicType] = React.useState("TECHNICAL_HELP");
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setTopicTitle(initialData?.title || "");
+      setDescription(initialData?.content || "");
+      setTopicType(initialData?.type || "TECHNICAL_HELP");
+    }
+  }, [isOpen, initialData]);
 
   if (!isOpen) return null;
 

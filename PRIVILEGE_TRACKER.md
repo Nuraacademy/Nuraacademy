@@ -69,11 +69,15 @@ This document tracks the implementation status of all the privileges seeded into
 | Resource | Action | Description | Status |
 | :--- | :--- | :--- | :--- |
 | Forums | `CREATE_EDIT_TOPIC` | Create/ edit topic | 🟢 Implemented |
-| Forums | `DELETE_TOPIC` | Delete topic | 🔴 Not Implemented (Feature Missing) |
+| Forums | `DELETE_SELF_TOPIC` | Delete own topic | 🟢 Implemented |
 | Forums | `SEARCH_VIEW_TOPIC` | Search & view topic | 🟢 Implemented (Public View) |
-| Forums | `REPLY_TOPIC` | Reply topic | 🟢 Implemented |
-| Forums | `EDIT_REPLY` | Edit reply | 🔴 Not Implemented (Feature Missing) |
-| Forums | `DELETE_REPLY` | Delete reply | 🔴 Not Implemented (Feature Missing) |
+| Forums | `REPLY_SELF_TOPIC` | Reply to own topic | 🟢 Implemented |
+| Forums | `EDIT_SELF_REPLY` | Edit own reply | 🟢 Implemented |
+| Forums | `DELETE_SELF_REPLY` | Delete own reply | 🟢 Implemented |
+| Forums | `DELETE_OTHERS_TOPIC` | Delete others' topic | 🟢 Implemented |
+| Forums | `REPLY_OTHERS_TOPIC` | Reply to others' topic | 🟢 Implemented |
+| Forums | `EDIT_OTHERS_REPLY` | Edit others' reply | 🟢 Implemented |
+| Forums | `DELETE_OTHERS_REPLY` | Delete others' reply | 🟢 Implemented |
 
 ## 6.0 Wikis
 | Resource | Action | Description | Status |
