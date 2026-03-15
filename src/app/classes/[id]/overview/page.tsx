@@ -1,10 +1,10 @@
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import { getClassById } from "@/controllers/classController";
-import { getPlacementTestByClassId, getAssignmentResult } from "@/controllers/assignmentController";
+import { getPlacementTestByClassId, getAssignmentResult, getProjectAssignmentsByClassId } from "@/controllers/assignmentController";
 import { getEnrollment } from "@/controllers/enrollmentController";
 import { getSession } from "@/app/actions/auth";
 import { hasPermission } from "@/lib/rbac";
-import { EnrollButton, AddTimelineButton, PlacementTestButton, AddCourseButton, CourseCard, SuccessHandler } from "./client_button";
+import { EnrollButton, AddTimelineButton, PlacementTestButton, AddCourseButton, CourseCard, ProjectCard, SuccessHandler } from "./client_button";
 import { notFound } from "next/navigation";
 
 export default async function CourseOverviewPage({
@@ -39,6 +39,9 @@ export default async function CourseOverviewPage({
             isPlacementTestFinished = !!testResult?.finishedAt;
         }
     }
+
+    // Fetch PROJECT assignments for this class
+    const projectAssignments = await getProjectAssignmentsByClassId(parseInt(id));
 
     // Fallback image if none provided
     const imageUrl = classData.imgUrl || "https://www.lackawanna.edu/wp-content/uploads/2024/08/male-tutor-teaching-university-students-in-classro-2023-11-27-05-16-59-utc.webp";
@@ -211,6 +214,14 @@ export default async function CourseOverviewPage({
                                         isAdmin={canUpdateCourse}
                                     />
                                 ))}
+                                {projectAssignments.map((assignment) => (
+                                        <ProjectCard
+                                            key={assignment.id}
+                                            classId={id}
+                                            assignment={assignment}
+                                            isAdmin={canUpdateCourse}
+                                        />
+                                    ))}
                                 {(!classData.courses || classData.courses.length === 0) && (
                                     <p className="text-sm text-gray-500 italic">No courses added yet.</p>
                                 )}

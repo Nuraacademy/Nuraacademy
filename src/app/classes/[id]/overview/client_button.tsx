@@ -182,13 +182,62 @@ export function CourseCard({ classId, course, isAdmin }: { classId: string, cour
     )
 }
 
+export function ProjectCard({ classId, assignment, isAdmin }: { classId: string, assignment: any, isAdmin: boolean }) {
+    const router = useRouter()
+
+    const submissionLabel = assignment.submissionType === "GROUP" ? "Group" : "Individual"
+    const submissionColor = assignment.submissionType === "GROUP"
+        ? "bg-purple-50 text-purple-700 border border-purple-200"
+        : "bg-blue-50 text-blue-700 border border-blue-200"
+
+    return (
+        <div
+            className="border border-gray-200 rounded-[1.5rem] p-5 hover:border-gray-400 hover:shadow-sm transition-all duration-200 cursor-pointer group relative"
+            onClick={() => router.push(`/assignment`)}
+        >
+            <div className="flex justify-between items-start">
+                <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-black text-medium">{assignment.title}</h3>
+                        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${submissionColor}`}>
+                            {submissionLabel}
+                        </span>
+                    </div>
+                    {assignment.course && (
+                        <p className="text-sm text-gray-500">{assignment.course.title}</p>
+                    )}
+                    {assignment.startDate && (
+                        <p className="text-xs text-gray-400 mt-0.5">
+                            Due: {new Date(assignment.startDate).toLocaleDateString()}
+                        </p>
+                    )}
+                </div>
+                {isAdmin && (
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                            className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-gray-900"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/assignment/add`);
+                            }}
+                        >
+                            <img src="/icons/Edit.svg" alt="Edit" className="w-5 h-5" />
+                        </button>
+                    </div>
+                )}
+            </div>
+        </div>
+    )
+}
+
 const ClientButton = {
     SuccessHandler,
     EnrollButton,
     AddTimelineButton,
     PlacementTestButton,
     AddCourseButton,
-    CourseCard
+    CourseCard,
+    ProjectCard
 }
 
 export default ClientButton

@@ -69,6 +69,21 @@ export async function getAssignments(userId?: number) {
     });
 }
 
+export async function getProjectAssignmentsByClassId(classId: number) {
+    return await prisma.assignment.findMany({
+        where: {
+            classId,
+            type: "PROJECT",
+            deletedAt: null,
+        },
+        include: {
+            course: { select: { title: true } },
+        },
+        orderBy: { createdAt: "desc" },
+    });
+}
+
+
 export async function getAssignmentById(id: number) {
     return await prisma.assignment.findUnique({
         where: {
