@@ -20,6 +20,7 @@ export default async function EditSessionPage({
     let content: any = {};
     let referenceMaterials: any[] = [];
     let initialIsSynchronous = false;
+    let initialType = "SESSION";
 
     if (isNew) {
         const course = await getCourseById(parseInt(courseId));
@@ -34,6 +35,7 @@ export default async function EditSessionPage({
         classTitle = session.course?.class?.title || "Class";
         courseTitle = session.course?.title || "Course";
         initialIsSynchronous = session.isSynchronous || false;
+        initialType = (session as any).type || "SESSION";
 
         // Parse JSON fields safely
         const parseJson = (val: any) => {
@@ -85,6 +87,7 @@ export default async function EditSessionPage({
                         initialSchedule={schedule}
                         initialContent={content}
                         initialReference={referenceMaterials}
+                        initialType={initialType as any}
                     />
                 </div>
             </div>

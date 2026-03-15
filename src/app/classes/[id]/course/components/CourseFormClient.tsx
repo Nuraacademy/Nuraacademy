@@ -8,13 +8,15 @@ import { NuraTextInput } from "@/components/ui/input/text_input"
 import { RichTextInput } from "@/components/ui/input/rich_text_input"
 import { upsertCourse } from "@/app/actions/course"
 import { FeedbackModal } from "@/components/ui/modal/feedback_modal"
+import { ProjectFormClient } from "./ProjectFormClient"
 
 type Props = {
     classData: any
     courseData?: any
+    initialType?: string
 }
 
-export function CourseFormClient({ classData, courseData }: Props) {
+export function CourseFormClient({ classData, courseData, initialType }: Props) {
     const router = useRouter()
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [form, setForm] = useState({
@@ -22,7 +24,8 @@ export function CourseFormClient({ classData, courseData }: Props) {
         description: courseData?.description || "",
         learningObjectives: courseData?.learningObjectives || "",
         entrySkills: courseData?.entrySkills || "",
-        tools: courseData?.tools || ""
+        tools: courseData?.tools || "",
+        type: courseData?.type || initialType || "COURSE"
     })
 
     const [modal, setModal] = useState<{ open: boolean, type: "success" | "error", title: string, message: string }>({
@@ -82,6 +85,10 @@ export function CourseFormClient({ classData, courseData }: Props) {
         { label: courseData ? "Edit Course" : "Add Course", href: "#" },
     ];
 
+    if (form.type === "FINAL_PROJECT") {
+        return <ProjectFormClient classData={classData} courseData={courseData} initialType={initialType} />
+    }
+
     return (
         <main className="relative min-h-screen bg-white flex flex-col text-gray-800 overflow-hidden">
             {/* Background */}
@@ -93,6 +100,19 @@ export function CourseFormClient({ classData, courseData }: Props) {
                 <h1 className="text-2xl font-bold mt-6 mb-8">{courseData ? "Edit Course" : "Add Course"}</h1>
 
                 <div className="space-y-8 max-w-4xl mx-auto w-full">
+                    {/* Course Type */}
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Course Type</label>
+                        <select
+                            className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#D9F55C] bg-white"
+                            value={form.type}
+                            onChange={(e) => handleFieldChange("type", e.target.value)}
+                        >
+                            <option value="COURSE">Course</option>
+                            <option value="FINAL_PROJECT">Final Project</option>
+                        </select>
+                    </div>
+
                     {/* Course Title */}
                     <div>
                         <NuraTextInput

@@ -161,7 +161,7 @@ export default function SessionContent({
 
             {/* Footer Buttons */}
             <div className="flex flex-col items-center gap-4 mt-10">
-                <div className="flex justify-center gap-4">
+                <div className="flex flex-wrap justify-center gap-6">
                     <div className="flex flex-col items-center gap-2">
                         <NuraButton
                             label="Pre-test"
@@ -177,6 +177,44 @@ export default function SessionContent({
                                 className="text-[10px] font-bold text-[#005954] hover:underline uppercase tracking-wider"
                             >
                                 Manage Pre-test
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="flex flex-col items-center gap-2">
+                        <NuraButton
+                            label="Assignment"
+                            variant="primary"
+                            className="min-w-[160px] h-10 text-sm font-bold"
+                            onClick={() => {
+                                router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/assignment`);
+                            }}
+                        />
+                        {isAdmin && (
+                            <button
+                                onClick={() => router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/assignment/edit`)}
+                                className="text-[10px] font-bold text-[#005954] hover:underline uppercase tracking-wider"
+                            >
+                                Manage Assignment
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="flex flex-col items-center gap-2">
+                        <NuraButton
+                            label="Exercise"
+                            variant="primary"
+                            className="min-w-[160px] h-10 text-sm font-bold"
+                            onClick={() => {
+                                router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/exercise`);
+                            }}
+                        />
+                        {isAdmin && (
+                            <button
+                                onClick={() => router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/exercise/edit`)}
+                                className="text-[10px] font-bold text-[#005954] hover:underline uppercase tracking-wider"
+                            >
+                                Manage Exercise
                             </button>
                         )}
                     </div>

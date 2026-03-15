@@ -34,6 +34,7 @@ export async function getCourseById(id: number) {
                     assignments: { where: { deletedAt: null } },
                 },
             },
+            assignments: { where: { deletedAt: null } },
         },
     });
 }

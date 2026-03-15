@@ -6,16 +6,51 @@ import { requirePermission } from "@/lib/rbac";
 
 export async function upsertCourse(classId: number, courseId: number | null, data: any) {
     try {
+        const { taskItems, deadline, submissionType, startDate, passingGrade, ...courseFields } = data;
+        const isProject = data.type === 'FINAL_PROJECT';
+
+        let result;
         if (courseId) {
             await requirePermission('Course', 'UPDATE_COURSE');
-            await updateCourse(courseId, data);
+            result = await updateCourse(courseId, courseFields);
         } else {
             await requirePermission('Course', 'CREATE_COURSE');
             const payload = {
-                ...data,
+                ...courseFields,
                 class: { connect: { id: classId } }
             };
-            await createCourse(payload);
+            result = await createCourse(payload);
+            courseId = result.id;
+        }
+
+        // Handle Project-specific Assignment
+        if (isProject && deadline) {
+            const { createAssignment, updateAssignment } = await import("@/controllers/assignmentController");
+            const assignmentPayload = {
+                type: 'PROJECT' as any,
+                submissionType: submissionType || 'INDIVIDUAL',
+                startDate: startDate || new Date(),
+                endDate: deadline,
+                passingGrade: passingGrade || 0,
+                description: courseFields.description,
+                instruction: courseFields.learningObjectives, // Using learning objectives as instructions for now
+                course: { connect: { id: courseId } },
+                class: { connect: { id: classId } }
+            };
+
+            const itemsPayload = taskItems || [];
+
+            // Check if assignment already exists for this course
+            const { prisma } = await import("@/lib/prisma");
+            const existingAssignment = await prisma.assignment.findFirst({
+                where: { courseId, type: 'PROJECT', deletedAt: null }
+            });
+
+            if (existingAssignment) {
+                await updateAssignment(existingAssignment.id, assignmentPayload, itemsPayload);
+            } else {
+                await createAssignment(assignmentPayload, itemsPayload);
+            }
         }
 
         revalidatePath(`/classes/${classId}/overview`);

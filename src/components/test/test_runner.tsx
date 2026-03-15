@@ -33,6 +33,7 @@ type TestRunnerProps = {
   finished?: boolean
   initialScore?: number
   showBanner?: boolean
+  isProject?: boolean
 }
 
 export function TestRunner({
@@ -49,6 +50,7 @@ export function TestRunner({
   finished = false,
   initialScore,
   showBanner = true,
+  isProject = false,
 }: TestRunnerProps) {
   const [hasStarted, setHasStarted] = useState(autoStart)
   const [startTime, setStartTime] = useState<Date | null>(autoStart ? new Date() : null)

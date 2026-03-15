@@ -60,7 +60,8 @@ export async function updateSessionContent(
     isSynchronous: boolean,
     schedule: any,
     contentData: any,
-    referenceData: any[]
+    referenceData: any[],
+    type: string
 ) {
     try {
         await requirePermission('Session', 'UPDATE_SESSION');
@@ -92,7 +93,8 @@ export async function updateSessionContent(
                 isSynchronous: isSynchronous,
                 schedule: schedule,
                 content: contentData,
-                reference: referenceData
+                reference: referenceData,
+                type: type as any
             }
         });
 
@@ -133,7 +135,8 @@ export async function createSession(
         isSynchronous: boolean;
         schedule: any;
         content: any;
-        reference: any[]
+        reference: any[];
+        type: string;
     }
 ) {
     try {
@@ -146,6 +149,7 @@ export async function createSession(
                 schedule: data.schedule,
                 content: data.content,
                 reference: data.reference,
+                type: data.type as any
             }
         });
 

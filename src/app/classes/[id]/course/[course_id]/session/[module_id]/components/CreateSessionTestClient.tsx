@@ -209,7 +209,7 @@ function OpenEndedBlock({
     );
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
+import { SubmissionType } from "@prisma/client";
 
 interface CreateSessionTestClientProps {
     classId: number;
@@ -239,6 +239,7 @@ export function CreateSessionTestClient({
     const [duration, setDuration] = useState<number>(120);
     const [description, setDescription] = useState("");
     const [instruction, setInstruction] = useState("");
+    const [submissionType, setSubmissionType] = useState<SubmissionType>("INDIVIDUAL");
 
     // Questions state
     const [objectiveQuestions, setObjectiveQuestions] = useState<ObjectiveQuestion[]>([]);
@@ -276,6 +277,7 @@ export function CreateSessionTestClient({
             setDuration(existingTest.duration || 120);
             setDescription(existingTest.description || "");
             setInstruction(existingTest.instruction || "");
+            setSubmissionType(existingTest.submissionType || "INDIVIDUAL");
 
             const items = existingTest.assignmentItems || [];
             const obj: ObjectiveQuestion[] = [];
@@ -314,11 +316,15 @@ export function CreateSessionTestClient({
             setEssayQuestions(ess);
             setProjectQuestions(prj);
         } else {
-            // Defaults for new test
-            setObjectiveQuestions([makeObjectiveQuestion(idRef)]);
-            setEssayQuestions([makeEssayQuestion(idRef)]);
+            // Defaults for new test/assignment
+            if (type === "PRETEST" || type === "POSTTEST") {
+                setObjectiveQuestions([makeObjectiveQuestion(idRef)]);
+                setEssayQuestions([makeEssayQuestion(idRef)]);
+            } else {
+                setProjectQuestions([makeProjectQuestion(idRef)]);
+            }
         }
-    }, [existingTest]);
+    }, [existingTest, type]);
 
     const validate = (): string[] => {
         const errors: string[] = [];
@@ -342,8 +348,9 @@ export function CreateSessionTestClient({
             if (q.score <= 0) errors.push(`Essay Q${i + 1}: score must be > 0.`);
         });
         projectQuestions.forEach((q, i) => {
-            if (!q.content.replace(/<[^>]+>/g, "").trim()) errors.push(`Project Q${i + 1}: question text is required.`);
-            if (q.score <= 0) errors.push(`Project Q${i + 1}: score must be > 0.`);
+            const stripped = q.content.replace(/<[^>]+>/g, "").trim();
+            if (!stripped && type !== "PRETEST" && type !== "POSTTEST") errors.push(`Task Item ${i + 1}: content is required.`);
+            if (q.score <= 0) errors.push(`Task Item ${i + 1}: score must be > 0.`);
         });
         return errors;
     };
@@ -373,6 +380,7 @@ export function CreateSessionTestClient({
             courseId,
             classId,
             type,
+            submissionType,
             startDate: startDate || new Date(),
             endDate: end,
             duration,
@@ -419,8 +427,8 @@ export function CreateSessionTestClient({
             showModal({
                 open: true,
                 type: "success",
-                title: existingTest ? "Test Updated!" : "Test Created!",
-                message: "The test questions have been saved successfully.",
+                title: existingTest ? "Saved!" : "Created!",
+                message: "The assignment has been saved successfully.",
                 confirmText: "Go to Session",
                 onConfirm: () => {
                     closeModal();
@@ -438,7 +446,18 @@ export function CreateSessionTestClient({
         }
     };
 
-    const testTypeName = type === "PRETEST" ? "Pre-test" : "Post-test";
+    const getName = (type: AssignmentType) => {
+        switch (type) {
+            case "PRETEST": return "Pre-test";
+            case "POSTTEST": return "Post-test";
+            case "EXERCISE": return "Exercise";
+            case "ASSIGNMENT": return "Assignment";
+            case "PROJECT": return "Final Project";
+            default: return "Test";
+        }
+    };
+
+    const testTypeName = getName(type);
     const currentMaxScore = objectiveQuestions.reduce((a, b) => a + b.score, 0) +
         essayQuestions.reduce((a, b) => a + b.score, 0) +
         projectQuestions.reduce((a, b) => a + b.score, 0);
@@ -474,14 +493,36 @@ export function CreateSessionTestClient({
 
                 <h1 className="text-2xl font-bold mt-6 mb-8">{existingTest ? "Edit" : "Create"} {testTypeName}</h1>
 
-                {/* ── Test Config ── */}
+                {/* ── Test/Task Config ── */}
                 <div className="bg-[#F2F5DC] rounded-[2rem] p-8 mb-8 space-y-6 shadow-sm border border-[#EBF2D5]">
+                    {/* Submission Type & Start Date */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-sm font-semibold text-gray-700">Submission Type</label>
+                            <div className="flex gap-2 p-1 bg-white/50 rounded-xl border border-gray-100">
+                                <button
+                                    onClick={() => setSubmissionType("INDIVIDUAL")}
+                                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${submissionType === "INDIVIDUAL" ? "bg-[#005954] text-white" : "text-gray-500 hover:bg-gray-100"}`}
+                                >
+                                    Individual
+                                </button>
+                                <button
+                                    onClick={() => setSubmissionType("GROUP")}
+                                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${submissionType === "GROUP" ? "bg-[#005954] text-white" : "text-gray-500 hover:bg-gray-100"}`}
+                                >
+                                    Group
+                                </button>
+                            </div>
+                        </div>
                         <M3DateTimePicker
                             label="Start Date (Optional)"
                             value={startDate}
                             onChange={setStartDate}
                         />
+                    </div>
+
+                    {/* Deadline & Duration */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="grid grid-cols-2 gap-4">
                             <M3DateTimePicker
                                 label="Deadline Date"
@@ -496,9 +537,6 @@ export function CreateSessionTestClient({
                                 required
                             />
                         </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="flex flex-col gap-1.5">
                             <label className="text-sm font-semibold text-gray-700">Duration (Minutes)</label>
                             <input
@@ -508,6 +546,10 @@ export function CreateSessionTestClient({
                                 onChange={(e) => setDuration(Number(e.target.value))}
                             />
                         </div>
+                    </div>
+
+                    {/* Passing Grade */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="flex flex-col gap-1.5">
                             <label className="text-sm font-semibold text-gray-700">Passing Grade (out of {currentMaxScore})</label>
                             <input
@@ -519,11 +561,12 @@ export function CreateSessionTestClient({
                         </div>
                     </div>
 
+                    {/* Description & Instruction */}
                     <div className="flex flex-col gap-1.5">
                         <label className="text-sm font-semibold text-gray-700">Description</label>
                         <textarea
                             className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#D9F55C] min-h-[100px]"
-                            placeholder="Briefly describe what this test covers..."
+                            placeholder="Briefly describe what this task covers..."
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                         />
@@ -533,7 +576,7 @@ export function CreateSessionTestClient({
                         <label className="text-sm font-semibold text-gray-700">Instructions</label>
                         <textarea
                             className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#D9F55C] min-h-[100px]"
-                            placeholder="Enter test instructions, one per line..."
+                            placeholder="Enter task instructions, one per line..."
                             value={instruction}
                             onChange={(e) => setInstruction(e.target.value)}
                         />
@@ -542,66 +585,70 @@ export function CreateSessionTestClient({
 
                 {/* ── Questions ── */}
                 <div className="space-y-12">
-                    {/* Objective */}
-                    <section>
-                        <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-                            Objective Questions
-                            <span className="text-xs font-normal text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">Automated Scoring</span>
-                        </h2>
-                        {objectiveQuestions.map((q, i) => (
-                            <ObjectiveBlock
-                                key={q.id}
-                                question={q}
-                                index={i}
-                                idRef={idRef}
-                                onChange={(updater) =>
-                                    setObjectiveQuestions((prev) => prev.map((item) => (item.id === q.id ? updater(item) : item)))
-                                }
-                                onRemove={() =>
-                                    setObjectiveQuestions((prev) => prev.filter((item) => item.id !== q.id))
-                                }
-                            />
-                        ))}
-                        <button
-                            onClick={() => setObjectiveQuestions((prev) => [...prev, makeObjectiveQuestion(idRef)])}
-                            className="w-full py-3.5 text-sm text-gray-500 hover:text-gray-800 flex items-center justify-center gap-2 transition-colors border-2 border-dashed border-gray-200 rounded-2xl hover:border-gray-300 hover:bg-gray-50"
-                        >
-                            <Plus size={16} /> Add Objective Question
-                        </button>
-                    </section>
+                    {/* Objective (Only for Tests) */}
+                    {(type === "PRETEST" || type === "POSTTEST") && (
+                        <section>
+                            <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+                                Objective Questions
+                                <span className="text-xs font-normal text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">Automated Scoring</span>
+                            </h2>
+                            {objectiveQuestions.map((q, i) => (
+                                <ObjectiveBlock
+                                    key={q.id}
+                                    question={q}
+                                    index={i}
+                                    idRef={idRef}
+                                    onChange={(updater) =>
+                                        setObjectiveQuestions((prev) => prev.map((item) => (item.id === q.id ? updater(item) : item)))
+                                    }
+                                    onRemove={() =>
+                                        setObjectiveQuestions((prev) => prev.filter((item) => item.id !== q.id))
+                                    }
+                                />
+                            ))}
+                            <button
+                                onClick={() => setObjectiveQuestions((prev) => [...prev, makeObjectiveQuestion(idRef)])}
+                                className="w-full py-3.5 text-sm text-gray-500 hover:text-gray-800 flex items-center justify-center gap-2 transition-colors border-2 border-dashed border-gray-200 rounded-2xl hover:border-gray-300 hover:bg-gray-50"
+                            >
+                                <Plus size={16} /> Add Objective Question
+                            </button>
+                        </section>
+                    )}
 
-                    {/* Essay */}
-                    <section>
-                        <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-                            Essay Questions
-                            <span className="text-xs font-normal text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">Manual Review</span>
-                        </h2>
-                        {essayQuestions.map((q, i) => (
-                            <OpenEndedBlock
-                                key={q.id}
-                                question={q}
-                                index={i}
-                                label="Essay Question"
-                                onChange={(updater) =>
-                                    setEssayQuestions((prev) => prev.map((item) => (item.id === q.id ? updater(item) : item)))
-                                }
-                                onRemove={() =>
-                                    setEssayQuestions((prev) => prev.filter((item) => item.id !== q.id))
-                                }
-                            />
-                        ))}
-                        <button
-                            onClick={() => setEssayQuestions((prev) => [...prev, makeEssayQuestion(idRef)])}
-                            className="w-full py-3.5 text-sm text-gray-500 hover:text-gray-800 flex items-center justify-center gap-2 transition-colors border-2 border-dashed border-gray-200 rounded-2xl hover:border-gray-300 hover:bg-gray-50"
-                        >
-                            <Plus size={16} /> Add Essay Question
-                        </button>
-                    </section>
+                    {/* Essay (Only for Tests) */}
+                    {(type === "PRETEST" || type === "POSTTEST") && (
+                        <section>
+                            <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+                                Essay Questions
+                                <span className="text-xs font-normal text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">Manual Review</span>
+                            </h2>
+                            {essayQuestions.map((q, i) => (
+                                <OpenEndedBlock
+                                    key={q.id}
+                                    question={q}
+                                    index={i}
+                                    label="Essay Question"
+                                    onChange={(updater) =>
+                                        setEssayQuestions((prev) => prev.map((item) => (item.id === q.id ? updater(item) : item)))
+                                    }
+                                    onRemove={() =>
+                                        setEssayQuestions((prev) => prev.filter((item) => item.id !== q.id))
+                                    }
+                                />
+                            ))}
+                            <button
+                                onClick={() => setEssayQuestions((prev) => [...prev, makeEssayQuestion(idRef)])}
+                                className="w-full py-3.5 text-sm text-gray-500 hover:text-gray-800 flex items-center justify-center gap-2 transition-colors border-2 border-dashed border-gray-200 rounded-2xl hover:border-gray-300 hover:bg-gray-50"
+                            >
+                                <Plus size={16} /> Add Essay Question
+                            </button>
+                        </section>
+                    )}
 
-                    {/* Project */}
+                    {/* Project/Item Block */}
                     <section>
                         <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-                            Project Questions
+                            {type === "PRETEST" || type === "POSTTEST" ? "Project Questions" : "Task Items"}
                             <span className="text-xs font-normal text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">Manual Review</span>
                         </h2>
                         {projectQuestions.map((q, i) => (
@@ -609,7 +656,7 @@ export function CreateSessionTestClient({
                                 key={q.id}
                                 question={q}
                                 index={i}
-                                label="Project Question"
+                                label={type === "PRETEST" || type === "POSTTEST" ? "Project Question" : "Task Item"}
                                 onChange={(updater) =>
                                     setProjectQuestions((prev) => prev.map((item) => (item.id === q.id ? updater(item) : item)))
                                 }
@@ -622,7 +669,7 @@ export function CreateSessionTestClient({
                             onClick={() => setProjectQuestions((prev) => [...prev, makeProjectQuestion(idRef)])}
                             className="w-full py-3.5 text-sm text-gray-500 hover:text-gray-800 flex items-center justify-center gap-2 transition-colors border-2 border-dashed border-gray-200 rounded-2xl hover:border-gray-300 hover:bg-gray-50"
                         >
-                            <Plus size={16} /> Add Project Question
+                            <Plus size={16} /> Add {type === "PRETEST" || type === "POSTTEST" ? "Project Question" : "Task Item"}
                         </button>
                     </section>
                 </div>
@@ -637,7 +684,7 @@ export function CreateSessionTestClient({
                         Cancel
                     </button>
                     <NuraButton
-                        label={isSubmitting ? "Saving..." : (existingTest ? "Save Changes" : "Create Test")}
+                        label={isSubmitting ? "Saving..." : (existingTest ? "Save Changes" : "Create Task")}
                         variant="primary"
                         className="min-w-[180px] !rounded-full py-3 text-sm font-bold shadow-lg shadow-[#cdff2b33]"
                         onClick={handleSubmit}

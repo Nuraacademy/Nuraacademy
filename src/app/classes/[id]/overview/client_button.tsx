@@ -2,7 +2,7 @@
 
 import { NuraButton } from "@/components/ui/button/button"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import WelcomingModal from "@/components/ui/modal/welcoming_modal"
 import { ConfirmModal } from "@/components/ui/modal/confirmation_modal"
 import { toast } from "sonner"
@@ -111,7 +111,60 @@ export function PlacementTestButton({
 
 export function AddCourseButton({ classId }: { classId: string }) {
     const router = useRouter()
-    return <NuraButton label="Add Course" variant="primary" onClick={() => router.push(`/classes/${classId}/course/add`)} />
+    const [showDropdown, setShowDropdown] = useState(false)
+    const dropdownRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setShowDropdown(false)
+            }
+        }
+
+        if (showDropdown) {
+            document.addEventListener('mousedown', handleClickOutside)
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside)
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside)
+        }
+    }, [showDropdown])
+
+    return (
+        <div className="relative" ref={dropdownRef}>
+            <NuraButton
+                label="Add Course"
+                variant="primary"
+                onClick={() => setShowDropdown(!showDropdown)}
+            />
+            {showDropdown && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <button
+                        className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+                        onClick={() => {
+                            setShowDropdown(false)
+                            router.push(`/classes/${classId}/course/add?type=COURSE`)
+                        }}
+                    >
+                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                        Course
+                    </button>
+                    <button
+                        className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+                        onClick={() => {
+                            setShowDropdown(false)
+                            router.push(`/classes/${classId}/course/add?type=FINAL_PROJECT`)
+                        }}
+                    >
+                        <div className="w-2 h-2 rounded-full bg-[#005954]"></div>
+                        Project
+                    </button>
+                </div>
+            )}
+        </div>
+    )
 }
 
 export function CourseCard({ classId, course, isAdmin }: { classId: string, course: any, isAdmin: boolean }) {
@@ -139,9 +192,16 @@ export function CourseCard({ classId, course, isAdmin }: { classId: string, cour
                 onClick={() => router.push(`/classes/${classId}/course/${course.id}/overview`)}
             >
                 <div className="flex justify-between items-start">
-                <div>
-                    <h3 className="text-black text-medium mb-1">{course.title}</h3>
-                    <div className="text-sm text-gray-600 line-clamp-2" dangerouslySetInnerHTML={{ __html: course.description }} />
+                    <div>
+                        <div className="flex items-center gap-2 mb-1">
+                            <h3 className="text-black text-medium">{course.title}</h3>
+                            {course.type === 'FINAL_PROJECT' && (
+                                <span className="px-2 py-0.5 text-[10px] bg-[#005954] text-white rounded-full font-bold uppercase tracking-wider">
+                                    Final Project
+                                </span>
+                            )}
+                        </div>
+                        <div className="text-sm text-gray-600 line-clamp-2" dangerouslySetInnerHTML={{ __html: course.description }} />
                     </div>
                     {isAdmin && (
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

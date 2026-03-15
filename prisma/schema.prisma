@@ -39,6 +39,7 @@ model Session {
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   deletedAt     DateTime?
+  type          SessionType  @default(SESSION)
   assignments   Assignment[]
   ses           SES[]
   course        Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
@@ -121,6 +122,7 @@ model Course {
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
   deletedAt          DateTime?
+  type               CourseType       @default(COURSE)
   assignmentItems    AssignmentItem[]
   assignments        Assignment[]
   courseMappings     CourseMapping[]
@@ -435,4 +437,15 @@ enum EnrollmentStatus {
   ACTIVE
   COMPLETED
   DROPPED
+}
+
+enum CourseType {
+  COURSE
+  FINAL_PROJECT
+}
+
+enum SessionType {
+  SESSION
+  EXERCISE
+  ASSIGNMENT
 }

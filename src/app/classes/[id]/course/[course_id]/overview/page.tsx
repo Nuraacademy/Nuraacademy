@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import CourseSessionLink from "./course_session_links";
 import AddSessionButton from "./add_session_button";
 import { hasPermission } from "@/lib/rbac";
+import { NuraButton } from "@/components/ui/button/button";
+import Link from "next/link";
 
 interface SectionProps {
     icon: React.ReactNode;
@@ -81,7 +83,14 @@ export default async function CourseOverviewPage({
 
                 {/* Hero Title */}
                 <section className="bg-[#005954] rounded-[1.5rem] p-6 mb-8">
-                    <h1 className="text-xl font-bold text-white">{course.title}</h1>
+                    <div className="flex items-center gap-3">
+                        <h1 className="text-xl font-bold text-white">{course.title}</h1>
+                        {(course as any).type === 'FINAL_PROJECT' && (
+                            <span className="px-3 py-1 text-[10px] bg-white/20 text-white rounded-full font-bold uppercase tracking-wider border border-white/30">
+                                Final Project
+                            </span>
+                        )}
+                    </div>
                 </section>
 
                 {/* Main Content Card */}
@@ -118,7 +127,7 @@ export default async function CourseOverviewPage({
                             <ol className="list-decimal pl-4 flex flex-col gap-3 text-sm text-gray-700">
                                 {entrySkills.map((skill, i) => (
                                     <li key={i}>
-                                        <div 
+                                        <div
                                             className="rich-text"
                                             dangerouslySetInnerHTML={{ __html: skill }}
                                         />
@@ -143,27 +152,78 @@ export default async function CourseOverviewPage({
 
                     {/* Sessions & Assignments */}
                     <div className="flex flex-col gap-6 pt-8">
-                        {course.sessions?.map((session) => (
-                            <CourseSessionLink
-                                key={session.id}
-                                classId={classId}
-                                courseId={courseId}
-                                session={{
-                                    id: String(session.id),
-                                    title: session.title,
-                                    type: session.isSynchronous === true ? "Synchronous" : session.isSynchronous === false ? "Asynchronous" : "None"
-                                }}
-                                isAdmin={canUpdateSession}
-                            />
-                        ))}
-                        {(!course.sessions || course.sessions.length === 0) && (
-                            <p className="text-sm text-gray-500 italic">No sessions added yet.</p>
-                        )}
+                        {course.type === 'FINAL_PROJECT' ? (
+                            <div className="bg-[#F2F5DC] rounded-[1.5rem] p-8 border border-[#EBF2D5]">
+                                <div className="flex flex-col gap-4">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="text-lg font-bold text-gray-900">Project Assignment</h3>
+                                        <span className="px-3 py-1 bg-[#005954] text-white text-[10px] font-bold rounded-full uppercase">
+                                            {course.assignments?.[0]?.submissionType === 'GROUP' ? 'Group' : 'Individual'}
+                                        </span>
+                                    </div>
 
-                        {canCreateSession && (
-                            <div className="flex justify-center mt-6">
-                                <AddSessionButton classId={classId} courseId={courseId} />
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                                        <div className="flex flex-col gap-1">
+                                            <span className="font-bold text-gray-900">Start Date:</span>
+                                            <span className="text-gray-700">
+                                                {course.assignments?.[0]?.startDate ? new Date(course.assignments[0].startDate).toLocaleDateString("id-ID", {
+                                                    weekday: "long", year: "numeric", month: "long", day: "numeric"
+                                                }) : "TBA"}
+                                            </span>
+                                        </div>
+                                        <div className="flex flex-col gap-1">
+                                            <span className="font-bold text-gray-900">End Date:</span>
+                                            <span className="text-gray-700">
+                                                {course.assignments?.[0]?.endDate ? new Date(course.assignments[0].endDate).toLocaleDateString("id-ID", {
+                                                    weekday: "long", year: "numeric", month: "long", day: "numeric"
+                                                }) : "TBA"}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {course.assignments?.[0]?.instruction && (
+                                        <div className="mt-4">
+                                            <span className="font-bold text-sm text-gray-900">Instructions:</span>
+                                            <div className="text-sm text-gray-700 mt-1 rich-text" dangerouslySetInnerHTML={{ __html: course.assignments[0].instruction }} />
+                                        </div>
+                                    )}
+
+                                    <div className="flex justify-center mt-6">
+                                        <Link href={`/classes/${classId}/course/${courseId}/project`}>
+                                            <NuraButton 
+                                                label="Work on Project" 
+                                                variant="primary" 
+                                                className="h-10 text-sm font-bold px-10"
+                                            />
+                                        </Link>
+                                    </div>
+                                </div>
                             </div>
+                        ) : (
+                            <>
+                                {course.sessions?.map((session) => (
+                                    <CourseSessionLink
+                                        key={session.id}
+                                        classId={classId}
+                                        courseId={courseId}
+                                        session={{
+                                            id: String(session.id),
+                                            title: session.title,
+                                            type: (session as any).type === 'EXERCISE' ? 'Exercise' : (session as any).type === 'ASSIGNMENT' ? 'Course Assignment' : session.isSynchronous === true ? "Synchronous" : session.isSynchronous === false ? "Asynchronous" : "None"
+                                        }}
+                                        isAdmin={canUpdateSession}
+                                    />
+                                ))}
+                                {(!course.sessions || course.sessions.length === 0) && (
+                                    <p className="text-sm text-gray-500 italic">No sessions added yet.</p>
+                                )}
+
+                                {canCreateSession && (
+                                    <div className="flex justify-center mt-6">
+                                        <AddSessionButton classId={classId} courseId={courseId} />
+                                    </div>
+                                )}
+                            </>
                         )}
                     </div>
                 </div>

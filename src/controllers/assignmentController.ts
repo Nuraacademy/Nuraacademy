@@ -52,6 +52,22 @@ export async function getAssignmentById(id: number) {
 }
 
 
+export async function getAssignmentByCourseId(courseId: number) {
+    return await prisma.assignment.findFirst({
+        where: {
+            courseId,
+            type: 'PROJECT',
+            deletedAt: null,
+        },
+        include: {
+            course: true,
+            assignmentItems: {
+                where: { deletedAt: null },
+            },
+        },
+    });
+}
+
 export async function getPlacementTestByClassId(classId: number) {
     return await prisma.assignment.findFirst({
         where: {
@@ -123,140 +139,218 @@ export async function submitAssignment(assignmentId: number, enrollmentId: numbe
     startedAt: Date,
     finishedAt: Date
 }) {
+    // 0. Resolve members if group submission
+    const targetEnrollment = await prisma.enrollment.findUnique({
+        where: { id: enrollmentId },
+        include: { groups: { where: { deletedAt: null } } }
+    });
+
+    const assignment = await prisma.assignment.findUnique({
+        where: { id: assignmentId }
+    });
+
+    let enrollmentIds = [enrollmentId];
+
+    if (assignment?.submissionType === 'GROUP' && targetEnrollment?.groups?.[0]) {
+        const groupName = targetEnrollment.groups[0].name;
+        const members = await prisma.enrollment.findMany({
+            where: {
+                classId: targetEnrollment.classId,
+                groups: { some: { name: groupName, deletedAt: null } },
+                deletedAt: null
+            },
+            select: { id: true }
+        });
+        enrollmentIds = members.map(m => m.id);
+    }
+
     return await prisma.$transaction(async (tx) => {
-        // 1. Check for existing result and update it, or create a new one
-        const result = await tx.assignmentResult.upsert({
-            where: {
-                assignmentId_enrollmentId: {
-                    assignmentId,
-                    enrollmentId,
+        const results = [];
+
+        for (const eid of enrollmentIds) {
+            // 1. Check for existing result and update it, or create a new one
+            const result = await tx.assignmentResult.upsert({
+                where: {
+                    assignmentId_enrollmentId: {
+                        assignmentId,
+                        enrollmentId: eid,
+                    },
                 },
-            },
-            update: {
-                startedAt: data.startedAt,
-                finishedAt: data.finishedAt,
-                status: 'NOT_PASS', // Reset or recalculate
-                updatedAt: new Date(),
-            },
-            create: {
-                assignmentId,
-                enrollmentId,
-                startedAt: data.startedAt,
-                finishedAt: data.finishedAt,
-                status: 'NOT_PASS',
-            },
-        });
+                update: {
+                    startedAt: data.startedAt,
+                    finishedAt: data.finishedAt,
+                    status: 'NOT_PASS', // Reset or recalculate
+                    updatedAt: new Date(),
+                },
+                create: {
+                    assignmentId,
+                    enrollmentId: eid,
+                    startedAt: data.startedAt,
+                    finishedAt: data.finishedAt,
+                    status: 'NOT_PASS',
+                },
+            });
 
-        // 2. Clear existing item results for this assignment result if any
-        await tx.assignmentItemResult.deleteMany({
-            where: {
-                assignmentResultId: result.id,
-            },
-        });
+            // 2. Clear existing item results for this assignment result if any
+            await tx.assignmentItemResult.deleteMany({
+                where: {
+                    assignmentResultId: result.id,
+                },
+            });
 
-        // 3. Prepare all item results and calculate objective score
-        const assignmentItems = await tx.assignmentItem.findMany({
-            where: { assignmentId, deletedAt: null }
-        });
+            // 3. Prepare all item results and calculate objective score
+            const assignmentItems = await tx.assignmentItem.findMany({
+                where: { assignmentId, deletedAt: null }
+            });
 
-        const items: Prisma.AssignmentItemResultCreateManyInput[] = [];
-        let calculatedTotalScore = 0;
+            const items: Prisma.AssignmentItemResultCreateManyInput[] = [];
+            let calculatedTotalScore = 0;
 
-        // Objective Answers
-        for (const [id, answer] of Object.entries(data.objectiveAnswers)) {
-            const itemId = parseInt(id);
-            const assignmentItem = assignmentItems.find(i => i.id === itemId);
+            // Objective Answers
+            for (const [id, answer] of Object.entries(data.objectiveAnswers)) {
+                const itemId = parseInt(id);
+                const assignmentItem = assignmentItems.find(i => i.id === itemId);
 
-            let itemScore = 0;
-            if (assignmentItem && assignmentItem.type === 'OBJECTIVE') {
-                const stripHtml = (html: string) => html.replace(/<[^>]*>/g, '').trim();
-                const normalizedCorrect = stripHtml(assignmentItem.correctAnswer || "").toLowerCase();
-                const normalizedAnswer = stripHtml(answer || "").toLowerCase();
+                let itemScore = 0;
+                if (assignmentItem && assignmentItem.type === 'OBJECTIVE') {
+                    const stripHtml = (html: string) => html.replace(/<[^>]*>/g, '').trim();
+                    const normalizedCorrect = stripHtml(assignmentItem.correctAnswer || "").toLowerCase();
+                    const normalizedAnswer = stripHtml(answer || "").toLowerCase();
 
-                // 1. Literal match (after normalization)
-                let isMatch = normalizedCorrect === normalizedAnswer;
+                    // 1. Literal match (after normalization)
+                    let isMatch = normalizedCorrect === normalizedAnswer;
 
-                if (!isMatch) {
-                    const stripPrefix = (str: string) => str.replace(/^[a-z]\.\s*/i, "").trim();
-                    const correctPrefix = normalizedCorrect.match(/^[a-z](?=\.)/i)?.[0]?.toLowerCase();
-                    const answerPrefix = normalizedAnswer.match(/^[a-z](?=\.)/i)?.[0]?.toLowerCase();
+                    if (!isMatch) {
+                        const stripPrefix = (str: string) => str.replace(/^[a-z]\.\s*/i, "").trim();
+                        const correctPrefix = normalizedCorrect.match(/^[a-z](?=\.)/i)?.[0]?.toLowerCase();
+                        const answerPrefix = normalizedAnswer.match(/^[a-z](?=\.)/i)?.[0]?.toLowerCase();
 
-                    const correctNoPrefix = stripPrefix(normalizedCorrect);
-                    const answerNoPrefix = stripPrefix(normalizedAnswer);
+                        const correctNoPrefix = stripPrefix(normalizedCorrect);
+                        const answerNoPrefix = stripPrefix(normalizedAnswer);
 
-                    // If student provides just the letter (e.g., "a"), and the correct answer starts with "a."
-                    if (normalizedAnswer.length === 1 && correctPrefix === normalizedAnswer) {
-                        isMatch = true;
+                        // If student provides just the letter (e.g., "a"), and the correct answer starts with "a."
+                        if (normalizedAnswer.length === 1 && correctPrefix === normalizedAnswer) {
+                            isMatch = true;
+                        }
+                        // If student provides the "a. Python" and correct is just "a"
+                        else if (normalizedCorrect.length === 1 && answerPrefix === normalizedCorrect) {
+                            isMatch = true;
+                        }
+                        // If student provides the full text "Python" and correct is "a. Python" (ignoring prefix)
+                        else if (correctPrefix && answerNoPrefix === correctNoPrefix && normalizedAnswer === correctNoPrefix) {
+                            isMatch = true;
+                        }
                     }
-                    // If student provides the "a. Python" and correct is just "a"
-                    else if (normalizedCorrect.length === 1 && answerPrefix === normalizedCorrect) {
-                        isMatch = true;
+
+                    if (isMatch) {
+                        itemScore = assignmentItem.maxScore || 10;
                     }
-                    // If student provides the full text "Python" and correct is "a. Python" (ignoring prefix)
-                    else if (correctPrefix && answerNoPrefix === correctNoPrefix && normalizedAnswer === correctNoPrefix) {
-                        isMatch = true;
-                    }
+
+                    console.log(`Scoring Item ${itemId}: Correct="${normalizedCorrect}", Answer="${normalizedAnswer}", Match=${isMatch}, Score=${itemScore}`);
                 }
 
-                if (isMatch) {
-                    itemScore = assignmentItem.maxScore || 10;
-                }
+                calculatedTotalScore += itemScore;
 
-                console.log(`Scoring Item ${itemId}: Correct="${normalizedCorrect}", Answer="${normalizedAnswer}", Match=${isMatch}, Score=${itemScore}`);
+                items.push({
+                    assignmentResultId: result.id,
+                    assignmentItemId: itemId,
+                    answer: answer,
+                    score: itemScore,
+                });
             }
 
-            calculatedTotalScore += itemScore;
+            // Essay Answers & Files
+            const essayItemIds = new Set([
+                ...Object.keys(data.essayAnswers).map(Number),
+                ...Object.keys(data.essayFiles).map(Number)
+            ]);
+            for (const id of essayItemIds) {
+                items.push({
+                    assignmentResultId: result.id,
+                    assignmentItemId: id,
+                    answer: data.essayAnswers[id] || null,
+                    answerFiles: data.essayFiles[id] ? [data.essayFiles[id]] : Prisma.DbNull,
+                });
+            }
 
-            items.push({
-                assignmentResultId: result.id,
-                assignmentItemId: itemId,
-                answer: answer,
-                score: itemScore,
+            // Project Answers & Files
+            const projectItemIds = new Set([
+                ...Object.keys(data.projectAnswers).map(Number),
+                ...Object.keys(data.projectFiles).map(Number)
+            ]);
+            for (const id of projectItemIds) {
+                items.push({
+                    assignmentResultId: result.id,
+                    assignmentItemId: id,
+                    answer: data.projectAnswers[id] || null,
+                    answerFiles: data.projectFiles[id] ? [data.projectFiles[id]] : Prisma.DbNull,
+                });
+            }
+
+            // 4. Create all AssignmentItemResult records
+            if (items.length > 0) {
+                await tx.assignmentItemResult.createMany({
+                    data: items,
+                });
+            }
+
+            // 5. Update the totalScore in AssignmentResult
+            const updatedResult = await tx.assignmentResult.update({
+                where: { id: result.id },
+                data: { totalScore: calculatedTotalScore },
             });
+            results.push(updatedResult);
         }
 
-        // Essay Answers & Files
-        const essayItemIds = new Set([
-            ...Object.keys(data.essayAnswers).map(Number),
-            ...Object.keys(data.essayFiles).map(Number)
-        ]);
-        for (const id of essayItemIds) {
-            items.push({
-                assignmentResultId: result.id,
-                assignmentItemId: id,
-                answer: data.essayAnswers[id] || null,
-                answerFiles: data.essayFiles[id] ? [data.essayFiles[id]] : Prisma.DbNull,
-            });
-        }
+        return results[0]; // Return the primary submitter's result or any for indicator
+    });
+}
 
-        // Project Answers & Files
-        const projectItemIds = new Set([
-            ...Object.keys(data.projectAnswers).map(Number),
-            ...Object.keys(data.projectFiles).map(Number)
-        ]);
-        for (const id of projectItemIds) {
-            items.push({
-                assignmentResultId: result.id,
-                assignmentItemId: id,
-                answer: data.projectAnswers[id] || null,
-                answerFiles: data.projectFiles[id] ? [data.projectFiles[id]] : Prisma.DbNull,
-            });
-        }
+export async function getUnfinishedAssignmentsForUser(userId: number) {
+    // 1. Get all active enrollments for the user
+    const enrollments = await prisma.enrollment.findMany({
+        where: {
+            userId,
+            status: 'ACTIVE',
+            deletedAt: null
+        },
+        select: { id: true, classId: true }
+    });
 
-        // 4. Create all AssignmentItemResult records
-        if (items.length > 0) {
-            await tx.assignmentItemResult.createMany({
-                data: items,
-            });
-        }
+    if (enrollments.length === 0) return [];
 
-        // 5. Update the totalScore in AssignmentResult
-        const updatedResult = await tx.assignmentResult.update({
-            where: { id: result.id },
-            data: { totalScore: calculatedTotalScore },
-        });
+    const classIds = enrollments.map(e => e.classId);
+    const enrollmentIds = enrollments.map(e => e.id);
 
-        return updatedResult;
+    // 2. Find all assignments related to these classes
+    // We filter by:
+    // - Class specific assignments (Placement)
+    // - Assignments link to courses in these classes
+    // - Assignments link to sessions in these classes
+    const assignments = await prisma.assignment.findMany({
+        where: {
+            OR: [
+                { classId: { in: classIds } },
+                { course: { classId: { in: classIds } } },
+                { session: { course: { classId: { in: classIds } } } }
+            ],
+            deletedAt: null
+        },
+        include: {
+            class: { select: { title: true } },
+            course: { select: { title: true } },
+            session: { select: { title: true, course: { select: { title: true } } } },
+            assignmentResults: {
+                where: { enrollmentId: { in: enrollmentIds } }
+            }
+        },
+        orderBy: { createdAt: 'desc' }
+    });
+
+    // 3. Filter out those that have a result with finishedAt
+    return assignments.filter(a => {
+        const result = a.assignmentResults[0];
+        return !result?.finishedAt;
     });
 }
 
