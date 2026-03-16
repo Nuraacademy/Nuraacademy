@@ -44,6 +44,7 @@ This document tracks the implementation status of all the privileges seeded into
 | Assignment | `DELETE_ASSIGNMENT` | Delete assignment | 🟢 Implemented |
 | Assignment | `START_ASSIGNMENT_INSTRUCTOR` | Start assignment (instructur/ trainer) | 🟢 Implemented |
 | Assignment | `START_ASSIGNMENT_LEARNER` | Start assignment (learner) | 🟢 Implemented |
+| Assignment | `GRADE_ASSIGNMENT` | Grade assignment | 🟢 Implemented |
 | Assignment | `VIEW_ASSIGNMENT_RESULT` | View assignment result | 🟢 Implemented |
 | Assignment | `CHECK_ASSIGNMENT_RESULT` | Check assignment result | 🟢 Implemented |
 | Assignment | `VIEW_ASSIGNMENT_SCORE` | View assignment score | 🟢 Implemented |

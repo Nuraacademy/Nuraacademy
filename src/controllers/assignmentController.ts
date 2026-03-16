@@ -233,21 +233,25 @@ export async function submitAssignment(assignmentId: number, enrollmentId: numbe
         const items: Prisma.AssignmentItemResultCreateManyInput[] = [];
         let calculatedTotalScore = 0;
 
-        // Objective Answers
-        for (const [id, answer] of Object.entries(data.objectiveAnswers)) {
-            const itemId = parseInt(id);
-            const assignmentItem = assignmentItems.find(i => i.id === itemId);
+        // Create results for ALL assignment items
+        for (const assignmentItem of assignmentItems) {
+            const itemId = assignmentItem.id;
+            const type = assignmentItem.type;
+            
+            let answer: string | null = null;
+            let answerFiles: any = Prisma.DbNull;
+            let itemScore: number | null = null;
 
-            let itemScore = 0;
-            if (assignmentItem && assignmentItem.type === 'OBJECTIVE') {
+            if (type === 'OBJECTIVE') {
+                answer = data.objectiveAnswers[itemId] || "";
+                
+                // Calculate score for objective
                 const stripHtml = (html: string) => html.replace(/<[^>]*>/g, '').trim();
                 const normalizedCorrect = stripHtml(assignmentItem.correctAnswer || "").toLowerCase();
                 const normalizedAnswer = stripHtml(answer || "").toLowerCase();
 
-                // 1. Literal match (after normalization)
                 let isMatch = normalizedCorrect === normalizedAnswer;
-
-                if (!isMatch) {
+                if (!isMatch && normalizedAnswer) {
                     const stripPrefix = (str: string) => str.replace(/^[a-z]\.\s*/i, "").trim();
                     const correctPrefix = normalizedCorrect.match(/^[a-z](?=\.)/i)?.[0]?.toLowerCase();
                     const answerPrefix = normalizedAnswer.match(/^[a-z](?=\.)/i)?.[0]?.toLowerCase();
@@ -255,64 +259,32 @@ export async function submitAssignment(assignmentId: number, enrollmentId: numbe
                     const correctNoPrefix = stripPrefix(normalizedCorrect);
                     const answerNoPrefix = stripPrefix(normalizedAnswer);
 
-                    // If student provides just the letter (e.g., "a"), and the correct answer starts with "a."
-                    if (normalizedAnswer.length === 1 && correctPrefix === normalizedAnswer) {
-                        isMatch = true;
-                    }
-                    // If student provides the "a. Python" and correct is just "a"
-                    else if (normalizedCorrect.length === 1 && answerPrefix === normalizedCorrect) {
-                        isMatch = true;
-                    }
-                    // If student provides the full text "Python" and correct is "a. Python" (ignoring prefix)
-                    else if (correctPrefix && answerNoPrefix === correctNoPrefix && normalizedAnswer === correctNoPrefix) {
-                        isMatch = true;
-                    }
+                    if (normalizedAnswer.length === 1 && correctPrefix === normalizedAnswer) isMatch = true;
+                    else if (normalizedCorrect.length === 1 && answerPrefix === normalizedCorrect) isMatch = true;
+                    else if (correctPrefix && answerNoPrefix === correctNoPrefix && normalizedAnswer === correctNoPrefix) isMatch = true;
                 }
 
-                if (isMatch) {
-                    itemScore = assignmentItem.maxScore || 10;
-                }
-
-                console.log(`Scoring Item ${itemId}: Correct="${normalizedCorrect}", Answer="${normalizedAnswer}", Match=${isMatch}, Score=${itemScore}`);
+                if (isMatch) itemScore = assignmentItem.maxScore || 10;
+                else itemScore = 0;
+                
+                calculatedTotalScore += itemScore;
+            } else if (type === 'ESSAY') {
+                answer = data.essayAnswers[itemId] || null;
+                answerFiles = data.essayFiles[itemId] ? [data.essayFiles[itemId]] : Prisma.DbNull;
+            } else if (type === 'PROJECT') {
+                answer = data.projectAnswers[itemId] || null;
+                answerFiles = data.projectFiles[itemId] ? [data.projectFiles[itemId]] : Prisma.DbNull;
             }
-
-            calculatedTotalScore += itemScore;
 
             items.push({
                 assignmentResultId: result.id,
                 assignmentItemId: itemId,
                 answer: answer,
+                answerFiles: answerFiles,
                 score: itemScore,
             });
         }
 
-        // Essay Answers & Files
-        const essayItemIds = new Set([
-            ...Object.keys(data.essayAnswers).map(Number),
-            ...Object.keys(data.essayFiles).map(Number)
-        ]);
-        for (const id of essayItemIds) {
-            items.push({
-                assignmentResultId: result.id,
-                assignmentItemId: id,
-                answer: data.essayAnswers[id] || null,
-                answerFiles: data.essayFiles[id] ? [data.essayFiles[id]] : Prisma.DbNull,
-            });
-        }
-
-        // Project Answers & Files
-        const projectItemIds = new Set([
-            ...Object.keys(data.projectAnswers).map(Number),
-            ...Object.keys(data.projectFiles).map(Number)
-        ]);
-        for (const id of projectItemIds) {
-            items.push({
-                assignmentResultId: result.id,
-                assignmentItemId: id,
-                answer: data.projectAnswers[id] || null,
-                answerFiles: data.projectFiles[id] ? [data.projectFiles[id]] : Prisma.DbNull,
-            });
-        }
 
         // 4. Create all AssignmentItemResult records
         if (items.length > 0) {
@@ -410,5 +382,229 @@ export async function deleteAssignment(assignmentId: number) {
             where: { id: assignmentId },
             data: { deletedAt: now }
         });
+    });
+}
+
+/**
+ * Get detailed grading data for a specific learner's assignment.
+ */
+export async function getGradingData(assignmentId: number, enrollmentId: number) {
+    const result = await prisma.assignmentResult.findUnique({
+        where: { assignmentId_enrollmentId: { assignmentId, enrollmentId } },
+        include: {
+            assignment: {
+                include: {
+                    assignmentItems: {
+                        where: { deletedAt: null },
+                        orderBy: { id: 'asc' }
+                    }
+                }
+            },
+            assignmentItemResults: {
+                include: { assignmentItem: true }
+            }
+        }
+    });
+
+    if (!result) return null;
+
+    // Ensure all items have a result record (for legacy data or skipped answers)
+    // We check for both ID match AND content match (question text + type)
+    // to avoid creating duplicates when an assignment is updated/re-saved.
+    const missingItems = result.assignment.assignmentItems.filter(item => {
+        return !result.assignmentItemResults.some(ir => {
+            const sameId = ir.assignmentItemId === item.id;
+            const sameContent = ir.assignmentItem?.question === item.question && ir.assignmentItem?.type === item.type;
+            return sameId || sameContent;
+        });
+    });
+
+    if (missingItems.length > 0) {
+        await prisma.assignmentItemResult.createMany({
+            data: missingItems.map(item => ({
+                assignmentResultId: result.id,
+                assignmentItemId: item.id,
+                answer: null,
+                score: item.type === 'OBJECTIVE' ? 0 : null
+            }))
+        });
+        
+        // Re-fetch with new items to get the IDs and updated relation
+        const updatedResult = await prisma.assignmentResult.findUnique({
+            where: { id: result.id },
+            include: {
+                assignment: {
+                    include: {
+                        assignmentItems: {
+                            where: { deletedAt: null },
+                            orderBy: { id: 'asc' }
+                        }
+                    }
+                },
+                assignmentItemResults: {
+                    include: { assignmentItem: true }
+                }
+            }
+        });
+        
+        if (!updatedResult) return null;
+        return processGradingData(updatedResult);
+    }
+
+    return processGradingData(result);
+}
+
+function processGradingData(result: any) {
+    const objective: any[] = [];
+    const essay: any[] = [];
+    const project: any[] = [];
+
+    // Use a Map to de-duplicate by Question Content (Type + Question Text)
+    // This is the most reliable way to handle assignment updates where items are soft-deleted and replaced.
+    const uniqueResults = new Map<string, any>();
+    
+    result.assignmentItemResults.forEach((ir: any) => {
+        const item = ir.assignmentItem;
+        if (!item) return;
+
+        const contentKey = `${item.type}:${item.question}`;
+        const existing = uniqueResults.get(contentKey);
+        
+        // Priority: 
+        // 1. Record with an answer OR a manually given score
+        // 2. Most recent record (higher ID) if both have or both lack the above
+        const hasData = (ir.answer !== null && ir.answer !== undefined && ir.answer !== "") || (ir.score !== null && ir.score !== undefined);
+        const existingHasData = existing && ((existing.answer !== null && existing.answer !== undefined && existing.answer !== "") || (existing.score !== null && existing.score !== undefined));
+
+        const shouldReplace = !existing || (hasData && !existingHasData) || (hasData === existingHasData && ir.id > existing.id);
+
+        if (shouldReplace) {
+            uniqueResults.set(contentKey, ir);
+        }
+    });
+
+    uniqueResults.forEach((ir: any) => {
+        const item = ir.assignmentItem;
+        const data = {
+            id: item.id,
+            question: item.question,
+            givenAnswer: ir.answer || "",
+            correctAnswer: item.correctAnswer,
+            score: ir.score,
+            maxScore: item.maxScore || 10,
+            answerFiles: ir.answerFiles,
+            resultItemId: ir.id,
+        };
+
+        if (item.type === 'OBJECTIVE') objective.push(data);
+        else if (item.type === 'ESSAY') essay.push(data);
+        else if (item.type === 'PROJECT') project.push(data);
+    });
+
+    // Sort by item ID to maintain a consistent order
+    const sorter = (a: any, b: any) => a.id - b.id;
+    objective.sort(sorter);
+    essay.sort(sorter);
+    project.sort(sorter);
+
+    return {
+        id: result.id,
+        learnerName: "", 
+        objective,
+        essay,
+        project,
+        totalScore: result.totalScore,
+    };
+}
+
+/**
+ * Submit manual scores and recalculate total score.
+ */
+export async function submitManualScores(resultId: number, scores: Record<number, number>) {
+    return await prisma.$transaction(async (tx) => {
+        // 1. Update individual item results
+        for (const [resultItemId, score] of Object.entries(scores)) {
+            await tx.assignmentItemResult.update({
+                where: { id: parseInt(resultItemId) },
+                data: { score }
+            });
+        }
+
+        // 2. Recalculate total score
+        const itemResults = await tx.assignmentItemResult.findMany({
+            where: { assignmentResultId: resultId }
+        });
+
+        const newTotal = itemResults.reduce((acc, ir) => acc + (ir.score || 0), 0);
+
+        return await tx.assignmentResult.update({
+            where: { id: resultId },
+            data: {
+                totalScore: newTotal,
+                status: 'PASS',
+            }
+        });
+    });
+}
+
+/**
+ * Get results for all learners for a specific assignment.
+ */
+export async function getAssignmentResultsByAssignmentId(assignmentId: number) {
+    const assignment = await prisma.assignment.findUnique({
+        where: { id: assignmentId, deletedAt: null },
+        include: {
+            class: true,
+            course: { include: { class: true } },
+            session: { include: { course: { include: { class: true } } } },
+            assignmentItems: { where: { deletedAt: null } }
+        }
+    });
+
+    if (!assignment) return [];
+
+    const maxScore = assignment.assignmentItems.reduce((acc, item) => acc + (item.maxScore || 0), 0);
+
+    const classId = assignment.classId || assignment.course?.classId || assignment.session?.course?.classId;
+
+    if (!classId) return [];
+
+    const enrollments = await prisma.enrollment.findMany({
+        where: {
+            classId,
+            deletedAt: null,
+            user: { role: { name: 'Learner' } }
+        },
+        include: {
+            user: { select: { id: true, name: true, username: true } },
+            assignmentResults: {
+                where: { assignmentId: assignment.id },
+                include: {
+                    assignmentItemResults: {
+                        include: { assignmentItem: true }
+                    }
+                }
+            }
+        },
+    });
+
+    return enrollments.map(e => {
+        const result = e.assignmentResults[0];
+        const items = result?.assignmentItemResults || [];
+
+        const totalItems = items.length;
+        const gradedItems = items.filter(i => i.score !== null).length;
+        const isGraded = totalItems > 0 && gradedItems === totalItems;
+        const hasSubmitted = !!result?.finishedAt;
+
+        return {
+            enrollmentId: e.id,
+            name: e.user.name || e.user.username,
+            status: hasSubmitted ? (isGraded ? "Graded" : "To Grade") : "Not Started",
+            totalScore: result?.totalScore || 0,
+            maxScore: maxScore,
+            submittedAt: result?.finishedAt,
+            assignmentId: assignment.id,
+        };
     });
 }

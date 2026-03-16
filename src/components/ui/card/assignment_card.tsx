@@ -19,6 +19,7 @@ interface AssignmentCardProps {
     courseTitle?: string;
     className?: string;
     isAdmin?: boolean;
+    canGrade?: boolean;
 }
 
 export const AssignmentCard = ({
@@ -32,7 +33,8 @@ export const AssignmentCard = ({
     classTitle = "",
     courseTitle = "",
     className = "",
-    isAdmin = false
+    isAdmin = false,
+    canGrade = false
 }: AssignmentCardProps) => {
     const router = useRouter();
     const [isDeleting, setIsDeleting] = useState(false);
@@ -82,30 +84,44 @@ export const AssignmentCard = ({
                     </p>
                 </div>
             </div>
-            
-            {isAdmin && id && (
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+
+            <div className="flex items-center gap-3">
+                {canGrade && id && (
                     <button
-                        className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-red-500"
                         onClick={(e) => {
                             e.stopPropagation();
-                            setIsConfirmOpen(true);
+                            router.push(`/assignment/${id}/results`);
                         }}
-                        disabled={isDeleting}
+                        className="rounded-full bg-[#00524D] px-4 py-1.5 text-xs font-bold text-white transition-all hover:bg-[#00423D]"
                     >
-                        <img src="/icons/Delete.svg" alt="Delete" className="w-5 h-5" />
+                        Results
                     </button>
-                    <button
-                        className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-gray-900"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            router.push(`/assignment/add?id=${id}`);
-                        }}
-                    >
-                        <img src="/icons/Edit.svg" alt="Edit" className="w-5 h-5" />
-                    </button>
-                </div>
-            )}
+                )}
+                
+                {isAdmin && id && (
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                            className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-red-500"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIsConfirmOpen(true);
+                            }}
+                            disabled={isDeleting}
+                        >
+                            <img src="/icons/Delete.svg" alt="Delete" className="w-5 h-5" />
+                        </button>
+                        <button
+                            className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-gray-900"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/assignment/add?id=${id}`);
+                            }}
+                        >
+                            <img src="/icons/Edit.svg" alt="Edit" className="w-5 h-5" />
+                        </button>
+                    </div>
+                )}
+            </div>
         </div>
 
         <ConfirmModal

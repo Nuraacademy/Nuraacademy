@@ -1,6 +1,6 @@
 "use server"
 
-import { submitAssignment, createAssignment as createAssignmentController } from "@/controllers/assignmentController"
+import { submitAssignment, createAssignment as createAssignmentController, submitManualScores } from "@/controllers/assignmentController"
 import { revalidatePath } from "next/cache"
 import { writeFile, mkdir } from "fs/promises"
 import { join } from "path"
@@ -151,5 +151,21 @@ export async function removeAssignment(assignmentId: number, classId?: number, c
     } catch (error) {
         console.error("Error deleting assignment:", error);
         return { success: false, error: "Failed to delete assignment" };
+    }
+}
+
+export async function submitGradingAction(assignmentId: number, resultId: number, scores: Record<number, number>) {
+    try {
+        await requirePermission('Assignment', 'GRADE_ASSIGNMENT')
+        await submitManualScores(resultId, scores);
+        
+        revalidatePath(`/assignment/${assignmentId}/results`);
+        // Also revalidate generic paths if needed
+        revalidatePath(`/assignment`);
+        
+        return { success: true };
+    } catch (error: any) {
+        console.error("Grading error:", error);
+        return { success: false, error: error.message };
     }
 }

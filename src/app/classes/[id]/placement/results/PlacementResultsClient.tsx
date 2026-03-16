@@ -10,6 +10,7 @@ interface Result {
     name: string;
     status: string; // Not Started, To Grade, Graded
     totalScore: number;
+    maxScore: number;
     objectiveScore: number;
     submittedAt?: Date | null;
 }
@@ -68,7 +69,7 @@ export default function PlacementResultsClient({
                                     <th className="px-8 py-4 text-sm font-semibold text-black bg-white">Learner Name</th>
                                     <th className="px-8 py-4 text-sm font-semibold text-black bg-white">Submission Date</th>
                                     <th className="px-8 py-4 text-sm font-semibold text-black bg-white text-center">Status</th>
-                                    <th className="px-8 py-4 text-sm font-semibold text-black bg-white text-center">Current Score</th>
+                                    <th className="px-8 py-4 text-sm font-semibold text-black bg-white text-center">Score / Max</th>
                                     <th className="px-8 py-4 text-sm font-semibold text-black bg-white text-right">Action</th>
                                 </tr>
                             </thead>
@@ -92,7 +93,7 @@ export default function PlacementResultsClient({
                                         </td>
                                         <td className="px-8 py-6 text-center">
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-semibold text-black">{res.totalScore.toFixed(1)}</span>
+                                                <span className="text-sm font-semibold text-black">{res.totalScore.toFixed(1)} / {res.maxScore}</span>
                                                 <span className="text-[10px] text-gray-400">Obj: {res.objectiveScore.toFixed(1)}</span>
                                             </div>
                                         </td>

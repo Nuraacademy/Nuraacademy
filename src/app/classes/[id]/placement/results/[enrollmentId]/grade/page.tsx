@@ -1,8 +1,9 @@
-import { getGradingData } from "@/controllers/placementController";
+import GradingClient from "@/components/assignment/GradingClient";
+import { submitGradingAction } from "@/app/actions/assignment";
+import { getGradingData } from "@/controllers/assignmentController";
 import { getClassById } from "@/controllers/classController";
 import { getEnrollmentById } from "@/controllers/enrollmentController";
 import { getPlacementTestByClassId } from "@/controllers/assignmentController";
-import GradingClient from "@/app/classes/[id]/placement/results/[enrollmentId]/grade/GradingClient";
 import { notFound } from "next/navigation";
 
 export default async function GradingPage({
@@ -31,10 +32,20 @@ export default async function GradingPage({
 
     return (
         <GradingClient
-            classId={classId}
+            assignmentId={placementTest.id}
             enrollmentId={eid}
             learnerName={enrollment.user.name || enrollment.user.username}
             initialData={gradingData}
+            title="Placement Test"
+            subtitle="Foundation to Data Analytics"
+            breadcrumbItems={[
+                { label: "Home", href: "/" },
+                { label: "Placement Test", href: `/classes/${classId}/test` },
+                { label: "Results", href: `/classes/${classId}/placement/results` },
+                { label: enrollment.user.name || enrollment.user.username, href: "#" },
+            ]}
+            backUrl={`/classes/${classId}/placement/results`}
+            submitAction={submitGradingAction.bind(null, placementTest.id)}
         />
     );
 }
