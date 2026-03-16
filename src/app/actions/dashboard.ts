@@ -85,19 +85,30 @@ export async function getDashboardData() {
         take: 5
     });
 
-    // 3. Fetch Recent Learners (Analytics & Report)
-    const recentLearners = await prisma.enrollment.findMany({
+    // 3. Fetch Recent Enrollments (Analytics & Report)
+    const enrollments = await prisma.enrollment.findMany({
         where: {
             deletedAt: null,
             user: { role: { name: 'Learner' } }
         },
         include: {
-            user: { select: { name: true, username: true } },
+            user: { select: { id: true, name: true, username: true } },
             class: { select: { title: true } }
         },
         orderBy: { enrolledAt: 'desc' },
-        take: 5
+        take: 15 // Take more to allow for unique user filtering
     });
+
+    // Manual filtering for unique users (Learners)
+    const uniqueLearners = [];
+    const seenUserIds = new Set();
+    for (const e of enrollments) {
+        if (!seenUserIds.has(e.userId)) {
+            uniqueLearners.push(e);
+            seenUserIds.add(e.userId);
+            if (uniqueLearners.length >= 5) break; 
+        }
+    }
 
     // 4. Fetch Instructors & Trainers
     const trainers = await prisma.user.findMany({
@@ -155,10 +166,11 @@ export async function getDashboardData() {
                 className: a.class?.title || "Global",
                 courseName: a.course?.title || "N/A"
             })),
-            analytics: recentLearners.map(l => ({
-                id: l.id,
+            analytics: uniqueLearners.map(l => ({
+                id: l.user.id,
                 name: l.user.name || l.user.username,
-                className: l.class.title
+                className: l.class.title,
+                image: null // User model doesn't have image field currently
             })),
             trainers: trainers.map(t => ({
                 id: t.id,

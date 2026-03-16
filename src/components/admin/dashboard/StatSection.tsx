@@ -33,12 +33,15 @@ export default function StatSection({ totalLearners }: StatSectionProps) {
             {/* Quick Action Buttons */}
             <div className="grid grid-cols-1 gap-4">
                 <button 
-                    onClick={() => router.push('/admin/users?filter=learner')} 
+                    onClick={() => router.push('/admin/roles')} 
                     className="w-full bg-[#E2F0D9] hover:bg-[#D4E0CD] text-[#1C3A37] font-black py-4 md:py-5 px-8 rounded-3xl transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-md uppercase tracking-widest text-[10px] md:text-xs"
                 >
-                    <Users size={16} className="md:w-5 md:h-5" /> Learner List
+                    <Users size={16} className="md:w-5 md:h-5" /> Manage Access Control
                 </button>
-                <button className="w-full bg-[#DAEE49] hover:bg-[#C9D942] text-[#1C3A37] font-black py-4 md:py-5 px-8 rounded-3xl transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-md uppercase tracking-widest text-[10px] md:text-xs">
+                <button 
+                    onClick={() => router.push('/admin/users?filter=learner')} 
+                    className="w-full bg-[#DAEE49] hover:bg-[#C9D942] text-[#1C3A37] font-black py-4 md:py-5 px-8 rounded-3xl transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-md uppercase tracking-widest text-[10px] md:text-xs"
+                >
                     <ClipboardCheck size={16} className="md:w-5 md:h-5" /> Student Presence
                 </button>
             </div>
