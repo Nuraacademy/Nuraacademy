@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache"
 import { writeFile, mkdir } from "fs/promises"
 import { join } from "path"
 import { requirePermission } from "@/lib/rbac"
+import { prisma } from "@/lib/prisma"
 
 export async function submitTest(formData: FormData) {
     const assignmentId = parseInt(formData.get("assignmentId") as string)
@@ -166,6 +167,23 @@ export async function submitGradingAction(assignmentId: number, resultId: number
         return { success: true };
     } catch (error: any) {
         console.error("Grading error:", error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function saveAssignmentFeedback(resultId: number, feedback: string, assignmentId: number) {
+    try {
+        await requirePermission('Feedback', 'CREATE_EDIT_ASSIGNMENT_FEEDBACK');
+
+        await prisma.assignmentResult.update({
+            where: { id: resultId },
+            data: { feedback }
+        });
+
+        revalidatePath(`/assignment/${assignmentId}/results`);
+        return { success: true };
+    } catch (error: any) {
+        console.error("Save feedback error:", error);
         return { success: false, error: error.message };
     }
 }

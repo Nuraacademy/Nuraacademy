@@ -108,6 +108,7 @@ export default async function AssignmentRunnerPage({
                     autoStart={skipIntro === "1" || (!isAssignmentOrProject)}
                     finished={isFinished}
                     initialScore={initialScore}
+                    feedback={testResult?.feedback}
                 />
             )}
         </main>

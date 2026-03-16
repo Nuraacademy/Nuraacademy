@@ -77,12 +77,21 @@ export default async function AssignmentResultsPage({
                                         </td>
                                         <td className="px-6 py-5 text-right">
                                             {res.status !== "Not Started" ? (
-                                                <Link
-                                                    href={`/assignment/${id}/results/${res.enrollmentId}/grade`}
-                                                    className="text-[#00524D] font-bold text-sm hover:underline"
-                                                >
-                                                    Grade
-                                                </Link>
+                                                <div className="flex items-center justify-end gap-3">
+                                                    <Link
+                                                        href={`/assignment/${id}/results/${res.enrollmentId}/grade`}
+                                                        className="text-[#00524D] font-bold text-sm hover:underline"
+                                                    >
+                                                        Grade
+                                                    </Link>
+                                                    <span className="text-gray-300">|</span>
+                                                    <Link
+                                                        href={`/assignment/${id}/results/${res.enrollmentId}/feedback`}
+                                                        className="text-amber-600 font-bold text-sm hover:underline"
+                                                    >
+                                                        Feedback
+                                                    </Link>
+                                                </div>
                                             ) : (
                                                 <span className="text-gray-300 text-sm font-medium">Grade</span>
                                             )}

@@ -91,17 +91,17 @@ This document tracks the implementation status of all the privileges seeded into
 ## 7.0 Reflection & Evaluation
 | Resource | Action | Description | Status |
 | :--- | :--- | :--- | :--- |
-| Feedback | `CREATE_EDIT_REFLECTION` | Create/edit reflection | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `CREATE_EDIT_ASSIGNMENT_FEEDBACK` | Create/edit Assignment feedback | 🔴 Not Implemented (Feature Missing) |
+| Feedback | `CREATE_EDIT_REFLECTION` | Create/edit reflection | 🟢 Implemented |
+| Feedback | `CREATE_EDIT_ASSIGNMENT_FEEDBACK` | Create/edit Assignment feedback | 🟢 Implemented |
 | Feedback | `CREATE_EDIT_PEER_FEEDBACK` | Create/edit Peer feedback | 🔴 Not Implemented (Feature Missing) |
 | Feedback | `CREATE_EDIT_CLASS_FEEDBACK` | Create/edit class feedback | 🔴 Not Implemented (Feature Missing) |
 | Feedback | `CREATE_EDIT_TRAINER_FEEDBACK` | Create/edit Trainer feedback | 🔴 Not Implemented (Feature Missing) |
 | Feedback | `DELETE_REFLECTION` | Delete reflection | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `VIEW_SEARCH_REFLECTION` | View & search reflection | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `VIEW_DETAIL_REFLECTION` | View detail reflection | 🔴 Not Implemented (Feature Missing) |
+| Feedback | `VIEW_SEARCH_REFLECTION` | View & search reflection | 🟢 Implemented |
+| Feedback | `VIEW_DETAIL_REFLECTION` | View detail reflection | 🟢 Implemented |
 | Feedback | `DELETE_ASSIGNMENT_FEEDBACK` | Delete assignment feedback | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `VIEW_SEARCH_ASSIGNMENT_FEEDBACK` | View & search assignment feedback | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `VIEW_DETAIL_ASSIGNMENT_FEEDBACK` | View detail assignment feedback | 🔴 Not Implemented (Feature Missing) |
+| Feedback | `VIEW_SEARCH_ASSIGNMENT_FEEDBACK` | View & search assignment feedback | 🟢 Implemented |
+| Feedback | `VIEW_DETAIL_ASSIGNMENT_FEEDBACK` | View detail assignment feedback | 🟢 Implemented |
 | Feedback | `DELETE_PEER_FEEDBACK` | delete peer feedback | 🔴 Not Implemented (Feature Missing) |
 | Feedback | `VIEW_SEARCH_PEER_FEEDBACK` | View & search peer feedback | 🔴 Not Implemented (Feature Missing) |
 | Feedback | `VIEW_DETAIL_PEER_FEEDBACK` | View detail peer feedback | 🔴 Not Implemented (Feature Missing) |

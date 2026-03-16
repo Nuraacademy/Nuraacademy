@@ -7,9 +7,10 @@ interface FinishedCardProps {
     pageText: PageText;
     userName?: string;
     totalScore?: number;
+    feedback?: string;
 }
 
-export function FinishedCard({ classId, testData, pageText, userName, totalScore }: FinishedCardProps) {
+export function FinishedCard({ classId, testData, pageText, userName, totalScore, feedback }: FinishedCardProps) {
     return (
         <section className="mt-6 flex flex-col items-center px-4 pb-20">
             <div className="w-full max-w-5xl bg-white rounded-[1.5rem] shadow-sm border border-gray-200 px-8 py-10 md:px-12 md:py-12 mb-8">
@@ -17,6 +18,21 @@ export function FinishedCard({ classId, testData, pageText, userName, totalScore
                 <p className="text-sm md:text-base text-gray-700 mt-2 mb-8">{testData.courseName}</p>
 
                 <hr className="border-gray-200 mb-8" />
+
+                {feedback && (
+                    <div className="mb-10 animate-in fade-in slide-in-from-top-4 duration-700">
+                        <h3 className="text-sm md:text-base font-bold text-[#005954] mb-4 flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-[#DAEE49]"></span>
+                            Trainer Feedback
+                        </h3>
+                        <div className="bg-[#FDFDF7] border border-[#005954]/10 rounded-2xl p-6 md:p-8 shadow-sm">
+                            <div 
+                                className="prose prose-sm max-w-none text-gray-800 leading-relaxed font-medium"
+                                dangerouslySetInnerHTML={{ __html: feedback }}
+                            />
+                        </div>
+                    </div>
+                )}
 
                 <h3 className="text-sm md:text-base font-bold text-gray-900 mb-6">Detail Hasil Tes</h3>
 

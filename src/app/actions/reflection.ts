@@ -3,9 +3,11 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { getCurrentUserId } from "@/lib/auth";
+import { requirePermission } from "@/lib/rbac";
 
 export async function getReflection(data: { sessionId?: number; courseId?: number; enrollmentId: number }) {
     try {
+        await requirePermission('Feedback', 'VIEW_DETAIL_REFLECTION');
         const reflection = await prisma.reflection.findFirst({
             where: {
                 sessionId: data.sessionId || null,
@@ -27,6 +29,7 @@ export async function saveReflection(data: {
     content: string;
 }) {
     try {
+        await requirePermission('Feedback', 'CREATE_EDIT_REFLECTION');
         const userId = await getCurrentUserId();
         if (!userId) return { success: false, error: "Unauthorized" };
 
@@ -64,6 +67,7 @@ export async function saveReflection(data: {
 
 export async function deleteReflection(id: number, sessionId: number) {
     try {
+        await requirePermission('Feedback', 'DELETE_REFLECTION');
         await prisma.reflection.update({
             where: { id },
             data: { deletedAt: new Date() }

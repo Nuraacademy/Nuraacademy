@@ -3,6 +3,7 @@ import { getCourseById } from "@/controllers/courseController";
 import ReflectionClient from "../session/[module_id]/reflection/ReflectionClient";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUserId } from "@/lib/auth";
+import { requirePermission } from "@/lib/rbac";
 
 export default async function CourseReflectionPage({
     params
@@ -11,6 +12,8 @@ export default async function CourseReflectionPage({
 }) {
     const { id: classId, course_id: courseId } = await params;
     const userId = await getCurrentUserId();
+
+    await requirePermission('Feedback', 'CREATE_EDIT_REFLECTION');
 
     if (!userId) {
         redirect("/login");

@@ -33,6 +33,7 @@ type TestRunnerProps = {
   finished?: boolean
   initialScore?: number
   showBanner?: boolean
+  feedback?: string
 }
 
 export function TestRunner({
@@ -49,6 +50,7 @@ export function TestRunner({
   finished = false,
   initialScore,
   showBanner = true,
+  feedback,
 }: TestRunnerProps) {
   const [hasStarted, setHasStarted] = useState(autoStart)
   const [startTime, setStartTime] = useState<Date | null>(autoStart ? new Date() : null)
@@ -552,6 +554,7 @@ export function TestRunner({
           pageText={pageText}
           userName={userName}
           totalScore={totalScore ?? undefined}
+          feedback={feedback}
         />
       ) : hasStarted ? (
         renderTestCard()
