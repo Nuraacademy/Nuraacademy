@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { NuraButton } from "@/components/ui/button/button";
 import { assignRoleToUserAction } from "@/app/actions/role";
 import { User, Role } from "@prisma/client";
@@ -14,10 +15,26 @@ export default function UsersClient({
     initialUsers: UserWithRole[];
     roles: Role[];
 }) {
+    const searchParams = useSearchParams();
+    const roleFilter = searchParams.get('role');
+    const staffFilter = searchParams.get('filter') === 'staff';
+    const learnerFilter = searchParams.get('filter') === 'learner';
+
     const [users, setUsers] = useState(initialUsers);
     const [editingUserId, setEditingUserId] = useState<number | null>(null);
     const [selectedRoleId, setSelectedRoleId] = useState<string>("");
     const [isSaving, setIsSaving] = useState(false);
+
+    const filteredUsers = useMemo(() => {
+        if (staffFilter) {
+            return users.filter(u => u.role?.name !== 'Learner');
+        }
+        if (learnerFilter) {
+            return users.filter(u => u.role?.name === 'Learner');
+        }
+        if (!roleFilter) return users;
+        return users.filter(u => u.role?.name.toLowerCase() === roleFilter.toLowerCase());
+    }, [users, roleFilter, staffFilter, learnerFilter]);
 
     const handleEditClick = (user: UserWithRole) => {
         setEditingUserId(user.id);
@@ -66,7 +83,7 @@ export default function UsersClient({
                         </tr>
                     </thead>
                     <tbody>
-                        {users.map((user) => (
+                        {filteredUsers.map((user) => (
                             <tr key={user.id} className="border-b hover:bg-gray-50">
                                 <td className="py-4 px-6">
                                     <div className="font-medium text-gray-900">{user.name || "-"}</div>
@@ -129,10 +146,10 @@ export default function UsersClient({
                                 </td>
                             </tr>
                         ))}
-                        {users.length === 0 && (
+                        {filteredUsers.length === 0 && (
                             <tr>
                                 <td colSpan={5} className="py-8 text-center text-gray-500">
-                                    No users found in the system.
+                                    No {staffFilter ? "staff members" : roleFilter ? roleFilter.toLowerCase() + "s" : "users"} found in the system.
                                 </td>
                             </tr>
                         )}

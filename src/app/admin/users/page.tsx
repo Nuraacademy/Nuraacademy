@@ -1,3 +1,4 @@
+import React from "react";
 import { prisma } from "@/lib/prisma";
 import UsersClient from "./client";
 import { RoleController } from "@/controllers/roleController";
@@ -47,7 +48,9 @@ export default async function UsersPage() {
                     </p>
                 </div>
 
-                <UsersClient initialUsers={users} roles={roles} />
+                <React.Suspense fallback={<div className="py-8 text-center text-gray-500">Loading users...</div>}>
+                    <UsersClient initialUsers={users} roles={roles} />
+                </React.Suspense>
             </div>
         </div>
     );
