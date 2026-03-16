@@ -21,6 +21,9 @@ model User {
   discussionReplies    DiscussionReply[]
   discussionReplyLikes DiscussionReplyLike[]
   discussions          Discussion[]
+  blogLikes            BlogLike[]
+  blogComments         BlogComment[]
+  blogs                Blog[]
   enrollments          Enrollment[]
   role                 Role?                 @relation(fields: [roleId], references: [id])
 
@@ -450,3 +453,47 @@ enum SessionType {
   EXERCISE
   ASSIGNMENT
 }
+
+model Blog {
+  id          Int           @id @default(autoincrement())
+  title       String
+  bannerUrl   String?
+  description String?
+  content     Json // Stores sections (text, image, etc.)
+  type        String?       @default("General")
+  author      Int
+  user        User          @relation(fields: [author], references: [id])
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  deletedAt   DateTime?
+  likes       BlogLike[]
+  comments    BlogComment[]
+
+  @@map("blogs")
+}
+
+model BlogComment {
+  id        Int       @id @default(autoincrement())
+  blogId    Int
+  userId    Int
+  text      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  blog      Blog      @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@map("blog_comments")
+}
+
+model BlogLike {
+  blogId    Int
+  userId    Int
+  createdAt DateTime @default(now())
+  blog      Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@id([blogId, userId])
+  @@map("blog_likes")
+}
+

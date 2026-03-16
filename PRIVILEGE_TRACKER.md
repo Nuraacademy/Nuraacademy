@@ -79,13 +79,13 @@ This document tracks the implementation status of all the privileges seeded into
 | Forums | `EDIT_OTHERS_REPLY` | Edit others' reply | 🟢 Implemented |
 | Forums | `DELETE_OTHERS_REPLY` | Delete others' reply | 🟢 Implemented |
 
-## 6.0 Wikis
+## 6.0 Blogs
 | Resource | Action | Description | Status |
 | :--- | :--- | :--- | :--- |
-| Wikis | `POST_CREATE` | Post create | 🔴 Not Implemented (Feature Missing) |
-| Wikis | `POST_SEARCH_VIEW` | Post search & view | 🔴 Not Implemented (Feature Missing) |
-| Wikis | `POST_EDIT` | Post edit | 🔴 Not Implemented (Feature Missing) |
-| Wikis | `POST_DELETE` | Post delete | 🔴 Not Implemented (Feature Missing) |
+| Blogs | `POST_CREATE` | Post create | 🟢 Implemented |
+| Blogs | `POST_SEARCH_VIEW` | Post search & view | 🟢 Implemented |
+| Blogs | `POST_EDIT` | Post edit | 🟢 Implemented |
+| Blogs | `POST_DELETE` | Post delete | 🟢 Implemented |
 
 ## 7.0 Reflection & Evaluation
 | Resource | Action | Description | Status |
