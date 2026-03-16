@@ -160,6 +160,7 @@ model Enrollment {
   user              User               @relation(fields: [userId], references: [id])
   groups            Group[]
   ses               SES[]
+  learnerAnalytics  LearnerAnalytics?
 
   @@unique([userId, classId])
   @@index([userId])
@@ -497,3 +498,32 @@ model BlogLike {
   @@map("blog_likes")
 }
 
+model LearnerAnalytics {
+  id                    Int        @id @default(autoincrement())
+  enrollmentId          Int        @unique
+  enrollment            Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  
+  // Team Work & Collaboration (Peer Feedback Summary)
+  cooperationScore      Float?
+  cooperationFeedback   String?
+  attendanceScore       Float?
+  attendanceFeedback    String?
+  taskCompletionScore   Float?
+  taskCompletionFeedback String?
+  initiativesScore      Float?
+  initiativesFeedback   String?
+  communicationScore    Float?
+  communicationFeedback String?
+  
+  // Final Project Analytics
+  problemUnderstandingScore Float?
+  dataReasoningScore        Float?
+  methodsScore             Float?
+  insightQualityScore      Float?
+  solutionQualityScore     Float?
+  
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+  
+  @@map("learner_analytics")
+}

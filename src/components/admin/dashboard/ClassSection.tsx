@@ -39,6 +39,7 @@ export default function ClassSection({ classes }: ClassSectionProps) {
                         isEnrolled={true}
                         canEdit={true}
                         canDelete={true}
+                        canViewAnalytics={true}
                         onClick={() => router.push(`/classes/${cls.id}/overview`)}
                     />
                 ))}

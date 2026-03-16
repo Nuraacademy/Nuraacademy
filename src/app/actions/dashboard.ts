@@ -167,7 +167,7 @@ export async function getDashboardData() {
                 courseName: a.course?.title || "N/A"
             })),
             analytics: uniqueLearners.map(l => ({
-                id: l.user.id,
+                id: l.id, // Using enrollment ID for specific class context
                 name: l.user.name || l.user.username,
                 className: l.class.title,
                 image: null // User model doesn't have image field currently

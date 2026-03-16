@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from 'next/navigation';
-import { Clock, BookText } from 'lucide-react';
+import { Clock, BookText, BarChart3 } from 'lucide-react';
 import { NuraButton } from '../button/button';
 import Chip from '../chip/chip';
 import Image from 'next/image';
@@ -21,11 +21,12 @@ interface ClassCardProp {
     isEnrolled: boolean,
     canEdit?: boolean,
     canDelete?: boolean,
+    canViewAnalytics?: boolean,
     onClick: () => void
 }
 
 export default function ClassCard({
-    id, imageUrl, title, method, scheduleStart, scheduleEnd, description, duration, courses, isEnrolled, canEdit, canDelete, onClick
+    id, imageUrl, title, method, scheduleStart, scheduleEnd, description, duration, courses, isEnrolled, canEdit, canDelete, canViewAnalytics, onClick
 }: ClassCardProp) {
     const router = useRouter()
 
@@ -144,6 +145,18 @@ export default function ClassCard({
                             className="p-2 rounded-lg bg-[#D9F55C] text-black hover:bg-[#c8e44a] transition-all"
                         >
                             <Pencil size={16} />
+                        </button>
+                    )}
+                    {canViewAnalytics && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/analytics/class/${id}`);
+                            }}
+                            className="p-2 rounded-lg border border-gray-200 text-gray-400 hover:text-[#1C3A37] hover:bg-gray-50 transition-all"
+                            title="Class Analytics"
+                        >
+                            <BarChart3 size={16} />
                         </button>
                     )}
                     { !canEdit && (

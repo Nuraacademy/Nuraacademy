@@ -210,7 +210,7 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
 
                     {/* Report & Analytics Section */}
                     <div>
-                        <div className="flex items-center gap-3 mb-3">
+                        <div className="flex items-center gap-3 mb-3 cursor-pointer" onClick={() => router.push("/classes")}>
                             <img
                                 src="/icons/sidebar/Report.svg"
                                 alt="Report Icon"
@@ -218,6 +218,21 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
                                 height={24}
                             />
                             <h3 className="font-semibold text-gray-800">Report & Analytics</h3>
+                        </div>
+                        <div className="space-y-1 ml-11">
+                            {myClasses.map((item, index) => {
+                                // Extracting a likely ID based on index or title for navigation
+                                const classId = index === 0 ? "1" : "2"; 
+                                return (
+                                    <button
+                                        key={index}
+                                        onClick={() => router.push(`/analytics/class/${classId}`)}
+                                        className="w-full flex items-center p-2 rounded hover:bg-gray-50 transition-colors text-sm text-gray-700 text-left"
+                                    >
+                                        {item.title} Report
+                                    </button>
+                                )
+                            })}
                         </div>
                     </div>
                 </div>

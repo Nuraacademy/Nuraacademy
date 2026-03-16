@@ -26,7 +26,7 @@ export default function AnalyticsSection({ data }: AnalyticsSectionProps) {
             <div className="space-y-6">
                 {data.slice(0, 3).map((learner, idx) => (
                     <React.Fragment key={learner.id}>
-                        <div className="flex items-center gap-4 group cursor-pointer" onClick={() => router.push(`/analytics/${learner.id}`)}>
+                        <div className="flex items-center gap-4 group cursor-pointer" onClick={() => router.push(`/analytics/user/${learner.id}`)}>
                             <div className="relative w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden shadow-sm border-2 border-white">
                                 {learner.image ? (
                                     <Image
