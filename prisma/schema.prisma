@@ -25,6 +25,7 @@ model User {
   blogComments         BlogComment[]
   blogs                Blog[]
   enrollments          Enrollment[]
+  reflections          Reflection[]
   role                 Role?                 @relation(fields: [roleId], references: [id])
 
   @@map("users")
@@ -45,6 +46,7 @@ model Session {
   type          SessionType  @default(SESSION)
   assignments   Assignment[]
   ses           SES[]
+  reflections   Reflection[]
   course        Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@index([courseId])
@@ -131,6 +133,7 @@ model Course {
   courseMappings     CourseMapping[]
   class              Class            @relation(fields: [classId], references: [id], onDelete: Cascade)
   sessions           Session[]
+  reflections        Reflection[]
 
   @@index([classId])
   @@index([createdBy])
@@ -161,6 +164,7 @@ model Enrollment {
   groups            Group[]
   ses               SES[]
   learnerAnalytics  LearnerAnalytics?
+  reflections       Reflection[]
 
   @@unique([userId, classId])
   @@index([userId])
@@ -185,6 +189,30 @@ model SES {
   @@id([enrollmentId, sessionId])
   @@index([sessionId])
   @@map("ses")
+}
+
+model Reflection {
+  id           Int        @id @default(autoincrement())
+  sessionId    Int?
+  courseId     Int?
+  enrollmentId Int
+  userId       Int
+  content      String     @db.Text
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime?
+  session      Session?   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  course       Course?    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id])
+
+  @@unique([userId, sessionId])
+  @@unique([userId, courseId])
+  @@index([sessionId])
+  @@index([courseId])
+  @@index([enrollmentId])
+  @@index([userId])
+  @@map("reflections")
 }
 
 model Assignment {

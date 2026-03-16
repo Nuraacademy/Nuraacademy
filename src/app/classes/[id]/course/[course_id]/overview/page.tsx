@@ -3,6 +3,7 @@ import { getCourseById } from "@/controllers/courseController";
 import { notFound } from "next/navigation";
 import CourseSessionLink from "./course_session_links";
 import CourseAssignmentLink from "./course_assignment_link";
+import CourseReflectionLink from "./course_reflection_link";
 import AddSessionButton from "./add_session_button";
 import { hasPermission } from "@/lib/rbac";
 
@@ -173,6 +174,8 @@ export default async function CourseOverviewPage({
                         {(!course.sessions || course.sessions.length === 0) && (!(course as any).assignments || (course as any).assignments.length === 0) && (
                             <p className="text-sm text-gray-500 italic">No sessions or assignments added yet.</p>
                         )}
+
+                        <CourseReflectionLink classId={classId} courseId={courseId} />
 
                         {canCreateSession && (
                             <div className="flex justify-center mt-6">
