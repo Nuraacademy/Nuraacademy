@@ -9,6 +9,7 @@ interface NotFoundStateProps {
     message: string
     buttonLabel?: string
     onBack?: () => void
+    href?: string
 }
 
 export function NotFoundState({
@@ -16,10 +17,19 @@ export function NotFoundState({
     message,
     buttonLabel = "Back to Overview",
     onBack,
+    href,
 }: NotFoundStateProps) {
     const router = useRouter()
 
-    const handleBack = onBack || (() => router.back())
+    const handleBack = () => {
+        if (onBack) {
+            onBack()
+        } else if (href) {
+            router.push(href)
+        } else {
+            router.back()
+        }
+    }
 
     return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">

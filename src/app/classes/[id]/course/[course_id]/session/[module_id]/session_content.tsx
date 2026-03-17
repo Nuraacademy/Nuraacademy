@@ -168,16 +168,19 @@ export default function SessionContent({
                 <div className="flex justify-center gap-4">
                     <div className="flex flex-col items-center gap-2">
                         <NuraButton
-                            label="Pre-test"
-                            variant="primary"
-                            className="min-w-[160px] h-10 text-sm font-bold"
+                            label={preTestId ? "Pre-test" : isAdmin ? "Create Pre-test" : "Pre-test"}
+                            variant={preTestId ? "primary" : isAdmin ? "secondary" : "primary"}
+                            className={`min-w-[160px] h-10 text-sm font-bold ${!preTestId && isAdmin ? "border border-black" : ""}`}
                             onClick={() => {
                                 if (preTestId) {
                                     router.push(`/assignment/${preTestId}`);
+                                } else if (isAdmin) {
+                                    router.push(`/assignment/add?classId=${classId}&courseId=${courseId}&sessionId=${moduleId}&type=PRETEST`);
                                 } else {
                                     toast.error("Pre-test not available");
                                 }
                             }}
+                            disabled={!preTestId && !isAdmin}
                         />
                         {isAdmin && preTestId && (
                             <button
@@ -191,16 +194,19 @@ export default function SessionContent({
 
                     <div className="flex flex-col items-center gap-2">
                         <NuraButton
-                            label="Post-test"
-                            variant="primary"
-                            className="min-w-[160px] h-10 text-sm font-bold"
+                            label={postTestId ? "Post-test" : isAdmin ? "Create Post-test" : "Post-test"}
+                            variant={postTestId ? "primary" : isAdmin ? "secondary" : "primary"}
+                            className={`min-w-[160px] h-10 text-sm font-bold ${!postTestId && isAdmin ? "border border-black" : ""}`}
                             onClick={() => {
                                 if (postTestId) {
                                     router.push(`/assignment/${postTestId}`);
+                                } else if (isAdmin) {
+                                    router.push(`/assignment/add?classId=${classId}&courseId=${courseId}&sessionId=${moduleId}&type=POSTTEST`);
                                 } else {
                                     toast.error("Post-test not available");
                                 }
                             }}
+                            disabled={!postTestId && !isAdmin}
                         />
                         {isAdmin && postTestId && (
                             <button
