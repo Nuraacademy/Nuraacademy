@@ -45,6 +45,31 @@ export async function registerUser(data: {
   });
 }
 
+export async function getUserById(id: number) {
+  return prisma.user.findUnique({
+    where: { id, deletedAt: null },
+    include: { role: true },
+  });
+}
+
+export async function updateUser(id: number, data: { name?: string; email?: string; username?: string; password?: string; roleId?: number | null }) {
+  if (data.password) {
+    data.password = await bcrypt.hash(data.password, 10);
+  }
+  return prisma.user.update({
+    where: { id },
+    data,
+    include: { role: true },
+  });
+}
+
+export async function deleteUser(id: number) {
+  return prisma.user.update({
+    where: { id },
+    data: { deletedAt: new Date() },
+  });
+}
+
 export async function loginUser(identifier: string, password: string) {
   const user = await prisma.user.findFirst({
     where: {

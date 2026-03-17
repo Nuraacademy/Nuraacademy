@@ -96,7 +96,7 @@ This document tracks the implementation status of all the privileges seeded into
 | Feedback | `CREATE_EDIT_PEER_FEEDBACK` | Create/edit Peer feedback | 🔴 Not Implemented (Feature Missing) |
 | Feedback | `CREATE_EDIT_CLASS_FEEDBACK` | Create/edit class feedback | 🔴 Not Implemented (Feature Missing) |
 | Feedback | `CREATE_EDIT_TRAINER_FEEDBACK` | Create/edit Trainer feedback | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `DELETE_REFLECTION` | Delete reflection | 🔴 Not Implemented (Feature Missing) |
+| Feedback | `DELETE_REFLECTION` | Delete reflection | 🟢 Implemented |
 | Feedback | `VIEW_SEARCH_REFLECTION` | View & search reflection | 🟢 Implemented |
 | Feedback | `VIEW_DETAIL_REFLECTION` | View detail reflection | 🟢 Implemented |
 | Feedback | `DELETE_ASSIGNMENT_FEEDBACK` | Delete assignment feedback | 🔴 Not Implemented (Feature Missing) |
@@ -112,10 +112,10 @@ This document tracks the implementation status of all the privileges seeded into
 ## 8.0 User management
 | Resource | Action | Description | Status |
 | :--- | :--- | :--- | :--- |
-| User | `CREATE_EDIT_USER` | Create/ edit user | 🟢 Implemented (via default registration) |
-| User | `VIEW_DETAIL_USER` | View detail user | 🔴 Not Implemented (Feature Missing) |
-| User | `DELETE_USER` | Delete user | 🔴 Not Implemented (Feature Missing) |
-| User | `VIEW_SEARCH_USER` | View & search user | 🟢 Implemented (Admin UI) |
+| User | `CREATE_EDIT_USER` | Create/ edit user | 🟢 Implemented |
+| User | `VIEW_DETAIL_USER` | View detail user | 🟢 Implemented |
+| User | `DELETE_USER` | Delete user | 🟢 Implemented |
+| User | `VIEW_SEARCH_USER` | View & search user | 🟢 Implemented |
 
 ## 9.0 File management
 | Resource | Action | Description | Status |
