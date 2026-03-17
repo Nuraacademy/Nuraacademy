@@ -53,7 +53,7 @@ export default function AssignmentFeedbackEditor({
 
         if (res.success) {
             toast.success("Feedback submitted successfully!");
-            router.push(`/feedback/assignment/${assignmentId}`);
+            router.push(`/assignment/${assignmentId}/results`);
         } else {
             toast.error("Failed to submit feedback: " + res.error);
         }
@@ -112,7 +112,7 @@ export default function AssignmentFeedbackEditor({
                     items={[
                         { label: "Home", href: "/" },
                         { label: "Assignment", href: "/feedback" },
-                        { label: assignmentTitle, href: `/feedback/assignment/${assignmentId}` },
+                        { label: assignmentTitle, href: `/assignment/${assignmentId}/results` },
                         { label: learnerName, href: "#" },
                     ]} 
                 />

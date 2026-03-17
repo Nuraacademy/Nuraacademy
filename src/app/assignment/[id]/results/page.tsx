@@ -87,28 +87,6 @@ export default async function AssignmentResultsPage({
                                                     >
                                                         {res.name}
                                                     </Link>
-                                                    {res.isGroup && res.members && (
-                                                        <div className="mt-1.5">
-                                                            <details className="cursor-pointer">
-                                                                <summary className="text-[10px] text-gray-400 font-bold uppercase hover:text-gray-600 transition-colors list-none flex items-center gap-1">
-                                                                    View {res.members.length} Members <span className="text-[8px] transform group-open:rotate-180">▼</span>
-                                                                </summary>
-                                                                <ul className="mt-2 pl-2 space-y-2 border-l-2 border-gray-100">
-                                                                    {res.members.map((member: { id: number, name: string }, idx: number) => (
-                                                                        <li key={idx} className="flex items-center justify-between gap-4">
-                                                                            <span className="text-xs text-gray-500">{member.name}</span>
-                                                                            <Link
-                                                                                href={`/feedback/assignment/${id}/learner/${member.id}`}
-                                                                                className="text-[10px] text-[#00524D] font-bold bg-[#DAEE49]/20 px-2 py-0.5 rounded hover:bg-[#DAEE49]/40 transition-colors uppercase tracking-tight"
-                                                                            >
-                                                                                Feedback
-                                                                            </Link>
-                                                                        </li>
-                                                                    ))}
-                                                                </ul>
-                                                            </details>
-                                                        </div>
-                                                    )}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-5 text-center">
@@ -126,13 +104,39 @@ export default async function AssignmentResultsPage({
                                                 </div>
                                             </td>
                                             <td className="px-6 py-5 text-right">
-                                                {!res.isGroup && (
+                                                {!res.isGroup ? (
                                                     <Link
                                                         href={`/feedback/assignment/${id}/learner/${res.enrollmentId}`}
                                                         className="inline-flex items-center justify-center px-6 py-2 bg-[#DAEE49] text-[#00524D] text-xs font-black rounded-full hover:bg-[#C9D942] transition-all shadow-sm hover:shadow-md uppercase tracking-widest whitespace-nowrap"
                                                     >
                                                         Feedback
                                                     </Link>
+                                                ) : (
+                                                    res.members && (
+                                                        <div className="flex justify-end">
+                                                            <details className="cursor-pointer group/details relative w-full max-w-[200px]">
+                                                                <summary className="text-[10px] text-gray-500 font-bold uppercase hover:text-gray-900 transition-colors list-none flex items-center justify-end gap-1.5 focus:outline-none">
+                                                                    <span>Member Feedback</span>
+                                                                    <span className="text-[8px] transform transition-transform group-open/details:rotate-180 bg-gray-100 px-1 rounded">▼</span>
+                                                                </summary>
+                                                                <div className="absolute right-0 top-full mt-2 w-max min-w-[180px] bg-white border border-gray-100 rounded-xl shadow-xl z-50 p-3 transform transition-all animate-in fade-in slide-in-from-top-1">
+                                                                    <ul className="space-y-2.5">
+                                                                        {res.members.map((member: { id: number, name: string }, idx: number) => (
+                                                                            <li key={idx} className="flex items-center justify-between gap-6 border-b border-gray-50 pb-2 last:border-0 last:pb-0">
+                                                                                <span className="text-[11px] text-gray-600 font-medium truncate max-w-[100px]">{member.name}</span>
+                                                                                <Link
+                                                                                    href={`/feedback/assignment/${id}/learner/${member.id}`}
+                                                                                    className="text-[9px] text-[#00524D] font-bold bg-[#DAEE49] px-2.5 py-1 rounded-lg hover:bg-[#C9D942] transition-colors uppercase tracking-tight shadow-sm"
+                                                                                >
+                                                                                    Feedback
+                                                                                </Link>
+                                                                            </li>
+                                                                        ))}
+                                                                    </ul>
+                                                                </div>
+                                                            </details>
+                                                        </div>
+                                                    )
                                                 )}
                                             </td>
                                         </tr>

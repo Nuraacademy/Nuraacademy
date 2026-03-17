@@ -243,17 +243,17 @@ export async function getFeedbacks() {
             });
 
             assignments.forEach(a => {
-                if (a._count.assignmentResults > 0) {
-                    feedbacks.push({
-                        id: `instructor-assignment-${a.id}`,
-                        title: `${a.title || "Assignment"}`,
-                        type: 'Assignment',
-                        className: a.class?.title || a.course?.title || "Multiple Classes",
-                        content: `${a._count.assignmentResults} submission(s) needing review.`,
-                        createdAt: a.createdAt,
-                        href: `/feedback/assignment/${a.id}`
-                    });
-                }
+                feedbacks.push({
+                    id: `instructor-assignment-${a.id}`,
+                    title: `${a.title || "Assignment"}`,
+                    type: 'Assignment',
+                    className: a.class?.title || a.course?.title || "Multiple Classes",
+                    content: a._count.assignmentResults > 0 
+                        ? `${a._count.assignmentResults} submission(s) needing review.`
+                        : "No submissions yet.",
+                    createdAt: a.createdAt,
+                    href: `/assignment/${a.id}/results`
+                });
             });
         }
 
