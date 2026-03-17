@@ -49,7 +49,7 @@ export function AssignmentIntroCard({
                 <div className="flex items-center gap-3 mb-2">
                     <h1 className="text-xl font-semibold">{title}</h1>
                     <span className="border border-white/50 rounded-full px-3 py-0.5 text-xs text-white/90">
-                        {type === "PROJECT" ? "Project" : "Assignment"}
+                        {type === "PROJECT" ? "Project" : type === "EXERCISE" ? "Exercise" : "Assignment"}
                     </span>
                     {isGroup && (
                         <span className="border border-white/50 rounded-full px-3 py-0.5 text-xs text-white/90">
@@ -95,21 +95,30 @@ export function AssignmentIntroCard({
                     </span>
                 </div>
 
-                <div className="flex justify-center gap-4">
-                    <NuraButton
-                        label="Back"
-                        variant="secondary"
-                        type="button"
-                        className="w-[180px] border-transparent"
-                        onClick={() => router.back()}
-                    />
-                    <NuraButton
-                        label={isSubmitted ? "View Result" : "Work on Assignment"}
-                        variant="primary"
-                        type="button"
-                        onClick={() => router.push(`?skipIntro=1`)}
-                    />
-                </div>
+                    <div className="flex justify-center gap-4">
+                        <NuraButton
+                            label="Back"
+                            variant="secondary"
+                            type="button"
+                            className="w-[180px] border-transparent"
+                            onClick={() => router.back()}
+                        />
+                        {type === "EXERCISE" && description && description.startsWith("http") && (
+                            <NuraButton
+                                label="Open in Colab"
+                                variant="primary"
+                                type="button"
+                                className="w-[180px]"
+                                onClick={() => window.open(description, "_blank")}
+                            />
+                        )}
+                        <NuraButton
+                            label={isSubmitted ? "View Result" : "Work on Assignment"}
+                            variant="primary"
+                            type="button"
+                            onClick={() => router.push(`?skipIntro=1`)}
+                        />
+                    </div>
             </div>
         </section>
     );

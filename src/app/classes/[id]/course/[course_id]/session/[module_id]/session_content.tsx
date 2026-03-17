@@ -17,6 +17,8 @@ interface SessionContentProps {
     content: any;
     referenceMaterials: { name: string; description: string; url: string }[];
     isAdmin: boolean;
+    preTestId?: number;
+    postTestId?: number;
 }
 
 export default function SessionContent({
@@ -26,7 +28,9 @@ export default function SessionContent({
     isSynchronous,
     content,
     referenceMaterials,
-    isAdmin
+    isAdmin,
+    preTestId,
+    postTestId
 }: SessionContentProps) {
     const router = useRouter();
 
@@ -168,12 +172,16 @@ export default function SessionContent({
                             variant="primary"
                             className="min-w-[160px] h-10 text-sm font-bold"
                             onClick={() => {
-                                router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/pre-test`);
+                                if (preTestId) {
+                                    router.push(`/assignment/${preTestId}`);
+                                } else {
+                                    toast.error("Pre-test not available");
+                                }
                             }}
                         />
-                        {isAdmin && (
+                        {isAdmin && preTestId && (
                             <button
-                                onClick={() => router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/pre-test/edit`)}
+                                onClick={() => router.push(`/assignment/add?id=${preTestId}`)}
                                 className="text-[10px] font-bold text-[#005954] hover:underline uppercase tracking-wider"
                             >
                                 Manage Pre-test
@@ -187,12 +195,16 @@ export default function SessionContent({
                             variant="primary"
                             className="min-w-[160px] h-10 text-sm font-bold"
                             onClick={() => {
-                                router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/post-test`);
+                                if (postTestId) {
+                                    router.push(`/assignment/${postTestId}`);
+                                } else {
+                                    toast.error("Post-test not available");
+                                }
                             }}
                         />
-                        {isAdmin && (
+                        {isAdmin && postTestId && (
                             <button
-                                onClick={() => router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/post-test/edit`)}
+                                onClick={() => router.push(`/assignment/add?id=${postTestId}`)}
                                 className="text-[10px] font-bold text-[#005954] hover:underline uppercase tracking-wider"
                             >
                                 Manage Post-test

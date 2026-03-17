@@ -1,4 +1,5 @@
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
+import { getAssignmentBySessionAndType } from "@/controllers/assignmentController";
 import { getSessionById } from "@/controllers/sessionController";
 import { notFound } from "next/navigation";
 import SessionContent from "./session_content";
@@ -13,7 +14,12 @@ export default async function SessionPage({
 }) {
     const { id: classId, course_id: courseId, module_id: moduleId } = await params;
 
-    const session = await getSessionById(parseInt(moduleId));
+    const [session, preTest, postTest] = await Promise.all([
+        getSessionById(parseInt(moduleId)),
+        getAssignmentBySessionAndType(parseInt(moduleId), "PRETEST"),
+        getAssignmentBySessionAndType(parseInt(moduleId), "POSTTEST"),
+    ]);
+
     if (!session) {
         return notFound();
     }
@@ -108,6 +114,8 @@ export default async function SessionPage({
                         content={content}
                         referenceMaterials={referenceMaterials}
                         isAdmin={canUpdateSession}
+                        preTestId={preTest?.id}
+                        postTestId={postTest?.id}
                     />
                 </div>
             </div>
