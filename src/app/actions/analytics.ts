@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma"
 import { getSession } from "./auth"
+import { requirePermission } from "@/lib/rbac"
 
 export async function getClassAnalytics(classId: number) {
     const userId = await getSession();
@@ -118,18 +119,9 @@ export async function saveLearnerAnalytics(data: {
     insightQualityScore?: number;
     solutionQualityScore?: number;
 }) {
+    await requirePermission('Analytics', 'ANALYTICS_REPORT_LEARNER');
     const userId = await getSession();
     if (!userId) return { success: false, error: "Unauthorized" };
-
-    // Verify user is Admin/Trainer/Instructor
-    const user = await prisma.user.findUnique({
-        where: { id: userId },
-        include: { role: true }
-    });
-
-    if (!user || user.role?.name === 'Learner') {
-        return { success: false, error: "Insufficient permissions" };
-    }
 
     const { enrollmentId, ...scores } = data;
 

@@ -3,9 +3,11 @@
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { getCurrentUserId } from '@/lib/auth';
+import { requirePermission } from '@/lib/rbac';
 
 export async function uploadFileAction(formData: FormData) {
     try {
+        await requirePermission('File', 'UPLOAD_FILE');
         const userId = await getCurrentUserId();
         if (!userId) return { success: false, error: "Unauthorized" };
 

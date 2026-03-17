@@ -35,6 +35,7 @@ export async function savePeerFeedback(data: {
     initiatives?: number;
     communication?: number;
 }) {
+    await requirePermission('Feedback', 'CREATE_EDIT_PEER_FEEDBACK');
     const userId = await getSession();
     if (!userId) return { success: false, error: "Unauthorized" };
 
@@ -131,6 +132,7 @@ export async function clearPeerFeedback(evaluatorId: number, evaluateeId: number
 }
 
 export async function getReceivedPeerFeedbacks(enrollmentId: number) {
+    await requirePermission('Feedback', 'VIEW_SEARCH_PEER_FEEDBACK');
     const userId = await getSession();
     if (!userId) return { success: false, error: "Unauthorized" };
 

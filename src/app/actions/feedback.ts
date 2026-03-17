@@ -33,111 +33,88 @@ export async function getFeedbacks() {
         console.log("Fetching feedbacks for user:", userId, "isLearner:", isLearner);
 
         if (isLearner) {
-            // --- LEARNER VIEW: Feedbacks received ---
-            
-            // 1. Fetch Reflection Feedback (Trainer's response to your reflection)
-            const trainerFeedbacks = await prisma.feedback.findMany({
-                where: {
-                    reflection: {
-                        userId: userId,
-                        deletedAt: null
-                    },
-                    deletedAt: null
-                },
-                include: {
-                    reflection: {
-                        include: {
-                            course: true,
-                            session: true,
-                            enrollment: {
-                                include: {
-                                    class: true
-                                }
-                            }
-                        }
-                    }
-                },
-                orderBy: { createdAt: 'desc' }
-            });
+            // --- LEARNER VIEW: Show all feedback-relevant items from enrollments ---
+            // Use separate queries instead of one large nested include to avoid Prisma P2022 join issues
 
-            trainerFeedbacks.forEach(f => {
-                if (f.reflection) {
-                    feedbacks.push({
-                        id: `trainer-${f.id}`,
-                        title: `${f.reflection.course?.title || f.reflection.session?.title || "Course"} Reflection Feedback`,
-                        type: 'Reflection',
-                        className: f.reflection.enrollment.class.title,
-                        content: f.content,
-                        createdAt: f.createdAt,
-                        href: `/classes/${f.reflection.enrollment.classId}/course/${f.reflection.courseId}/reflection`
-                    });
-                }
-            });
-
-            // 2. Fetch Assignment Feedback
+            // 1. Assignments — fetch all assignment results for this learner
             const assignmentResults = await prisma.assignmentResult.findMany({
                 where: {
-                    enrollment: {
-                        userId: userId,
-                        deletedAt: null
-                    },
+                    enrollment: { userId, deletedAt: null },
                     assignment: {
-                        type: { in: ['PROJECT', 'ASSIGNMENT'] }
+                        type: { in: ['PROJECT', 'ASSIGNMENT'] },
+                        deletedAt: null,
                     },
-                    feedback: { not: null },
-                    deletedAt: null
+                    deletedAt: null,
                 },
                 include: {
-                    assignment: {
-                        include: {
-                            class: true
-                        }
-                    },
+                    assignment: true,
                     enrollment: {
-                        include: {
-                            class: true
-                        }
-                    }
+                        include: { class: true },
+                    },
                 },
-                orderBy: { createdAt: 'desc' }
+                orderBy: { updatedAt: 'desc' },
             });
 
             assignmentResults.forEach(ar => {
                 feedbacks.push({
                     id: `assignment-${ar.id}`,
-                    title: `${ar.assignment.title || "Assignment"} Feedback`,
+                    title: `${ar.assignment.title || 'Assignment'}`,
                     type: 'Assignment',
                     className: ar.enrollment.class.title,
-                    content: ar.feedback || "",
-                    createdAt: ar.createdAt,
-                    href: `/assignment/${ar.assignmentId}`
+                    content: ar.feedback
+                        ? ar.feedback
+                        : ar.finishedAt
+                            ? 'Submitted — awaiting feedback'
+                            : 'Not submitted yet',
+                    createdAt: ar.updatedAt || ar.createdAt,
+                    href: `/assignment/${ar.assignmentId}`,
                 });
             });
 
-            // 3. Fetch Class/Peer Feedback (Learner Analytics)
-            const analytics = await prisma.learnerAnalytics.findMany({
-                where: {
-                    enrollment: {
-                        userId: userId,
-                        deletedAt: null
-                    }
-                },
+            // 2. Reflections — fetch all written reflections for this learner
+            const reflections = await prisma.reflection.findMany({
+                where: { userId, deletedAt: null },
                 include: {
-                    enrollment: {
-                        include: {
-                            class: true
-                        }
-                    }
-                }
+                    course: { select: { title: true } },
+                    session: { select: { title: true } },
+                    enrollment: { include: { class: true } },
+                    feedback: { select: { content: true } },
+                },
+                orderBy: { createdAt: 'desc' },
             });
 
-            analytics.forEach(a => {
-                const feedbackFields = [
-                    { name: 'Peer Feedback', content: a.cooperationFeedback },
-                    { name: 'Class Feedback', content: a.communicationFeedback }
-                ];
+            reflections.forEach(r => {
+                feedbacks.push({
+                    id: `reflection-${r.id}`,
+                    title: `${r.course?.title || r.session?.title || 'Reflection'}`,
+                    type: 'Reflection',
+                    className: r.enrollment.class.title,
+                    content: r.feedback
+                        ? r.feedback.content
+                        : 'Reflection submitted — awaiting trainer feedback',
+                    createdAt: r.createdAt,
+                    href: r.courseId
+                        ? `/classes/${r.enrollment.classId}/course/${r.courseId}/reflection`
+                        : `/classes/${r.enrollment.classId}/course/session/${r.sessionId}/reflection`,
+                });
+            });
 
-                feedbackFields.forEach(ff => {
+            // 3. Learner Analytics (Peer / Class feedback from trainer)
+            const analyticsItems = await prisma.learnerAnalytics.findMany({
+                where: {
+                    enrollment: { userId, deletedAt: null },
+                },
+                include: {
+                    enrollment: { include: { class: true } },
+                },
+            });
+
+            analyticsItems.forEach(a => {
+                const fields = [
+                    { name: 'Peer Feedback', content: a.cooperationFeedback },
+                    { name: 'Class Feedback', content: a.communicationFeedback },
+                ];
+                fields.forEach(ff => {
                     if (ff.content) {
                         feedbacks.push({
                             id: `analytics-${a.id}-${ff.name.replace(/\s+/g, '-').toLowerCase()}`,
@@ -146,28 +123,26 @@ export async function getFeedbacks() {
                             className: a.enrollment.class.title,
                             content: ff.content,
                             createdAt: a.updatedAt,
-                            href: `/analytics/class/${a.enrollment.classId}`
+                            href: `/analytics/class/${a.enrollment.classId}`,
                         });
                     }
                 });
             });
 
-            // 4. Fetch Peer Feedback from PeerFeedback model
+            // 4. Received Peer Feedback from PeerFeedback model
             const peerFeedbacks = await prisma.peerFeedback.findMany({
                 where: {
-                    evaluatee: {
-                        userId: userId,
-                        deletedAt: null
-                    }
+                    evaluatee: { userId, deletedAt: null },
                 },
                 include: {
                     evaluator: {
                         include: {
-                            user: { select: { name: true, username: true } }
-                        }
+                            user: { select: { name: true, username: true } },
+                        },
                     },
-                    class: true
-                }
+                    class: true,
+                },
+                orderBy: { updatedAt: 'desc' },
             });
 
             peerFeedbacks.forEach(pf => {
@@ -176,9 +151,9 @@ export async function getFeedbacks() {
                     title: `Peer Feedback from ${pf.evaluator.user.name || pf.evaluator.user.username}`,
                     type: 'Peer',
                     className: pf.class.title,
-                    content: `Cooperation: ${pf.cooperation}, Attendance: ${pf.attendance}, Task Completion: ${pf.taskCompletion}, Initiatives: ${pf.initiatives}, Communication: ${pf.communication}`,
+                    content: `Cooperation: ${pf.cooperation ?? '-'}, Attendance: ${pf.attendance ?? '-'}, Task Completion: ${pf.taskCompletion ?? '-'}, Initiatives: ${pf.initiatives ?? '-'}, Communication: ${pf.communication ?? '-'}`,
                     createdAt: pf.updatedAt,
-                    href: `/analytics/class/${pf.classId}`
+                    href: `/analytics/class/${pf.classId}`,
                 });
             });
 
@@ -253,6 +228,39 @@ export async function getFeedbacks() {
                         : "No submissions yet.",
                     createdAt: a.createdAt,
                     href: `/assignment/${a.id}/results`
+                });
+            });
+
+            // 3. Fetch Peer Feedbacks submitted by learners (instructor overview)
+            const peerFeedbacks = await prisma.peerFeedback.findMany({
+                include: {
+                    evaluator: {
+                        include: {
+                            user: { select: { name: true, username: true } }
+                        }
+                    },
+                    evaluatee: {
+                        include: {
+                            user: { select: { name: true, username: true } }
+                        }
+                    },
+                    class: true
+                },
+                orderBy: { updatedAt: 'desc' },
+                take: 50
+            });
+
+            peerFeedbacks.forEach(pf => {
+                const evaluatorName = pf.evaluator.user.name || pf.evaluator.user.username;
+                const evaluateeName = pf.evaluatee.user.name || pf.evaluatee.user.username;
+                feedbacks.push({
+                    id: `instructor-peer-${pf.id}`,
+                    title: `Peer Feedback: ${evaluatorName} → ${evaluateeName}`,
+                    type: 'Peer',
+                    className: pf.class.title,
+                    content: `Cooperation: ${pf.cooperation ?? '-'}, Attendance: ${pf.attendance ?? '-'}, Task Completion: ${pf.taskCompletion ?? '-'}, Initiatives: ${pf.initiatives ?? '-'}, Communication: ${pf.communication ?? '-'}`,
+                    createdAt: pf.updatedAt,
+                    href: `/analytics/class/${pf.classId}`
                 });
             });
         }

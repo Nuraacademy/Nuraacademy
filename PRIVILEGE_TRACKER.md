@@ -130,7 +130,7 @@ This document tracks the implementation status of all the privileges seeded into
 ## 10.0 Analytics & Report
 | Resource | Action | Description | Status |
 | :--- | :--- | :--- | :--- |
-| Analytics | `ANALYTICS_REPORT_LEARNER` | Analytics report learner | 🔴 Not Implemented (Feature Missing) |
+| Analytics | `ANALYTICS_REPORT_LEARNER` | Analytics report learner | 🟢 Implemented |
 | Analytics | `LEARNER_REPORT` | Learner report | 🔴 Not Implemented (Feature Missing) |
 | Analytics | `ANALYTICS_REPORT_TRAINER` | Analytics report trainer | 🔴 Not Implemented (Feature Missing) |
 | Analytics | `TRAINER_REPORT` | Trainer report | 🔴 Not Implemented (Feature Missing) |
