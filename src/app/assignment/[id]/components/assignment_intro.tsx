@@ -104,7 +104,7 @@ export function AssignmentIntroCard({
                         onClick={() => router.back()}
                     />
                     <NuraButton
-                        label="Work on Assignment"
+                        label={isSubmitted ? "View Result" : "Work on Assignment"}
                         variant="primary"
                         type="button"
                         onClick={() => router.push(`?skipIntro=1`)}

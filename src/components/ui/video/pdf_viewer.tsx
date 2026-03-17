@@ -4,14 +4,10 @@ import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import {
     FileText,
-    ExternalLink,
     ChevronLeft,
     ChevronRight,
-    ChevronsLeft,
-    ChevronsRight,
     Minus,
     Plus,
-    Maximize2
 } from "lucide-react"
 import { NuraButton } from "@/components/ui/button/button"
 import { Document, Page, pdfjs } from "react-pdf"
@@ -145,103 +141,14 @@ export default function PDFViewer({ url, title, editUrl, isAdmin }: PDFViewerPro
                 )}
             </div>
 
-            {/* Content & Controls Container */}
-            <div className="bg-gray-100/50 rounded-3xl p-4 md:p-6 shadow-sm border border-gray-100 min-h-[500px] flex flex-col">
+            {/* Content Container */}
+            <div className="bg-gray-100/30 rounded-3xl p-4 md:p-6 shadow-sm border border-gray-100 min-h-[500px] flex flex-col">
                 {fileStatus === "found" ? (
                     <>
-                        {/* Navigation Bar (Reference Image Style) */}
-                        <div className="flex flex-wrap items-center justify-center gap-2 mb-6 bg-white py-2 px-4 rounded-full shadow-sm border border-gray-100 w-fit mx-auto sticky top-0 z-10">
-                            {/* Page Controls */}
-                            <div className="flex items-center gap-1">
-                                <button
-                                    onClick={goToFirstPage}
-                                    disabled={pageNumber <= 1}
-                                    className="p-1.5 rounded-full hover:bg-gray-100 disabled:opacity-30 transition-colors border border-gray-200"
-                                    title="First Page"
-                                >
-                                    <ChevronsLeft size={16} />
-                                </button>
-                                <button
-                                    onClick={() => changePage(-1)}
-                                    disabled={pageNumber <= 1}
-                                    className="p-1.5 rounded-full hover:bg-gray-100 disabled:opacity-30 transition-colors border border-gray-200"
-                                    title="Previous Page"
-                                >
-                                    <ChevronLeft size={16} />
-                                </button>
-
-                                <div className="flex items-center gap-2 mx-1">
-                                    <input
-                                        type="number"
-                                        min={1}
-                                        max={numPages}
-                                        value={pageNumber}
-                                        onChange={(e) => {
-                                            const val = parseInt(e.target.value)
-                                            if (val >= 1 && val <= numPages) setPageNumber(val)
-                                        }}
-                                        className="w-10 h-7 text-center text-xs font-bold border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#005954]"
-                                    />
-                                    <span className="text-xs text-gray-500 font-medium whitespace-nowrap">of {numPages || '--'}</span>
-                                </div>
-
-                                <button
-                                    onClick={() => changePage(1)}
-                                    disabled={pageNumber >= numPages}
-                                    className="p-1.5 rounded-full hover:bg-gray-100 disabled:opacity-30 transition-colors border border-gray-200"
-                                    title="Next Page"
-                                >
-                                    <ChevronRight size={16} />
-                                </button>
-                                <button
-                                    onClick={() => setPageNumber(numPages)}
-                                    disabled={pageNumber >= numPages}
-                                    className="p-1.5 rounded-full hover:bg-gray-100 disabled:opacity-30 transition-colors border border-gray-200"
-                                    title="Last Page"
-                                >
-                                    <ChevronsRight size={16} />
-                                </button>
-                            </div>
-
-                            <div className="h-4 w-[1px] bg-gray-200 mx-1"></div>
-
-                            {/* Zoom Controls */}
-                            <div className="flex items-center gap-1">
-                                <button
-                                    onClick={() => changeZoom(-0.25)}
-                                    className="p-1.5 rounded-full hover:bg-gray-100 transition-colors border border-gray-200"
-                                    title="Zoom Out"
-                                >
-                                    <Minus size={16} />
-                                </button>
-
-                                <select
-                                    value={scale}
-                                    onChange={(e) => setScale(parseFloat(e.target.value))}
-                                    className="text-xs font-bold border border-gray-200 rounded-lg px-2 py-1 focus:outline-none bg-white h-7 cursor-pointer"
-                                >
-                                    <option value={0.5}>50%</option>
-                                    <option value={0.75}>75%</option>
-                                    <option value={1.0}>100%</option>
-                                    <option value={1.25}>125%</option>
-                                    <option value={1.5}>150%</option>
-                                    <option value={2.0}>200%</option>
-                                </select>
-
-                                <button
-                                    onClick={() => changeZoom(0.25)}
-                                    className="p-1.5 rounded-full hover:bg-gray-100 transition-colors border border-gray-200"
-                                    title="Zoom In"
-                                >
-                                    <Plus size={16} />
-                                </button>
-                            </div>
-                        </div>
-
                         {/* PDF Viewer Area */}
                         <div
                             ref={containerRef}
-                            className="relative w-full overflow-auto flex-grow rounded-2xl bg-white border border-gray-100 shadow-inner flex justify-center"
+                            className="relative w-full overflow-auto flex-grow rounded-2xl bg-white border border-gray-100 shadow-inner flex justify-center mb-6"
                         >
                             <div className="p-4 md:p-8">
                                 <Document
@@ -264,6 +171,100 @@ export default function PDFViewer({ url, title, editUrl, isAdmin }: PDFViewerPro
                                         renderTextLayer={false}
                                     />
                                 </Document>
+                            </div>
+                        </div>
+
+                        {/* Lime Control Bar (Matches User Image) */}
+                        <div className="bg-[#D9F55C] py-3 px-6 rounded-2xl flex flex-wrap items-center justify-center gap-4 shadow-md w-full max-w-2xl mx-auto">
+                            {/* Page Controls */}
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={goToFirstPage}
+                                    disabled={pageNumber <= 1}
+                                    className="w-8 h-8 flex items-center justify-center rounded-full border border-black/40 text-black hover:bg-black/10 disabled:opacity-20 transition-all font-bold text-xs"
+                                    title="First Page"
+                                >
+                                    K
+                                </button>
+                                <button
+                                    onClick={() => changePage(-1)}
+                                    disabled={pageNumber <= 1}
+                                    className="w-8 h-8 flex items-center justify-center rounded-full border border-black/40 text-black hover:bg-black/10 disabled:opacity-20 transition-all"
+                                    title="Previous Page"
+                                >
+                                    <ChevronLeft size={18} />
+                                </button>
+
+                                <div className="flex items-center gap-2 mx-1">
+                                    <input
+                                        type="number"
+                                        min={1}
+                                        max={numPages}
+                                        value={pageNumber}
+                                        onChange={(e) => {
+                                            const val = parseInt(e.target.value)
+                                            if (val >= 1 && val <= numPages) setPageNumber(val)
+                                        }}
+                                        className="w-12 h-8 text-center text-sm font-bold border border-black/40 rounded-lg bg-transparent focus:outline-none focus:ring-1 focus:ring-black"
+                                    />
+                                    <span className="text-xs text-black font-bold whitespace-nowrap">of {numPages || '--'}</span>
+                                </div>
+
+                                <button
+                                    onClick={() => changePage(1)}
+                                    disabled={pageNumber >= numPages}
+                                    className="w-8 h-8 flex items-center justify-center rounded-full border border-black/40 text-black hover:bg-black/10 disabled:opacity-20 transition-all"
+                                    title="Next Page"
+                                >
+                                    <ChevronRight size={18} />
+                                </button>
+                                <button
+                                    onClick={goToLastPage}
+                                    disabled={pageNumber >= numPages}
+                                    className="w-8 h-8 flex items-center justify-center rounded-full border border-black/40 text-black hover:bg-black/10 disabled:opacity-20 transition-all font-bold text-xs"
+                                    title="Last Page"
+                                >
+                                    &gt;|
+                                </button>
+                            </div>
+
+                            <div className="h-6 w-[1px] bg-black/20 mx-2"></div>
+
+                            {/* Zoom Controls */}
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => changeZoom(-0.25)}
+                                    className="w-8 h-8 flex items-center justify-center rounded-full border border-black/40 text-black hover:bg-black/10 transition-all"
+                                    title="Zoom Out"
+                                >
+                                    <Minus size={18} />
+                                </button>
+
+                                <div className="relative">
+                                    <select
+                                        value={scale}
+                                        onChange={(e) => setScale(parseFloat(e.target.value))}
+                                        className="text-sm font-bold border border-black/40 rounded-lg px-3 py-1 bg-transparent h-8 cursor-pointer focus:outline-none appearance-none pr-8 min-w-[90px]"
+                                    >
+                                        <option value={0.5}>50%</option>
+                                        <option value={0.75}>75%</option>
+                                        <option value={1.0}>100%</option>
+                                        <option value={1.25}>125%</option>
+                                        <option value={1.5}>150%</option>
+                                        <option value={2.0}>200%</option>
+                                    </select>
+                                    <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
+                                        <ChevronRight size={14} className="rotate-90" />
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={() => changeZoom(0.25)}
+                                    className="w-8 h-8 flex items-center justify-center rounded-full border border-black/40 text-black hover:bg-black/10 transition-all"
+                                    title="Zoom In"
+                                >
+                                    <Plus size={18} />
+                                </button>
                             </div>
                         </div>
                     </>
