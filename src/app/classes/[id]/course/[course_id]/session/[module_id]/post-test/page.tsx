@@ -1,9 +1,5 @@
-import { getCurrentUserId } from "@/lib/auth";
 import { getAssignmentBySessionAndType } from "@/controllers/assignmentController";
-import { getEnrollment } from "@/controllers/enrollmentController";
-import { mapAssignmentToTestRunner } from "@/utils/test_mapper";
 import { NotFoundState } from "@/components/ui/status/not_found_state";
-import TestPageClient from "../components/test_page_client";
 import { redirect } from "next/navigation";
 
 export default async function PostTestPage({
@@ -11,48 +7,20 @@ export default async function PostTestPage({
 }: {
     params: Promise<{ id: string, course_id: string, module_id: string }>
 }) {
-    const { id: classId, course_id: courseId, module_id: moduleId } = await params;
-
-    const userId = await getCurrentUserId();
-    if (!userId) {
-        redirect("/login");
-    }
+    const { module_id: moduleId } = await params;
 
     const assignment = await getAssignmentBySessionAndType(parseInt(moduleId), 'POSTTEST');
 
-    const enrollment = await getEnrollment(userId, parseInt(classId));
-
-    if (!assignment || !enrollment) {
+    if (!assignment) {
         return (
             <main className="min-h-screen bg-[#FDFDF7] flex items-center justify-center">
                 <NotFoundState
-                    title={!assignment ? "Post-Test Not Available" : "Enrollment Not Found"}
-                    message={!assignment
-                        ? "The post-test for this session is not available at the moment. Please check back later."
-                        : "You must be enrolled in this class to take the post-test."
-                    }
+                    title="Post-Test Not Available"
+                    message="The post-test for this session is not available at the moment. Please check back later."
                 />
             </main>
         )
     }
 
-    const assignmentData = mapAssignmentToTestRunner(assignment);
-    const sessionTitle = assignment.session?.title || "Session";
-    const classTitle = assignment.session?.course?.class?.title || "Class";
-    const courseTitle = assignment.session?.course?.title || "Course";
-
-    return (
-        <TestPageClient
-            classId={classId}
-            courseId={courseId}
-            moduleId={moduleId}
-            assignmentId={assignment.id}
-            enrollmentId={enrollment.id}
-            sessionTitle={sessionTitle}
-            classTitle={classTitle}
-            courseTitle={courseTitle}
-            testTitle="Post-Test"
-            assignmentData={assignmentData}
-        />
-    );
+    redirect(`/assignment/${assignment.id}`);
 }

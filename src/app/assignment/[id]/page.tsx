@@ -6,7 +6,6 @@ import { mapAssignmentToTestRunner } from "@/utils/test_mapper";
 import { NotFoundState } from "@/components/ui/status/not_found_state";
 import { AssignmentIntroCard } from "./components/assignment_intro";
 import { getSession } from "@/app/actions/auth";
-import { NuraButton } from "@/components/ui/button/button";
 import { notFound } from "next/navigation";
 
 export default async function AssignmentRunnerPage({
@@ -62,6 +61,14 @@ export default async function AssignmentRunnerPage({
         EXERCISE: "Exercise",
         PROJECT: "Project",
     };
+
+    const descriptionLabel: Record<string, string> = {
+        PRETEST: "This Pre-Test is designed to assess your current knowledge and skills in the subject matter. Please answer all questions to the best of your ability.",
+        POSTTEST: "This Post-Test is designed to assess your current knowledge and skills in the subject matter. Please answer all questions to the best of your ability.",
+        ASSIGNMENT: "This Assignment is designed to assess your current knowledge and skills in the subject matter. Please answer all questions to the best of your ability.",
+        EXERCISE: "This Exercise is designed to assess your current knowledge and skills in the subject matter. Please answer all questions to the best of your ability.",
+        PROJECT: "This Project is designed to assess your current knowledge and skills in the subject matter. Please answer all questions to the best of your ability.",
+    };
     pageText.bannerTitle = typeLabel[assignment.type] ?? pageText.bannerTitle;
     pageText.breadcrumbTest = typeLabel[assignment.type] ?? "Assignment";
 
@@ -82,11 +89,11 @@ export default async function AssignmentRunnerPage({
                 <Breadcrumb items={breadcrumbs} />
             </div>
 
-            {isAssignmentOrProject && skipIntro !== "1" ? (
+            {skipIntro !== "1" ? (
                 <AssignmentIntroCard
                     assignmentId={assignment.id}
                     title={(assignment as any).title || typeLabel[assignment.type]}
-                    description={assignment.description || ""}
+                    description={assignment.description || descriptionLabel[assignment.type]}
                     startDate={(assignment as any).startDate || null}
                     endDate={assignment.endDate || null}
                     isSubmitted={isFinished}
@@ -105,7 +112,7 @@ export default async function AssignmentRunnerPage({
                     projectQuestions={projectQuestions}
                     testData={testData}
                     pageText={pageText}
-                    autoStart={skipIntro === "1" || (!isAssignmentOrProject)}
+                    autoStart={skipIntro === "1"}
                     finished={isFinished}
                     initialScore={initialScore}
                     feedback={testResult?.feedback}

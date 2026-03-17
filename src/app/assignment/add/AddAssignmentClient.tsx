@@ -10,7 +10,7 @@ import {
     fetchPlacementTestByClassIdAction,
     fetchExistingAssignmentAction
 } from "@/app/actions/assignmentActions";
-import { M3DateTimePicker, M3TimePicker } from "@/components/ui/input/datetime_picker";
+import { M3DateTimePicker } from "@/components/ui/input/datetime_picker";
 import { NuraButton } from "@/components/ui/button/button";
 import { NuraTextInput } from "@/components/ui/input/text_input";
 import { NuraSelect } from "@/components/ui/input/nura_select";
@@ -64,7 +64,8 @@ export function AddAssignmentClient({
     const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
     const [selectedSessionId, setSelectedSessionId] = useState<number | null>(null);
     const [startDate, setStartDate] = useState<Date | null>(null);
-    const [endTime, setEndTime] = useState("");
+    const [endDate, setEndDate] = useState<Date | null>(null);
+    const [duration, setDuration] = useState("");
     const [overviewErrors, setOverviewErrors] = useState<Record<string, string>>({});
 
     // Dynamic options
@@ -254,10 +255,8 @@ export function AddAssignmentClient({
         setTitle(test.title || "");
         setSubmissionType(test.submissionType === "GROUP" ? "GROUP" : "INDIVIDUAL");
         setStartDate(test.startDate ? new Date(test.startDate) : null);
-        if (test.startDate) {
-            const d = new Date(test.startDate);
-            setEndTime(`${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`);
-        }
+        setEndDate(test.endDate ? new Date(test.endDate) : null);
+        setDuration(test.duration?.toString() || "");
 
         if (test.type === "PLACEMENT") {
             const newData: Record<string, CourseQuestions> = {};
@@ -425,7 +424,8 @@ export function AddAssignmentClient({
         if (courseEnabled && !selectedCourseId) errs.courseId = "Course is required.";
         if (sessionEnabled && !selectedSessionId) errs.sessionId = "Session is required.";
         if (!startDate) errs.startDate = "Start date is required.";
-        if (!endTime) errs.endTime = "End time is required.";
+        if (!endDate) errs.endDate = "End date is required.";
+        if (!duration) errs.duration = "Duration is required.";
 
         const questionErrs: string[] = [];
         if (isPlacement) {
@@ -454,9 +454,6 @@ export function AddAssignmentClient({
         }
 
         setIsSubmitting(true);
-        const start = new Date(startDate!);
-        const [h, m] = endTime.split(":");
-        start.setHours(parseInt(h), parseInt(m));
 
         const payload = {
             title,
@@ -465,7 +462,9 @@ export function AddAssignmentClient({
             sessionId: sessionEnabled ? selectedSessionId : null,
             type: assignmentType,
             submissionType: hasSubmissionType ? submissionType : null,
-            startDate: start,
+            startDate: startDate,
+            endDate: endDate,
+            duration: parseInt(duration),
         };
 
         const items: any[] = [];
@@ -557,8 +556,8 @@ export function AddAssignmentClient({
                         <h1 className="text-2xl font-bold mt-6 mb-6">Add Assignment</h1>
 
                         {/* ── Row 1: Title ── */}
-                        <div className="grid grid-cols-1 md:grid-cols-[1fr_240px_180px] gap-4 items-end mb-4">
-                            <div>
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mb-4">
+                            <div className="md:col-span-1">
                                 <label className="block text-sm font-semibold mb-1">Assignment Title</label>
                                 <NuraTextInput
                                     value={title}
@@ -578,14 +577,27 @@ export function AddAssignmentClient({
                                 required
                             />
 
-                            {/* End Time */}
-                            <M3TimePicker
-                                label="End Time"
-                                value={endTime}
-                                onChange={(v) => { setEndTime(v); setOverviewErrors(p => ({ ...p, endTime: "" })); }}
-                                error={overviewErrors.endTime}
+                            {/* End Date */}
+                            <M3DateTimePicker
+                                label="End Date"
+                                value={endDate}
+                                onChange={(d) => { setEndDate(d); setOverviewErrors(p => ({ ...p, endDate: "" })); }}
+                                error={overviewErrors.endDate}
                                 required
                             />
+
+                            {/* Duration */}
+                            <div>
+                                <label className="block text-sm font-semibold mb-1">Duration (min)</label>
+                                <NuraTextInput
+                                    value={duration}
+                                    onChange={e => { setDuration(e.target.value); setOverviewErrors(p => ({ ...p, duration: "" })); }}
+                                    placeholder="60"
+                                    variant="number"
+                                    className={`rounded-full border-gray-200 ${overviewErrors.duration ? "border-orange-400 ring-1 ring-orange-400" : ""}`}
+                                />
+                                {overviewErrors.duration && <p className="text-orange-500 text-xs mt-1">{overviewErrors.duration}</p>}
+                            </div>
                         </div>
 
                         {/* ── Row 2: Type + Submission + Class + Course + Session ── */}
