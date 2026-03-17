@@ -293,10 +293,20 @@ export async function submitAssignment(assignmentId: number, enrollmentId: numbe
             });
         }
 
-        // 5. Update the totalScore in AssignmentResult
+        // 5. Update the totalScore and status in AssignmentResult
+        const assignment = await tx.assignment.findUnique({
+            where: { id: assignmentId },
+            select: { passingGrade: true }
+        });
+
+        const status = (assignment?.passingGrade !== null && calculatedTotalScore >= (assignment?.passingGrade || 0)) ? 'PASS' : 'NOT_PASS';
+
         const updatedResult = await tx.assignmentResult.update({
             where: { id: result.id },
-            data: { totalScore: calculatedTotalScore },
+            data: { 
+                totalScore: calculatedTotalScore,
+                status: status
+            },
         });
 
         return updatedResult;
@@ -537,11 +547,20 @@ export async function submitManualScores(resultId: number, scores: Record<number
 
         const newTotal = itemResults.reduce((acc, ir) => acc + (ir.score || 0), 0);
 
+        // 3. Find assignment to get passingGrade
+        const result = await tx.assignmentResult.findUnique({
+            where: { id: resultId },
+            select: { assignment: { select: { passingGrade: true } } }
+        });
+        
+        const passingGrade = result?.assignment?.passingGrade || 0;
+        const status = newTotal >= passingGrade ? 'PASS' : 'NOT_PASS';
+
         return await tx.assignmentResult.update({
             where: { id: resultId },
             data: {
                 totalScore: newTotal,
-                status: 'PASS',
+                status: status,
             }
         });
     });

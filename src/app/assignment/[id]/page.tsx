@@ -45,6 +45,20 @@ export default async function AssignmentRunnerPage({
         );
     }
 
+    // Check availability
+    const now = new Date();
+    if (assignment.startDate && now < new Date(assignment.startDate)) {
+        return (
+            <main className="min-h-screen w-full bg-[#F9F9F0] flex items-center justify-center">
+                <NotFoundState
+                    title="Assignment Not Yet Available"
+                    message={`This assignment will be available on ${new Date(assignment.startDate).toLocaleString()}.`}
+                    buttonLabel="Back to Overview"
+                />
+            </main>
+        );
+    }
+
     // Check if already submitted
     const testResult = await getAssignmentResult(assignment.id, enrollment.id) as any;
     const isFinished = finished === "true" || !!testResult?.finishedAt;

@@ -42,6 +42,9 @@ export function AssignmentIntroCard({
         }).format(new Date(date)).replace('pukul', '').trim();
     };
 
+    const now = new Date();
+    const isExpired = endDate ? (now > new Date(endDate)) : false;
+
     return (
         <section className="mt-6 flex flex-col gap-6 px-4 pb-12 items-center">
             {/* Banner */}
@@ -69,7 +72,7 @@ export function AssignmentIntroCard({
                     <div>{formatDate(startDate)}</div>
 
                     <div className="font-semibold">End Date:</div>
-                    <div>{formatDate(endDate)}</div>
+                    <div className={isExpired ? "text-red-600 font-bold" : ""}>{formatDate(endDate)} {isExpired && "(Expired)"}</div>
                 </div>
 
                 <hr className="border-gray-100 my-6" />
@@ -88,10 +91,12 @@ export function AssignmentIntroCard({
                         className={`px-3 py-1 rounded-full text-xs font-medium ${
                             isSubmitted
                                 ? "bg-emerald-100 text-emerald-800"
-                                : "bg-[#a5b4fc] text-indigo-900"
+                                : isExpired
+                                    ? "bg-red-100 text-red-800"
+                                    : "bg-[#a5b4fc] text-indigo-900"
                         }`}
                     >
-                        {isSubmitted ? "Submitted" : "Assignment has not been submitted"}
+                        {isSubmitted ? "Submitted" : isExpired ? "Assignment Expired" : "Assignment has not been submitted"}
                     </span>
                 </div>
 
@@ -117,6 +122,7 @@ export function AssignmentIntroCard({
                             variant="primary"
                             type="button"
                             onClick={() => router.push(`?skipIntro=1`)}
+                            disabled={!isSubmitted && isExpired}
                         />
                     </div>
             </div>

@@ -118,15 +118,20 @@ export function AddAssignmentClient({
 
             // Fetch courses for that class so session dropdowns work
             if (a.classId) {
-                import("@/app/actions/assignmentActions").then(({ fetchCoursesByClassIdAction }) => {
-                    fetchCoursesByClassIdAction(a.classId).then(res => {
-                        if (res.success && res.courses) setCourses(res.courses);
-                    });
+                fetchCoursesByClassIdAction(a.classId).then(res => {
+                    if (res.success && res.courses) setCourses(res.courses);
                 });
             }
 
             // Load the question data and metadata (title, dates, submissionType, etc.)
             loadExistingTest(a, []);
+
+            // Also fetch sessions if courseId is present
+            if (a.courseId) {
+                fetchSessionsByCourseIdAction(a.courseId).then(res => {
+                    if (res.success && res.sessions) setSessions(res.sessions);
+                });
+            }
         } else if (prefillData) {
             if (prefillData.type) {
                 setAssignmentType(prefillData.type);
@@ -141,21 +146,17 @@ export function AddAssignmentClient({
             if (prefillData.sessionId) setSelectedSessionId(prefillData.sessionId);
 
             if (prefillData.classId) {
-                import("@/app/actions/assignmentActions").then(({ fetchCoursesByClassIdAction }) => {
-                    fetchCoursesByClassIdAction(prefillData.classId!).then(res => {
-                        if (res.success && res.courses) setCourses(res.courses);
-                    });
+                fetchCoursesByClassIdAction(prefillData.classId).then(res => {
+                    if (res.success && res.courses) setCourses(res.courses);
                 });
             }
             if (prefillData.courseId) {
-                import("@/app/actions/assignmentActions").then(({ fetchSessionsByCourseIdAction }) => {
-                    fetchSessionsByCourseIdAction(prefillData.courseId!).then(res => {
-                        if (res.success && res.sessions) setSessions(res.sessions);
-                    });
+                fetchSessionsByCourseIdAction(prefillData.courseId).then(res => {
+                    if (res.success && res.sessions) setSessions(res.sessions);
                 });
             }
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Type rules
@@ -189,7 +190,7 @@ export function AddAssignmentClient({
         if (id) {
             const res = await fetchCoursesByClassIdAction(id);
             if (res.success) setCourses(res.courses);
-            
+
             // Check for existing based on type
             triggerExistingCheck(assignmentType, id, null, null);
         }
@@ -205,7 +206,7 @@ export function AddAssignmentClient({
         if (id) {
             const res = await fetchSessionsByCourseIdAction(id);
             if (res.success) setSessions(res.sessions);
-            
+
             triggerExistingCheck(assignmentType, selectedClassId, id, null);
         }
     };
@@ -231,7 +232,7 @@ export function AddAssignmentClient({
 
     const triggerExistingCheck = async (t: string, cid: number | null, coid: number | null, sid: number | null) => {
         if (!cid || !t) return;
-        
+
         let shouldFetch = false;
         if (t === "PLACEMENT" || t === "PROJECT") shouldFetch = true;
         else if ((t === "ASSIGNMENT" || t === "EXERCISE") && coid) shouldFetch = true;
@@ -314,6 +315,9 @@ export function AddAssignmentClient({
             setSimpleObjective(obj);
             setSimpleEssay(ess);
             setSimpleProject(pro);
+            if (test.passingGrade !== null) {
+                setThresholds({ "-1": test.passingGrade });
+            }
         }
     };
 
@@ -399,6 +403,8 @@ export function AddAssignmentClient({
         setSimpleProject(project);
 
         const total = objective.length + essay.length + project.length;
+        // The thresholds state is already updated inside TestEditor for both placement and simple types
+
         showModal({
             open: true,
             type: "success",
@@ -425,6 +431,7 @@ export function AddAssignmentClient({
         if (sessionEnabled && !selectedSessionId) errs.sessionId = "Session is required.";
         if (!startDate) errs.startDate = "Start date is required.";
         if (!endDate) errs.endDate = "End date is required.";
+        if (startDate && endDate && endDate <= startDate) errs.endDate = "End date must be after start date.";
         if (!duration) errs.duration = "Duration is required.";
 
         const questionErrs: string[] = [];
@@ -465,6 +472,7 @@ export function AddAssignmentClient({
             startDate: startDate,
             endDate: endDate,
             duration: parseInt(duration),
+            passingGrade: thresholds["-1"] || 0,
         };
 
         const items: any[] = [];
@@ -587,7 +595,7 @@ export function AddAssignmentClient({
                             />
 
                             {/* Duration */}
-                            <div>
+                            <div className="md:col-span-1">
                                 <label className="block text-sm font-semibold mb-1">Duration (min)</label>
                                 <NuraTextInput
                                     value={duration}

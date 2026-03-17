@@ -92,10 +92,13 @@ export async function submitTest(formData: FormData) {
     }
 }
 
+import { getCurrentUserId } from "@/lib/auth"
+
 export async function addAssignment(payload: any, itemsPayload: any[], thresholdsPayload?: { courseId: number, threshold: number }[]) {
     try {
         await requirePermission('Assignment', 'CREATE_UPDATE_ASSIGNMENT')
-        const result = await createAssignmentController(payload, itemsPayload, thresholdsPayload);
+        const userId = await getCurrentUserId()
+        const result = await createAssignmentController({ ...payload, createdBy: userId }, itemsPayload, thresholdsPayload);
 
         // Revalidate based on what's created (course or class path)
         if (payload.classId) {
@@ -117,7 +120,8 @@ import { updateAssignment, deleteAssignment } from "@/controllers/assignmentCont
 export async function editAssignment(assignmentId: number, payload: any, itemsPayload: any[], thresholdsPayload?: { courseId: number, threshold: number }[]) {
     try {
         await requirePermission('Assignment', 'CREATE_UPDATE_ASSIGNMENT')
-        const result = await updateAssignment(assignmentId, payload, itemsPayload, thresholdsPayload);
+        const userId = await getCurrentUserId()
+        const result = await updateAssignment(assignmentId, { ...payload, createdBy: userId }, itemsPayload, thresholdsPayload);
 
         if (payload.classId) {
             revalidatePath(`/classes/${payload.classId}/overview`)
