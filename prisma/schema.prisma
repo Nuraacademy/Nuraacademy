@@ -26,6 +26,7 @@ model User {
   blogs                Blog[]
   enrollments          Enrollment[]
   reflections          Reflection[]
+  feedbacks            Feedback[]
   role                 Role?                 @relation(fields: [roleId], references: [id])
 
   @@map("users")
@@ -192,19 +193,20 @@ model SES {
 }
 
 model Reflection {
-  id           Int        @id @default(autoincrement())
+  id           Int                 @id @default(autoincrement())
   sessionId    Int?
   courseId     Int?
   enrollmentId Int
   userId       Int
-  content      String     @db.Text
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  content      String              @db.Text
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
   deletedAt    DateTime?
-  session      Session?   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  course       Course?    @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
-  user         User       @relation(fields: [userId], references: [id])
+  session      Session?            @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  course       Course?             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrollment   Enrollment          @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  user         User                @relation(fields: [userId], references: [id])
+  feedback     Feedback?
 
   @@unique([userId, sessionId])
   @@unique([userId, courseId])
@@ -213,6 +215,22 @@ model Reflection {
   @@index([enrollmentId])
   @@index([userId])
   @@map("reflections")
+}
+
+model Feedback {
+  id           Int        @id @default(autoincrement())
+  reflectionId Int?       @unique
+  content      String     @db.Text
+  userId       Int
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime?
+  reflection   Reflection? @relation(fields: [reflectionId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id])
+
+  @@index([reflectionId])
+  @@index([userId])
+  @@map("feedbacks")
 }
 
 model Assignment {

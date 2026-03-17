@@ -6,15 +6,16 @@ import { useRouter } from "next/navigation";
 interface CourseReflectionLinkProps {
     classId: string;
     courseId: string;
+    href: string;
 }
 
-export default function CourseReflectionLink({ classId, courseId }: CourseReflectionLinkProps) {
+export default function CourseReflectionLink({ classId, courseId, href }: CourseReflectionLinkProps) {
     const router = useRouter();
 
     return (
         <div
             className="flex items-center justify-between group cursor-pointer border-b border-gray-100 last:border-0 pb-6 last:pb-0"
-            onClick={() => router.push(`/classes/${classId}/course/${courseId}/reflection`)}
+            onClick={() => router.push(href)}
         >
             <div className="flex items-center gap-3">
                 <div className="text-gray-700">

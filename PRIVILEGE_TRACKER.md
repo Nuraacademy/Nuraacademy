@@ -99,7 +99,7 @@ This document tracks the implementation status of all the privileges seeded into
 | Feedback | `DELETE_REFLECTION` | Delete reflection | 🟢 Implemented |
 | Feedback | `VIEW_SEARCH_REFLECTION` | View & search reflection | 🟢 Implemented |
 | Feedback | `VIEW_DETAIL_REFLECTION` | View detail reflection | 🟢 Implemented |
-| Feedback | `DELETE_ASSIGNMENT_FEEDBACK` | Delete assignment feedback | 🔴 Not Implemented (Feature Missing) |
+| Feedback | `DELETE_ASSIGNMENT_FEEDBACK` | Delete assignment feedback | 🟢 Implemented |
 | Feedback | `VIEW_SEARCH_ASSIGNMENT_FEEDBACK` | View & search assignment feedback | 🟢 Implemented |
 | Feedback | `VIEW_DETAIL_ASSIGNMENT_FEEDBACK` | View detail assignment feedback | 🟢 Implemented |
 | Feedback | `DELETE_PEER_FEEDBACK` | delete peer feedback | 🔴 Not Implemented (Feature Missing) |

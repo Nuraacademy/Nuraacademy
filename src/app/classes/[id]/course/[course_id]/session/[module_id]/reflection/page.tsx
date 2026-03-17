@@ -1,9 +1,10 @@
 import { notFound, redirect } from "next/navigation";
+import { getFullSession } from "@/app/actions/auth";
 import { getSessionById } from "@/controllers/sessionController";
 import ReflectionClient from "./ReflectionClient";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUserId } from "@/lib/auth";
-import { requirePermission } from "@/lib/rbac";
+import { hasPermission, requirePermission } from "@/lib/rbac";
 
 export default async function ReflectionPage({
     params
@@ -13,11 +14,18 @@ export default async function ReflectionPage({
     const { id: classId, course_id: courseId, module_id: moduleId } = await params;
     const userId = await getCurrentUserId();
 
-    await requirePermission('Feedback', 'CREATE_EDIT_REFLECTION');
-
     if (!userId) {
         redirect("/login");
     }
+
+    // If user has feedback privilege AND is not a learner, redirect to the all-reflections list (course level list for now as per flow)
+    const sessionDetail = await getFullSession();
+    const canViewFeedback = await hasPermission('Feedback', 'VIEW_SEARCH_ASSIGNMENT_FEEDBACK');
+    if (canViewFeedback && sessionDetail?.role !== 'Learner') {
+        return redirect(`/feedback/reflection/course/${courseId}`);
+    }
+
+    await requirePermission('Feedback', 'CREATE_EDIT_REFLECTION');
 
     const session = await getSessionById(parseInt(moduleId));
     if (!session) {
@@ -48,7 +56,8 @@ export default async function ReflectionPage({
                 userId,
                 sessionId: parseInt(moduleId)
             }
-        }
+        },
+        include: { feedback: true }
     });
 
     const data = {

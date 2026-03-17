@@ -6,6 +6,7 @@ import CourseAssignmentLink from "./course_assignment_link";
 import CourseReflectionLink from "./course_reflection_link";
 import AddSessionButton from "./add_session_button";
 import { hasPermission } from "@/lib/rbac";
+import { getFullSession } from "@/app/actions/auth";
 
 interface SectionProps {
     icon: React.ReactNode;
@@ -72,6 +73,13 @@ export default async function CourseOverviewPage({
         { label: classTitle, href: `/classes/${classId}/overview` },
         { label: course.title, href: `#` },
     ];
+
+    const session = await getFullSession();
+    const canViewFeedback = await hasPermission('Feedback', 'VIEW_SEARCH_ASSIGNMENT_FEEDBACK');
+    const isLearner = session?.role === 'Learner';
+    const reflectionLink = canViewFeedback && !isLearner
+        ? `/feedback/reflection/course/${courseId}`
+        : `/classes/${classId}/course/${courseId}/reflection`;
 
     return (
         <main className="min-h-screen bg-[#FDFDF7] font-sans pb-16">
@@ -174,8 +182,12 @@ export default async function CourseOverviewPage({
                         {(!course.sessions || course.sessions.length === 0) && (!(course as any).assignments || (course as any).assignments.length === 0) && (
                             <p className="text-sm text-gray-500 italic">No sessions or assignments added yet.</p>
                         )}
-
-                        <CourseReflectionLink classId={classId} courseId={courseId} />
+                        
+                        <CourseReflectionLink 
+                            classId={classId} 
+                            courseId={courseId} 
+                            href={reflectionLink}
+                        />
 
                         {canCreateSession && (
                             <div className="flex justify-center mt-6">

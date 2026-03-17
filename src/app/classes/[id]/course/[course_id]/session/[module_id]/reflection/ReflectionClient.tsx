@@ -80,38 +80,59 @@ export default function ReflectionClient({ classId, courseId, moduleId, data, in
 
                 {/* Hero */}
                 <div className="bg-[#005954] rounded-[1.5rem] p-6 text-white shadow-sm">
-                    <h1 className="text-xl font-bold">{heroTitle}</h1>
+                    <h1 className="text-xl font-bold mb-1">Reflection</h1>
+                    <p className="text-sm opacity-90">{data.class.title} <span className="mx-2 opacity-50">|</span> {data.course.title}</p>
                 </div>
 
                 {/* Details View */}
-                <div className="bg-white rounded-[2rem] p-10 shadow-sm border border-gray-100 flex flex-col gap-10">
-                    <div className="space-y-6">
-                        <h2 className="text-sm font-bold text-gray-900">Reflection Details</h2>
-                        <div className="bg-gray-50/50 rounded-2xl p-8 text-gray-700 leading-relaxed text-sm md:text-base border border-gray-100">
-                            <p className="font-bold text-[10px] uppercase tracking-widest text-gray-400 mb-6">
-                                Please share with us what you feel about your learning progress, what your difficulties are, how you would improve it. You also can share anything else related this training
+                <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-100 flex flex-col gap-6">
+                    <h2 className="text-sm font-bold text-gray-900 px-2">Learner Reflection</h2>
+                    
+                    <div className="bg-[#FBFCF2] rounded-3xl p-8 space-y-4 border border-[#F0F5D8]">
+                        <div className="space-y-1">
+                            <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-900">Question</h3>
+                            <p className="text-xs text-gray-700 leading-relaxed font-medium">
+                                Please share with us what you feel about your learning progress, what your difficulties are, how you would improve it. You also can share anything else related this training.
                             </p>
+                        </div>
+                        
+                        <div className="space-y-1">
+                            <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-900">Answer</h3>
                             <div 
-                                className="rich-text"
+                                className="rich-text text-xs text-gray-700 leading-relaxed"
                                 dangerouslySetInnerHTML={{ __html: initialReflection.content }}
                             />
                         </div>
                     </div>
 
-                    <div className="flex justify-end items-center gap-6">
-                        <button 
-                            onClick={() => setIsModalOpen(true)}
-                            className="text-xs font-bold text-gray-400 hover:text-red-500 transition-colors"
-                        >
-                            Delete
-                        </button>
-                        <NuraButton 
-                            label="Edit"
-                            variant="primary"
-                            className="min-w-[140px] h-10 text-sm font-bold"
-                            onClick={() => setIsEditing(true)}
-                        />
-                    </div>
+                    {initialReflection.feedback && (
+                        <div className="space-y-4 mt-4">
+                            <h2 className="text-sm font-bold text-gray-900 px-2">Reflection Feedback</h2>
+                            <div className="bg-[#FBFCF2] rounded-3xl p-8 border border-[#F0F5D8]">
+                                <div 
+                                    className="rich-text text-xs text-gray-700 leading-relaxed"
+                                    dangerouslySetInnerHTML={{ __html: initialReflection.feedback.content }}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {!initialReflection.feedback && (
+                        <div className="flex justify-end items-center gap-4 mt-4">
+                            <button 
+                                onClick={() => setIsModalOpen(true)}
+                                className="px-6 py-2.5 text-xs font-bold text-gray-900 hover:text-red-500 transition-colors"
+                            >
+                                Delete
+                            </button>
+                            <NuraButton 
+                                label="Edit"
+                                variant="primary"
+                                className="min-w-[140px] h-11 text-xs font-bold rounded-2xl bg-[#D9F55C] hover:bg-[#c8e54b] text-black border-none shadow-none"
+                                onClick={() => setIsEditing(true)}
+                            />
+                        </div>
+                    )}
                 </div>
 
                 <ConfirmModal
