@@ -93,6 +93,7 @@ export async function getAssignmentById(id: number) {
         include: {
             class: { select: { title: true } },
             course: { select: { title: true } },
+            session: { select: { title: true } },
             assignmentItems: {
                 where: { deletedAt: null },
             },
@@ -140,7 +141,8 @@ export async function findExistingAssignment(params: {
 }
 
 export async function getAssignmentResult(assignmentId: number, enrollmentId: number) {
-    return await prisma.assignmentResult.findUnique({
+    // 1. Check direct submission
+    const directResult = await prisma.assignmentResult.findUnique({
         where: {
             assignmentId_enrollmentId: {
                 assignmentId,
@@ -159,6 +161,50 @@ export async function getAssignmentResult(assignmentId: number, enrollmentId: nu
             }
         }
     });
+
+    if (directResult?.finishedAt) return directResult;
+
+    // 2. If it's a group assignment, check if anyone in the group submitted
+    const assignment = await prisma.assignment.findUnique({
+        where: { id: assignmentId },
+        select: { submissionType: true, classId: true }
+    });
+
+    if (assignment?.submissionType === 'GROUP') {
+        const enrollment = await prisma.enrollment.findUnique({
+            where: { id: enrollmentId },
+            include: { groups: true }
+        });
+
+        if (enrollment && enrollment.groups.length > 0) {
+            const groupName = enrollment.groups[0].name;
+            const groupResult = await prisma.assignmentResult.findFirst({
+                where: {
+                    assignmentId,
+                    enrollment: {
+                        classId: assignment.classId,
+                        groups: { some: { name: groupName } }
+                    },
+                    finishedAt: { not: null }
+                },
+                include: {
+                    assignmentItemResults: {
+                        include: {
+                            assignmentItem: {
+                                include: {
+                                    course: true
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            if (groupResult) return groupResult;
+        }
+    }
+
+    return directResult;
 }
 
 export async function getAssignmentBySessionAndType(sessionId: number, type: AssignmentType) {
@@ -398,31 +444,156 @@ export async function deleteAssignment(assignmentId: number) {
 /**
  * Get detailed grading data for a specific learner's assignment.
  */
-export async function getGradingData(assignmentId: number, enrollmentId: number) {
-    const result = await prisma.assignmentResult.findUnique({
-        where: { assignmentId_enrollmentId: { assignmentId, enrollmentId } },
-        include: {
-            assignment: {
-                include: {
-                    assignmentItems: {
-                        where: { deletedAt: null },
-                        orderBy: { id: 'asc' }
+/**
+ * Get detailed grading data for a specific learner's assignment.
+ */
+export async function getGradingData(assignmentId: number, targetId: number | string) {
+    // targetId can be EnrollmentId (number), GroupId (number), or GroupName (string). 
+    
+    let result: any = null;
+
+    // 1. If it's a number, try direct lookup by enrollmentId first
+    if (typeof targetId === 'number') {
+        result = await prisma.assignmentResult.findUnique({
+            where: { assignmentId_enrollmentId: { assignmentId, enrollmentId: targetId } },
+            include: {
+                assignment: {
+                    include: {
+                        assignmentItems: {
+                            where: { deletedAt: null },
+                            orderBy: { id: 'asc' }
+                        }
+                    }
+                },
+                assignmentItemResults: {
+                    include: { assignmentItem: true }
+                }
+            }
+        });
+    }
+
+    // If not found (or it was a string), resolve via group/context
+    if (!result) {
+        const assignment = await prisma.assignment.findUnique({
+            where: { id: assignmentId },
+            select: { submissionType: true, classId: true }
+        });
+
+        if (assignment?.submissionType === 'GROUP') {
+            let groupName: string | undefined;
+            let groupContext: any = null;
+
+            if (typeof targetId === 'string') {
+                groupName = targetId;
+            } else {
+                // Find the specific group record and enrollment for the targetId
+                groupContext = await prisma.group.findFirst({
+                    where: { 
+                        OR: [
+                            { id: targetId },
+                            { enrollmentId: targetId }
+                        ]
+                    },
+                    include: { enrollment: true }
+                });
+                groupName = groupContext?.name;
+            }
+
+            const classId = assignment.classId || groupContext?.enrollment.classId;
+
+            if (groupName && classId) {
+                // Find ANY submission from anyone in THIS specific group (matched by name + classId)
+                result = await prisma.assignmentResult.findFirst({
+                    where: {
+                        assignmentId,
+                        enrollment: {
+                            classId: classId,
+                            groups: { some: { name: groupName, deletedAt: null } },
+                        }
+                    },
+                    orderBy: { finishedAt: 'desc' },
+                    include: {
+                        assignment: {
+                            include: {
+                                assignmentItems: {
+                                    where: { deletedAt: null },
+                                    orderBy: { id: 'asc' }
+                                }
+                            }
+                        },
+                        assignmentItemResults: {
+                            include: { assignmentItem: true }
+                        }
+                    }
+                }) as any;
+
+                // If still no result, create one for a representative member
+                if (!result) {
+                    // Find a representative enrollment for this group/class
+                    const member = await prisma.group.findFirst({
+                        where: { name: groupName, enrollment: { classId } },
+                        select: { enrollmentId: true }
+                    });
+
+                    if (member) {
+                        result = await prisma.assignmentResult.create({
+                            data: {
+                                assignmentId,
+                                enrollmentId: member.enrollmentId,
+                                status: 'NOT_PASS'
+                            },
+                            include: {
+                                assignment: {
+                                    include: {
+                                        assignmentItems: {
+                                            where: { deletedAt: null },
+                                            orderBy: { id: 'asc' }
+                                        }
+                                    }
+                                },
+                                assignmentItemResults: {
+                                    include: { assignmentItem: true }
+                                }
+                            }
+                        }) as any;
                     }
                 }
-            },
-            assignmentItemResults: {
-                include: { assignmentItem: true }
+            }
+        } else if (typeof targetId === 'number') {
+            // Individual case: Check if targetId is a valid enrollment and create result if missing
+            const checkEnrollment = await prisma.enrollment.findUnique({ where: { id: targetId } });
+            if (checkEnrollment) {
+                result = await prisma.assignmentResult.create({
+                    data: {
+                        assignmentId,
+                        enrollmentId: targetId,
+                        status: 'NOT_PASS'
+                    },
+                    include: {
+                        assignment: {
+                            include: {
+                                assignmentItems: {
+                                    where: { deletedAt: null },
+                                    orderBy: { id: 'asc' }
+                                }
+                            }
+                        },
+                        assignmentItemResults: {
+                            include: { assignmentItem: true }
+                        }
+                    }
+                }) as any;
             }
         }
-    });
+    }
 
     if (!result) return null;
 
     // Ensure all items have a result record (for legacy data or skipped answers)
     // We check for both ID match AND content match (question text + type)
     // to avoid creating duplicates when an assignment is updated/re-saved.
-    const missingItems = result.assignment.assignmentItems.filter(item => {
-        return !result.assignmentItemResults.some(ir => {
+    const missingItems = (result as any).assignment.assignmentItems.filter((item: any) => {
+        return !(result as any).assignmentItemResults.some((ir: any) => {
             const sameId = ir.assignmentItemId === item.id;
             const sameContent = ir.assignmentItem?.question === item.question && ir.assignmentItem?.type === item.type;
             return sameId || sameContent;
@@ -431,8 +602,8 @@ export async function getGradingData(assignmentId: number, enrollmentId: number)
 
     if (missingItems.length > 0) {
         await prisma.assignmentItemResult.createMany({
-            data: missingItems.map(item => ({
-                assignmentResultId: result.id,
+            data: missingItems.map((item: any) => ({
+                assignmentResultId: (result as any).id,
                 assignmentItemId: item.id,
                 answer: null,
                 score: item.type === 'OBJECTIVE' ? 0 : null
@@ -441,7 +612,7 @@ export async function getGradingData(assignmentId: number, enrollmentId: number)
         
         // Re-fetch with new items to get the IDs and updated relation
         const updatedResult = await prisma.assignmentResult.findUnique({
-            where: { id: result.id },
+            where: { id: (result as any).id },
             include: {
                 assignment: {
                     include: {
@@ -603,9 +774,55 @@ export async function getAssignmentResultsByAssignmentId(assignmentId: number) {
                         include: { assignmentItem: true }
                     }
                 }
+            },
+            groups: {
+                where: { deletedAt: null }
             }
         },
     });
+
+    // If it's a group assignment, we need to group results by group name
+    if (assignment.submissionType === 'GROUP') {
+        const groupResults: Record<string, any> = {};
+
+        for (const e of enrollments) {
+            const group = e.groups[0];
+            const groupName = group?.name || "No Group";
+            const result = e.assignmentResults[0];
+            const hasSubmitted = !!result?.finishedAt;
+
+            if (!groupResults[groupName]) {
+                groupResults[groupName] = {
+                    name: groupName,
+                    isGroup: true,
+                    // Use Group ID for navigation if available
+                    id: group?.id || e.id,
+                    status: "Not Started",
+                    totalScore: 0,
+                    maxScore: maxScore,
+                    submittedAt: null,
+                    members: [], // { id, name }
+                    assignmentId: assignment.id,
+                };
+            }
+
+            groupResults[groupName].members.push({
+                id: e.id,
+                name: e.user.name || e.user.username
+            });
+            
+            // Representative submission
+            if (hasSubmitted) {
+                groupResults[groupName].status = "To Grade"; 
+                groupResults[groupName].submittedAt = result.finishedAt;
+                groupResults[groupName].totalScore = result.totalScore;
+                // Update ID to the group member who actually submitted if we want precision, 
+                // but group?.id is more consistent for "Group navigation"
+            }
+        }
+
+        return Object.values(groupResults);
+    }
 
     return enrollments.map(e => {
         const result = e.assignmentResults[0];
@@ -619,6 +836,7 @@ export async function getAssignmentResultsByAssignmentId(assignmentId: number) {
         return {
             enrollmentId: e.id,
             name: e.user.name || e.user.username,
+            isGroup: false,
             status: hasSubmitted ? (isGraded ? "Graded" : "To Grade") : "Not Started",
             totalScore: result?.totalScore || 0,
             maxScore: maxScore,

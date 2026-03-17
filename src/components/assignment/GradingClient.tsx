@@ -17,8 +17,9 @@ interface GradingData {
 
 interface GradingClientProps {
     assignmentId: number;
-    enrollmentId: number;
+    enrollmentId: number | string;
     learnerName: string;
+    groupMembers?: { id: number, name: string }[];
     initialData: GradingData;
     title?: string;
     subtitle?: string;
@@ -31,6 +32,7 @@ export default function GradingClient({
     assignmentId,
     enrollmentId,
     learnerName,
+    groupMembers = [],
     initialData,
     title = "Grading",
     subtitle = "Assignment Grading",
@@ -129,14 +131,24 @@ export default function GradingClient({
 
                 <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-sm border border-gray-100">
                     <div className="mb-10">
-                        <h2 className="text-xl font-bold text-black">{learnerName}</h2>
-                        <p className="text-gray-500 text-sm">{subtitle}</p>
+                        <h2 className="text-xl font-bold text-black mb-4">{learnerName}</h2>
+                        {groupMembers.length > 0 && (
+                            <ol className="space-y-2 ml-1">
+                                {groupMembers.map((m, idx) => (
+                                    <li key={m.id} className="text-sm text-gray-700 flex items-center gap-3">
+                                        <span className="text-gray-400 font-medium w-4">{idx + 1}.</span>
+                                        <span>{m.name}</span>
+                                    </li>
+                                ))}
+                            </ol>
+                        )}
+                        <div className="h-px bg-gray-100 w-full mt-10" />
                     </div>
 
                     {/* Objective Section */}
                     {initialData.objective.length > 0 && (
                         <div className="mb-12">
-                            <h3 className="text-lg font-bold text-black mb-6">Objective Questions</h3>
+                            <h3 className="text-lg font-bold text-black mb-6">Objective Results</h3>
                             <div className="w-full border border-gray-200 rounded-[1.5rem] overflow-hidden">
                                 <table className="w-full text-left border-collapse">
                                     <thead>
@@ -144,30 +156,23 @@ export default function GradingClient({
                                             <th className="px-6 py-4 text-xs font-bold text-gray-500 w-16">No</th>
                                             <th className="px-6 py-4 text-xs font-bold text-gray-500 w-1/3">Question</th>
                                             <th className="px-6 py-4 text-xs font-bold text-gray-500">Given Answer</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-500">Correct Answer</th>
                                             <th className="px-6 py-4 text-xs font-bold text-gray-500 text-right">Score</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {initialData.objective.map((item, idx) => (
-                                            <tr key={item.resultItemId} className="border-b border-gray-100 last:border-0">
+                                            <tr key={item.resultItemId} className="border-b border-gray-100 last:border-0 h-full">
                                                 <td className="px-6 py-5 text-sm text-gray-600 font-medium">{idx + 1}</td>
-                                                <td className="px-6 py-5 text-sm text-black" dangerouslySetInnerHTML={{ __html: item.question }} />
+                                                <td className="px-6 py-5 text-sm text-black border-l border-r border-gray-100" dangerouslySetInnerHTML={{ __html: item.question }} />
                                                 <td className="px-6 py-5 text-sm text-gray-700">
                                                     <div dangerouslySetInnerHTML={{ __html: isEmptyAnswer(item.givenAnswer) ? "-" : item.givenAnswer }} />
+                                                    <div className="text-[10px] text-green-600 font-bold mt-1 uppercase tracking-tighter">Correct: <span dangerouslySetInnerHTML={{ __html: item.correctAnswer }} /></div>
                                                 </td>
-                                                <td className="px-6 py-5 text-sm text-green-700 font-medium" dangerouslySetInnerHTML={{ __html: item.correctAnswer }} />
-                                                <td className="px-6 py-5 text-right text-sm font-bold text-black">
+                                                <td className="px-6 py-5 text-right text-sm font-bold text-black border-l border-gray-100">
                                                     {item.score || 0}/{item.maxScore}
                                                 </td>
                                             </tr>
                                         ))}
-                                        <tr className="bg-gray-50">
-                                            <td colSpan={4} className="px-6 py-4 text-sm font-bold text-black text-right uppercase tracking-wider">Subtotal Score</td>
-                                            <td className="px-6 py-4 text-right text-sm font-bold text-black">
-                                                {initialData.objective.reduce((acc, i) => acc + (i.score || 0), 0)}/{initialData.objective.reduce((acc, i) => acc + (i.maxScore || 0), 0)}
-                                            </td>
-                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -177,151 +182,184 @@ export default function GradingClient({
                     {/* Essay Section */}
                     {initialData.essay.length > 0 && (
                         <div className="mb-12">
-                            <h3 className="text-lg font-bold text-black mb-6">Essay Questions</h3>
+                            <h3 className="text-lg font-bold text-black mb-6">Essay Evaluation</h3>
                             <div className="w-full border border-gray-200 rounded-[1.5rem] overflow-hidden">
                                 <table className="w-full text-left border-collapse">
                                     <thead>
                                         <tr className="border-b border-gray-200 bg-gray-50">
                                             <th className="px-6 py-4 text-xs font-bold text-gray-500 w-16">No</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 w-1/4">Question</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-500">Given Answer</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 text-right w-32">Score</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 w-1/3">Question</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-gray-500">Student Response</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 text-right w-40">Score</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {initialData.essay.map((item, idx) => (
-                                            <tr key={item.resultItemId} className="border-b border-gray-100 last:border-0">
+                                            <tr key={item.resultItemId} className="border-b border-gray-100 last:border-0 h-full">
                                                 <td className="px-6 py-5 text-sm text-gray-600 font-medium align-top">{idx + 1}</td>
-                                                <td className="px-6 py-5 text-sm text-black align-top" dangerouslySetInnerHTML={{ __html: item.question }} />
+                                                <td className="px-6 py-5 text-sm text-black align-top border-l border-r border-gray-100" dangerouslySetInnerHTML={{ __html: item.question }} />
                                                 <td className="px-6 py-5 text-sm text-gray-600 italic leading-relaxed whitespace-pre-wrap">
                                                     <div dangerouslySetInnerHTML={{ __html: isEmptyAnswer(item.givenAnswer) ? "-" : item.givenAnswer }} />
                                                 </td>
-                                                <td className="px-6 py-5 text-right align-top">
-                                                    <div className="flex items-center justify-end gap-2">
-                                                        <input
-                                                            type="number"
-                                                            value={scores[item.resultItemId] ?? ""}
-                                                            placeholder="Score"
-                                                            onChange={(e) => handleScoreChange(item.resultItemId, e.target.value, item.maxScore)}
-                                                            className={`w-16 border-b text-right text-sm focus:border-[#00524D] outline-none font-bold transition-colors ${getValidationError(scores[item.resultItemId], item.maxScore)
-                                                                ? "border-red-500 text-red-600"
-                                                                : "border-gray-300 text-black"
-                                                                }`}
-                                                        />
-                                                        <span className="text-gray-400 text-sm font-medium">/{item.maxScore}</span>
-                                                        <Pencil
-                                                            size={14}
-                                                            className={getValidationError(scores[item.resultItemId], item.maxScore) ? "text-red-400" : "text-gray-300"}
-                                                        />
+                                                <td className="px-6 py-5 text-right align-top border-l border-gray-100">
+                                                    <div className="flex items-center justify-end gap-3 group">
+                                                        <div className="flex flex-col items-end">
+                                                            <div className="flex items-center gap-1 border-b border-gray-300 focus-within:border-[#00524D] transition-all pb-1">
+                                                                <input
+                                                                    type="number"
+                                                                    value={scores[item.resultItemId] ?? ""}
+                                                                    placeholder="__"
+                                                                    onChange={(e) => handleScoreChange(item.resultItemId, e.target.value, item.maxScore)}
+                                                                    className={`w-12 text-right text-base outline-none font-bold bg-transparent transition-colors ${getValidationError(scores[item.resultItemId], item.maxScore)
+                                                                        ? "text-red-600"
+                                                                        : "text-black"
+                                                                        }`}
+                                                                />
+                                                                <span className="text-gray-400 text-sm font-bold">/{item.maxScore}</span>
+                                                            </div>
+                                                        </div>
+                                                        <Pencil size={16} className={getValidationError(scores[item.resultItemId], item.maxScore) ? "text-red-400" : "text-gray-300 group-hover:text-gray-500 transition-colors"} />
                                                     </div>
                                                     {getValidationError(scores[item.resultItemId], item.maxScore) && (
-                                                        <p className="text-[10px] text-red-500 mt-1 font-medium italic">
+                                                        <p className="text-[10px] text-red-500 mt-2 font-medium italic">
                                                             {getValidationError(scores[item.resultItemId], item.maxScore)}
                                                         </p>
                                                     )}
                                                 </td>
                                             </tr>
                                         ))}
-                                        <tr className="bg-gray-50">
-                                            <td colSpan={3} className="px-6 py-4 text-sm font-bold text-black text-right uppercase tracking-wider">Subtotal Score</td>
-                                            <td className="px-6 py-4 text-right text-sm font-bold text-black">
-                                                {initialData.essay.reduce((acc, i) => acc + (scores[i.resultItemId] || 0), 0)}/{initialData.essay.reduce((acc, i) => acc + (i.maxScore || 0), 0)}
-                                            </td>
-                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     )}
 
-                    {/* Project Section */}
+                    {/* Project Result Section (Mockup Design) */}
                     {initialData.project.length > 0 && (
                         <div className="mb-12">
-                            <h3 className="text-lg font-bold text-black mb-6">Project Questions</h3>
+                            <h3 className="text-lg font-bold text-black mb-6">Project Result</h3>
                             <div className="w-full border border-gray-200 rounded-[1.5rem] overflow-hidden">
                                 <table className="w-full text-left border-collapse">
                                     <thead>
                                         <tr className="border-b border-gray-200 bg-gray-50">
                                             <th className="px-6 py-4 text-xs font-bold text-gray-500 w-16">No</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 w-1/4">Question</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-500">Given Answer</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 w-2/3">Question</th>
                                             <th className="px-6 py-4 text-xs font-bold text-gray-500">File Submission</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 text-right w-32">Score</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {initialData.project.map((item, idx) => (
-                                            <tr key={item.resultItemId} className="border-b border-gray-100 last:border-0">
-                                                <td className="px-6 py-5 text-sm text-gray-600 font-medium align-top">{idx + 1}</td>
-                                                <td className="px-6 py-5 text-sm text-black align-top" dangerouslySetInnerHTML={{ __html: item.question }} />
-                                                <td className="px-6 py-5 text-sm text-gray-600 italic leading-relaxed whitespace-pre-wrap">
-                                                    <div dangerouslySetInnerHTML={{ __html: isEmptyAnswer(item.givenAnswer) ? "-" : item.givenAnswer }} />
+                                            <tr key={item.resultItemId} className="border-b border-gray-100 last:border-0 border-r border-l border-gray-100 h-full">
+                                                <td className="px-6 py-8 text-sm text-gray-600 font-medium align-top leading-relaxed">{idx + 1}</td>
+                                                <td className="px-6 py-8 text-sm text-black align-top leading-relaxed border-l border-gray-100 border-r border-gray-100">
+                                                    <div className="prose prose-sm max-w-none prose-p:leading-relaxed" dangerouslySetInnerHTML={{ __html: item.question }} />
+                                                    {!isEmptyAnswer(item.givenAnswer) && (
+                                                        <div className="mt-4 p-4 bg-gray-50 rounded-xl text-gray-600 italic border border-gray-100">
+                                                            <div dangerouslySetInnerHTML={{ __html: item.givenAnswer }} />
+                                                        </div>
+                                                    )}
                                                 </td>
-                                                <td className="px-6 py-5 text-sm align-top">
-                                                    <div className="space-y-2">
+                                                <td className="px-6 py-8 text-sm align-top leading-relaxed">
+                                                    <div className="space-y-3">
                                                         {(Array.isArray(item.answerFiles) ? item.answerFiles : []).map((file: any, fIdx: number) => (
-                                                            <div key={fIdx} className="flex items-center gap-2 text-[#00524D] font-medium hover:underline cursor-pointer">
-                                                                <FileText size={16} />
-                                                                <span>{typeof file === 'string' ? file.split('/').pop() : 'File'}</span>
-                                                                <Download size={14} className="ml-auto text-gray-400" />
+                                                            <div key={fIdx} className="flex items-center gap-3 text-gray-700 font-medium hover:text-black transition-colors group cursor-pointer" onClick={() => window.open(file, '_blank')}>
+                                                                <FileText size={18} className="text-gray-400 group-hover:text-[#00524D]" />
+                                                                <span className="text-sm truncate max-w-[200px]">{typeof file === 'string' ? file.split('/').pop() : 'File'}</span>
+                                                                <Download size={14} className="ml-auto text-gray-300 group-hover:text-gray-500" />
                                                             </div>
                                                         ))}
                                                         {(!item.answerFiles || (Array.isArray(item.answerFiles) && item.answerFiles.length === 0)) && <span className="text-gray-400 italic">No files submitted.</span>}
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-5 text-right align-top">
-                                                    <div className="flex items-center justify-end gap-2">
-                                                        <input
-                                                            type="number"
-                                                            value={scores[item.resultItemId] ?? ""}
-                                                            placeholder="Score"
-                                                            onChange={(e) => handleScoreChange(item.resultItemId, e.target.value, item.maxScore)}
-                                                            className={`w-16 border-b text-right text-sm focus:border-[#00524D] outline-none font-bold transition-colors ${getValidationError(scores[item.resultItemId], item.maxScore)
-                                                                ? "border-red-500 text-red-600"
-                                                                : "border-gray-300 text-black"
-                                                                }`}
-                                                        />
-                                                        <span className="text-gray-400 text-sm font-medium">/{item.maxScore}</span>
-                                                        <Pencil size={14} className={getValidationError(scores[item.resultItemId], item.maxScore) ? "text-red-400" : "text-gray-300"} />
-                                                    </div>
-                                                    {getValidationError(scores[item.resultItemId], item.maxScore) && (
-                                                        <p className="text-[10px] text-red-500 mt-1 font-medium italic">
-                                                            {getValidationError(scores[item.resultItemId], item.maxScore)}
-                                                        </p>
-                                                    )}
-                                                </td>
                                             </tr>
                                         ))}
-                                        <tr className="bg-gray-50">
-                                            <td colSpan={3} className="px-6 py-4 text-sm font-bold text-black text-right uppercase tracking-wider">Subtotal Score</td>
-                                            <td className="px-6 py-4 text-right text-sm font-bold text-black">
-                                                {initialData.project.reduce((acc, i) => acc + (scores[i.resultItemId] || 0), 0)}/{initialData.project.reduce((acc, i) => acc + (i.maxScore || 0), 0)}
-                                            </td>
-                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     )}
 
-                    {/* Final Footer */}
-                    <div className="mt-16 flex flex-col items-end border-t border-gray-100 pt-8">
-                        <div className="flex items-center gap-8 mb-10">
-                            <span className="text-lg font-bold text-black uppercase tracking-wider">Final Score</span>
-                            <span className="text-2xl font-black text-black">{calculateCurrentTotal().toFixed(1)} / {maxTestScore}</span>
+                    {/* Project Score Section (Mockup Design) */}
+                    {initialData.project.length > 0 && (
+                        <div className="mb-12">
+                            <h3 className="text-lg font-bold text-black mb-6">Project Score</h3>
+                            <div className="w-full border border-gray-200 rounded-[1.5rem] overflow-hidden">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="border-b border-gray-200 bg-gray-50">
+                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 w-16">No</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-gray-500">Parameter</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 text-right w-40">Score</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {initialData.project.map((item, idx) => (
+                                            <tr key={item.resultItemId} className="border-b border-gray-100 last:border-0 h-full">
+                                                <td className="px-6 py-5 text-sm text-gray-600 font-medium align-top leading-relaxed">{idx + 1}</td>
+                                                <td className="px-6 py-5 text-sm text-black align-top leading-relaxed border-l border-gray-100 border-r border-gray-100">
+                                                    <div className="font-medium text-gray-800" dangerouslySetInnerHTML={{ __html: item.question.replace(/<[^>]*>/g, '').split(':')[0] || "Parameter " + (idx + 1) }} />
+                                                </td>
+                                                <td className="px-6 py-5 text-right align-top">
+                                                    <div className="flex items-center justify-end gap-3 group">
+                                                        <div className="flex flex-col items-end">
+                                                            <div className="flex items-center gap-1 border-b border-gray-300 focus-within:border-[#00524D] transition-all pb-1">
+                                                                <input
+                                                                    type="number"
+                                                                    value={scores[item.resultItemId] ?? ""}
+                                                                    placeholder="__"
+                                                                    onChange={(e) => handleScoreChange(item.resultItemId, e.target.value, item.maxScore)}
+                                                                    className={`w-12 text-right text-base outline-none font-bold bg-transparent transition-colors ${getValidationError(scores[item.resultItemId], item.maxScore)
+                                                                        ? "text-red-600"
+                                                                        : "text-black"
+                                                                        }`}
+                                                                />
+                                                                <span className="text-gray-400 text-sm font-bold">/{item.maxScore}</span>
+                                                            </div>
+                                                        </div>
+                                                        <Pencil
+                                                            size={16}
+                                                            className={getValidationError(scores[item.resultItemId], item.maxScore) ? "text-red-400" : "text-gray-300 group-hover:text-gray-500 transition-colors"}
+                                                        />
+                                                    </div>
+                                                    {getValidationError(scores[item.resultItemId], item.maxScore) && (
+                                                        <p className="text-[10px] text-red-500 mt-2 font-medium italic">
+                                                            {getValidationError(scores[item.resultItemId], item.maxScore)}
+                                                        </p>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-3">
+                    )}
+
+
+                    {/* Final Footer */}
+                    <div className="mt-8 flex flex-col items-end pt-8">
+                        <div className="flex items-center gap-12 mb-6 pr-6">
+                            <span className="text-sm font-bold text-black uppercase tracking-wider">Total Score</span>
+                            <span className="text-sm font-bold text-gray-800">{calculateCurrentTotal().toFixed(1)} / {maxTestScore}</span>
+                        </div>
+                        <div className="flex items-center gap-8 pr-6 mt-4">
                             <button
                                 onClick={() => router.push(backUrl)}
-                                className="px-8 py-3 text-sm font-bold text-gray-500 hover:text-black transition-colors"
+                                className="text-sm font-bold text-gray-700 hover:text-black transition-colors"
                             >
                                 Cancel
                             </button>
-                            <NuraButton
-                                label={isSubmitting ? "Submitting..." : "Submit Grading"}
+                            <button
                                 onClick={onSubmit}
                                 disabled={isSubmitting}
-                            />
+                                className={`px-10 py-3 rounded-xl text-sm font-bold transition-all shadow-md ${
+                                    isSubmitting 
+                                    ? "bg-gray-200 text-gray-400 cursor-not-allowed" 
+                                    : "bg-[#D6E63A] text-black hover:bg-[#C5D42E] active:scale-95"
+                                }`}
+                            >
+                                {isSubmitting ? "Submitting..." : "Submit"}
+                            </button>
                         </div>
                     </div>
                 </div>

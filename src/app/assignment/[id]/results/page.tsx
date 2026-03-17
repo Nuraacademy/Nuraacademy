@@ -1,3 +1,4 @@
+import React from "react";
 import { getAssignmentResultsByAssignmentId, getAssignmentById } from "@/controllers/assignmentController";
 import { requirePermission } from "@/lib/rbac";
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
@@ -39,68 +40,107 @@ export default async function AssignmentResultsPage({
                     />
                 </div>
 
-                <div className="bg-[#00524D] rounded-2xl p-6 mb-10">
-                    <h1 className="text-2xl font-bold text-white">Results: {assignment.title}</h1>
-                    <p className="text-white/80 text-sm mt-1">{assignment.class?.title || assignment.course?.title}</p>
+                <div className="bg-[#00524D] rounded-2xl p-6 mb-10 shadow-sm relative overflow-hidden">
+                    <div className="relative z-10 flex items-center justify-between">
+                        <div>
+                            <h1 className="text-2xl font-bold text-white">{assignment.title}</h1>
+                            <p className="text-white/80 text-sm mt-1">{assignment.class?.title} | {assignment.course?.title} {(assignment as any).session ? `| ${(assignment as any).session.title}` : ""}</p>
+                        </div>
+                        <span className="bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold text-white uppercase tracking-wider border border-white/10">
+                            {assignment.submissionType}
+                        </span>
+                    </div>
                 </div>
 
                 <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-sm border border-gray-100">
-                    <div className="w-full border border-gray-200 rounded-[1.5rem] overflow-hidden">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 text-sm">
+                        <div className="flex items-center gap-3">
+                            <span className="font-bold text-gray-900">Start Date:</span>
+                            <span className="text-gray-600">{assignment.startDate ? format(new Date(assignment.startDate), "EEEE, dd MMM yyyy, HH:mm") : "-"}</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <span className="font-bold text-gray-900">End Date:</span>
+                            <span className="text-gray-600">{assignment.endDate ? format(new Date(assignment.endDate), "EEEE, dd MMM yyyy, HH:mm") : "-"}</span>
+                        </div>
+                    </div>
+
+                    <h2 className="text-lg font-bold mb-6 text-gray-900">Hasil Tugas Learners</h2>
+
+                    <div className="w-full border border-gray-100 rounded-[1.5rem] overflow-hidden bg-white">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="border-b border-gray-200 bg-gray-50">
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500">Learner Name</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500">Status</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500">Submitted At</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 text-right">Score / Max</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 text-right">Action</th>
+                                <tr className="border-b border-gray-100 bg-gray-50/50">
+                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">Total Grade</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Feedback</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {results.map((res) => (
-                                    <tr key={res.enrollmentId} className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
-                                        <td className="px-6 py-5 text-sm text-black font-medium">{res.name}</td>
-                                        <td className="px-6 py-5">
-                                            <span className={`text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider ${
-                                                res.status === "Graded" ? "bg-green-100 text-green-700" :
-                                                res.status === "To Grade" ? "bg-amber-100 text-amber-700" :
-                                                "bg-gray-100 text-gray-500"
-                                            }`}>
-                                                {res.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-5 text-sm text-gray-600">
-                                            {res.submittedAt ? format(new Date(res.submittedAt), "dd MMM yyyy HH:mm") : "-"}
-                                        </td>
-                                        <td className="px-6 py-5 text-right text-sm font-bold text-black">
-                                            {res.totalScore} / {res.maxScore}
-                                        </td>
-                                        <td className="px-6 py-5 text-right">
-                                            {res.status !== "Not Started" ? (
-                                                <div className="flex items-center justify-end gap-3">
-                                                    <Link
-                                                        href={`/assignment/${id}/results/${res.enrollmentId}/grade`}
-                                                        className="text-[#00524D] font-bold text-sm hover:underline"
+                                {(results as any[]).map((res) => (
+                                    <React.Fragment key={res.id || res.enrollmentId}>
+                                        <tr className="border-b border-gray-50 last:border-0 hover:bg-gray-50/80 transition-colors group">
+                                            <td className="px-6 py-5">
+                                                <div className="flex flex-col">
+                                                    <Link 
+                                                        href={`/assignment/${id}/results/${res.isGroup ? encodeURIComponent(res.name) : (res.id || res.enrollmentId)}/grade`}
+                                                        className="text-sm text-[#00524D] font-bold hover:underline"
                                                     >
-                                                        Grade
+                                                        {res.name}
                                                     </Link>
-                                                    <span className="text-gray-300">|</span>
+                                                    {res.isGroup && res.members && (
+                                                        <div className="mt-1.5">
+                                                            <details className="cursor-pointer">
+                                                                <summary className="text-[10px] text-gray-400 font-bold uppercase hover:text-gray-600 transition-colors list-none flex items-center gap-1">
+                                                                    View {res.members.length} Members <span className="text-[8px] transform group-open:rotate-180">▼</span>
+                                                                </summary>
+                                                                <ul className="mt-2 pl-2 space-y-2 border-l-2 border-gray-100">
+                                                                    {res.members.map((member: { id: number, name: string }, idx: number) => (
+                                                                        <li key={idx} className="flex items-center justify-between gap-4">
+                                                                            <span className="text-xs text-gray-500">{member.name}</span>
+                                                                            <Link
+                                                                                href={`/feedback/assignment/${id}/learner/${member.id}`}
+                                                                                className="text-[10px] text-[#00524D] font-bold bg-[#DAEE49]/20 px-2 py-0.5 rounded hover:bg-[#DAEE49]/40 transition-colors uppercase tracking-tight"
+                                                                            >
+                                                                                Feedback
+                                                                            </Link>
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                            </details>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-5 text-center">
+                                                <div className="flex flex-col items-center gap-1">
+                                                    <span className="text-sm font-bold text-gray-900">
+                                                        {res.totalScore || 0} / {res.maxScore || 100}
+                                                    </span>
+                                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter ${
+                                                        res.status === "Graded" ? "bg-green-100 text-green-700" :
+                                                        res.status === "To Grade" || res.status === "Submitted" ? "bg-amber-100 text-amber-700" :
+                                                        "bg-gray-100 text-gray-400"
+                                                    }`}>
+                                                        {res.status}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-5 text-right">
+                                                {!res.isGroup && (
                                                     <Link
-                                                        href={`/assignment/${id}/results/${res.enrollmentId}/feedback`}
-                                                        className="text-amber-600 font-bold text-sm hover:underline"
+                                                        href={`/feedback/assignment/${id}/learner/${res.enrollmentId}`}
+                                                        className="inline-flex items-center justify-center px-6 py-2 bg-[#DAEE49] text-[#00524D] text-xs font-black rounded-full hover:bg-[#C9D942] transition-all shadow-sm hover:shadow-md uppercase tracking-widest whitespace-nowrap"
                                                     >
                                                         Feedback
                                                     </Link>
-                                                </div>
-                                            ) : (
-                                                <span className="text-gray-300 text-sm font-medium">Grade</span>
-                                            )}
-                                        </td>
-                                    </tr>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    </React.Fragment>
                                 ))}
                                 {results.length === 0 && (
                                     <tr>
-                                        <td colSpan={5} className="px-6 py-10 text-center text-gray-500 italic">No learners enrolled in this class.</td>
+                                        <td colSpan={3} className="px-6 py-12 text-center text-gray-400 italic text-sm">No submissions yet for this assignment.</td>
                                     </tr>
                                 )}
                             </tbody>
