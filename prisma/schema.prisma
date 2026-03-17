@@ -78,6 +78,7 @@ model Class {
   enrollments       Enrollment[]
   timelines         Timeline[]
   curricula         Curricula[]  @relation("ClassCurricula")
+  peerFeedbacks     PeerFeedback[]
 
   @@index([createdBy])
   @@index([isDraft])
@@ -166,6 +167,8 @@ model Enrollment {
   ses               SES[]
   learnerAnalytics  LearnerAnalytics?
   reflections       Reflection[]
+  peerFeedbackGiver PeerFeedback[]     @relation("PeerFeedbackGiver")
+  peerFeedbackReceiver PeerFeedback[]  @relation("PeerFeedbackReceiver")
 
   @@unique([userId, classId])
   @@index([userId])
@@ -297,6 +300,7 @@ model AssignmentResult {
   status                AssignmentStatus       @default(NOT_PASS)
   totalScore            Float?
   feedback              String?                @db.Text
+  feedbackFiles         Json?
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
   deletedAt             DateTime?
@@ -573,4 +577,26 @@ model LearnerAnalytics {
   updatedAt             DateTime   @updatedAt
   
   @@map("learner_analytics")
+}
+
+model PeerFeedback {
+  id              Int        @id @default(autoincrement())
+  evaluatorId     Int
+  evaluateeId     Int
+  classId         Int
+  cooperation     Int?       @default(0)
+  attendance      Int?       @default(0)
+  taskCompletion  Int?       @default(0)
+  initiatives     Int?       @default(0)
+  communication   Int?       @default(0)
+  isEdited        Boolean    @default(false)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  
+  evaluator       Enrollment @relation("PeerFeedbackGiver", fields: [evaluatorId], references: [id], onDelete: Cascade)
+  evaluatee       Enrollment @relation("PeerFeedbackReceiver", fields: [evaluateeId], references: [id], onDelete: Cascade)
+  class           Class      @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  @@unique([evaluatorId, evaluateeId, classId])
+  @@map("peer_feedback")
 }

@@ -3,6 +3,7 @@
 import React from 'react';
 import Breadcrumb from '@/components/ui/breadcrumb/breadcrumb';
 import { Zap, Users } from 'lucide-react';
+import Link from 'next/link';
 
 interface ClassReportClientProps {
     data: any;
@@ -12,10 +13,14 @@ export default function ClassReportClient({ data }: ClassReportClientProps) {
     const classData = data.raw;
     const analytics = data.data;
 
-    const learners = classData.enrollments.map((e: any) => ({
+    const learners = analytics.enrollmentCount > 0 ? classData.enrollments.map((e: any) => ({
         id: e.id,
         name: e.user.name || e.user.username
-    }));
+    })) : [];
+
+    const groupMembers = data.groupMembers || [];
+    const myEnrollment = data.myEnrollment;
+    const groupName = groupMembers.length > 0 ? (groupMembers[0].groups[0]?.name || "Group") : "Your Group";
 
     return (
         <div className="min-h-screen bg-[#F9F9EE] px-4 md:px-16 py-8 md:py-12 space-y-8 font-sans">
@@ -41,16 +46,27 @@ export default function ClassReportClient({ data }: ClassReportClientProps) {
                 
                 {/* Group Members */}
                 <div className="space-y-6">
-                    <h2 className="text-lg font-bold text-[#1C3A37]">Group 1</h2>
+                    <h2 className="text-lg font-bold text-[#1C3A37]">{groupName}</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {learners.slice(0, 4).map((learner: any, idx: number) => (
-                            <div key={learner.id} className="flex gap-4 items-baseline">
-                                <span className="text-xs font-bold text-gray-400">{idx + 1}.</span>
-                                <span className="text-sm font-bold text-[#1C3A37] underline decoration-[#DAEE49] underline-offset-4 decoration-2 cursor-pointer hover:text-black">
-                                    {learner.name}
-                                </span>
-                            </div>
-                        ))}
+                        {groupMembers.map((member: any, idx: number) => {
+                            const isMe = member.id === myEnrollment?.id;
+                            const displayName = member.user.name || member.user.username;
+                            const href = isMe 
+                                ? `/feedback` // "My feedback" path
+                                : `/feedback/peer/${member.id}/edit`;
+
+                            return (
+                                <div key={member.id} className="flex gap-4 items-baseline">
+                                    <span className="text-xs font-bold text-gray-400">{idx + 1}.</span>
+                                    <Link href={href} className="text-sm font-bold text-[#1C3A37] underline decoration-[#DAEE49] underline-offset-4 decoration-2 cursor-pointer hover:text-black">
+                                        {displayName} {isMe && "(You)"}
+                                    </Link>
+                                </div>
+                            );
+                        })}
+                        {groupMembers.length === 0 && (
+                            <p className="text-sm text-gray-400 italic">No group members found.</p>
+                        )}
                     </div>
                 </div>
 

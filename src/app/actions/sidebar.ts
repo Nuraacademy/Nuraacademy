@@ -58,7 +58,7 @@ export async function getSidebarData() {
             where: {
                 classId: { in: classIds },
                 deletedAt: null,
-                endDate: { gte: new Date() } // Only upcoming/active ones
+                endDate: { gte: new Date() }
             },
             orderBy: {
                 endDate: 'asc'
@@ -66,9 +66,6 @@ export async function getSidebarData() {
             take: 5 // Limit to avoid clutter
         });
 
-        // Add import at the top of the file would be better, but we'll use a direct helper or assume it's available
-        // Since we are in a server action, let's pre-calculate the href using the same logic as the component
-        // But for non-learners, override it.
         const { getAssignmentEndpoint, mapPrismaAssignmentType } = await import("@/utils/assignment");
 
         const formattedAssignments = assignments.map(a => {
@@ -98,9 +95,6 @@ export async function getSidebarData() {
                 if (!processedCourseIds.has(course.id)) {
                     processedCourseIds.add(course.id);
                     
-                    // Logic from CourseReflectionLink
-                    // Instructor (non-learner with permissions) -> List
-                    // Learner/Others -> Personal Page
                     const isInstructor = !isLearner; 
                     
                     feedbackLinks.push({
@@ -114,6 +108,16 @@ export async function getSidebarData() {
                 }
             });
         });
+
+        // 5. Add "My feedback" for Learners
+        if (isLearner) {
+            feedbackLinks.unshift({
+                id: 'my-feedback',
+                name: 'My feedback',
+                type: 'feedback',
+                href: '/feedback'
+            });
+        }
 
         return { 
             success: true, 

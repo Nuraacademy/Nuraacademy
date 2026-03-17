@@ -175,16 +175,23 @@ export async function submitGradingAction(assignmentId: number, resultId: number
     }
 }
 
-export async function saveAssignmentFeedback(resultId: number, feedback: string, assignmentId: number) {
+export async function saveAssignmentFeedback(resultId: number, feedback: string, assignmentId: number, feedbackFiles?: any) {
     try {
         await requirePermission('Feedback', 'CREATE_EDIT_ASSIGNMENT_FEEDBACK');
 
         await prisma.assignmentResult.update({
             where: { id: resultId },
-            data: { feedback }
+            data: { 
+                feedback,
+                feedbackFiles: (feedbackFiles as any) || undefined
+            } as any
         });
 
         revalidatePath(`/assignment/${assignmentId}/results`);
+        // New feedback routes
+        revalidatePath(`/feedback/assignment/${assignmentId}`);
+        revalidatePath(`/feedback/assignment/${assignmentId}/learner/${resultId}`); // Need to decide on route pattern
+        
         return { success: true };
     } catch (error: any) {
         console.error("Save feedback error:", error);

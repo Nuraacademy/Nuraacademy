@@ -1,6 +1,5 @@
 "use client"
 
-import React from 'react';
 import Breadcrumb from '@/components/ui/breadcrumb/breadcrumb';
 import { useRouter } from 'next/navigation';
 

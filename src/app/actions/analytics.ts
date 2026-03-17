@@ -32,15 +32,48 @@ export async function getClassAnalytics(classId: number) {
 
     if (!classData) return { success: false, error: "Class not found" };
 
-    // Aggregate stats (simplified for now)
+    // Aggregate stats
     const analytics = {
         className: classData.title,
         enrollmentCount: classData.enrollments.length,
-        // Course completion and pass rates would need more logic based on assignmentResults
-        // Engagement metrics would come from SES table
     };
 
-    return { success: true, data: analytics, raw: classData };
+    // Find current user's enrollment and their group
+    const myEnrollment = classData.enrollments.find(e => e.userId === userId);
+    let myExperienceMembers: any[] = [];
+    
+    if (myEnrollment) {
+        const myGroup = await prisma.group.findFirst({
+            where: { enrollmentId: myEnrollment.id, deletedAt: null }
+        });
+
+        if (myGroup) {
+            // Find all enrollments that share this group name in this class
+            const groupMembers = await prisma.group.findMany({
+                where: { 
+                    name: myGroup.name, 
+                    deletedAt: null,
+                    enrollment: { classId: classId }
+                },
+                include: {
+                    enrollment: {
+                        include: {
+                            user: { select: { id: true, name: true, username: true } }
+                        }
+                    }
+                }
+            });
+            myExperienceMembers = groupMembers.map(gm => gm.enrollment);
+        }
+    }
+
+    return { 
+        success: true, 
+        data: analytics, 
+        raw: classData,
+        myEnrollment,
+        groupMembers: myExperienceMembers
+    };
 }
 
 export async function getLearnerAnalytics(enrollmentId: number) {

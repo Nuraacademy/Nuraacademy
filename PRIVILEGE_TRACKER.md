@@ -93,7 +93,7 @@ This document tracks the implementation status of all the privileges seeded into
 | :--- | :--- | :--- | :--- |
 | Feedback | `CREATE_EDIT_REFLECTION` | Create/edit reflection | 🟢 Implemented |
 | Feedback | `CREATE_EDIT_ASSIGNMENT_FEEDBACK` | Create/edit Assignment feedback | 🟢 Implemented |
-| Feedback | `CREATE_EDIT_PEER_FEEDBACK` | Create/edit Peer feedback | 🔴 Not Implemented (Feature Missing) |
+| Feedback | `CREATE_EDIT_PEER_FEEDBACK` | Create/edit Peer feedback | 🟢 Implemented |
 | Feedback | `CREATE_EDIT_CLASS_FEEDBACK` | Create/edit class feedback | 🔴 Not Implemented (Feature Missing) |
 | Feedback | `CREATE_EDIT_TRAINER_FEEDBACK` | Create/edit Trainer feedback | 🔴 Not Implemented (Feature Missing) |
 | Feedback | `DELETE_REFLECTION` | Delete reflection | 🟢 Implemented |
@@ -102,9 +102,9 @@ This document tracks the implementation status of all the privileges seeded into
 | Feedback | `DELETE_ASSIGNMENT_FEEDBACK` | Delete assignment feedback | 🟢 Implemented |
 | Feedback | `VIEW_SEARCH_ASSIGNMENT_FEEDBACK` | View & search assignment feedback | 🟢 Implemented |
 | Feedback | `VIEW_DETAIL_ASSIGNMENT_FEEDBACK` | View detail assignment feedback | 🟢 Implemented |
-| Feedback | `DELETE_PEER_FEEDBACK` | delete peer feedback | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `VIEW_SEARCH_PEER_FEEDBACK` | View & search peer feedback | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `VIEW_DETAIL_PEER_FEEDBACK` | View detail peer feedback | 🔴 Not Implemented (Feature Missing) |
+| Feedback | `DELETE_PEER_FEEDBACK` | delete peer feedback | 🟢 Implemented |
+| Feedback | `VIEW_SEARCH_PEER_FEEDBACK` | View & search peer feedback | 🟢 Implemented |
+| Feedback | `VIEW_DETAIL_PEER_FEEDBACK` | View detail peer feedback | 🟢 Implemented |
 | Feedback | `DELETE_TRAINER_FEEDBACK` | delete trainer feedback | 🔴 Not Implemented (Feature Missing) |
 | Feedback | `VIEW_SEARCH_TRAINER_FEEDBACK` | View & search trainer feedback | 🔴 Not Implemented (Feature Missing) |
 | Feedback | `VIEW_DETAIL_TRAINER_FEEDBACK` | View detail trainer feedback | 🔴 Not Implemented (Feature Missing) |

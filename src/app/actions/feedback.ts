@@ -81,6 +81,9 @@ export async function getFeedbacks() {
                         userId: userId,
                         deletedAt: null
                     },
+                    assignment: {
+                        type: { in: ['PROJECT', 'ASSIGNMENT'] }
+                    },
                     feedback: { not: null },
                     deletedAt: null
                 },
@@ -149,10 +152,40 @@ export async function getFeedbacks() {
                 });
             });
 
+            // 4. Fetch Peer Feedback from PeerFeedback model
+            const peerFeedbacks = await prisma.peerFeedback.findMany({
+                where: {
+                    evaluatee: {
+                        userId: userId,
+                        deletedAt: null
+                    }
+                },
+                include: {
+                    evaluator: {
+                        include: {
+                            user: { select: { name: true, username: true } }
+                        }
+                    },
+                    class: true
+                }
+            });
+
+            peerFeedbacks.forEach(pf => {
+                feedbacks.push({
+                    id: `peer-${pf.id}`,
+                    title: `Peer Feedback from ${pf.evaluator.user.name || pf.evaluator.user.username}`,
+                    type: 'Peer',
+                    className: pf.class.title,
+                    content: `Cooperation: ${pf.cooperation}, Attendance: ${pf.attendance}, Task Completion: ${pf.taskCompletion}, Initiatives: ${pf.initiatives}, Communication: ${pf.communication}`,
+                    createdAt: pf.updatedAt,
+                    href: `/analytics/class/${pf.classId}`
+                });
+            });
+
         } else {
-            // --- INSTRUCTOR/ADMIN VIEW: Reflections needing feedback ---
+            // --- INSTRUCTOR/ADMIN VIEW: Reflections needing feedback & Assignments ---
             
-            // 1. Fetch Student Reflections
+            // 1. Fetch Student Reflections (already existing)
             const reflections = await prisma.reflection.findMany({
                 where: {
                     deletedAt: null,
@@ -188,6 +221,40 @@ export async function getFeedbacks() {
                         : `/feedback/reflection/session/${r.sessionId}`
                 });
             });
+
+            // 2. Fetch Assignments for this instructor/admin
+            // We'll fetch assignments matching classes the user might be involved in, 
+            // or just all active assignments if they are high-level.
+            // For now, let's fetch assignments that have results (submissions).
+            const assignments = await prisma.assignment.findMany({
+                where: {
+                    type: { in: ['PROJECT', 'ASSIGNMENT'] },
+                    deletedAt: null,
+                },
+                include: {
+                    class: true,
+                    course: true,
+                    _count: {
+                        select: { assignmentResults: { where: { finishedAt: { not: null } } } }
+                    }
+                },
+                orderBy: { createdAt: 'desc' },
+                take: 50
+            });
+
+            assignments.forEach(a => {
+                if (a._count.assignmentResults > 0) {
+                    feedbacks.push({
+                        id: `instructor-assignment-${a.id}`,
+                        title: `${a.title || "Assignment"}`,
+                        type: 'Assignment',
+                        className: a.class?.title || a.course?.title || "Multiple Classes",
+                        content: `${a._count.assignmentResults} submission(s) needing review.`,
+                        createdAt: a.createdAt,
+                        href: `/feedback/assignment/${a.id}`
+                    });
+                }
+            });
         }
 
         console.log("Total consolidated feedbacks:", feedbacks.length);
@@ -198,6 +265,21 @@ export async function getFeedbacks() {
         return { success: true, data: feedbacks };
     } catch (error: any) {
         console.error("Get Feedbacks Error:", error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function getAssignmentLearners(assignmentId: number) {
+    try {
+        const userId = await getCurrentUserId();
+        if (!userId) return { success: false, error: "Unauthorized" };
+
+        const { getAssignmentResultsByAssignmentId } = await import("@/controllers/assignmentController");
+        const results = await getAssignmentResultsByAssignmentId(assignmentId);
+
+        return { success: true, data: results };
+    } catch (error: any) {
+        console.error("Get Assignment Learners Error:", error);
         return { success: false, error: error.message };
     }
 }
