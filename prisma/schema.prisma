@@ -27,8 +27,11 @@ model User {
   discussions          Discussion[]
   enrollments          Enrollment[]
   feedbacks            Feedback[]
-  reflections          Reflection[]
+  reflections           Reflection[]
   role                 Role?                 @relation(fields: [roleId], references: [id])
+  trainerFeedbacks     TrainerFeedback[]     @relation("TrainerFeedbackReceiver")
+  createdCourses       Course[]              @relation("CourseCreator")
+  createdSessions      Session[]             @relation("SessionCreator")
 
   @@map("users")
 }
@@ -42,6 +45,7 @@ model Session {
   schedule      Json?
   reference     Json?
   createdBy     Int?
+  user          User?        @relation("SessionCreator", fields: [createdBy], references: [id])
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   deletedAt     DateTime?
@@ -79,6 +83,7 @@ model Class {
   courses           Course[]
   enrollments       Enrollment[]
   peerFeedbacks     PeerFeedback[]
+  trainerFeedbacks  TrainerFeedback[]
   timelines         Timeline[]
   curricula         Curricula[]     @relation("ClassCurricula")
 
@@ -127,6 +132,7 @@ model Course {
   entrySkills        String?
   tools              String?
   createdBy          Int?
+  user               User?            @relation("CourseCreator", fields: [createdBy], references: [id])
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
   deletedAt          DateTime?
@@ -172,6 +178,7 @@ model Enrollment {
   peerFeedbackGiver    PeerFeedback[]     @relation("PeerFeedbackGiver")
   reflections          Reflection[]
   ses                  SES[]
+  trainerFeedbacksGiver TrainerFeedback[]     @relation("TrainerFeedbackGiver")
 
   @@unique([userId, classId])
   @@index([userId])
@@ -551,6 +558,31 @@ model PeerFeedback {
 
   @@unique([evaluatorId, evaluateeId, classId])
   @@map("peer_feedback")
+}
+
+model TrainerFeedback {
+  id                  Int        @id @default(autoincrement())
+  evaluatorId         Int // Enrollment ID of the learner
+  trainerId           Int // User ID of the trainer
+  classId             Int
+  knowledge           Int?       @default(0)
+  knowledgeFeedback   String?    @db.Text
+  pedagogy            Int?       @default(0)
+  pedagogyFeedback    String?    @db.Text
+  engagement          Int?       @default(0)
+  engagementFeedback  String?    @db.Text
+  punctuality         Int?       @default(0)
+  punctualityFeedback String?    @db.Text
+  isEdited            Boolean    @default(false)
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+
+  evaluator Enrollment @relation("TrainerFeedbackGiver", fields: [evaluatorId], references: [id], onDelete: Cascade)
+  trainer   User       @relation("TrainerFeedbackReceiver", fields: [trainerId], references: [id], onDelete: Cascade)
+  class     Class      @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  @@unique([evaluatorId, trainerId, classId])
+  @@map("trainer_feedback")
 }
 
 model ClassFeedback {

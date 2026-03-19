@@ -41,6 +41,19 @@ export async function getClassById(id: number) {
             courses: {
                 where: { deletedAt: null },
                 orderBy: { createdAt: 'asc' },
+                include: {
+                    user: {
+                        select: { id: true, name: true, username: true, role: { select: { name: true } } }
+                    },
+                    sessions: {
+                        where: { deletedAt: null },
+                        include: {
+                            user: {
+                                select: { id: true, name: true, username: true, role: { select: { name: true } } }
+                            }
+                        }
+                    }
+                }
             },
         },
     });

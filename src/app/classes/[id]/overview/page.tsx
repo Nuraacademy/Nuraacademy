@@ -7,6 +7,7 @@ import { hasPermission } from "@/lib/rbac";
 import { EnrollButton, AddTimelineButton, PlacementTestButton, AddCourseButton, CourseCard, ProjectCard, SuccessHandler, FeedbackButton, AnalyticsButton } from "./client_button";
 import { notFound } from "next/navigation";
 import { getFullSession } from "@/app/actions/auth";
+import Link from "next/link";
 
 export default async function CourseOverviewPage({
     params
@@ -181,6 +182,61 @@ export default async function CourseOverviewPage({
                                 )}
                             </div>
                         </div>
+
+                        {/* Instructor & Trainer Section */}
+                        {(() => {
+                            const trainersMap = new Map();
+                            classData.courses?.forEach((course: any) => {
+                                if (course.user) {
+                                    trainersMap.set(course.user.id, course.user);
+                                }
+                                course.sessions?.forEach((session: any) => {
+                                    if (session.user) {
+                                        trainersMap.set(session.user.id, session.user);
+                                    }
+                                });
+                            });
+                            const trainers = Array.from(trainersMap.values());
+
+                            if (trainers.length === 0) return null;
+
+                            return (
+                                <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100">
+                                    <h2 className="text-lg font-bold mb-6 text-[#1C3A37]">Instructor & Trainer</h2>
+                                    <div className="space-y-6">
+                                        {trainers.map((trainer, idx) => (
+                                            <div key={trainer.id}>
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 border border-gray-200 shrink-0">
+                                                        <img 
+                                                            src={`/example/human.png`} 
+                                                            alt={trainer.name || trainer.username}
+                                                            className="w-full h-full object-cover" 
+                                                        />
+                                                    </div>
+                                                    <div className="flex-grow">
+                                                        <h4 className="text-sm font-bold text-[#1C3A37]">{trainer.name || trainer.username}</h4>
+                                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{trainer.role?.name || "Instructor"}</p>
+                                                    </div>
+                                                    {isLearner && isEnrolled && (
+                                                        <Link 
+                                                            href={`/feedback/trainer/${trainer.id}?classId=${id}`}
+                                                            className="bg-[#DAEE49] p-2 rounded-lg hover:bg-[#C9D942] transition-colors shadow-sm"
+                                                            title="Give Feedback"
+                                                        >
+                                                            <img src="/icons/Information.svg" alt="Feedback" className="w-4 h-4 invert opacity-70" />
+                                                        </Link>
+                                                    )}
+                                                </div>
+                                                {idx < trainers.length - 1 && (
+                                                    <div className="h-[1px] bg-gray-50 w-full mt-6" />
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            );
+                        })()}
 
                         {/* Feedback & Analytics Buttons */}
                         <div className="flex flex-col gap-3">
