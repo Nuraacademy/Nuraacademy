@@ -52,7 +52,7 @@ export default function ClassReportClient({ data }: ClassReportClientProps) {
                             const isMe = member.id === myEnrollment?.id;
                             const displayName = member.user.name || member.user.username;
                             const href = isMe 
-                                ? `#` 
+                                ? `/classes/${classData.id}/analytics/peer-results` 
                                 : `/feedback/peer/${member.id}?classId=${classData.id}`;
 
                             return (
