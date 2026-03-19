@@ -30,10 +30,15 @@ export async function savePeerFeedback(data: {
     evaluateeId: number;
     classId: number;
     cooperation?: number;
+    cooperationFeedback?: string;
     attendance?: number;
+    attendanceFeedback?: string;
     taskCompletion?: number;
+    taskCompletionFeedback?: string;
     initiatives?: number;
+    initiativesFeedback?: string;
     communication?: number;
+    communicationFeedback?: string;
 }) {
     const userId = await getSession();
     if (!userId) return { success: false, error: "Unauthorized" };
@@ -48,7 +53,7 @@ export async function savePeerFeedback(data: {
         return { success: false, error: "Forbidden: You can only submit feedback as yourself." };
     }
 
-    const { evaluatorId, evaluateeId, classId, ...scores } = data;
+    const { evaluatorId, evaluateeId, classId } = data;
 
     try {
         // Check if it already exists to determine if it's an "edit"
@@ -73,15 +78,33 @@ export async function savePeerFeedback(data: {
                 }
             },
             update: {
-                ...scores,
+                cooperation: data.cooperation,
+                cooperationFeedback: data.cooperationFeedback,
+                attendance: data.attendance,
+                attendanceFeedback: data.attendanceFeedback,
+                taskCompletion: data.taskCompletion,
+                taskCompletionFeedback: data.taskCompletionFeedback,
+                initiatives: data.initiatives,
+                initiativesFeedback: data.initiativesFeedback,
+                communication: data.communication,
+                communicationFeedback: data.communicationFeedback,
                 isEdited: isEdited
             },
             create: {
                 evaluatorId,
                 evaluateeId,
                 classId,
-                ...scores,
-                isEdited: false // First submission is not "edited"
+                cooperation: data.cooperation,
+                cooperationFeedback: data.cooperationFeedback,
+                attendance: data.attendance,
+                attendanceFeedback: data.attendanceFeedback,
+                taskCompletion: data.taskCompletion,
+                taskCompletionFeedback: data.taskCompletionFeedback,
+                initiatives: data.initiatives,
+                initiativesFeedback: data.initiativesFeedback,
+                communication: data.communication,
+                communicationFeedback: data.communicationFeedback,
+                isEdited: false
             }
         });
 
@@ -116,10 +139,15 @@ export async function clearPeerFeedback(evaluatorId: number, evaluateeId: number
             },
             data: {
                 cooperation: 0,
+                cooperationFeedback: "",
                 attendance: 0,
+                attendanceFeedback: "",
                 taskCompletion: 0,
+                taskCompletionFeedback: "",
                 initiatives: 0,
+                initiativesFeedback: "",
                 communication: 0,
+                communicationFeedback: "",
                 isEdited: true
             }
         });

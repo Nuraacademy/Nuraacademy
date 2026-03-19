@@ -62,12 +62,17 @@ export default async function PeerFeedbackPage({ params }: { params: Promise<{ i
     const feedbackResponse = await getPeerFeedback(evaluator.id, evaluatee.id, evaluatee.classId);
     const initialFeedback = feedbackResponse.success ? feedbackResponse.data : null;
 
+    const group = await prisma.group.findFirst({
+        where: { enrollmentId: evaluatee.id, deletedAt: null }
+    });
+
     return (
         <PeerFeedbackFormClient 
             data={evaluatee} 
             evaluatorEnrollmentId={evaluator.id}
             classId={evaluatee.classId}
             initialFeedback={initialFeedback}
+            groupName={group?.name || "Your Group"}
         />
     );
 }
