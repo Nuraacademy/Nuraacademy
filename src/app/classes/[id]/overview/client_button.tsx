@@ -268,6 +268,37 @@ export function ProjectCard({ classId, assignment, isAdmin }: { classId: string,
     )
 }
 
+export function FeedbackButton({ classId, isLearner }: { classId: string, isLearner: boolean }) {
+    const router = useRouter()
+    
+    const handleClick = () => {
+        if (isLearner) {
+            router.push(`/classes/${classId}/feedback`)
+        } else {
+            router.push(`/feedback/class/${classId}`)
+        }
+    }
+
+    return (
+        <NuraButton
+            label="Feedback"
+            variant="primary"
+            onClick={handleClick}
+        />
+    )
+}
+
+export function AnalyticsButton({ classId }: { classId: string }) {
+    const router = useRouter()
+    return (
+        <NuraButton
+            label="Analytics and Report"
+            variant="primary"
+            onClick={() => router.push(`/classes/${classId}/analytics`)}
+        />
+    )
+}
+
 const ClientButton = {
     SuccessHandler,
     EnrollButton,
@@ -275,7 +306,9 @@ const ClientButton = {
     PlacementTestButton,
     AddCourseButton,
     CourseCard,
-    ProjectCard
+    ProjectCard,
+    FeedbackButton,
+    AnalyticsButton
 }
 
 export default ClientButton

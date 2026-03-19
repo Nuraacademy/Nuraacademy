@@ -4,8 +4,9 @@ import { getPlacementTestByClassId, getAssignmentResult, getProjectAssignmentsBy
 import { getEnrollment } from "@/controllers/enrollmentController";
 import { getSession } from "@/app/actions/auth";
 import { hasPermission } from "@/lib/rbac";
-import { EnrollButton, AddTimelineButton, PlacementTestButton, AddCourseButton, CourseCard, ProjectCard, SuccessHandler } from "./client_button";
+import { EnrollButton, AddTimelineButton, PlacementTestButton, AddCourseButton, CourseCard, ProjectCard, SuccessHandler, FeedbackButton, AnalyticsButton } from "./client_button";
 import { notFound } from "next/navigation";
+import { getFullSession } from "@/app/actions/auth";
 
 export default async function CourseOverviewPage({
     params
@@ -19,6 +20,10 @@ export default async function CourseOverviewPage({
     const canCreateCourse = await hasPermission('Course', 'CREATE_COURSE');
     const canUpdateCourse = await hasPermission('Course', 'UPDATE_COURSE');
     const canCreatePlacement = await hasPermission('PlacementTest', 'CREATE');
+    const canViewFeedbackReport = await hasPermission('Feedback', 'VIEW_DETAIL_REFLECTION');
+    
+    const session = await getFullSession();
+    const isLearner = session?.role === 'Learner';
 
     // Fetch live class data
     const classData = await getClassById(parseInt(id));
@@ -175,6 +180,16 @@ export default async function CourseOverviewPage({
                                     <p className="text-sm text-gray-500 italic">No timeline available.</p>
                                 )}
                             </div>
+                        </div>
+
+                        {/* Feedback & Analytics Buttons */}
+                        <div className="flex flex-col gap-3">
+                            {(isEnrolled || canViewFeedbackReport) && (
+                                <FeedbackButton classId={id} isLearner={isLearner} />
+                            )}
+                            {(isEnrolled || canUpdateSchedule) && (
+                                <AnalyticsButton classId={id} />
+                            )}
                         </div>
                     </aside>
 

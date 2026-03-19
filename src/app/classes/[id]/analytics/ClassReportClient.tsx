@@ -27,8 +27,8 @@ export default function ClassReportClient({ data }: ClassReportClientProps) {
             <Breadcrumb 
                 items={[
                     { label: 'Home', href: '/' },
-                    { label: 'Report & Analytics', href: '/admin' },
-                    { label: analytics.className, href: '#' },
+                    { label: classData.title, href: `/classes/${classData.id}/overview` },
+                    { label: 'Report & Analytics', href: '#' },
                 ]} 
             />
 
