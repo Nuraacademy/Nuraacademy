@@ -46,14 +46,14 @@ export default function ClassReportClient({ data }: ClassReportClientProps) {
                 
                 {/* Group Members */}
                 <div className="space-y-6">
-                    <h2 className="text-lg font-bold text-[#1C3A37]">{groupName}</h2>
+                    <h2 className="text-lg font-bold text-[#1C3A37]">{analytics.groupName}</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {groupMembers.map((member: any, idx: number) => {
                             const isMe = member.id === myEnrollment?.id;
                             const displayName = member.user.name || member.user.username;
                             const href = isMe 
-                                ? `#` // "My feedback" path
-                                : `/feedback/peer/${member.id}`;
+                                ? `#` 
+                                : `/feedback/peer/${member.id}?classId=${classData.id}`;
 
                             return (
                                 <div key={member.id} className="flex gap-4 items-baseline">
@@ -74,34 +74,32 @@ export default function ClassReportClient({ data }: ClassReportClientProps) {
                 <div className="space-y-10 border-t border-gray-100 pt-10">
                     <h2 className="text-lg font-bold text-[#1C3A37]">Class Progress</h2>
                     <div className="flex flex-wrap gap-12 justify-start items-center">
-                        {/* Course Done */}
                         <div className="flex flex-col items-center gap-4">
                             <div className="relative w-32 h-32">
                                 <svg className="w-full h-full transform -rotate-90">
                                     <circle cx="64" cy="64" r="50" fill="transparent" stroke="#F9F9EE" strokeWidth="20" />
                                     <circle cx="64" cy="64" r="50" fill="transparent" stroke="#1C3A37" strokeWidth="20" 
                                         strokeDasharray={`${2 * Math.PI * 50}`}
-                                        strokeDashoffset={`${2 * Math.PI * 50 * (1 - 0.85)}`}
+                                        strokeDashoffset={`${2 * Math.PI * 50 * (1 - analytics.progress.courseDone / 100)}`}
                                         strokeLinecap="round" />
                                 </svg>
                                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                    <span className="text-2xl font-black text-[#1C3A37]">85%</span>
+                                    <span className="text-2xl font-black text-[#1C3A37]">{analytics.progress.courseDone}%</span>
                                     <span className="text-[10px] font-bold text-gray-400 uppercase">Course Done</span>
                                 </div>
                             </div>
                         </div>
-                        {/* Course Pass */}
                         <div className="flex flex-col items-center gap-4">
                             <div className="relative w-32 h-32">
                                 <svg className="w-full h-full transform -rotate-90">
                                     <circle cx="64" cy="64" r="50" fill="transparent" stroke="#F9F9EE" strokeWidth="20" />
                                     <circle cx="64" cy="64" r="50" fill="transparent" stroke="#DAEE49" strokeWidth="20" 
                                         strokeDasharray={`${2 * Math.PI * 50}`}
-                                        strokeDashoffset={`${2 * Math.PI * 50 * (1 - 0.80)}`}
+                                        strokeDashoffset={`${2 * Math.PI * 50 * (1 - analytics.progress.coursePass / 100)}`}
                                         strokeLinecap="round" />
                                 </svg>
                                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                    <span className="text-2xl font-black text-[#1C3A37]">80%</span>
+                                    <span className="text-2xl font-black text-[#1C3A37]">{analytics.progress.coursePass}%</span>
                                     <span className="text-[10px] font-bold text-gray-400 uppercase">Course Pass</span>
                                 </div>
                             </div>
@@ -115,7 +113,7 @@ export default function ClassReportClient({ data }: ClassReportClientProps) {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl">
                         <div className="bg-white border-2 border-gray-100 rounded-[32px] p-8 flex items-center justify-between shadow-sm">
                             <div className="space-y-1">
-                                <span className="text-3xl font-black text-[#1C3A37]">86%</span>
+                                <span className="text-3xl font-black text-[#1C3A37]">{analytics.engagement.sesScore}%</span>
                                 <p className="text-xs font-bold text-gray-400 uppercase">SES Score</p>
                             </div>
                             <div className="w-12 h-12 bg-[#F9F9EE] rounded-2xl flex items-center justify-center text-[#1C3A37]">
@@ -124,7 +122,7 @@ export default function ClassReportClient({ data }: ClassReportClientProps) {
                         </div>
                         <div className="bg-white border-2 border-gray-100 rounded-[32px] p-8 flex items-center justify-between shadow-sm">
                             <div className="space-y-1">
-                                <span className="text-3xl font-black text-[#1C3A37]">97%</span>
+                                <span className="text-3xl font-black text-[#1C3A37]">{analytics.engagement.presence}%</span>
                                 <p className="text-xs font-bold text-gray-400 uppercase">Presence in Session</p>
                             </div>
                             <div className="w-12 h-12 bg-[#F9F9EE] rounded-2xl flex items-center justify-center text-[#1C3A37]">
@@ -151,19 +149,17 @@ export default function ClassReportClient({ data }: ClassReportClientProps) {
                             ))}
                         </div>
                     </div>
-                    <div className="h-64 w-full flex items-end gap-12 px-8 border-b-2 border-gray-100 pb-2 relative">
-                        {/* Simplified Bar Chart */}
-                        {['Course A', 'Course C', 'Course D', 'Course F'].map((course) => (
-                            <div key={course} className="flex-grow flex flex-col items-center gap-4">
+                    <div className="min-h-64 w-full flex items-end gap-12 px-8 border-b-2 border-gray-100 pb-2 overflow-x-auto relative">
+                        {analytics.performance.map((p: any) => (
+                            <div key={p.courseTitle} className="flex-grow flex flex-col items-center gap-4 min-w-[120px]">
                                 <div className="flex gap-1 items-end h-48 w-full justify-center">
-                                    <div className="w-4 bg-[#1C3A37] rounded-t-sm" style={{ height: '70%' }} />
-                                    <div className="w-4 bg-[#8BB730] rounded-t-sm" style={{ height: '85%' }} />
-                                    <div className="w-4 bg-[#DAEE49] rounded-t-sm" style={{ height: '90%' }} />
+                                    <div className="w-4 bg-[#1C3A37] rounded-t-sm" style={{ height: `${p.preTest}%` }} />
+                                    <div className="w-4 bg-[#8BB730] rounded-t-sm" style={{ height: `${p.postTest}%` }} />
+                                    <div className="w-4 bg-[#DAEE49] rounded-t-sm" style={{ height: `${p.assignment}%` }} />
                                 </div>
-                                <span className="text-[10px] font-bold text-gray-400 uppercase">{course}</span>
+                                <span className="text-[10px] font-bold text-gray-400 uppercase text-center max-w-[100px] overflow-hidden whitespace-nowrap text-ellipsis">{p.courseTitle}</span>
                             </div>
                         ))}
-                        {/* Y-axis labels would go here if needed */}
                     </div>
                 </div>
 
@@ -176,24 +172,27 @@ export default function ClassReportClient({ data }: ClassReportClientProps) {
                             <span className="text-[10px] font-bold text-gray-400 italic">LG = Posttest - Pretest / 100 - Pretest</span>
                         </div>
                     </div>
-                    <div className="h-64 w-full relative px-8">
-                        <svg className="w-full h-full" viewBox="0 0 1000 200" preserveAspectRatio="none">
-                            {/* Path for line chart */}
+                    <div className="min-h-64 w-full relative px-8 overflow-x-auto">
+                        <svg className="w-full h-48" viewBox="0 0 1000 200" preserveAspectRatio="none">
                             <path 
-                                d="M 125 150 L 375 100 L 625 120 L 875 80" 
+                                d={analytics.performance.map((p: any, i: number, arr: any[]) => {
+                                    const x = (i * (1000 / (arr.length > 1 ? arr.length - 1 : 1)));
+                                    const y = 200 - (p.learningGain * 200);
+                                    return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
+                                }).join(' ')}
                                 fill="none" 
                                 stroke="#DAEE49" 
                                 strokeWidth="3" 
                             />
-                            {/* Points */}
-                            <circle cx="125" cy="150" r="6" fill="#DAEE49" stroke="white" strokeWidth="2" />
-                            <circle cx="375" cy="100" r="6" fill="#DAEE49" stroke="white" strokeWidth="2" />
-                            <circle cx="625" cy="120" r="6" fill="#DAEE49" stroke="white" strokeWidth="2" />
-                            <circle cx="875" cy="80" r="6" fill="#DAEE49" stroke="white" strokeWidth="2" />
+                            {analytics.performance.map((p: any, i: number, arr: any[]) => {
+                                const x = (i * (1000 / (arr.length > 1 ? arr.length - 1 : 1)));
+                                const y = 200 - (p.learningGain * 200);
+                                return <circle key={i} cx={x} cy={y} r="6" fill="#DAEE49" stroke="white" strokeWidth="2" />;
+                            })}
                         </svg>
-                        <div className="flex justify-between px-8 mt-4">
-                            {['Course A', 'Course C', 'Course D', 'Course F'].map((course) => (
-                                <span key={course} className="text-[10px] font-bold text-gray-400 uppercase">{course}</span>
+                        <div className="flex justify-between px-0 mt-4">
+                            {analytics.performance.map((p: any) => (
+                                <span key={p.courseTitle} className="text-[10px] font-bold text-gray-400 uppercase text-center max-w-[80px] overflow-hidden whitespace-nowrap text-ellipsis">{p.courseTitle}</span>
                             ))}
                         </div>
                     </div>
@@ -203,36 +202,30 @@ export default function ClassReportClient({ data }: ClassReportClientProps) {
                 <div className="space-y-10 border-t border-gray-100 pt-10">
                     <h2 className="text-lg font-bold text-[#1C3A37]">Team Work & Collaboration</h2>
                     <div className="flex flex-col md:flex-row gap-16 items-start">
-                        {/* Doughnut Chart */}
                         <div className="relative w-48 h-48">
                             <svg className="w-full h-full transform -rotate-90">
                                 <circle cx="96" cy="96" r="80" fill="transparent" stroke="#F9F9EE" strokeWidth="24" />
                                 <circle cx="96" cy="96" r="80" fill="transparent" stroke="#1C3A37" strokeWidth="24" 
                                     strokeDasharray={`${2 * Math.PI * 80}`}
-                                    strokeDashoffset={`${2 * Math.PI * 80 * (1 - 0.20)}`}
-                                    strokeLinecap="round" />
-                                <circle cx="96" cy="96" r="80" fill="transparent" stroke="#DAEE49" strokeWidth="24" 
-                                    strokeDasharray={`${2 * Math.PI * 80}`}
-                                    strokeDashoffset={`${2 * Math.PI * 80 * (1 - 0.15)}`}
-                                    style={{ transform: `rotate(72deg)`, transformOrigin: 'center' }}
+                                    strokeDashoffset={`${2 * Math.PI * 80 * (1 - analytics.teamwork.cooperation / 10)}`}
                                     strokeLinecap="round" />
                             </svg>
                             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                <span className="text-3xl font-black text-[#1C3A37]">20%</span>
+                                <span className="text-3xl font-black text-[#1C3A37]">{analytics.teamwork.cooperation}</span>
                                 <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Cooperation</span>
                             </div>
                         </div>
                         <div className="space-y-4 pt-8">
                             {[
-                                { label: 'Cooperation', color: 'bg-[#1C3A37]' },
-                                { label: 'Attendance', color: 'bg-[#1C3A37]' },
-                                { label: 'Task Completion', color: 'bg-[#DAEE49]' },
-                                { label: 'Initiatives', color: 'bg-[#DAEE49]' },
-                                { label: 'Communication', color: 'bg-[#C9D942]' },
+                                { label: 'Cooperation', value: analytics.teamwork.cooperation, color: 'bg-[#1C3A37]' },
+                                { label: 'Attendance', value: analytics.teamwork.attendance, color: 'bg-[#1C3A37]' },
+                                { label: 'Task Completion', value: analytics.teamwork.taskCompletion, color: 'bg-[#DAEE49]' },
+                                { label: 'Initiatives', value: analytics.teamwork.initiatives, color: 'bg-[#DAEE49]' },
+                                { label: 'Communication', value: analytics.teamwork.communication, color: 'bg-[#C9D942]' },
                             ].map((item) => (
                                 <div key={item.label} className="flex items-center gap-3">
                                     <div className={`w-3 h-3 rounded-full ${item.color}`} />
-                                    <span className="text-xs font-bold text-gray-500">{item.label}</span>
+                                    <span className="text-xs font-bold text-gray-500">{item.label}: {item.value} / 10</span>
                                 </div>
                             ))}
                         </div>
@@ -244,11 +237,11 @@ export default function ClassReportClient({ data }: ClassReportClientProps) {
                     <h2 className="text-lg font-bold text-[#1C3A37]">Final Project</h2>
                     <div className="space-y-6 max-w-3xl">
                         {[
-                            { label: 'Problem Understanding', score: 87, color: 'bg-[#1C3A37]' },
-                            { label: 'Data Reasoning', score: 70, color: 'bg-[#1C3A37]' },
-                            { label: 'Methods', score: 93, color: 'bg-[#DAEE49]' },
-                            { label: 'Insight Quality', score: 94, color: 'bg-[#DAEE49]' },
-                            { label: 'Solution Quality', score: 75, color: 'bg-[#C9D942]' },
+                            { label: 'Problem Understanding', score: analytics.finalProject.problemUnderstanding, color: 'bg-[#1C3A37]' },
+                            { label: 'Data Reasoning', score: analytics.finalProject.dataReasoning, color: 'bg-[#1C3A37]' },
+                            { label: 'Methods', score: analytics.finalProject.methods, color: 'bg-[#DAEE49]' },
+                            { label: 'Insight Quality', score: analytics.finalProject.insightQuality, color: 'bg-[#DAEE49]' },
+                            { label: 'Solution Quality', score: analytics.finalProject.solutionQuality, color: 'bg-[#C9D942]' },
                         ].map((metric) => (
                             <div key={metric.label} className="space-y-2">
                                 <div className="flex justify-between items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest">
