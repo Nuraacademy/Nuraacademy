@@ -5,6 +5,7 @@ import { NuraSelect } from "@/components/ui/input/nura_select";
 import { NuraSearchInput } from "@/components/ui/input/nura_search_input";
 import Sidebar from "@/components/ui/sidebar/sidebar";
 import { FeedbackCard, FeedbackType } from "@/components/ui/card/feedback_card";
+import { FeedbackItem } from "@/app/actions/feedback";
 
 interface Trainer {
     id: number;
@@ -20,7 +21,10 @@ interface FeedbackHubItem {
 }
 
 interface FeedbackHubClientProps {
-    data: FeedbackHubItem[];
+    data: {
+        targets: FeedbackHubItem[];
+        received: FeedbackItem[];
+    };
 }
 
 interface FlattenedFeedback {
@@ -38,34 +42,47 @@ export default function FeedbackHubClient({ data }: FeedbackHubClientProps) {
 
     // Flatten data for the list layout
     const flattenedList: FlattenedFeedback[] = [];
-    data.forEach(item => {
-        // Peer Feedback
+    
+    // 1. Add "Give Feedback" targets
+    data.targets?.forEach(item => {
+        // Peer Feedback Target
         flattenedList.push({
-            id: `peer-${item.classId}`,
+            id: `target-peer-${item.classId}`,
             title: "Peer Feedback",
             type: "Peer",
             classTitle: item.classTitle,
             href: `/classes/${item.classId}/analytics`
         });
 
-        // Trainer Feedbacks
+        // Trainer Feedback Targets
         item.trainers.forEach(trainer => {
             flattenedList.push({
-                id: `trainer-${trainer.id}-${item.classId}`,
+                id: `target-trainer-${trainer.id}-${item.classId}`,
                 title: trainer.name || trainer.username,
                 type: "Trainer",
-                classTitle: `${item.classTitle} (${trainer.roleName})`,
+                classTitle: item.classTitle, // Simplified as the card now handles concatenation
                 href: `/feedback/trainer/${trainer.id}?classId=${item.classId}`
             });
         });
 
-        // Class Feedback
+        // Class Feedback Target
         flattenedList.push({
-            id: `class-${item.classId}`,
+            id: `target-class-${item.classId}`,
             title: "General Class Feedback",
             type: "Class",
             classTitle: item.classTitle,
             href: `/classes/${item.classId}/feedback`
+        });
+    });
+
+    // 2. Add "Received Feedback" items
+    data.received?.forEach(item => {
+        flattenedList.push({
+            id: item.id,
+            title: item.title,
+            type: item.type,
+            classTitle: item.className,
+            href: item.href
         });
     });
 
@@ -115,6 +132,8 @@ export default function FeedbackHubClient({ data }: FeedbackHubClientProps) {
                             onChange={setFeedbackType}
                             options={[
                                 { label: "All", value: "all" },
+                                { label: "Reflection", value: "Reflection" },
+                                { label: "Assignment", value: "Assignment" },
                                 { label: "Peer", value: "Peer" },
                                 { label: "Class", value: "Class" },
                                 { label: "Trainer", value: "Trainer" },
@@ -138,7 +157,7 @@ export default function FeedbackHubClient({ data }: FeedbackHubClientProps) {
                     {filteredFeedbacks.length === 0 && (
                         <div className="flex flex-col items-center justify-center py-20 bg-white/50 rounded-3xl border border-dashed border-gray-300">
                              <img src="/icons/sidebar/Feedback.svg" alt="No feedback" className="w-16 h-16 opacity-20 mb-4" />
-                            <p className="text-gray-500 text-lg">No feedback options found.</p>
+                            <p className="text-gray-500 text-lg">No feedback found.</p>
                         </div>
                     )}
                 </div>

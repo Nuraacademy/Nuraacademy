@@ -379,7 +379,69 @@ export async function getFeedbackHubData() {
             };
         });
 
-        return { success: true, data: feedbackHub };
+        // --- Fetch Received Feedbacks ---
+        const receivedFeedbacks: FeedbackItem[] = [];
+
+        // 1. Reflection Feedback
+        const trainerFeedbacks = await prisma.feedback.findMany({
+            where: {
+                reflection: { userId, deletedAt: null },
+                deletedAt: null
+            },
+            include: {
+                reflection: {
+                    include: {
+                        course: true,
+                        session: true,
+                        enrollment: { include: { class: true } }
+                    }
+                }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        trainerFeedbacks.forEach(f => {
+            if (f.reflection) {
+                receivedFeedbacks.push({
+                    id: `trainer-${f.id}`,
+                    title: `${f.reflection.course?.title || f.reflection.session?.title || "Course"} Reflection Feedback`,
+                    type: 'Reflection',
+                    className: f.reflection.enrollment.class.title,
+                    content: f.content,
+                    createdAt: f.createdAt,
+                    href: `/classes/${f.reflection.enrollment.classId}/course/${f.reflection.courseId}/reflection`
+                });
+            }
+        });
+
+        // 2. Assignment Feedback
+        const assignmentResults = await prisma.assignmentResult.findMany({
+            where: {
+                enrollment: { userId, deletedAt: null },
+                assignment: { type: { in: ['PROJECT', 'ASSIGNMENT'] } },
+                feedback: { not: null },
+                deletedAt: null
+            },
+            include: {
+                assignment: { include: { class: true } },
+                enrollment: { include: { class: true } }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        assignmentResults.forEach(ar => {
+            receivedFeedbacks.push({
+                id: `assignment-${ar.id}`,
+                title: `${ar.assignment.title || "Assignment"} Feedback`,
+                type: 'Assignment',
+                className: ar.enrollment.class.title,
+                content: ar.feedback || "",
+                createdAt: ar.createdAt,
+                href: `/assignment/${ar.assignmentId}`
+            });
+        });
+
+        return { success: true, data: { targets: feedbackHub, received: receivedFeedbacks } };
     } catch (error: any) {
         console.error("Get Feedback Hub Data Error:", error);
         return { success: false, error: error.message };
