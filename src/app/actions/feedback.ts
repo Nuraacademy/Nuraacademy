@@ -146,7 +146,7 @@ export async function getFeedbacks() {
                             className: a.enrollment.class.title,
                             content: ff.content,
                             createdAt: a.updatedAt,
-                            href: `/analytics/class/${a.enrollment.classId}`
+                            href: `/classes/${a.enrollment.classId}/analytics`
                         });
                     }
                 });
@@ -178,7 +178,7 @@ export async function getFeedbacks() {
                     className: pf.class.title,
                     content: `Cooperation: ${pf.cooperation}, Attendance: ${pf.attendance}, Task Completion: ${pf.taskCompletion}, Initiatives: ${pf.initiatives}, Communication: ${pf.communication}`,
                     createdAt: pf.updatedAt,
-                    href: `/analytics/class/${pf.classId}`
+                    href: `/classes/${pf.classId}/analytics`
                 });
             });
 

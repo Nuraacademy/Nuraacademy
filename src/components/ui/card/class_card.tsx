@@ -151,7 +151,7 @@ export default function ClassCard({
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
-                                router.push(`/analytics/class/${id}`);
+                                router.push(`/classes/${id}/analytics`);
                             }}
                             className="p-2 rounded-lg border border-gray-200 text-gray-400 hover:text-[#1C3A37] hover:bg-gray-50 transition-all"
                             title="Class Analytics"

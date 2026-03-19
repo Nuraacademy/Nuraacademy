@@ -248,7 +248,7 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
                                     {myClasses.map((item) => (
                                         <button
                                             key={item.id}
-                                            onClick={() => router.push(`/analytics/class/${item.id}`)}
+                                            onClick={() => router.push(`/classes/${item.id}/analytics`)}
                                             className="w-full flex items-center p-2 rounded hover:bg-gray-50 transition-colors text-sm text-gray-700 text-left truncate"
                                         >
                                             {item.title} Report

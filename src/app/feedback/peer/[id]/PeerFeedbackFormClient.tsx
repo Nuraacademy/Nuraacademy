@@ -37,7 +37,7 @@ export default function PeerFeedbackFormClient({ data, evaluatorEnrollmentId, cl
 
         if (res.success) {
             toast.success("Feedback saved successfully!");
-            router.push(`/analytics/class/${classId}`);
+            router.push(`/classes/${classId}/analytics`);
         } else {
             toast.error("Failed to save feedback: " + res.error);
         }
@@ -78,7 +78,7 @@ export default function PeerFeedbackFormClient({ data, evaluatorEnrollmentId, cl
             <Breadcrumb 
                 items={[
                     { label: 'Home', href: '/' },
-                    { label: 'Report & Analytics', href: `/analytics/class/${classId}` },
+                    { label: 'Report & Analytics', href: `/classes/${classId}/analytics` },
                     { label: data.class.title, href: '#' },
                     { label: `Peer Feedback: ${data.user.name || data.user.username}`, href: '#' },
                 ]} 

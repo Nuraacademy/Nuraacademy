@@ -5,7 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import PeerFeedbackFormClient from "./PeerFeedbackFormClient";
 import { getPeerFeedback } from "@/app/actions/peer_feedback";
 
-export default async function EditPeerFeedbackPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function PeerFeedbackPage({ params }: { params: Promise<{ id: string }> }) {
     await requirePermission('Feedback', 'CREATE_EDIT_PEER_FEEDBACK');
     
     const { id } = await params;
@@ -54,7 +54,7 @@ export default async function EditPeerFeedbackPage({ params }: { params: Promise
             <div className="flex flex-col items-center justify-center min-h-screen bg-[#F9F9EE] p-8 text-center">
                  <h1 className="text-2xl font-bold text-[#1C3A37] mb-4">Self-Feedback Not Required</h1>
                  <p className="text-gray-600 mb-8">You cannot provide peer feedback to yourself.</p>
-                 <button onClick={() => redirect(`/analytics/class/${evaluatee.classId}`)} className="bg-[#DAEE49] text-[#1C3A37] px-8 py-3 rounded-full font-bold">Back to Report</button>
+                 <button onClick={() => redirect(`/classes/${evaluatee.classId}/analytics`)} className="bg-[#DAEE49] text-[#1C3A37] px-8 py-3 rounded-full font-bold">Back to Report</button>
             </div>
         );
     }

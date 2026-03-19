@@ -20,7 +20,7 @@ export default function ClassReportClient({ data }: ClassReportClientProps) {
 
     const groupMembers = data.groupMembers || [];
     const myEnrollment = data.myEnrollment;
-    const groupName = groupMembers.length > 0 ? (groupMembers[0].groups[0]?.name || "Group") : "Your Group";
+    const groupName = data.groupName || "Your Group";
 
     return (
         <div className="min-h-screen bg-[#F9F9EE] px-4 md:px-16 py-8 md:py-12 space-y-8 font-sans">
@@ -34,11 +34,11 @@ export default function ClassReportClient({ data }: ClassReportClientProps) {
 
             {/* Header */}
             <div className="bg-[#1C3A37] rounded-[24px] p-8 md:p-10 text-white space-y-1 shadow-lg">
-                <h1 className="text-2xl md:text-3xl font-bold font-merriweather italic flex items-center gap-3">
+                <h1 className="text-2xl md:text-3xl font-bold font-merriweather flex items-center gap-3">
                     Report & Analytics
                 </h1>
                 <p className="text-gray-300 font-medium opacity-80">
-                    {analytics.className} <span className="mx-2">|</span> Batch Number
+                    {analytics.className} <span className="mx-2">|</span> {groupName}
                 </p>
             </div>
 
@@ -52,8 +52,8 @@ export default function ClassReportClient({ data }: ClassReportClientProps) {
                             const isMe = member.id === myEnrollment?.id;
                             const displayName = member.user.name || member.user.username;
                             const href = isMe 
-                                ? `/feedback` // "My feedback" path
-                                : `/feedback/peer/${member.id}/edit`;
+                                ? `#` // "My feedback" path
+                                : `/feedback/peer/${member.id}`;
 
                             return (
                                 <div key={member.id} className="flex gap-4 items-baseline">

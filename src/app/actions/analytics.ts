@@ -41,9 +41,10 @@ export async function getClassAnalytics(classId: number) {
     // Find current user's enrollment and their group
     const myEnrollment = classData.enrollments.find(e => e.userId === userId);
     let myExperienceMembers: any[] = [];
+    let myGroup = null;
     
     if (myEnrollment) {
-        const myGroup = await prisma.group.findFirst({
+        myGroup = await prisma.group.findFirst({
             where: { enrollmentId: myEnrollment.id, deletedAt: null }
         });
 
@@ -72,7 +73,8 @@ export async function getClassAnalytics(classId: number) {
         data: analytics, 
         raw: classData,
         myEnrollment,
-        groupMembers: myExperienceMembers
+        groupMembers: myExperienceMembers,
+        groupName: myGroup?.name || "Your Group"
     };
 }
 
