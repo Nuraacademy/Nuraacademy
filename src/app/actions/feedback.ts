@@ -318,6 +318,74 @@ export async function getFeedbacks() {
     }
 }
 
+export async function getFeedbackHubData() {
+    try {
+        const userId = await getCurrentUserId();
+        if (!userId) return { success: false, error: "Unauthorized" };
+
+        const enrollments = await prisma.enrollment.findMany({
+            where: { 
+                userId, 
+                deletedAt: null,
+                status: 'ACTIVE'
+            },
+            include: {
+                class: {
+                    include: {
+                        courses: {
+                            where: { deletedAt: null },
+                            include: {
+                                user: {
+                                    select: { id: true, name: true, username: true, role: { select: { name: true } } }
+                                },
+                                sessions: {
+                                    where: { deletedAt: null },
+                                    include: {
+                                        user: {
+                                            select: { id: true, name: true, username: true, role: { select: { name: true } } }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        const feedbackHub = enrollments.map(enrollment => {
+            const trainersMap = new Map();
+            enrollment.class.courses.forEach(course => {
+                if (course.user) {
+                    trainersMap.set(course.user.id, {
+                        ...course.user,
+                        roleName: course.user.role?.name || "Instructor"
+                    });
+                }
+                course.sessions.forEach(session => {
+                    if (session.user) {
+                        trainersMap.set(session.user.id, {
+                            ...session.user,
+                            roleName: session.user.role?.name || "Instructor"
+                        });
+                    }
+                });
+            });
+
+            return {
+                classId: enrollment.classId,
+                classTitle: enrollment.class.title,
+                trainers: Array.from(trainersMap.values())
+            };
+        });
+
+        return { success: true, data: feedbackHub };
+    } catch (error: any) {
+        console.error("Get Feedback Hub Data Error:", error);
+        return { success: false, error: error.message };
+    }
+}
+
 export async function getAssignmentLearners(assignmentId: number) {
     try {
         const userId = await getCurrentUserId();

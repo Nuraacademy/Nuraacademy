@@ -50,7 +50,7 @@ export const FeedbackCard = ({
                     <img src={getIcon(type)} alt={title} className="h-12 w-12" />
                 </div>
                 <div className="flex flex-col gap-1 w-full">
-                    <h3 className="text-lg font-medium text-black">{title}</h3>
+                    <h3 className="text-lg font-medium text-black">{classTitle} - {title}</h3>
                     <p className="text-sm text-gray-500 font-medium">
                         {type} Feedback
                     </p>
