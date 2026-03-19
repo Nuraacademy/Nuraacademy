@@ -90,7 +90,29 @@ export async function getSidebarData() {
         const feedbackLinks: any[] = [];
         const processedCourseIds = new Set<number>();
 
+        // Fetch user's class feedback status
+        const classFeedbacks = await prisma.classFeedback.findMany({
+            where: { userId, deletedAt: null },
+            select: { classId: true }
+        });
+        const submittedClassIds = new Set(classFeedbacks.map(f => f.classId));
+
         enrollments.forEach(en => {
+            // Add Class Feedback link
+            const hasSubmitted = submittedClassIds.has(en.classId);
+            
+            // For learners, only show if NOT submitted. For staff, always show (to view list).
+            if (!isLearner || !hasSubmitted) {
+                feedbackLinks.push({
+                    id: `class-fb-${en.classId}`,
+                    name: isLearner ? `${en.class.title} Feedback` : `${en.class.title} Feedback`,
+                    type: 'feedback',
+                    href: isLearner 
+                        ? `/class/feedback/${en.classId}`
+                        : `/feedback/class/${en.classId}`
+                });
+            }
+
             en.class.courses.forEach(course => {
                 if (!processedCourseIds.has(course.id)) {
                     processedCourseIds.add(course.id);

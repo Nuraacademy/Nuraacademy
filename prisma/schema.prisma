@@ -27,6 +27,7 @@ model User {
   enrollments          Enrollment[]
   reflections          Reflection[]
   feedbacks            Feedback[]
+  classFeedbacks       ClassFeedback[]
   role                 Role?                 @relation(fields: [roleId], references: [id])
 
   @@map("users")
@@ -79,6 +80,7 @@ model Class {
   timelines         Timeline[]
   curricula         Curricula[]  @relation("ClassCurricula")
   peerFeedbacks     PeerFeedback[]
+  classFeedbacks    ClassFeedback[]
 
   @@index([createdBy])
   @@index([isDraft])
@@ -169,6 +171,7 @@ model Enrollment {
   reflections       Reflection[]
   peerFeedbackGiver PeerFeedback[]     @relation("PeerFeedbackGiver")
   peerFeedbackReceiver PeerFeedback[]  @relation("PeerFeedbackReceiver")
+  classFeedbacks    ClassFeedback[]
 
   @@unique([userId, classId])
   @@index([userId])
@@ -599,4 +602,21 @@ model PeerFeedback {
 
   @@unique([evaluatorId, evaluateeId, classId])
   @@map("peer_feedback")
+}
+
+model ClassFeedback {
+  id           Int        @id @default(autoincrement())
+  classId      Int
+  enrollmentId Int
+  userId       Int
+  content      String     @db.Text
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime?
+  class        Class      @relation(fields: [classId], references: [id], onDelete: Cascade)
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id])
+
+  @@unique([userId, classId])
+  @@map("class_feedbacks")
 }

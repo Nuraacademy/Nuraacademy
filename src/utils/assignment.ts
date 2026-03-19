@@ -1,4 +1,4 @@
-export type AssignmentType = "Placement" | "Pre" | "Post" | "Assignment" | "Exercise" | "Final Project";
+export type AssignmentType = "Placement" | "Pre" | "Post" | "Assignment" | "Exercise" | "Final Project" | "Class Feedback";
 
 export const getAssignmentIcon = (type: AssignmentType | string): string => {
     if (type === "Placement") {
@@ -13,6 +13,8 @@ export const getAssignmentIcon = (type: AssignmentType | string): string => {
         return "/icons/assignment/Exercise.svg";
     } else if (type === "Final Project") {
         return "/icons/assignment/FinalProject.svg";
+    } else if (type === "Class Feedback") {
+        return "/icons/assignment/Assignment.svg"; // Use assignment icon for now or a feedback one if available
     } else {
         return "";
     }

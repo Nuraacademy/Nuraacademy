@@ -34,6 +34,7 @@ type TestRunnerProps = {
   initialScore?: number
   showBanner?: boolean
   feedback?: string
+  assignmentType?: string
 }
 
 export function TestRunner({
@@ -51,6 +52,7 @@ export function TestRunner({
   initialScore,
   showBanner = true,
   feedback,
+  assignmentType,
 }: TestRunnerProps) {
   const [hasStarted, setHasStarted] = useState(autoStart)
   const [startTime, setStartTime] = useState<Date | null>(autoStart ? new Date() : null)
@@ -122,7 +124,11 @@ export function TestRunner({
 
       if (response.success) {
         setIsModalOpen(false)
-        window.location.reload()
+        if (assignmentType === "PROJECT") {
+          window.location.href = `/class/feedback/${classId}`
+        } else {
+          window.location.reload()
+        }
       } else {
         alert(response.error || "Failed to submit. Please try again.")
       }

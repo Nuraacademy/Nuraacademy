@@ -130,6 +130,7 @@ export default async function AssignmentRunnerPage({
                     finished={isFinished}
                     initialScore={initialScore}
                     feedback={testResult?.feedback}
+                    assignmentType={assignment.type}
                 />
             )}
         </main>

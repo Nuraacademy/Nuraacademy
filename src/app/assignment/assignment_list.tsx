@@ -102,6 +102,7 @@ export default function AssignmentList({ initialAssignments, canAddAssignment, c
                             type={mapPrismaAssignmentType(assignment.type)}
                             isAdmin={canDeleteAssignment}
                             canGrade={canGrade}
+                            syntheticType={(assignment as any).syntheticType}
                         />
                     ))}
                     {filteredAssignments.length === 0 && (

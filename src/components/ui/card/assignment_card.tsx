@@ -20,6 +20,7 @@ interface AssignmentCardProps {
     className?: string;
     isAdmin?: boolean;
     canGrade?: boolean;
+    syntheticType?: string;
 }
 
 export const AssignmentCard = ({
@@ -34,7 +35,8 @@ export const AssignmentCard = ({
     courseTitle = "",
     className = "",
     isAdmin = false,
-    canGrade = false
+    canGrade = false,
+    syntheticType
 }: AssignmentCardProps) => {
     const router = useRouter();
     const [isDeleting, setIsDeleting] = useState(false);
@@ -55,7 +57,13 @@ export const AssignmentCard = ({
     };
 
     const handleClick = () => {
-        if (id && type !== "Placement") {
+        if (syntheticType === "Class Feedback") {
+            if (isAdmin || canGrade) {
+                router.push(`/feedback/class/${classId}`);
+            } else {
+                router.push(`/class/feedback/${classId}`);
+            }
+        } else if (id && type !== "Placement") {
             router.push(`/assignment/${id}`);
         } else {
             router.push(getAssignmentEndpoint(classId, courseId, sessionId, type));
@@ -86,7 +94,7 @@ export const AssignmentCard = ({
             </div>
 
             <div className="flex items-center gap-3">
-                {canGrade && id && (
+                {canGrade && id && id > 0 && (
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
@@ -97,8 +105,20 @@ export const AssignmentCard = ({
                         Results
                     </button>
                 )}
+
+                {!isAdmin && !canGrade && type === "Final Project" && (
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/class/feedback/${classId}`);
+                        }}
+                        className="rounded-full bg-[#D9F55C] px-4 py-1.5 text-xs font-bold text-black transition-all hover:bg-[#c8e54b]"
+                    >
+                        Class Feedback
+                    </button>
+                )}
                 
-                {isAdmin && id && (
+                {isAdmin && id && id > 0 && (
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                             className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-red-500"

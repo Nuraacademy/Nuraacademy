@@ -235,7 +235,7 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
 
                             {/* Report & Analytics Section */}
                             <div>
-                                <div className="flex items-center gap-3 mb-3 cursor-pointer" onClick={() => router.push("/classes")}>
+                                <div className="flex items-center gap-3 mb-3 cursor-pointer" onClick={() => router.push("/analytics")}>
                                     <img
                                         src="/icons/sidebar/Report.svg"
                                         alt="Report Icon"
