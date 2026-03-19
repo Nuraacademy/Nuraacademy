@@ -32,11 +32,20 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
 
     useEffect(() => {
         const checkSession = async () => {
-            const session = await getSession();
+            const session = await getFullSession();
             setIsLoggedIn(!!session);
+            if (session) {
+                setUserData({
+                    username: session.username,
+                    role: session.role,
+                    name: session.name
+                });
+            } else {
+                setUserData(null);
+            }
         };
         checkSession();
-    }, [pathname]); // Re-check on every navigation
+    }, [pathname]); // Re-check and update data on every navigation
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -134,17 +143,7 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
                                         width={24}
                                         height={24}
                                         className="cursor-pointer hover:opacity-80 transition-opacity"
-                                        onClick={async () => {
-                                            if (!showDropdown) {
-                                                const session = await getFullSession();
-                                                if (session) {
-                                                    setUserData({
-                                                        username: session.username,
-                                                        role: session.role,
-                                                        name: session.name
-                                                    });
-                                                }
-                                            }
+                                        onClick={() => {
                                             setShowDropdown(!showDropdown);
                                         }}
                                     />
@@ -165,6 +164,18 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
                                                         {userData?.role || 'Role'}
                                                     </p>
                                                 </div>
+                                            </div>
+                                            <div className="px-2 pb-2 mb-2 border-b border-gray-50">
+                                                <button
+                                                    className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors flex items-center gap-2"
+                                                    onClick={() => {
+                                                        router.push('/users/me');
+                                                        setShowDropdown(false);
+                                                    }}
+                                                >
+                                                    <Image src="/icons/Profile.svg" alt="Profile" width={16} height={16} className="opacity-70" />
+                                                    My Profile
+                                                </button>
                                             </div>
                                             <div className="px-2">
                                                 <button
