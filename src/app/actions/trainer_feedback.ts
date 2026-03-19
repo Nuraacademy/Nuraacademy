@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma"
 import { getSession } from "./auth"
 import { revalidatePath } from "next/cache"
+import { requirePermission } from "@/lib/rbac"
 
 export async function getTrainerFeedback(evaluatorId: number, trainerId: number, classId: number) {
     const userId = await getSession();

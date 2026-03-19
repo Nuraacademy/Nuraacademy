@@ -3,6 +3,7 @@ import { getClassAnalytics, getLearnerAnalytics } from '@/app/actions/analytics'
 import { getPeerFeedback } from '@/app/actions/peer_feedback';
 import PeerResultsDetailClient from './PeerResultsDetailClient';
 import { notFound } from 'next/navigation';
+import { requirePermission } from '@/lib/rbac';
 
 interface PageProps {
     params: {
@@ -12,6 +13,7 @@ interface PageProps {
 }
 
 export default async function PeerResultsDetailPage({ params }: { params: Promise<{ id: string, enrollmentId: string }> }) {
+    await requirePermission('Feedback', 'VIEW_DETAIL_PEER_FEEDBACK');
     const { id, enrollmentId } = await params;
     const classId = parseInt(id);
     const enrollmentIntId = parseInt(enrollmentId);

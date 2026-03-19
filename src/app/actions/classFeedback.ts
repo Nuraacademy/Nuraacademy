@@ -7,7 +7,7 @@ import { requirePermission } from "@/lib/rbac";
 
 export async function getClassFeedback(classId: number, enrollmentId: number) {
     try {
-        await requirePermission('Feedback', 'VIEW_DETAIL_REFLECTION'); // Using similar permission for now
+        await requirePermission('Feedback', 'CREATE_EDIT_CLASS_FEEDBACK'); // Updated from reflection
         const userId = await getCurrentUserId();
         if (!userId) return { success: false, error: "Unauthorized" };
 
@@ -31,7 +31,7 @@ export async function saveClassFeedback(data: {
     content: string;
 }) {
     try {
-        await requirePermission('Feedback', 'CREATE_EDIT_REFLECTION'); // Using similar permission for now
+        await requirePermission('Feedback', 'CREATE_EDIT_CLASS_FEEDBACK'); // Updated from reflection
         const userId = await getCurrentUserId();
         if (!userId) return { success: false, error: "Unauthorized" };
 
@@ -66,7 +66,7 @@ export async function saveClassFeedback(data: {
 
 export async function getAllClassFeedbacks(classId: number) {
     try {
-        await requirePermission('Feedback', 'VIEW_DETAIL_REFLECTION'); // Using similar permission for now
+        await requirePermission('Feedback', 'CREATE_EDIT_CLASS_FEEDBACK'); // Updated to use class feedback privilege
         const feedbacks = await prisma.classFeedback.findMany({
             where: {
                 classId,

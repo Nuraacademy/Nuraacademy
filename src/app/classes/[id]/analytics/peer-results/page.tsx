@@ -2,6 +2,7 @@ import React from 'react';
 import { getClassAnalytics } from '@/app/actions/analytics';
 import PeerResultsListClient from './PeerResultsListClient';
 import { notFound } from 'next/navigation';
+import { requirePermission } from '@/lib/rbac';
 
 interface PageProps {
     params: {
@@ -10,6 +11,7 @@ interface PageProps {
 }
 
 export default async function PeerResultsListPage({ params }: { params: Promise<{ id: string }> }) {
+    await requirePermission('Analytics', 'ANALYTICS_REPORT_LEARNER');
     const { id } = await params;
     const classId = parseInt(id);
     const result = await getClassAnalytics(classId);

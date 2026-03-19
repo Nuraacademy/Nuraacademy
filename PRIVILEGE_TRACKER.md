@@ -94,8 +94,8 @@ This document tracks the implementation status of all the privileges seeded into
 | Feedback | `CREATE_EDIT_REFLECTION` | Create/edit reflection | 🟢 Implemented |
 | Feedback | `CREATE_EDIT_ASSIGNMENT_FEEDBACK` | Create/edit Assignment feedback | 🟢 Implemented |
 | Feedback | `CREATE_EDIT_PEER_FEEDBACK` | Create/edit Peer feedback | 🟢 Implemented |
-| Feedback | `CREATE_EDIT_CLASS_FEEDBACK` | Create/edit class feedback | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `CREATE_EDIT_TRAINER_FEEDBACK` | Create/edit Trainer feedback | 🔴 Not Implemented (Feature Missing) |
+| Feedback | `CREATE_EDIT_CLASS_FEEDBACK` | Create/edit class feedback | 🟢 Implemented |
+| Feedback | `CREATE_EDIT_TRAINER_FEEDBACK` | Create/edit Trainer feedback | 🟢 Implemented |
 | Feedback | `DELETE_REFLECTION` | Delete reflection | 🟢 Implemented |
 | Feedback | `VIEW_SEARCH_REFLECTION` | View & search reflection | 🟢 Implemented |
 | Feedback | `VIEW_DETAIL_REFLECTION` | View detail reflection | 🟢 Implemented |
@@ -105,9 +105,9 @@ This document tracks the implementation status of all the privileges seeded into
 | Feedback | `DELETE_PEER_FEEDBACK` | delete peer feedback | 🟢 Implemented |
 | Feedback | `VIEW_SEARCH_PEER_FEEDBACK` | View & search peer feedback | 🟢 Implemented |
 | Feedback | `VIEW_DETAIL_PEER_FEEDBACK` | View detail peer feedback | 🟢 Implemented |
-| Feedback | `DELETE_TRAINER_FEEDBACK` | delete trainer feedback | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `VIEW_SEARCH_TRAINER_FEEDBACK` | View & search trainer feedback | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `VIEW_DETAIL_TRAINER_FEEDBACK` | View detail trainer feedback | 🔴 Not Implemented (Feature Missing) |
+| Feedback | `DELETE_TRAINER_FEEDBACK` | delete trainer feedback | 🟢 Implemented |
+| Feedback | `VIEW_SEARCH_TRAINER_FEEDBACK` | View & search trainer feedback | 🟢 Implemented (Session-based ownership check) |
+| Feedback | `VIEW_DETAIL_TRAINER_FEEDBACK` | View detail trainer feedback | 🟢 Implemented (Session-based ownership check) |
 
 ## 8.0 User management
 | Resource | Action | Description | Status |
@@ -130,7 +130,7 @@ This document tracks the implementation status of all the privileges seeded into
 ## 10.0 Analytics & Report
 | Resource | Action | Description | Status |
 | :--- | :--- | :--- | :--- |
-| Analytics | `ANALYTICS_REPORT_LEARNER` | Analytics report learner | 🔴 Not Implemented (Feature Missing) |
-| Analytics | `LEARNER_REPORT` | Learner report | 🔴 Not Implemented (Feature Missing) |
+| Analytics | `ANALYTICS_REPORT_LEARNER` | Analytics report learner | 🟢 Implemented |
+| Analytics | `LEARNER_REPORT` | Learner report | 🟢 Implemented |
 | Analytics | `ANALYTICS_REPORT_TRAINER` | Analytics report trainer | 🔴 Not Implemented (Feature Missing) |
 | Analytics | `TRAINER_REPORT` | Trainer report | 🔴 Not Implemented (Feature Missing) |

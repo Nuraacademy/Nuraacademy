@@ -5,6 +5,7 @@ import { getSession } from "./auth"
 import { requirePermission } from "@/lib/rbac"
 
 export async function getPeerFeedback(evaluatorId: number, evaluateeId: number, classId: number) {
+    await requirePermission('Feedback', 'VIEW_DETAIL_PEER_FEEDBACK');
     const userId = await getSession();
     if (!userId) return { success: false, error: "Unauthorized" };
 
@@ -159,6 +160,7 @@ export async function clearPeerFeedback(evaluatorId: number, evaluateeId: number
 }
 
 export async function getReceivedPeerFeedbacks(enrollmentId: number) {
+    await requirePermission('Feedback', 'VIEW_SEARCH_PEER_FEEDBACK');
     const userId = await getSession();
     if (!userId) return { success: false, error: "Unauthorized" };
 

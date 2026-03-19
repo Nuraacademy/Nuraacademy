@@ -2,8 +2,10 @@
 
 import { prisma } from "@/lib/prisma"
 import { getSession } from "./auth"
+import { hasPermission, requirePermission } from "@/lib/rbac"
 
 export async function getClassAnalytics(classId: number) {
+    await requirePermission('Analytics', 'ANALYTICS_REPORT_LEARNER');
     try {
         const userId = await getSession();
         if (!userId) return { success: false, error: "Unauthorized" };
