@@ -58,11 +58,7 @@ export const AssignmentCard = ({
 
     const handleClick = () => {
         if (syntheticType === "Class Feedback") {
-            if (isAdmin || canGrade) {
-                router.push(`/feedback/class/${classId}`);
-            } else {
-                router.push(`/class/feedback/${classId}`);
-            }
+            router.push(`/classes/${classId}/feedback`);
         } else if (id && type !== "Placement") {
             router.push(`/assignment/${id}`);
         } else {
@@ -72,87 +68,87 @@ export const AssignmentCard = ({
 
     return (
         <>
-        <div
-            className={`flex items-center justify-between gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-gray-400 hover:shadow-md cursor-pointer group relative ${className}`}
-            onClick={handleClick}
-        >
-            <div className="flex flex-1 items-center gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center">
-                <img src={getAssignmentIcon(type)} alt={title} className="h-12 w-12" />
-            </div>
-            <div className="flex flex-col gap-0.5 w-full">
-                <div className="flex items-center gap-3">
-                    <h3 className="text-lg text-black">{title}</h3>
-                    <span className="rounded-full border border-black px-3 py-0 text-xs font-medium text-black">
-                        {tag}
-                    </span>
-                </div>
-                    <p className="text-base text-gray-700">
-                        {classTitle} {courseTitle && <><span className="mx-2 text-gray-400">|</span> {courseTitle}</>}
-                    </p>
-                </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-                {canGrade && id && id > 0 && (
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            router.push(`/assignment/${id}/results`);
-                        }}
-                        className="rounded-full bg-[#00524D] px-4 py-1.5 text-xs font-bold text-white transition-all hover:bg-[#00423D]"
-                    >
-                        Results
-                    </button>
-                )}
-
-                {!isAdmin && !canGrade && type === "Final Project" && (
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            router.push(`/class/feedback/${classId}`);
-                        }}
-                        className="rounded-full bg-[#D9F55C] px-4 py-1.5 text-xs font-bold text-black transition-all hover:bg-[#c8e54b]"
-                    >
-                        Class Feedback
-                    </button>
-                )}
-                
-                {isAdmin && id && id > 0 && (
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                            className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-red-500"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setIsConfirmOpen(true);
-                            }}
-                            disabled={isDeleting}
-                        >
-                            <img src="/icons/Delete.svg" alt="Delete" className="w-5 h-5" />
-                        </button>
-                        <button
-                            className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-gray-900"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                router.push(`/assignment/add?id=${id}`);
-                            }}
-                        >
-                            <img src="/icons/Edit.svg" alt="Edit" className="w-5 h-5" />
-                        </button>
+            <div
+                className={`flex items-center justify-between gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-gray-400 hover:shadow-md cursor-pointer group relative ${className}`}
+                onClick={handleClick}
+            >
+                <div className="flex flex-1 items-center gap-4">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center">
+                        <img src={getAssignmentIcon(type)} alt={title} className="h-12 w-12" />
                     </div>
-                )}
-            </div>
-        </div>
+                    <div className="flex flex-col gap-0.5 w-full">
+                        <div className="flex items-center gap-3">
+                            <h3 className="text-lg text-black">{title}</h3>
+                            <span className="rounded-full border border-black px-3 py-0 text-xs font-medium text-black">
+                                {tag}
+                            </span>
+                        </div>
+                        <p className="text-base text-gray-700">
+                            {classTitle} {courseTitle && <><span className="mx-2 text-gray-400">|</span> {courseTitle}</>}
+                        </p>
+                    </div>
+                </div>
 
-        <ConfirmModal
-            isOpen={isConfirmOpen}
-            title="Delete Assignment"
-            message={`Are you sure you want to delete "${title}"? This action cannot be undone.`}
-            confirmText="Delete"
-            onConfirm={handleDelete}
-            onCancel={() => setIsConfirmOpen(false)}
-            isLoading={isDeleting}
-        />
+                <div className="flex items-center gap-3">
+                    {canGrade && id && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/assignment/${id}/results`);
+                            }}
+                            className="rounded-full bg-[#00524D] px-4 py-1.5 text-xs font-bold text-white transition-all hover:bg-[#00423D]"
+                        >
+                            Results
+                        </button>
+                    )}
+
+                    {!isAdmin && !canGrade && type === "Final Project" && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/classes/${classId}/feedback`);
+                            }}
+                            className="rounded-full bg-[#D9F55C] px-4 py-1.5 text-xs font-bold text-black transition-all hover:bg-[#c8e54b]"
+                        >
+                            Class Feedback
+                        </button>
+                    )}
+
+                    {isAdmin && id && (
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                                className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-red-500"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsConfirmOpen(true);
+                                }}
+                                disabled={isDeleting}
+                            >
+                                <img src="/icons/Delete.svg" alt="Delete" className="w-5 h-5" />
+                            </button>
+                            <button
+                                className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-gray-900"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    router.push(`/assignment/add?id=${id}`);
+                                }}
+                            >
+                                <img src="/icons/Edit.svg" alt="Edit" className="w-5 h-5" />
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            <ConfirmModal
+                isOpen={isConfirmOpen}
+                title="Delete Assignment"
+                message={`Are you sure you want to delete "${title}"? This action cannot be undone.`}
+                confirmText="Delete"
+                onConfirm={handleDelete}
+                onCancel={() => setIsConfirmOpen(false)}
+                isLoading={isDeleting}
+            />
         </>
     );
 };

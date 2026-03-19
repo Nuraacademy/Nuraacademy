@@ -54,9 +54,9 @@ export async function saveClassFeedback(data: {
             }
         });
 
-        revalidatePath(`/class/feedback/${data.classId}`);
+        revalidatePath(`/classes/${data.classId}/feedback`);
         revalidatePath(`/assignment`);
-        
+
         return { success: true, data: feedback };
     } catch (error: any) {
         console.error("Save Class Feedback Error:", error);

@@ -182,6 +182,30 @@ export async function getFeedbacks() {
                 });
             });
 
+            // 5. Fetch Class Feedback (Learner's own submission)
+            const classFeedbacks = await prisma.classFeedback.findMany({
+                where: {
+                    userId: userId,
+                    deletedAt: null
+                },
+                include: {
+                    class: true
+                },
+                orderBy: { createdAt: 'desc' }
+            });
+
+            classFeedbacks.forEach(cf => {
+                feedbacks.push({
+                    id: `class-fb-own-${cf.id}`,
+                    title: `${cf.class.title} Feedback (Submitted)`,
+                    type: 'Class',
+                    className: cf.class.title,
+                    content: cf.content,
+                    createdAt: cf.createdAt,
+                    href: `/class/feedback/${cf.classId}`
+                });
+            });
+
         } else {
             // --- INSTRUCTOR/ADMIN VIEW: Reflections needing feedback & Assignments ---
             
@@ -253,6 +277,31 @@ export async function getFeedbacks() {
                         : "No submissions yet.",
                     createdAt: a.createdAt,
                     href: `/assignment/${a.id}/results`
+                });
+            });
+
+            // 3. Fetch Class Feedbacks (Submitted by students)
+            const classFeedbacks = await prisma.classFeedback.findMany({
+                where: {
+                    deletedAt: null
+                },
+                include: {
+                    user: true,
+                    class: true
+                },
+                orderBy: { createdAt: 'desc' },
+                take: 50
+            });
+
+            classFeedbacks.forEach(cf => {
+                feedbacks.push({
+                    id: `staff-class-fb-${cf.id}`,
+                    title: `${cf.class.title} Feedback`,
+                    type: 'Class',
+                    className: cf.class.title,
+                    content: cf.content,
+                    createdAt: cf.createdAt,
+                    href: `/feedback/class/${cf.classId}`
                 });
             });
         }

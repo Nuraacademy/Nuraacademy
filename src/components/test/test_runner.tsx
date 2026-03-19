@@ -125,7 +125,7 @@ export function TestRunner({
       if (response.success) {
         setIsModalOpen(false)
         if (assignmentType === "PROJECT") {
-          window.location.href = `/class/feedback/${classId}`
+          window.location.href = `/classes/${classId}/feedback`
         } else {
           window.location.reload()
         }

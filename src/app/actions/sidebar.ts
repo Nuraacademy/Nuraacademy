@@ -10,7 +10,7 @@ export async function getSidebarData() {
 
         // 1. Fetch Enrolled Classes and their Courses/Sessions
         const enrollments = await prisma.enrollment.findMany({
-            where: { 
+            where: {
                 userId,
                 deletedAt: null,
                 status: 'ACTIVE'
@@ -71,9 +71,9 @@ export async function getSidebarData() {
         const formattedAssignments = assignments.map(a => {
             const typeLabel = mapPrismaAssignmentType(a.type);
             const defaultHref = getAssignmentEndpoint(
-                a.classId?.toString() || "", 
-                a.courseId?.toString() || "", 
-                a.sessionId?.toString() || "", 
+                a.classId?.toString() || "",
+                a.courseId?.toString() || "",
+                a.sessionId?.toString() || "",
                 typeLabel
             );
 
@@ -100,15 +100,15 @@ export async function getSidebarData() {
         enrollments.forEach(en => {
             // Add Class Feedback link
             const hasSubmitted = submittedClassIds.has(en.classId);
-            
+
             // For learners, only show if NOT submitted. For staff, always show (to view list).
             if (!isLearner || !hasSubmitted) {
                 feedbackLinks.push({
                     id: `class-fb-${en.classId}`,
                     name: isLearner ? `${en.class.title} Feedback` : `${en.class.title} Feedback`,
                     type: 'feedback',
-                    href: isLearner 
-                        ? `/class/feedback/${en.classId}`
+                    href: isLearner
+                        ? `/classes/${en.classId}/feedback`
                         : `/feedback/class/${en.classId}`
                 });
             }
@@ -116,14 +116,14 @@ export async function getSidebarData() {
             en.class.courses.forEach(course => {
                 if (!processedCourseIds.has(course.id)) {
                     processedCourseIds.add(course.id);
-                    
-                    const isInstructor = !isLearner; 
-                    
+
+                    const isInstructor = !isLearner;
+
                     feedbackLinks.push({
                         id: `course-ref-${course.id}`,
                         name: isInstructor ? `${course.title} Feedback` : `${course.title} Reflection`,
                         type: isInstructor ? 'feedback' : 'reflection',
-                        href: isInstructor 
+                        href: isInstructor
                             ? `/feedback/reflection/course/${course.id}`
                             : `/classes/${en.classId}/course/${course.id}/reflection`
                     });
@@ -141,8 +141,8 @@ export async function getSidebarData() {
             });
         }
 
-        return { 
-            success: true, 
+        return {
+            success: true,
             data: {
                 myClasses: myClasses.slice(0, 5),
                 assignments: formattedAssignments,
