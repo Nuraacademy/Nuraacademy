@@ -234,3 +234,100 @@ export async function saveLearnerAnalytics(data: {
         return { success: false, error: error.message };
     }
 }
+
+export async function getTrainerAnalytics(classId: number, trainerUserId?: number) {
+    try {
+        await requirePermission('Analytics', 'ANALYTICS_REPORT_TRAINER');
+        const userId = await getSession();
+        if (!userId) return { success: false, error: "Unauthorized" };
+
+        const classData = await prisma.class.findUnique({
+            where: { id: classId },
+            include: {
+                trainerFeedbacks: {
+                    where: { trainerId: trainerUserId || { not: 0 } }, // If no trainerId provided, potentially multi-trainer or default?
+                    include: {
+                        evaluator: { include: { user: true } }
+                    }
+                }
+            }
+        });
+
+        if (!classData) return { success: false, error: "Class not found" };
+
+        // Determine trainer to report on
+        // For now, if trainerUserId is not provided, we take the class creator if they are a trainer, or the first trainer receiving feedback
+        const targetTrainerId = trainerUserId || (classData.trainerFeedbacks[0]?.trainerId) || classData.createdBy;
+
+        if (!targetTrainerId) return { success: false, error: "No trainer found for this class" };
+
+        const trainerUser = await prisma.user.findUnique({
+            where: { id: targetTrainerId },
+            select: { id: true, name: true, username: true }
+        });
+
+        // 1. Calculate feedback scores (1-10 range as in Peer Feedback)
+        const feedbacks = classData.trainerFeedbacks.filter(f => f.trainerId === targetTrainerId);
+        const count = feedbacks.length;
+
+        const avg = (key: keyof typeof feedbacks[0]) => {
+            if (count === 0) return 0;
+            const sum = feedbacks.reduce((acc, f: any) => acc + (f[key] || 0), 0);
+            return Math.round(sum / count);
+        };
+
+        const feedbackMetrics = {
+            mastery: avg('knowledge'),
+            communication: avg('pedagogy'),
+            engagement: avg('engagement'),
+            responsiveness: avg('punctuality'),
+            motivation: avg('pedagogy'), // Motivation & Inspiration placeholder
+        };
+
+        // 2. Aggregate feedback details (comments)
+        const feedbackDetails = {
+            mastery: feedbacks.map(f => f.knowledgeFeedback).filter(Boolean),
+            communication: feedbacks.map(f => f.pedagogyFeedback).filter(Boolean),
+            engagement: feedbacks.map(f => f.engagementFeedback).filter(Boolean),
+            responsiveness: feedbacks.map(f => f.punctualityFeedback).filter(Boolean),
+            motivation: [], // Placeholder
+        };
+
+        // 3. Forum Stats
+        const discussions = await prisma.discussion.findMany({
+            where: { userId: targetTrainerId, deletedAt: null },
+            include: {
+                likes: true,
+                replies: {
+                    include: { likes: true }
+                }
+            }
+        });
+
+        const totalPost = discussions.length;
+        const totalLikes = discussions.reduce((acc, d) => acc + d.likes.length, 0);
+        const totalReply = discussions.reduce((acc, d) => acc + d.replies.length, 0);
+        
+        const avgLikes = totalPost > 0 ? (totalLikes / totalPost) : 0;
+        const avgReply = totalPost > 0 ? (totalReply / totalPost) : 0;
+
+        const analytics = {
+            className: classData.title,
+            trainer: trainerUser,
+            feedback: feedbackMetrics,
+            details: feedbackDetails,
+            forum: {
+                totalPost,
+                totalLikes,
+                totalReply,
+                avgLikes: Math.round(avgLikes),
+                avgReply: Math.round(avgReply)
+            }
+        };
+
+        return { success: true, data: analytics };
+    } catch (error: any) {
+        console.error("Get Trainer Analytics Error:", error);
+        return { success: false, error: error.message };
+    }
+}

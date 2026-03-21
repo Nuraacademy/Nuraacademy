@@ -132,5 +132,5 @@ This document tracks the implementation status of all the privileges seeded into
 | :--- | :--- | :--- | :--- |
 | Analytics | `ANALYTICS_REPORT_LEARNER` | Analytics report learner | 🟢 Implemented |
 | Analytics | `LEARNER_REPORT` | Learner report | 🟢 Implemented |
-| Analytics | `ANALYTICS_REPORT_TRAINER` | Analytics report trainer | 🔴 Not Implemented (Feature Missing) |
-| Analytics | `TRAINER_REPORT` | Trainer report | 🔴 Not Implemented (Feature Missing) |
+| Analytics | `ANALYTICS_REPORT_TRAINER` | Analytics report trainer | 🟢 Implemented |
+| Analytics | `TRAINER_REPORT` | Trainer report | 🟢 Implemented |
