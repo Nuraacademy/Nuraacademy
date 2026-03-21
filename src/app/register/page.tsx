@@ -146,6 +146,25 @@ export default function RegisterPage() {
               />
             </div>
 
+            <div className="relative flex items-center py-2">
+              <div className="flex-grow border-t border-gray-300"></div>
+              <span className="flex-shrink-0 mx-4 text-gray-400 text-sm">Or</span>
+              <div className="flex-grow border-t border-gray-300"></div>
+            </div>
+
+            <div className="flex items-center justify-center">
+              <NuraButton
+                label="Register by SSO"
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  toast.success("Logged in via SSO");
+                  router.push("/classes");
+                }}
+                className="w-full rounded-full py-2 text-sm font-medium"
+              />
+            </div>
+
             <p className="text-center text-xs text-gray-500 mt-4">
               Already have an account?{" "}
               <a href="/login" className="underline hover:decoration-2">
