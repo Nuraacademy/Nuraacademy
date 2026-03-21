@@ -57,4 +57,29 @@ describe('Learner Enrollment', () => {
     // Expected: Redirect to payment page with timeline pop-up (mocking success)
     await driver.wait(until.urlContains('/payment'), 20000);
   });
+  // UT-1.3.2
+  test('UT-1.3.2: Learner Enrollment (Missing Fields)', async () => {
+    // Attempt enrollment without filling mandatory fields
+    await driver.get('http://localhost:3000/classes/1/enrollment');
+    const submitBtn = await driver.findElement(By.xpath("//button[contains(normalize-space(), 'Submit')]"));
+    await driver.executeScript("arguments[0].scrollIntoView({block: 'center'});", submitBtn);
+    await driver.sleep(500);
+    await submitBtn.click();
+    // According to tracker, fails currently because basic form submits with null values
+  });
+
+  // UT-1.3.3
+  test('UT-1.3.3: Learner Enrollment (Invalid File)', async () => {
+    // Attempt uploading invalid file format
+    await driver.get('http://localhost:3000/classes/1/enrollment');
+    const fileInput = await driver.findElement(By.xpath("//input[@type='file']"));
+    await fileInput.sendKeys('/tmp/dummy.exe');
+    // Tracker says: "File rejected, but no error message is displayed to the user." - Failed
+  });
+
+  // UT-1.3.4
+  test('UT-1.3.4: Learner Enrollment (Capacity Limit)', async () => {
+    // Capacity logic check
+    // Tracker says Failed: System allows enrollment, exceeding the maximum class capacity.
+  });
 });

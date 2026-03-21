@@ -4,9 +4,10 @@ import { useState } from "react";
 import { NuraButton } from "@/components/ui/button/button";
 import { NuraTextInput } from "@/components/ui/input/text_input";
 import { useRouter } from "next/navigation";
-import { handleRegister } from "@/app/actions/auth";
+import { handleRegister, handleGoogleLogin } from "@/app/actions/auth";
 import { toast } from "sonner";
 import Image from "next/image";
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
 export const dynamic = "force-dynamic";
 
@@ -46,8 +47,28 @@ export default function RegisterPage() {
     }
   };
 
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+      setIsLoading(true);
+      try {
+          if (credentialResponse.credential) {
+              const result = await handleGoogleLogin(credentialResponse.credential);
+              if (result.success) {
+                  toast.success("Account created successfully!");
+                  router.push("/classes");
+              } else {
+                  toast.error(result.error || "Google registration failed");
+              }
+          }
+      } catch (error) {
+          toast.error("An unexpected error occurred during Google registration");
+      } finally {
+          setIsLoading(false);
+      }
+  };
+
   return (
-    <main className="min-h-screen w-full bg-white flex items-stretch">
+    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
+      <main className="min-h-screen w-full bg-white flex items-stretch">
       {/* Left image panel */}
       <section className="relative hidden md:flex w-1/2 items-center justify-center overflow-hidden">
         <Image
@@ -152,17 +173,18 @@ export default function RegisterPage() {
               <div className="flex-grow border-t border-gray-300"></div>
             </div>
 
-            <div className="flex items-center justify-center">
-              <NuraButton
-                label="Register by SSO"
-                type="button"
-                variant="secondary"
-                onClick={() => {
-                  toast.success("Logged in via SSO");
-                  router.push("/classes");
-                }}
-                className="w-full rounded-full py-2 text-sm font-medium"
-              />
+            <div className="flex justify-center mb-6">
+                <div className="w-full h-[40px] [&>div]:w-full [&>div>div]:w-full [&>div>div]:flex [&>div>div]:justify-center">
+                    <GoogleLogin
+                        onSuccess={handleGoogleSuccess}
+                        onError={() => {
+                            toast.error("Google Registration Failed");
+                        }}
+                        width="100%"
+                        shape="pill"
+                        text="signup_with"
+                    />
+                </div>
             </div>
 
             <p className="text-center text-xs text-gray-500 mt-4">
@@ -174,6 +196,7 @@ export default function RegisterPage() {
           </form>
         </div>
       </section>
-    </main>
+      </main>
+    </GoogleOAuthProvider>
   );
 }

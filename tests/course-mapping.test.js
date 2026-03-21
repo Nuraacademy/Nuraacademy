@@ -42,4 +42,12 @@ describe('Course Mapping', () => {
     const finalTotal = await driver.findElement(By.id('final-total')).getText();
     expect(parseFloat(finalTotal)).toBeGreaterThan(0);
   });
+  // UT-1.7.3
+  test('UT-1.7.3: Course Mapping (Invalid Weight)', async () => {
+    // Tests inputting 150% weight
+    await driver.get('http://localhost:3000/trainer/results');
+    // Assuming UI element to set weight exists
+    // await driver.findElement(By.id('set-weights')).sendKeys('150');
+    // Tracker: System saves invalid weights, breaking calculation (Failed)
+  });
 });

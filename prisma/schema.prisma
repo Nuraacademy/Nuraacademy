@@ -71,6 +71,7 @@ model Class {
   description       String?
   learningObjective String?
   isDraft           Boolean         @default(false)
+  capacity          Int?            @default(100)
   createdBy         Int?
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt

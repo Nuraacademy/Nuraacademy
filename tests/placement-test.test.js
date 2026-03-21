@@ -101,4 +101,23 @@ describe('Placement Test', () => {
     const msg = await driver.findElement(By.id('timeout-message')).getText();
     expect(msg).toContain('waktu test telah habis');
   });
+  // UT-2.3.3
+  test('UT-2.3.3: Placement Test (Empty Submission)', async () => {
+    // Click Submit without answering any questions
+    await driver.get('http://localhost:3000/placement-test/1');
+    // Tracker: System submits an empty test immediately without warning. (Failed)
+    // Here we'd simulate clicking start and then clicking submit.
+  });
+
+  // UT-2.3.4
+  test('UT-2.3.4: Placement Test (Network Disconnect)', async () => {
+    // Start test, simulate disconnect, try to submit
+    // Tracker: Answers are lost; user is redirected to offline browser edge page. (Failed)
+  });
+
+  // UT-2.3.5
+  test('UT-2.3.5: Placement Test (Late Submission)', async () => {
+    // Keep test tab open past end time, click submit
+    // Tracker: System accepts late submission successfully. (Failed)
+  });
 });

@@ -16,6 +16,19 @@ export async function submitTest(formData: FormData) {
 
     await requirePermission('Assignment', 'START_ASSIGNMENT_LEARNER')
 
+    const assignment = await prisma.assignment.findUnique({
+        where: { id: assignmentId },
+        select: { endDate: true }
+    })
+
+    if (assignment?.endDate) {
+        // Add a 1-minute grace period to account for network delays during auto-submit
+        const gracePeriod = new Date(assignment.endDate.getTime() + 60000);
+        if (finishedAt > gracePeriod) {
+            return { success: false, error: "Test window closed" }
+        }
+    }
+
     const objectiveAnswers: Record<number, string> = {}
     const essayAnswers: Record<number, string> = {}
     // We expect essayFiles and projectFiles to store URLs

@@ -20,7 +20,7 @@ export default async function FeedbackPage() {
 
     if (user?.role?.name === 'Learner') {
         const hubRes = await getFeedbackHubData();
-        return <FeedbackHubClient data={hubRes.success ? hubRes.data : []} />;
+        return <FeedbackHubClient data={hubRes.success ? hubRes.data : { targets: [], received: [] }} />;
     }
 
     // For non-learners, show the existing list
