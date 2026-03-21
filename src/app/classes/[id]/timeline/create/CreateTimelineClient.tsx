@@ -5,9 +5,8 @@ import { useRouter } from "next/navigation"
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb"
 import { NuraButton } from "@/components/ui/button/button"
 import { updateClassSchedule } from "@/app/actions/classes"
-import WelcomingModal from "@/components/ui/modal/welcoming_modal"
 import { FeedbackModal } from "@/components/ui/modal/feedback_modal"
-import { M3DateTimePicker } from "@/components/ui/input/datetime_picker"
+import M3DateTimePicker from "@/components/ui/input/datetime_picker"
 
 type Props = {
     classData: any

@@ -8,7 +8,7 @@ import { NuraTextInput } from "@/components/ui/input/text_input";
 import { NuraTextArea } from "@/components/ui/input/text_area";
 import { Trash2, Plus } from "lucide-react";
 import FileUpload from "@/components/ui/upload/file_upload";
-import { M3DateTimePicker } from "@/components/ui/input/datetime_picker";
+import M3DateTimePicker from "@/components/ui/input/datetime_picker";
 
 interface ReferenceMaterial {
     name: string;
