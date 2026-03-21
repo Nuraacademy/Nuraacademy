@@ -20,6 +20,11 @@ export async function handleEnrollment(classId: number, formData: any) {
         return { success: false, error: "Please fill in all mandatory fields" };
     }
 
+    // CV Validation (UT-1.3.3)
+    if (!formData.cvUrl) {
+        return { success: false, error: "CV is required for enrollment" };
+    }
+
     try {
         // Capacity check (UT-1.3.4)
         const classData = await prisma.class.findUnique({
@@ -41,7 +46,7 @@ export async function handleEnrollment(classId: number, formData: any) {
                 jobIndustry: formData.jobIndustry,
                 finalExpectations: formData.finalExpectations,
                 objectives: formData.selectedObjectives,
-                // cvUrl: formData.cvUrl, // Handle file upload separately or later
+                cvUrl: formData.cvUrl,
                 status: "ACTIVE",
             }
         });

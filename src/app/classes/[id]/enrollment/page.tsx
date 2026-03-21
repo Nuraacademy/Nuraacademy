@@ -12,6 +12,7 @@ import WelcomingModal from "@/components/ui/modal/welcoming_modal"
 import { checkEnrollment } from "@/app/actions/enrollment"
 import { getClassDetails } from "@/app/actions/classes"
 import { hasPermission } from "@/lib/rbac"
+import { uploadFileAction } from "@/app/actions/common"
 
 export default function EnrollmentPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter()
@@ -115,6 +116,19 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
         setIsLoading(true)
 
         try {
+            let uploadedCvUrl = "";
+            if (cvFile) {
+                const uploadFormData = new FormData();
+                uploadFormData.append("file", cvFile);
+                const uploadResult = await uploadFileAction(uploadFormData);
+                if (!uploadResult.success) {
+                    setError(uploadResult.error || "Failed to upload CV");
+                    setIsLoading(false);
+                    return;
+                }
+                uploadedCvUrl = uploadResult.url || "";
+            }
+
             const params = new URLSearchParams({
                 profession: formData.profession,
                 yoe: formData.yoe,
@@ -123,6 +137,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
                 jobIndustry: formData.jobIndustry,
                 finalExpectations: formData.finalExpectations,
                 objectives: JSON.stringify(selectedObjectives),
+                cvUrl: uploadedCvUrl,
             });
 
             router.push(`/classes/${classId}/payment?${params.toString()}`);

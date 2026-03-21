@@ -20,6 +20,13 @@ export default function RegisterPage() {
   const [whatsapp, setWhatsapp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // Validation states
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const isEmailValid = email === "" || emailRegex.test(email);
+  const isPasswordValid = password === "" || password.length >= 8;
+
+  const isFormValid = fullName !== "" && username !== "" && email !== "" && password !== "" && emailRegex.test(email) && password.length >= 8;
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
@@ -135,6 +142,9 @@ export default function RegisterPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
               />
+              {!isEmailValid && (
+                <p className="text-red-500 text-xs mt-1 ml-4">Invalid email format</p>
+              )}
             </div>
 
             <div>
@@ -146,6 +156,9 @@ export default function RegisterPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
               />
+              {!isPasswordValid && (
+                <p className="text-red-500 text-xs mt-1 ml-4">Password must be at least 8 characters long</p>
+              )}
             </div>
 
             <div>
@@ -163,7 +176,12 @@ export default function RegisterPage() {
                 label="Create Account"
                 type="submit"
                 isLoading={isLoading}
-                className="w-full rounded-full bg-black text-white py-2 text-sm font-medium hover:bg-gray-900 transition-colors"
+                disabled={isLoading || !isFormValid}
+                className={`w-full rounded-full py-2 text-sm font-medium transition-colors ${
+                  !isFormValid || isLoading
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-black text-white hover:bg-gray-900"
+                }`}
               />
             </div>
 

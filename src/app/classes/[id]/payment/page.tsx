@@ -53,6 +53,7 @@ export default function PaymentPage({ params }: PaymentPageProps) {
             const educationField = searchParams.get("educationField");
             const jobIndustry = searchParams.get("jobIndustry");
             const finalExpectations = searchParams.get("finalExpectations");
+            const cvUrl = searchParams.get("cvUrl");
             const objectivesStr = searchParams.get("objectives");
             const selectedObjectives = objectivesStr ? JSON.parse(objectivesStr) : [];
 
@@ -64,6 +65,7 @@ export default function PaymentPage({ params }: PaymentPageProps) {
                 jobIndustry,
                 finalExpectations,
                 selectedObjectives,
+                cvUrl,
             });
 
             if (result.success) {
