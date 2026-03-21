@@ -4,9 +4,9 @@ import { useState, useEffect, useRef } from "react";
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import { NuraButton } from "@/components/ui/button/button";
 import { RichTextInput } from "@/components/ui/input/rich_text_input";
-import { M3DateTimePicker, M3TimePicker } from "@/components/ui/input/datetime_picker";
 import { FeedbackModal } from "@/components/ui/modal/feedback_modal";
 import { X, Plus, CheckCircle } from "lucide-react";
+import M3DateTimePicker from "@/components/ui/input/datetime_picker";
 import { useRouter } from "next/navigation";
 import { addAssignment, editAssignment, removeAssignment } from "@/app/actions/assignment";
 
@@ -232,7 +232,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
 
     // Overview form
     const [startDate, setStartDate] = useState<Date | null>(null);
-    const [endTime, setEndTime] = useState("");
+    const [endTime, setEndTime] = useState<Date | null>(null);
     const [durationMinutes, setDurationMinutes] = useState(120);
     const [overviewErrors, setOverviewErrors] = useState<{ startDate?: string; endTime?: string; durationMinutes?: string }>({});
 
@@ -270,11 +270,10 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                 setDurationMinutes(existingTest.duration);
             }
             if (existingTest.startDate) {
-                const start = new Date(existingTest.startDate);
-                setStartDate(start);
-                const hrs = start.getHours().toString().padStart(2, "0");
-                const mins = start.getMinutes().toString().padStart(2, "0");
-                setEndTime(`${hrs}:${mins}`);
+                setStartDate(new Date(existingTest.startDate));
+            }
+            if (existingTest.endDate) {
+                setEndTime(new Date(existingTest.endDate));
             }
 
             const initialCourseData: Record<string, CourseQuestions> = {};
@@ -436,13 +435,15 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
         setIsSubmitting(true);
 
         const start = new Date(startDate!);
-        const [hours, minutes] = endTime.split(":");
-        start.setHours(parseInt(hours, 10), parseInt(minutes, 10));
+        if (endTime) {
+            start.setHours(endTime.getHours(), endTime.getMinutes());
+        }
 
         const payload = {
             classId: classData.id,
-            type: "PLACEMENT", // Map appropriately or hardcode if test
+            type: "PLACEMENT", 
             startDate: start,
+            endDate: endTime || undefined,
             duration: durationMinutes,
         };
 
@@ -599,7 +600,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                             />
 
                             {/* End Time — M3 Time Picker */}
-                            <M3TimePicker
+                            <M3DateTimePicker
                                 label="End Time"
                                 value={endTime}
                                 onChange={(v) => {

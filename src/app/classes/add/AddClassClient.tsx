@@ -5,12 +5,12 @@ import { useRouter } from "next/navigation"
 import { NuraTextInput } from "@/components/ui/input/text_input"
 import { RichTextInput } from "@/components/ui/input/rich_text_input"
 import { NuraButton } from "@/components/ui/button/button"
-import { X, Plus, Upload, Image as ImageIcon, Video, Search } from "lucide-react"
+import { X, Upload, Search } from "lucide-react"
 import { createClassAction, updateClassAction } from "@/app/actions/classes"
-import Image from "next/image"
 import { getCurriculaList } from "@/app/actions/curricula"
 import { useEffect } from "react"
 import { NuraSelect } from "@/components/ui/input/nura_select"
+import M3DateTimePicker from "@/components/ui/input/datetime_picker"
 
 interface AddClassClientProps {
     classData?: any;
@@ -24,7 +24,8 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
     // Form state
     const [title, setTitle] = useState(classData?.title || "");
     const [hours, setHours] = useState(classData?.hours || "");
-    const [modules, setModules] = useState(classData?.modules || "");
+    const [startDate, setStartDate] = useState<Date | null>(classData?.startDate ? new Date(classData.startDate) : null);
+    const [endDate, setEndDate] = useState<Date | null>(classData?.endDate ? new Date(classData.endDate) : null);
     const [description, setDescription] = useState(classData?.description || "");
     const [learningObjectives, setLearningObjectives] = useState(classData?.learningObjective || "");
     const [methods, setMethods] = useState(classData?.methods || "");
@@ -86,7 +87,8 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
         const data = {
             title,
             hours: hours ? Number(hours) : undefined,
-            modules: modules ? Number(modules) : undefined,
+            startDate: startDate || undefined,
+            endDate: endDate || undefined,
             description,
             learningObjective: learningObjectives,
             methods,
@@ -135,13 +137,18 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                             onChange={(e) => setHours(e.target.value)}
                         />
                     </div>
-                    <div className="w-full md:w-48">
-                        <label className="block text-sm font-semibold mb-2">Total Modules</label>
-                        <NuraTextInput
-                            variant="number"
-                            placeholder="Total modules"
-                            value={String(modules)}
-                            onChange={(e) => setModules(e.target.value)}
+                    <div className="w-full md:w-64">
+                        <M3DateTimePicker
+                            label="Start Date"
+                            value={startDate}
+                            onChange={setStartDate}
+                        />
+                    </div>
+                    <div className="w-full md:w-64">
+                        <M3DateTimePicker
+                            label="End Date"
+                            value={endDate}
+                            onChange={setEndDate}
                         />
                     </div>
                 </div>

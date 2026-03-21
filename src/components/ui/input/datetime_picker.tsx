@@ -1,25 +1,26 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Calendar, Clock } from "lucide-react";
+import { useState, useRef, useEffect, ChangeEvent } from "react";
+import { 
+    ChevronLeft, 
+    ChevronRight, 
+    Calendar, 
+    Clock, 
+    X 
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
-
+// --- Configuration & Helpers ---
 const MONTHS = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December",
 ];
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
-function getDaysInMonth(year: number, month: number) {
-    return new Date(year, month + 1, 0).getDate();
-}
-function getFirstDayOfMonth(year: number, month: number) {
-    return new Date(year, month, 1).getDay();
-}
+const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
+const getFirstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
 
-// ─── Calendar Popover ────────────────────────────────────────────────────────
-
+// --- Calendar Popover Component ---
 interface CalendarPopoverProps {
     value: Date | null;
     onChange: (d: Date) => void;
@@ -32,6 +33,8 @@ function CalendarPopover({ value, onChange, onClose, withTime = true }: Calendar
     const [viewYear, setViewYear] = useState(value?.getFullYear() ?? today.getFullYear());
     const [viewMonth, setViewMonth] = useState(value?.getMonth() ?? today.getMonth());
     const [selectedDate, setSelectedDate] = useState<Date | null>(value);
+    
+    // Time State
     const [hour, setHour] = useState(value?.getHours() ?? 0);
     const [minute, setMinute] = useState(value?.getMinutes() ?? 0);
 
@@ -41,141 +44,119 @@ function CalendarPopover({ value, onChange, onClose, withTime = true }: Calendar
         i < firstDay ? null : i - firstDay + 1
     );
 
-    const prevMonth = () => {
-        if (viewMonth === 0) { setViewMonth(11); setViewYear((y) => y - 1); }
-        else setViewMonth((m) => m - 1);
-    };
-    const nextMonth = () => {
-        if (viewMonth === 11) { setViewMonth(0); setViewYear((y) => y + 1); }
-        else setViewMonth((m) => m + 1);
-    };
-
-    const selectDay = (day: number) => {
+    const handleSelectDay = (day: number) => {
         const d = new Date(viewYear, viewMonth, day, hour, minute);
         setSelectedDate(d);
-        if (!withTime) { onChange(d); onClose(); }
+        if (!withTime) {
+            onChange(d);
+            onClose();
+        }
     };
 
-    const confirm = () => {
+    const handleConfirm = () => {
         if (!selectedDate) return;
-        const d = new Date(selectedDate);
-        d.setHours(hour, minute, 0, 0);
-        onChange(d);
+        const finalDate = new Date(selectedDate);
+        finalDate.setHours(hour, minute, 0, 0);
+        onChange(finalDate);
         onClose();
     };
 
-    const isSelected = (day: number) =>
-        selectedDate?.getDate() === day &&
-        selectedDate?.getMonth() === viewMonth &&
-        selectedDate?.getFullYear() === viewYear;
-
-    const isToday = (day: number) =>
-        today.getDate() === day &&
-        today.getMonth() === viewMonth &&
-        today.getFullYear() === viewYear;
-
     return (
-        <div className="bg-white rounded-[2rem] shadow-2xl border border-gray-100 p-5 w-[320px] select-none" style={{ fontFamily: "inherit" }}>
-            {/* ── Month/Year header ── */}
+        <div className="bg-white rounded-[1.5rem] shadow-2xl border border-gray-200 p-5 w-[320px] select-none animate-in fade-in zoom-in-95 duration-200">
+            {/* Header */}
             <div className="flex items-center justify-between mb-4">
-                <button type="button" onClick={prevMonth} className="p-1.5 rounded-full hover:bg-gray-100 transition-colors text-gray-600">
-                    <ChevronLeft size={18} />
+                <button 
+                    type="button" 
+                    onClick={() => viewMonth === 0 ? (setViewMonth(11), setViewYear(v => v - 1)) : setViewMonth(v => v - 1)}
+                    className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                    <ChevronLeft size={18} strokeWidth={2.5} />
                 </button>
-                <span className="text-sm font-semibold text-gray-800">
+                <span className="text-sm font-bold text-black uppercase tracking-tight">
                     {MONTHS[viewMonth]} {viewYear}
                 </span>
-                <button type="button" onClick={nextMonth} className="p-1.5 rounded-full hover:bg-gray-100 transition-colors text-gray-600">
-                    <ChevronRight size={18} />
+                <button 
+                    type="button" 
+                    onClick={() => viewMonth === 11 ? (setViewMonth(0), setViewYear(v => v + 1)) : setViewMonth(v => v + 1)}
+                    className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                    <ChevronRight size={18} strokeWidth={2.5} />
                 </button>
             </div>
 
-            {/* ── Day headers ── */}
-            <div className="grid grid-cols-7 mb-1">
-                {DAYS.map((d) => (
-                    <div key={d} className="text-center text-[11px] font-semibold text-gray-400 py-1">{d}</div>
+            {/* Days Grid */}
+            <div className="grid grid-cols-7 mb-2 text-center">
+                {DAYS.map(d => (
+                    <span key={d} className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{d}</span>
                 ))}
             </div>
 
-            {/* ── Day cells ── */}
-            <div className="grid grid-cols-7 gap-y-1">
-                {cells.map((day, i) => (
-                    <div key={i} className="flex items-center justify-center">
-                        {day !== null ? (
-                            <button
-                                type="button"
-                                onClick={() => selectDay(day)}
-                                className={`w-9 h-9 rounded-full text-sm font-medium transition-all
-                                    ${isSelected(day)
-                                        ? "bg-[#1C3A37] text-white shadow-sm"
-                                        : isToday(day)
-                                            ? "bg-[#D9F55C] text-black font-semibold"
-                                            : "hover:bg-gray-100 text-gray-700"
-                                    }`}
-                            >
-                                {day}
-                            </button>
-                        ) : <span />}
-                    </div>
-                ))}
+            <div className="grid grid-cols-7 gap-1">
+                {cells.map((day, i) => {
+                    const isSel = day === selectedDate?.getDate() && viewMonth === selectedDate?.getMonth() && viewYear === selectedDate?.getFullYear();
+                    const isTod = day === today.getDate() && viewMonth === today.getMonth() && viewYear === today.getFullYear();
+
+                    return (
+                        <div key={i} className="flex items-center justify-center">
+                            {day ? (
+                                <button
+                                    type="button"
+                                    onClick={() => handleSelectDay(day)}
+                                    className={cn(
+                                        "w-9 h-9 rounded-xl text-sm font-semibold transition-all",
+                                        isSel ? "bg-black text-white" : isTod ? "bg-[#D9F55C] text-black" : "hover:bg-gray-100 text-gray-700"
+                                    )}
+                                >
+                                    {day}
+                                </button>
+                            ) : null}
+                        </div>
+                    );
+                })}
             </div>
 
-            {/* ── Time picker ── */}
+            {/* Time Picker Logic */}
             {withTime && (
-                <>
-                    <div className="border-t border-gray-100 mt-4 pt-4">
-                        <p className="text-xs font-semibold text-gray-500 mb-3 flex items-center gap-1.5">
-                            <Clock size={12} /> Time
-                        </p>
-                        <div className="flex items-center justify-center gap-2">
-                            {/* Hour */}
-                            <div className="flex flex-col items-center">
-                                <button type="button" onClick={() => setHour((h) => (h + 1) % 24)} className="p-1 rounded hover:bg-gray-100 text-gray-500 transition-colors">
-                                    <ChevronRight size={14} className="rotate-[-90deg]" />
-                                </button>
-                                <div className="w-14 h-10 bg-[#F0F5D8] rounded-xl flex items-center justify-center text-lg font-bold text-[#1C3A37] tabular-nums">
-                                    {String(hour).padStart(2, "0")}
-                                </div>
-                                <button type="button" onClick={() => setHour((h) => (h - 1 + 24) % 24)} className="p-1 rounded hover:bg-gray-100 text-gray-500 transition-colors">
-                                    <ChevronRight size={14} className="rotate-90" />
-                                </button>
+                <div className="mt-5 pt-5 border-t border-gray-100">
+                    <div className="flex items-center justify-between mb-4">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                            <Clock size={12} /> Set Time
+                        </span>
+                    </div>
+                    <div className="flex items-center justify-center gap-3">
+                        {/* Hours */}
+                        <div className="flex flex-col items-center">
+                            <div className="w-14 h-12 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-center text-xl font-bold tabular-nums">
+                                {String(hour).padStart(2, '0')}
                             </div>
-                            <span className="text-2xl font-bold text-gray-400 mb-0.5">:</span>
-                            {/* Minute */}
-                            <div className="flex flex-col items-center">
-                                <button type="button" onClick={() => setMinute((m) => (m + 1) % 60)} className="p-1 rounded hover:bg-gray-100 text-gray-500 transition-colors">
-                                    <ChevronRight size={14} className="rotate-[-90deg]" />
-                                </button>
-                                <div className="w-14 h-10 bg-[#F0F5D8] rounded-xl flex items-center justify-center text-lg font-bold text-[#1C3A37] tabular-nums">
-                                    {String(minute).padStart(2, "0")}
-                                </div>
-                                <button type="button" onClick={() => setMinute((m) => (m - 1 + 60) % 60)} className="p-1 rounded hover:bg-gray-100 text-gray-500 transition-colors">
-                                    <ChevronRight size={14} className="rotate-90" />
-                                </button>
+                            <div className="flex gap-1 mt-1">
+                                <button type="button" onClick={() => setHour(h => (h + 23) % 24)} className="p-1 hover:bg-gray-100 rounded"><ChevronLeft size={14} className="-rotate-90"/></button>
+                                <button type="button" onClick={() => setHour(h => (h + 1) % 24)} className="p-1 hover:bg-gray-100 rounded"><ChevronLeft size={14} className="rotate-90"/></button>
+                            </div>
+                        </div>
+                        <span className="text-xl font-bold text-gray-300 pb-6">:</span>
+                        {/* Minutes */}
+                        <div className="flex flex-col items-center">
+                            <div className="w-14 h-12 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-center text-xl font-bold tabular-nums">
+                                {String(minute).padStart(2, '0')}
+                            </div>
+                            <div className="flex gap-1 mt-1">
+                                <button type="button" onClick={() => setMinute(m => (m + 55) % 60)} className="p-1 hover:bg-gray-100 rounded"><ChevronLeft size={14} className="-rotate-90"/></button>
+                                <button type="button" onClick={() => setMinute(m => (m + 5) % 60)} className="p-1 hover:bg-gray-100 rounded"><ChevronLeft size={14} className="rotate-90"/></button>
                             </div>
                         </div>
                     </div>
-                    {/* Confirm row */}
-                    <div className="flex justify-end gap-3 mt-4">
-                        <button type="button" onClick={onClose} className="text-sm text-gray-500 hover:text-gray-800 transition-colors px-3 py-1.5">
-                            Cancel
-                        </button>
-                        <button
-                            type="button"
-                            onClick={confirm}
-                            disabled={!selectedDate}
-                            className="bg-[#1C3A37] text-white text-sm font-semibold px-5 py-1.5 rounded-full hover:bg-[#2a504c] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                        >
-                            OK
-                        </button>
+                    <div className="flex justify-end gap-2 mt-6">
+                        <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-bold text-gray-400 hover:text-black transition-colors">Cancel</button>
+                        <button type="button" onClick={handleConfirm} className="px-6 py-2 bg-black text-white rounded-xl text-sm font-bold hover:bg-zinc-800 shadow-sm transition-all">OK</button>
                     </div>
-                </>
+                </div>
             )}
         </div>
     );
 }
 
-// ─── Public: M3DateTimePicker ────────────────────────────────────────────────
-
+// --- Main Picker Component (Themed to NuraTextInput) ---
 interface M3DateTimePickerProps {
     label?: string;
     value: Date | null;
@@ -184,155 +165,87 @@ interface M3DateTimePickerProps {
     required?: boolean;
     className?: string;
     id?: string;
+    placeholder?: string;
 }
 
-export function M3DateTimePicker({ label, value, onChange, error, required, className, id }: M3DateTimePickerProps) {
+export default function M3DateTimePicker({ 
+    label, 
+    value, 
+    onChange, 
+    error, 
+    required, 
+    className, 
+    id,
+    placeholder = "DD/MM/YYYY HH:mm" 
+}: M3DateTimePickerProps) {
     const [open, setOpen] = useState(false);
-    const ref = useRef<HTMLDivElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
 
+    // Close on click outside
     useEffect(() => {
-        function handleClick(e: MouseEvent) {
-            if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-        }
+        const handleClick = (e: MouseEvent) => {
+            if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false);
+        };
         document.addEventListener("mousedown", handleClick);
         return () => document.removeEventListener("mousedown", handleClick);
     }, []);
 
-    const display = value
-        ? value.toLocaleString("id-ID", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })
+    const displayDate = value
+        ? value.toLocaleString("id-ID", { 
+            day: "2-digit", 
+            month: "2-digit", 
+            year: "numeric", 
+            hour: "2-digit", 
+            minute: "2-digit" 
+          })
         : "";
 
     return (
-        <div className={`relative ${className}`} ref={ref}>
+        <div className={cn("relative w-full", className)} ref={containerRef}>
             {label && (
-                <label className="block text-sm font-semibold mb-1">
-                    {label} {required && <span className="text-red-400">*</span>}
+                <label className="block text-sm font-medium mb-1 text-black">
+                    {label} {required && <span className="text-red-500">*</span>}
                 </label>
             )}
-            <button
-                id={id}
-                type="button"
-                onClick={() => setOpen((o) => !o)}
-                className={`w-full flex items-center justify-between rounded-full border px-4 py-2.5 text-sm bg-white transition-all focus:outline-none focus:ring-2 focus:ring-[#D9F55C] ${error ? "border-red-400" : open ? "border-[#1C3A37]" : "border-gray-300 hover:border-gray-400"}`}
-            >
-                <span className={value ? "text-gray-800" : "text-gray-400"}>{display || "DD/MM/YYYY HH:mm"}</span>
-                <Calendar size={15} className="text-gray-400 shrink-0" />
-            </button>
-            {error && <p className="text-red-400 text-xs mt-1 pl-2">{error}</p>}
-            {open && (
-                <div className="absolute z-50 mt-2 left-0">
-                    <CalendarPopover
-                        value={value}
-                        withTime={true}
-                        onChange={(d) => { onChange(d); setOpen(false); }}
-                        onClose={() => setOpen(false)}
-                    />
-                </div>
-            )}
-        </div>
-    );
-}
+            
+            <div className="relative">
+                <button
+                    id={id}
+                    type="button"
+                    onClick={() => setOpen(!open)}
+                    className={cn(
+                        "w-full flex items-center justify-between bg-white border px-4 py-2 text-sm transition-all text-left",
+                        "rounded-[0.5rem]", // Exact match to NuraTextInput
+                        error 
+                            ? "border-red-500" 
+                            : open 
+                                ? "border-black ring-2 ring-black/5" 
+                                : "border-black hover:border-zinc-700",
+                        "focus:outline-none focus:ring-2 focus:ring-black"
+                    )}
+                >
+                    <span className={value ? "text-black" : "text-gray-400"}>
+                        {displayDate || placeholder}
+                    </span>
+                    <Calendar size={16} className="text-gray-400 shrink-0" />
+                </button>
 
-// ─── Public: M3TimePicker ────────────────────────────────────────────────────
+                {error && <p className="text-red-500 text-xs mt-1.5 ml-1">{error}</p>}
 
-interface M3TimePickerProps {
-    label?: string;
-    value: string; // "HH:mm"
-    onChange: (v: string) => void;
-    error?: string;
-    required?: boolean;
-    className?: string;
-    id?: string;
-}
-
-export function M3TimePicker({ label, value, onChange, error, required, className, id }: M3TimePickerProps) {
-    const [open, setOpen] = useState(false);
-    const ref = useRef<HTMLDivElement>(null);
-
-    const [hour, setHour] = useState(() => value ? parseInt(value.split(":")[0]) : 0);
-    const [minute, setMinute] = useState(() => value ? parseInt(value.split(":")[1]) : 0);
-
-    useEffect(() => {
-        function handleClick(e: MouseEvent) {
-            if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-        }
-        document.addEventListener("mousedown", handleClick);
-        return () => document.removeEventListener("mousedown", handleClick);
-    }, []);
-
-    const confirm = () => {
-        onChange(`${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`);
-        setOpen(false);
-    };
-
-    const display = value || "";
-
-    return (
-        <div className={`relative ${className}`} ref={ref}>
-            {label && (
-                <label className="block text-sm font-semibold mb-1">
-                    {label} {required && <span className="text-red-400">*</span>}
-                </label>
-            )}
-            <button
-                id={id}
-                type="button"
-                onClick={() => setOpen((o) => !o)}
-                className={`w-full flex items-center justify-between rounded-full border px-4 py-2.5 text-sm bg-white transition-all focus:outline-none focus:ring-2 focus:ring-[#D9F55C] ${error ? "border-red-400" : open ? "border-[#1C3A37]" : "border-gray-300 hover:border-gray-400"}`}
-            >
-                <span className={value ? "text-gray-800" : "text-gray-400"}>{display || "HH:mm"}</span>
-                <Clock size={15} className="text-gray-400 shrink-0" />
-            </button>
-            {error && <p className="text-red-400 text-xs mt-1 pl-2">{error}</p>}
-
-            {open && (
-                <div className="absolute z-50 mt-2 left-0">
-                    <div className="bg-white rounded-[2rem] shadow-2xl border border-gray-100 p-5 w-[200px] select-none">
-                        <p className="text-xs font-semibold text-gray-500 mb-4 flex items-center gap-1.5">
-                            <Clock size={12} /> Select Time
-                        </p>
-                        <div className="flex items-center justify-center gap-2">
-                            {/* Hour */}
-                            <div className="flex flex-col items-center">
-                                <button type="button" onClick={() => setHour((h) => (h + 1) % 24)} className="p-1 rounded hover:bg-gray-100 text-gray-500 transition-colors">
-                                    <ChevronRight size={14} className="rotate-[-90deg]" />
-                                </button>
-                                <div className="w-14 h-10 bg-[#F0F5D8] rounded-xl flex items-center justify-center text-lg font-bold text-[#1C3A37] tabular-nums">
-                                    {String(hour).padStart(2, "0")}
-                                </div>
-                                <button type="button" onClick={() => setHour((h) => (h - 1 + 24) % 24)} className="p-1 rounded hover:bg-gray-100 text-gray-500 transition-colors">
-                                    <ChevronRight size={14} className="rotate-90" />
-                                </button>
-                            </div>
-                            <span className="text-2xl font-bold text-gray-400">:</span>
-                            {/* Minute */}
-                            <div className="flex flex-col items-center">
-                                <button type="button" onClick={() => setMinute((m) => (m + 5) % 60)} className="p-1 rounded hover:bg-gray-100 text-gray-500 transition-colors">
-                                    <ChevronRight size={14} className="rotate-[-90deg]" />
-                                </button>
-                                <div className="w-14 h-10 bg-[#F0F5D8] rounded-xl flex items-center justify-center text-lg font-bold text-[#1C3A37] tabular-nums">
-                                    {String(minute).padStart(2, "0")}
-                                </div>
-                                <button type="button" onClick={() => setMinute((m) => (m - 5 + 60) % 60)} className="p-1 rounded hover:bg-gray-100 text-gray-500 transition-colors">
-                                    <ChevronRight size={14} className="rotate-90" />
-                                </button>
-                            </div>
-                        </div>
-                        <div className="flex justify-end gap-2 mt-4">
-                            <button type="button" onClick={() => setOpen(false)} className="text-sm text-gray-500 hover:text-gray-800 px-3 py-1.5 transition-colors">
-                                Cancel
-                            </button>
-                            <button
-                                type="button"
-                                onClick={confirm}
-                                className="bg-[#1C3A37] text-white text-sm font-semibold px-4 py-1.5 rounded-full hover:bg-[#2a504c] transition-colors"
-                            >
-                                OK
-                            </button>
-                        </div>
+                {open && (
+                    <div className="absolute z-[100] mt-2 right-0 md:left-0 md:right-auto">
+                        <CalendarPopover
+                            value={value}
+                            withTime={true}
+                            onChange={(d) => {
+                                onChange(d);
+                                setOpen(false);
+                            }}
+                            onClose={() => setOpen(false)}
+                        />
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 }
