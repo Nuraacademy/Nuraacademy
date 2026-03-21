@@ -26,9 +26,11 @@ interface CalendarPopoverProps {
     onChange: (d: Date) => void;
     onClose: () => void;
     withTime?: boolean;
+    minDate?: Date | null;
+    maxDate?: Date | null;
 }
 
-function CalendarPopover({ value, onChange, onClose, withTime = true }: CalendarPopoverProps) {
+function CalendarPopover({ value, onChange, onClose, withTime = true, minDate, maxDate }: CalendarPopoverProps) {
     const today = new Date();
     const [viewYear, setViewYear] = useState(value?.getFullYear() ?? today.getFullYear());
     const [viewMonth, setViewMonth] = useState(value?.getMonth() ?? today.getMonth());
@@ -57,7 +59,18 @@ function CalendarPopover({ value, onChange, onClose, withTime = true }: Calendar
         if (!selectedDate) return;
         const finalDate = new Date(selectedDate);
         finalDate.setHours(hour, minute, 0, 0);
-        onChange(finalDate);
+
+        if (minDate && finalDate < minDate) {
+            // If it's the same day, we could show an error or just adjust to minDate
+            // For now, let's block it or adjust it. 
+            // Most users expect it to just work, but "cannot be before" is strict.
+            // Let's just use minDate if it's before.
+            onChange(minDate);
+        } else if (maxDate && finalDate > maxDate) {
+            onChange(maxDate);
+        } else {
+            onChange(finalDate);
+        }
         onClose();
     };
 
@@ -96,15 +109,33 @@ function CalendarPopover({ value, onChange, onClose, withTime = true }: Calendar
                     const isSel = day === selectedDate?.getDate() && viewMonth === selectedDate?.getMonth() && viewYear === selectedDate?.getFullYear();
                     const isTod = day === today.getDate() && viewMonth === today.getMonth() && viewYear === today.getFullYear();
 
+                    let isDisabled = false;
+                    if (day) {
+                        const cellDate = new Date(viewYear, viewMonth, day);
+                        if (minDate) {
+                            // Set minDate to start of day for comparison
+                            const compMin = new Date(minDate);
+                            compMin.setHours(0, 0, 0, 0);
+                            if (cellDate < compMin) isDisabled = true;
+                        }
+                        if (maxDate) {
+                            const compMax = new Date(maxDate);
+                            compMax.setHours(23, 59, 59, 999);
+                            if (cellDate > compMax) isDisabled = true;
+                        }
+                    }
+
                     return (
                         <div key={i} className="flex items-center justify-center">
                             {day ? (
                                 <button
                                     type="button"
-                                    onClick={() => handleSelectDay(day)}
+                                    onClick={() => !isDisabled && handleSelectDay(day)}
+                                    disabled={isDisabled}
                                     className={cn(
                                         "w-9 h-9 rounded-xl text-sm font-semibold transition-all",
-                                        isSel ? "bg-black text-white" : isTod ? "bg-[#D9F55C] text-black" : "hover:bg-gray-100 text-gray-700"
+                                        isSel ? "bg-black text-white" : isTod ? "bg-[#D9F55C] text-black" : "hover:bg-gray-100 text-gray-700",
+                                        isDisabled && "opacity-20 cursor-not-allowed hover:bg-transparent"
                                     )}
                                 >
                                     {day}
@@ -166,6 +197,8 @@ interface M3DateTimePickerProps {
     className?: string;
     id?: string;
     placeholder?: string;
+    minDate?: Date | null;
+    maxDate?: Date | null;
 }
 
 export default function M3DateTimePicker({ 
@@ -176,7 +209,9 @@ export default function M3DateTimePicker({
     required, 
     className, 
     id,
-    placeholder = "DD/MM/YYYY HH:mm" 
+    placeholder = "DD/MM/YYYY HH:mm",
+    minDate,
+    maxDate
 }: M3DateTimePickerProps) {
     const [open, setOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -203,7 +238,7 @@ export default function M3DateTimePicker({
     return (
         <div className={cn("relative w-full", className)} ref={containerRef}>
             {label && (
-                <label className="block text-sm font-medium mb-1 text-black">
+                <label className="block text-sm mb-1 text-black">
                     {label} {required && <span className="text-red-500">*</span>}
                 </label>
             )}
@@ -237,6 +272,8 @@ export default function M3DateTimePicker({
                         <CalendarPopover
                             value={value}
                             withTime={true}
+                            minDate={minDate}
+                            maxDate={maxDate}
                             onChange={(d) => {
                                 onChange(d);
                                 setOpen(false);

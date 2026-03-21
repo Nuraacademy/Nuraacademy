@@ -149,6 +149,7 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                             label="End Date"
                             value={endDate}
                             onChange={setEndDate}
+                            minDate={startDate}
                         />
                     </div>
                 </div>
