@@ -12,25 +12,59 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log('Seeding mock data for tests...');
   
-  // Clean up old test data
-  await prisma.user.deleteMany({
-    where: {
-      username: { in: ['testlearner', 'existinguser', 'newuser123'] }
-    }
-  });
+  // Create Roles
+  const roles = ['LEARNER', 'DESIGNER', 'TRAINER'];
+  for (const roleName of roles) {
+    await prisma.role.upsert({
+      where: { name: roleName },
+      update: {},
+      create: { name: roleName }
+    });
+  }
+
+  const learnerRole = await prisma.role.findUnique({ where: { name: 'LEARNER' } });
+  const designerRole = await prisma.role.findUnique({ where: { name: 'DESIGNER' } });
+  const trainerRole = await prisma.role.findUnique({ where: { name: 'TRAINER' } });
+
+  // Create Test Users
+  const hashedPassword = await bcrypt.hash('password', 10);
   
-  // Create Test User
-  const hashedPassword = await bcrypt.hash('password123', 10);
-  const user = await prisma.user.create({
-    data: {
+  await prisma.user.upsert({
+    where: { username: 'testlearner' },
+    update: { roleId: learnerRole.id },
+    create: {
       email: 'learner@example.com',
-      username: 'existinguser',
+      username: 'testlearner',
       password: hashedPassword,
       name: 'Test Learner',
-      whatsapp: '08123456789'
+      roleId: learnerRole.id
     }
   });
-  console.log(`Created test user: ${user.username}`);
+
+  await prisma.user.upsert({
+    where: { username: 'designer_user' },
+    update: { roleId: designerRole.id },
+    create: {
+      email: 'designer@example.com',
+      username: 'designer_user',
+      password: hashedPassword,
+      name: 'Test Designer',
+      roleId: designerRole.id
+    }
+  });
+
+  await prisma.user.upsert({
+    where: { username: 'trainer_user' },
+    update: { roleId: trainerRole.id },
+    create: {
+      email: 'trainer@example.com',
+      username: 'trainer_user',
+      password: hashedPassword,
+      name: 'Test Trainer',
+      roleId: trainerRole.id
+    }
+  });
+  console.log(`Created test users: testlearner, designer_user, trainer_user`);
 
   // Create Test Class
   const testClass = await prisma.class.upsert({

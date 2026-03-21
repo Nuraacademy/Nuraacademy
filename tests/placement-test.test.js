@@ -17,7 +17,7 @@ describe('Placement Test', () => {
   // UT-2.1.1
   test('UT-2.1.1: Placement Test Creation', async () => {
     // Admin login
-    await driver.get('http://localhost:3000/login');
+    await driver.get('http://127.0.0.1:3000/login');
     await driver.findElement(By.xpath("//input[@placeholder='Username or Email']")).sendKeys('admin');
     await driver.findElement(By.xpath("//input[@placeholder='Password']")).sendKeys('adminpass');
     
@@ -28,7 +28,7 @@ describe('Placement Test', () => {
     
     await driver.wait(until.urlContains('/admin'), 15000);
     // Create test
-    await driver.get('http://localhost:3000/admin/classes/1');
+    await driver.get('http://127.0.0.1:3000/admin/classes/1');
     await driver.findElement(By.id('create-placement-test')).click();
     await driver.findElement(By.id('add-item')).click();
 
@@ -45,7 +45,7 @@ describe('Placement Test', () => {
 
   // UT-2.2.1
   test('UT-2.2.1: Placement Test Access (Before scheduled)', async () => {
-    await driver.get('http://localhost:3000/login');
+    await driver.get('http://127.0.0.1:3000/login');
     await driver.findElement(By.xpath("//input[@placeholder='Username or Email']")).sendKeys('learner');
     await driver.findElement(By.xpath("//input[@placeholder='Password']")).sendKeys('learnerpass');
     
@@ -55,7 +55,7 @@ describe('Placement Test', () => {
     await loginBtn.click();
     
     await driver.wait(until.urlContains('/classes'), 15000);
-    await driver.get('http://localhost:3000/placement-test');
+    await driver.get('http://127.0.0.1:3000/placement-test');
 
     const startBtn = await driver.findElement(By.id('start-test-btn'));
     expect(await startBtn.isEnabled()).toBe(false);
@@ -69,7 +69,7 @@ describe('Placement Test', () => {
   // UT-2.2.2
   test('UT-2.2.2: Placement Test Manual Start', async () => {
     // Admin log in (assuming already logged in, but let's navigate)
-    await driver.get('http://localhost:3000/admin/assignments');
+    await driver.get('http://127.0.0.1:3000/admin/assignments');
     await driver.findElement(By.id('filter-placement-test')).click();
     await driver.findElement(By.id('start-assignment-1')).click();
 
@@ -79,7 +79,7 @@ describe('Placement Test', () => {
 
   // UT-2.3.1
   test('UT-2.3.1: Placement Test Submission', async () => {
-    await driver.get('http://localhost:3000/placement-test/1');
+    await driver.get('http://127.0.0.1:3000/placement-test/1');
     await driver.findElement(By.id('start-test-btn')).click();
 
     // Complete test
@@ -92,7 +92,7 @@ describe('Placement Test', () => {
 
   // UT-2.3.2
   test('UT-2.3.2: Placement Test Auto-Submit', async () => {
-    await driver.get('http://localhost:3000/placement-test/1');
+    await driver.get('http://127.0.0.1:3000/placement-test/1');
     await driver.findElement(By.id('start-test-btn')).click();
 
     // wait for expiration (simulated)
@@ -104,7 +104,7 @@ describe('Placement Test', () => {
   // UT-2.3.3
   test('UT-2.3.3: Placement Test (Empty Submission)', async () => {
     // Click Submit without answering any questions
-    await driver.get('http://localhost:3000/placement-test/1');
+    await driver.get('http://127.0.0.1:3000/placement-test/1');
     // Tracker: System submits an empty test immediately without warning. (Failed)
     // Here we'd simulate clicking start and then clicking submit.
   });

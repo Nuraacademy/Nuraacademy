@@ -19,7 +19,7 @@ describe('Learner Enrollment', () => {
   // UT-1.3.1
   test('UT-1.3.1: Learner Enrollment Form', async () => {
     // Requires pre-existing login and specific class
-    await driver.get('http://localhost:3000/login');
+    await driver.get('http://127.0.0.1:3000/login');
     await driver.findElement(By.xpath("//input[@placeholder='Username or Email']")).sendKeys('testuser');
     await driver.findElement(By.xpath("//input[@placeholder='Password']")).sendKeys('password123');
     
@@ -31,7 +31,7 @@ describe('Learner Enrollment', () => {
     await driver.wait(until.urlContains('/classes'), 20000);
     
     // Go to an enrollment page directly for a mock class ID, say 1
-    await driver.get('http://localhost:3000/classes/1/enrollment');
+    await driver.get('http://127.0.0.1:3000/classes/1/enrollment');
     
     // Fill enrollment form using placeholders
     await driver.findElement(By.xpath("//input[@placeholder='Profession']")).sendKeys('Software Engineer');
@@ -62,7 +62,7 @@ describe('Learner Enrollment', () => {
   // UT-1.3.2
   test('UT-1.3.2: Learner Enrollment (Missing Fields)', async () => {
     // Attempt enrollment without filling mandatory fields
-    await driver.get('http://localhost:3000/classes/1/enrollment');
+    await driver.get('http://127.0.0.1:3000/classes/1/enrollment');
     const submitBtn = await driver.findElement(By.xpath("//button[contains(normalize-space(), 'Submit')]"));
     await driver.executeScript("arguments[0].scrollIntoView({block: 'center'});", submitBtn);
     await driver.sleep(500);
@@ -76,7 +76,7 @@ describe('Learner Enrollment', () => {
 
   // UT-1.3.3
   test('UT-1.3.3: Learner Enrollment (Invalid File)', async () => {
-    await driver.get('http://localhost:3000/classes/1/enrollment');
+    await driver.get('http://127.0.0.1:3000/classes/1/enrollment');
     
     // Fill text fields
     await driver.findElement(By.xpath("//input[@placeholder='Profession']")).sendKeys('Tester');

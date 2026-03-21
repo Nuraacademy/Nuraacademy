@@ -18,7 +18,7 @@ describe('Learner Registration & Login', () => {
 
   // UT-1.1.1
   test('UT-1.1.1: Learner Registration (Manual)', async () => {
-    await driver.get('http://localhost:3000/register');
+    await driver.get('http://127.0.0.1:3000/register');
     await driver.findElement(By.xpath("//input[@placeholder='Full Name']")).sendKeys('Test User');
     await driver.findElement(By.xpath("//input[@placeholder='Username']")).sendKeys('testuser');
     await driver.findElement(By.xpath("//input[@placeholder='Email']")).sendKeys('test@example.com');
@@ -35,7 +35,7 @@ describe('Learner Registration & Login', () => {
 
   // UT-1.1.2
   test('UT-1.1.2: Learner Registration (SSO)', async () => {
-    await driver.get('http://localhost:3000/register');
+    await driver.get('http://127.0.0.1:3000/register');
     
     // Google login is usually inside an iframe
     await driver.wait(until.elementLocated(By.css("iframe[title*='Sign in with Google']")), 10000);
@@ -53,7 +53,7 @@ describe('Learner Registration & Login', () => {
 
   // UT-1.1.3
   test('UT-1.1.3: Registration Validation (Duplicate)', async () => {
-    await driver.get('http://localhost:3000/register');
+    await driver.get('http://127.0.0.1:3000/register');
     await driver.findElement(By.xpath("//input[@placeholder='Full Name']")).sendKeys('Existing User');
     await driver.findElement(By.xpath("//input[@placeholder='Username']")).sendKeys('existinguser');
     await driver.findElement(By.xpath("//input[@placeholder='Email']")).sendKeys('learner@example.com');
@@ -75,7 +75,7 @@ describe('Learner Registration & Login', () => {
 
   // UT-1.2.1
   test('UT-1.2.1: Standard Login', async () => {
-    await driver.get('http://localhost:3000/login');
+    await driver.get('http://127.0.0.1:3000/login');
     await driver.findElement(By.xpath("//input[@placeholder='Username or Email']")).sendKeys('existinguser');
     await driver.findElement(By.xpath("//input[@placeholder='Password']")).sendKeys('password123');
     
@@ -90,7 +90,7 @@ describe('Learner Registration & Login', () => {
   // UT-1.2.2
   test('UT-1.2.2: Password Visibility', async () => {
     // Check on login page
-    await driver.get('http://localhost:3000/login');
+    await driver.get('http://127.0.0.1:3000/login');
     const loginPwdInput = await driver.findElement(By.xpath("//input[@placeholder='Password']"));
     expect(await loginPwdInput.getAttribute('type')).toBe('password');
     const loginToggleBtn = await driver.findElement(By.xpath("//button[@aria-label='Toggle password visibility']"));
@@ -98,7 +98,7 @@ describe('Learner Registration & Login', () => {
     expect(await loginPwdInput.getAttribute('type')).toBe('text');
 
     // Check on register page
-    await driver.get('http://localhost:3000/register');
+    await driver.get('http://127.0.0.1:3000/register');
     const regPwdInput = await driver.findElement(By.xpath("//input[@placeholder='Password']"));
     expect(await regPwdInput.getAttribute('type')).toBe('password');
     const regToggleBtn = await driver.findElement(By.xpath("//button[@aria-label='Toggle password visibility']"));
@@ -107,7 +107,7 @@ describe('Learner Registration & Login', () => {
   });
   // UT-1.1.4
   test('UT-1.1.4: Registration Validation (Invalid Format)', async () => {
-    await driver.get('http://localhost:3000/register');
+    await driver.get('http://127.0.0.1:3000/register');
     const emailInput = await driver.findElement(By.xpath("//input[@placeholder='Email']"));
     await emailInput.sendKeys('user@com');
     
@@ -127,7 +127,7 @@ describe('Learner Registration & Login', () => {
 
   // UT-1.1.5
   test('UT-1.1.5: Registration Validation (Weak Password)', async () => {
-    await driver.get('http://localhost:3000/register');
+    await driver.get('http://127.0.0.1:3000/register');
     await driver.findElement(By.xpath("//input[@placeholder='Password']")).sendKeys('12345');
     
     // Check if submit button is disabled
@@ -142,7 +142,7 @@ describe('Learner Registration & Login', () => {
 
   // UT-1.2.3
   test('UT-1.2.3: Standard Login (Invalid Credentials)', async () => {
-    await driver.get('http://localhost:3000/login');
+    await driver.get('http://127.0.0.1:3000/login');
     await driver.findElement(By.xpath("//input[@placeholder='Username or Email']")).sendKeys('existinguser');
     await driver.findElement(By.xpath("//input[@placeholder='Password']")).sendKeys('wrongpassword');
     
@@ -157,7 +157,7 @@ describe('Learner Registration & Login', () => {
 
   // UT-1.2.4
   test('UT-1.2.4: Standard Login (Account Lockout)', async () => {
-    await driver.get('http://localhost:3000/login');
+    await driver.get('http://127.0.0.1:3000/login');
     
     // Attempt 5 failed logins
     for (let i = 0; i < 6; i++) {
@@ -180,7 +180,7 @@ describe('Learner Registration & Login', () => {
   // UT-1.2.5
   test('UT-1.2.5: Auth Guard (Unauthorized Access)', async () => {
     // Attempt to access protected dashboard while not logged in
-    await driver.get('http://localhost:3000/member');
+    await driver.get('http://127.0.0.1:3000/member');
     // Tracker says Passed: Redirect successful
     await driver.wait(until.urlContains('/login'), 5000);
   });

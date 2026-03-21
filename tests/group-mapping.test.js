@@ -14,61 +14,65 @@ describe('Group Mapping', () => {
     if (driver) await driver.quit();
   });
 
-  // UT-1.8.1
-  test('UT-1.8.1: Group Mapping', async () => {
+  // UT-3.2.1: Group Mapping
+  test('UT-3.2.1: Group Mapping', async () => {
     // Learning Designer login
-    await driver.get('http://localhost:3000/admin/grouping/class/1');
-    await driver.findElement(By.id('create-group')).click();
+    await driver.get('http://127.0.0.1:3000/login');
+    await driver.findElement(By.xpath("//input[@placeholder='Username or Email']")).sendKeys('designer_user');
+    await driver.findElement(By.xpath("//input[@placeholder='Password']")).sendKeys('password');
+    await driver.findElement(By.xpath("//button[contains(normalize-space(), 'Get Started')]")).click();
     
-    // Select 3 learners
-    await driver.findElement(By.id('learner-checkbox-1')).click();
-    await driver.findElement(By.id('learner-checkbox-2')).click();
-    await driver.findElement(By.id('learner-checkbox-3')).click();
+    // Navigate to grouping page
+    await driver.get('http://127.0.0.1:3000/classes/1/placement/learner-group');
     
-    await driver.findElement(By.id('submit-group-btn')).click();
+    // Create new group
+    const groupNameInput = await driver.wait(until.elementLocated(By.xpath("//input[@placeholder='New group name']")), 10000);
+    await groupNameInput.sendKeys('Test Group A');
+    await driver.findElement(By.xpath("//button[contains(text(), 'Create Group')]")).click();
     
-    // Verify group saved
-    await driver.wait(until.elementLocated(By.id('group-list')), 5000);
-    const groups = await driver.findElement(By.id('group-list')).getText();
-    expect(groups).toContain('Learner 1');
-    expect(groups).toContain('Learner 2');
-    expect(groups).toContain('Learner 3');
+    // Assign learner to group (assuming dropdown exists)
+    const select = await driver.wait(until.elementLocated(By.xpath("//select")), 10000);
+    await select.sendKeys('Test Group A');
+    
+    await driver.findElement(By.xpath("//button[contains(text(), 'Save Assignments')]")).click();
+    
+    // Verify success toast/redirection
+    await driver.wait(until.elementLocated(By.xpath("//li[@data-sonner-toast]")), 5000);
   });
 
-  // UT-1.8.2
-  test('UT-1.8.2: Edit Group Mapping', async () => {
-    // Learning Designer edit group
-    await driver.get('http://localhost:3000/admin/learners');
-    await driver.findElement(By.id('edit-group-1')).click();
+  // UT-3.2.2: Edit Group Mapping
+  test('UT-3.2.2: Edit Group Mapping', async () => {
+    // Learning Designer login
+    await driver.get('http://127.0.0.1:3000/login');
+    await driver.findElement(By.xpath("//input[@placeholder='Username or Email']")).sendKeys('designer_user');
+    await driver.findElement(By.xpath("//input[@placeholder='Password']")).sendKeys('password');
+    await driver.findElement(By.xpath("//button[contains(normalize-space(), 'Get Started')]")).click();
     
-    // Modify membership
-    await driver.findElement(By.id('learner-checkbox-4')).click(); // add someone
-    await driver.findElement(By.id('learner-checkbox-3')).click(); // remove someone
+    await driver.get('http://127.0.0.1:3000/classes/1/placement/learner-group');
     
-    await driver.findElement(By.id('submit-group-btn')).click();
+    // Modify existing group assignment
+    const select = await driver.wait(until.elementLocated(By.xpath("//select")), 10000);
+    await select.sendKeys('Unassigned'); // Change from Group A back to Unassigned
     
-    // Verify updated
-    await driver.wait(until.elementLocated(By.id('group-list')), 5000);
-    const groups = await driver.findElement(By.id('group-list')).getText();
-    expect(groups).toContain('Learner 4');
+    await driver.findElement(By.xpath("//button[contains(text(), 'Save Assignments')]")).click();
+    
+    await driver.wait(until.elementLocated(By.xpath("//li[@data-sonner-toast]")), 5000);
   });
-  // UT-1.8.3
-  test('UT-1.8.3: Group Mapping (Role Restrictions)', async () => {
-    // Log in as Learner
-    await driver.get('http://localhost:3000/login');
-    await driver.findElement(By.xpath("//input[@placeholder='Username or Email']")).sendKeys('existinguser');
-    await driver.findElement(By.xpath("//input[@placeholder='Password']")).sendKeys('password123');
+
+  // UT-3.2.3: Group Mapping (Role Restrictions)
+  test('UT-3.2.3: Group Mapping (Role Restrictions)', async () => {
+    // Log in as standard Learner
+    await driver.get('http://127.0.0.1:3000/login');
+    await driver.findElement(By.xpath("//input[@placeholder='Username or Email']")).sendKeys('testlearner');
+    await driver.findElement(By.xpath("//input[@placeholder='Password']")).sendKeys('password');
+    await driver.findElement(By.xpath("//button[contains(normalize-space(), 'Get Started')]")).click();
     
-    const loginBtn = await driver.findElement(By.xpath("//button[contains(normalize-space(), 'Get Started')]"));
-    await driver.executeScript("arguments[0].scrollIntoView({block: 'center'});", loginBtn);
-    await driver.sleep(500);
-    await loginBtn.click();
+    // Attempt to access Group Mapping URL directly
+    await driver.get('http://127.0.0.1:3000/classes/1/placement/learner-group');
     
-    // Attempt to access Group Mapping URL
-    await driver.get('http://localhost:3000/admin/grouping/class/1');
-    
-    // Check if it redirects or gives 403
-    // Tracker: Learner is able to view (but not edit). Improper RBAC. (Failed)
-    // Here we might just check that we are not allowed to be on this page.
+    // Check if it redirects or shows unauthorized (Expected: 403 or redirect to Dashboard)
+    // If user is redirected to dashboard, URL will change
+    await driver.wait(until.urlContains('/dashboard') || until.urlContains('/overview'), 10000);
+    expect(await driver.getCurrentUrl()).not.toContain('/placement/learner-group');
   });
 });

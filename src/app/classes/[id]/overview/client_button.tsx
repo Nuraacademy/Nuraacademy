@@ -8,6 +8,7 @@ import { ConfirmModal } from "@/components/ui/modal/confirmation_modal"
 import { toast } from "sonner"
 import { deleteCourseAction } from "@/app/actions/course"
 import { removeAssignment } from "@/app/actions/assignment"
+import Image from "next/image"
 
 export function SuccessHandler({ classId, timelines }: { classId: string, timelines: any[] }) {
     const searchParams = useSearchParams()
@@ -91,7 +92,6 @@ export function PlacementTestButton({
                 <NuraButton
                     label="Mapping"
                     variant="secondary"
-                    className="!bg-transparent !text-white !border-white/50 !border !font-semibold"
                     onClick={() => router.push(`/classes/${classId}/placement/results`)}
                 />
             )}
@@ -142,8 +142,8 @@ export function CourseCard({ classId, course, isAdmin }: { classId: string, cour
             >
                 <div className="flex justify-between items-start">
                 <div>
-                    <h3 className="text-black text-medium mb-1">{course.title}</h3>
-                    <div className="text-sm text-gray-600 line-clamp-2" dangerouslySetInnerHTML={{ __html: course.description }} />
+                    <h3 className="text-sm mb-1">{course.title}</h3>
+                    <div className="text-xs line-clamp-2" dangerouslySetInnerHTML={{ __html: course.description }} />
                     </div>
                     {isAdmin && (
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -216,16 +216,16 @@ export function ProjectCard({ classId, assignment, isAdmin }: { classId: string,
             <div className="flex justify-between items-start">
                 <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-black text-medium">{assignment.title}</h3>
-                        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${submissionColor}`}>
+                        <h3 className="text-sm">{assignment.title}</h3>
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${submissionColor}`}>
                             {submissionLabel}
                         </span>
                     </div>
                     {assignment.course && (
-                        <p className="text-sm text-gray-500">{assignment.course.title}</p>
+                        <p className="text-sm">{assignment.course.title}</p>
                     )}
                     {assignment.startDate && (
-                        <p className="text-xs text-gray-400 mt-0.5">
+                        <p className="text-xs mt-0.5">
                             Due: {new Date(assignment.startDate).toLocaleDateString()}
                         </p>
                     )}
@@ -284,6 +284,7 @@ export function FeedbackButton({ classId, isLearner }: { classId: string, isLear
         <NuraButton
             label="Feedback"
             variant="primary"
+            leftIcon={<Image src="/icons/Feedback.svg" alt="Feedback" width={20} height={20} />}
             onClick={handleClick}
         />
     )
@@ -295,6 +296,7 @@ export function AnalyticsButton({ classId }: { classId: string }) {
         <NuraButton
             label="Analytics and Report"
             variant="primary"
+            leftIcon={<Image src="/icons/Analytics.svg" alt="Analytics" width={20} height={20} />}
             onClick={() => router.push(`/classes/${classId}/analytics`)}
         />
     )

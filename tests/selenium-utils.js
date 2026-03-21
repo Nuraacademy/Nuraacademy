@@ -12,7 +12,7 @@ async function getDriver() {
 }
 
 async function login(driver, username, password) {
-  await driver.get('http://localhost:3000/login');
+  await driver.get('http://127.0.0.1:3000/login');
   await driver.findElement(By.id('username')).sendKeys(username);
   await driver.findElement(By.id('password')).sendKeys(password);
   await driver.findElement(By.id('login-btn')).click();
