@@ -85,6 +85,7 @@ export function PlacementTestButton({
                 label={isAdmin ? (courseCount > 0 ? "Edit Test" : "Create Test") : (isFinished ? "See Result" : "Start Test")}
                 variant="primary"
                 onClick={handleClick}
+                id="create-placement-test-btn"
             />
             {isAdmin && (
                 <NuraButton

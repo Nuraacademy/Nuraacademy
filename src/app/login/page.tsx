@@ -110,6 +110,7 @@ export default function LoginPage() {
                                 value={identifier}
                                 onChange={(e) => setIdentifier(e.target.value)}
                                 disabled={isLoading}
+                                id="username"
                             />
                         </div>
 
@@ -121,6 +122,7 @@ export default function LoginPage() {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 disabled={isLoading}
+                                id="password"
                             />
                         </div>
 
@@ -130,6 +132,7 @@ export default function LoginPage() {
                                 type="submit"
                                 isLoading={isLoading}
                                 className="w-full rounded-full bg-black text-white py-2 text-sm font-medium hover:bg-gray-900 transition-colors"
+                                id="login-btn"
                             />
                         </div>
 

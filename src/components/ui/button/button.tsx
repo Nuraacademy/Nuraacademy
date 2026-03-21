@@ -10,6 +10,7 @@ interface NuraButtonProp {
   disabled?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  id?: string;
 }
 
 export const NuraButton = ({
@@ -22,8 +23,9 @@ export const NuraButton = ({
   disabled = false,
   leftIcon,
   rightIcon,
+  id,
 }: NuraButtonProp) => {
-  const baseStyles = "px-4 py-2 rounded-[1rem] font-medium text-lg transition-all duration-200 active:scale-95 flex items-center justify-center min-w-[60px] max-w-[200px] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100";
+  const baseStyles = "px-4 py-2 rounded-[1rem] text-lg transition-all duration-200 active:scale-95 flex items-center justify-center min-w-[60px] max-w-[200px] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100";
 
   const variants = {
     primary: "w-full bg-[#D9F55C] text-black hover:bg-[#c8e44a] hover:border-[#c8e44a]",
@@ -35,6 +37,7 @@ export const NuraButton = ({
 
   return (
     <button
+      id={id}
       type={type}
       onClick={onClick}
       disabled={disabled || isLoading}

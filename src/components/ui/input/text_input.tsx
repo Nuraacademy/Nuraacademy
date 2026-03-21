@@ -13,6 +13,7 @@ interface TextInputProp {
     icon?: React.ReactNode;
     color?: string;
     disabled?: boolean;
+    id?: string;
 }
 
 export const NuraTextInput = ({
@@ -26,7 +27,8 @@ export const NuraTextInput = ({
     onBlur,
     icon,
     color = "black",
-    disabled = false
+    disabled = false,
+    id
 }: TextInputProp) => {
     const [showPassword, setShowPassword] = useState(false);
     const isPassword = variant === 'password';
@@ -37,6 +39,7 @@ export const NuraTextInput = ({
             {label && <label className={`block text-sm font-medium mb-1 text-${color}`}>{label}</label>}
             <div className="relative">
                 <input
+                    id={id}
                     type={inputType}
                     placeholder={placeholder}
                     value={value}
@@ -55,7 +58,7 @@ export const NuraTextInput = ({
                         className={`absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-black transition-colors`}
                         disabled={disabled}
                     >
-                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
                     </button>
                 ) : icon && (
                     <div className={`absolute right-3 top-1/2 -translate-y-1/2 text-${color} [&>svg]:w-4 [&>svg]:h-4`}>

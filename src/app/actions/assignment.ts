@@ -18,14 +18,23 @@ export async function submitTest(formData: FormData) {
 
     const assignment = await prisma.assignment.findUnique({
         where: { id: assignmentId },
-        select: { endDate: true }
+        select: { startDate: true, endDate: true, duration: true }
     })
 
-    if (assignment?.endDate) {
-        // Add a 1-minute grace period to account for network delays during auto-submit
-        const gracePeriod = new Date(assignment.endDate.getTime() + 60000);
-        if (finishedAt > gracePeriod) {
-            return { success: false, error: "Test window closed" }
+    if (assignment) {
+        let deadline: Date | null = null;
+        if (assignment.endDate) {
+            deadline = new Date(assignment.endDate);
+        } else if (assignment.startDate && assignment.duration) {
+            deadline = new Date(assignment.startDate.getTime() + assignment.duration * 60000);
+        }
+
+        if (deadline) {
+            // Add a 1-minute grace period to account for network delays during auto-submit
+            const gracePeriod = new Date(deadline.getTime() + 60000);
+            if (finishedAt > gracePeriod) {
+                return { success: false, error: "Test window closed" }
+            }
         }
     }
 

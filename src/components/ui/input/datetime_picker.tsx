@@ -183,9 +183,10 @@ interface M3DateTimePickerProps {
     error?: string;
     required?: boolean;
     className?: string;
+    id?: string;
 }
 
-export function M3DateTimePicker({ label, value, onChange, error, required, className }: M3DateTimePickerProps) {
+export function M3DateTimePicker({ label, value, onChange, error, required, className, id }: M3DateTimePickerProps) {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
 
@@ -209,6 +210,7 @@ export function M3DateTimePicker({ label, value, onChange, error, required, clas
                 </label>
             )}
             <button
+                id={id}
                 type="button"
                 onClick={() => setOpen((o) => !o)}
                 className={`w-full flex items-center justify-between rounded-full border px-4 py-2.5 text-sm bg-white transition-all focus:outline-none focus:ring-2 focus:ring-[#D9F55C] ${error ? "border-red-400" : open ? "border-[#1C3A37]" : "border-gray-300 hover:border-gray-400"}`}
@@ -240,9 +242,10 @@ interface M3TimePickerProps {
     error?: string;
     required?: boolean;
     className?: string;
+    id?: string;
 }
 
-export function M3TimePicker({ label, value, onChange, error, required, className }: M3TimePickerProps) {
+export function M3TimePicker({ label, value, onChange, error, required, className, id }: M3TimePickerProps) {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
 
@@ -272,6 +275,7 @@ export function M3TimePicker({ label, value, onChange, error, required, classNam
                 </label>
             )}
             <button
+                id={id}
                 type="button"
                 onClick={() => setOpen((o) => !o)}
                 className={`w-full flex items-center justify-between rounded-full border px-4 py-2.5 text-sm bg-white transition-all focus:outline-none focus:ring-2 focus:ring-[#D9F55C] ${error ? "border-red-400" : open ? "border-[#1C3A37]" : "border-gray-300 hover:border-gray-400"}`}

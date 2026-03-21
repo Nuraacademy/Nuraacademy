@@ -113,6 +113,26 @@ export default function RegisterPage() {
             Create Your Account
           </h2>
 
+          <div className="flex justify-center mb-6">
+              <div className="w-full h-[40px] [&>div]:w-full [&>div>div]:w-full [&>div>div]:flex [&>div>div]:justify-center">
+                  <GoogleLogin
+                      onSuccess={handleGoogleSuccess}
+                      onError={() => {
+                          toast.error("Google Registration Failed");
+                      }}
+                      width="100%"
+                      shape="pill"
+                      text="signup_with"
+                  />
+              </div>
+          </div>
+
+          <div className="relative flex items-center py-2">
+            <div className="flex-grow border-t border-gray-300"></div>
+            <span className="flex-shrink-0 mx-4 text-gray-400 text-sm">Or</span>
+            <div className="flex-grow border-t border-gray-300"></div>
+          </div>
+
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
               <NuraTextInput
@@ -185,29 +205,9 @@ export default function RegisterPage() {
               />
             </div>
 
-            <div className="relative flex items-center py-2">
-              <div className="flex-grow border-t border-gray-300"></div>
-              <span className="flex-shrink-0 mx-4 text-gray-400 text-sm">Or</span>
-              <div className="flex-grow border-t border-gray-300"></div>
-            </div>
-
-            <div className="flex justify-center mb-6">
-                <div className="w-full h-[40px] [&>div]:w-full [&>div>div]:w-full [&>div>div]:flex [&>div>div]:justify-center">
-                    <GoogleLogin
-                        onSuccess={handleGoogleSuccess}
-                        onError={() => {
-                            toast.error("Google Registration Failed");
-                        }}
-                        width="100%"
-                        shape="pill"
-                        text="signup_with"
-                    />
-                </div>
-            </div>
-
             <p className="text-center text-xs text-gray-500 mt-4">
               Already have an account?{" "}
-              <a href="/login" className="underline hover:decoration-2">
+              <a href="/login" className="font-semibold text-black hover:underline">
                 Login
               </a>
             </p>

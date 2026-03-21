@@ -47,12 +47,12 @@ export default async function ClassesPage() {
             <img
                 src="/background/PolygonBGTop.svg"
                 alt="Background"
-                className="absolute h-[40rem] object-cover top-0 left-0 pointer-events-none opacity-60"
+                className="absolute h-[30rem] object-cover top-0 left-0 pointer-events-none opacity-60"
             />
             <img
                 src="/background/PolygonBGBot.svg"
                 alt="Background"
-                className="absolute h-[40rem] object-cover bottom-0 right-0 pointer-events-none opacity-60"
+                className="absolute h-[30rem] object-cover bottom-0 right-0 pointer-events-none opacity-60"
             />
 
             {/* Render the interactive grid using Client Component */}

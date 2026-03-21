@@ -233,7 +233,8 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
     // Overview form
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endTime, setEndTime] = useState("");
-    const [overviewErrors, setOverviewErrors] = useState<{ startDate?: string; endTime?: string }>({});
+    const [durationMinutes, setDurationMinutes] = useState(120);
+    const [overviewErrors, setOverviewErrors] = useState<{ startDate?: string; endTime?: string; durationMinutes?: string }>({});
 
     // Per-course saved questions
     const [courseData, setCourseData] = useState<Record<string, CourseQuestions>>({});
@@ -265,6 +266,9 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
 
     useEffect(() => {
         if (existingTest) {
+            if (existingTest.duration) {
+                setDurationMinutes(existingTest.duration);
+            }
             if (existingTest.startDate) {
                 const start = new Date(existingTest.startDate);
                 setStartDate(start);
@@ -439,6 +443,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
             classId: classData.id,
             type: "PLACEMENT", // Map appropriately or hardcode if test
             startDate: start,
+            duration: durationMinutes,
         };
 
         const itemsPayload: any[] = [];
@@ -554,7 +559,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                         <h1 className="text-2xl font-bold mt-6 mb-6">{existingTest ? "Edit Test" : "Create Test"}</h1>
 
                         {/* ── Form Row ── */}
-                        <div className="grid grid-cols-1 md:grid-cols-[1fr_240px_180px] gap-4 items-start mb-8">
+                        <div className="grid grid-cols-1 md:grid-cols-[1fr_120px_240px_180px] gap-4 items-start mb-8">
 
                             {/* Class Title — Read Only */}
                             <div className="relative">
@@ -564,6 +569,20 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                 <div className="w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-700">
                                     {classData.title}
                                 </div>
+                            </div>
+
+                            {/* Duration — Number */}
+                            <div className="relative">
+                                <label className="block text-sm font-semibold mb-1">
+                                    Duration <span className="text-gray-400 font-normal">(minutes)</span>
+                                </label>
+                                <input
+                                    type="number"
+                                    min={1}
+                                    value={durationMinutes}
+                                    onChange={(e) => setDurationMinutes(Math.max(1, parseInt(e.target.value) || 1))}
+                                    className="w-full rounded-full border border-gray-200 px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#D9F55C] bg-white"
+                                />
                             </div>
 
                             {/* Start Date — M3 DateTime Picker */}
@@ -576,6 +595,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                 }}
                                 error={overviewErrors.startDate}
                                 required
+                                id="start-date-picker"
                             />
 
                             {/* End Time — M3 Time Picker */}
@@ -588,6 +608,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                 }}
                                 error={overviewErrors.endTime}
                                 required
+                                id="end-time-picker"
                             />
                         </div>
 
@@ -635,6 +656,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                                 variant={saved ? "secondary" : "primary"}
                                                 className={saved ? "!h-10 !min-w-[80px] !text-sm" : "!h-10 !min-w-[120px] !text-sm"}
                                                 onClick={() => handleAddItem(course)}
+                                                id={`add-item-course-${course.id}`}
                                             />
                                         </div>
                                     </div>
@@ -645,7 +667,13 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                         {/* Footer */}
                         <div className="flex justify-end items-center gap-4">
                             <NuraButton label="Cancel" variant="secondary" onClick={() => router.back()} disabled={isSubmitting} />
-                            <NuraButton label={isSubmitting ? "Saving..." : (existingTest ? "Save Changes" : "Create")} variant="primary" onClick={handleCreate} disabled={isSubmitting} />
+                            <NuraButton 
+                                label={isSubmitting ? "Saving..." : (existingTest ? "Save Changes" : "Create")} 
+                                variant="primary" 
+                                onClick={handleCreate} 
+                                disabled={isSubmitting} 
+                                id="create-test-submit-btn"
+                            />
                         </div>
                     </>
                 )}
@@ -786,7 +814,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                         {/* Footer */}
                         <div className="flex justify-end items-center gap-4">
                             <NuraButton label="Cancel" variant="secondary" onClick={() => { setView("overview"); }} />
-                            <NuraButton label="Save" variant="primary" onClick={handleSave} />
+                            <NuraButton label="Save" variant="primary" onClick={handleSave} id="save-course-questions-btn" />
                         </div>
                     </>
                 )}

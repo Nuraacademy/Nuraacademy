@@ -59,6 +59,8 @@ export const AssignmentCard = ({
     const handleClick = () => {
         if (syntheticType === "Class Feedback") {
             router.push(`/classes/${classId}/feedback`);
+        } else if (id && type === "Placement" && isAdmin) {
+            router.push(`/classes/${classId}/test/create`);
         } else if (id && type !== "Placement") {
             router.push(`/assignment/${id}`);
         } else {

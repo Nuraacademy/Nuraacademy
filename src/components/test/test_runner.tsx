@@ -54,8 +54,10 @@ export function TestRunner({
   feedback,
   assignmentType,
 }: TestRunnerProps) {
+  const STORAGE_KEY = `test_progress_${assignmentId}_${enrollmentId}`
+
   const [hasStarted, setHasStarted] = useState(autoStart)
-  const [startTime, setStartTime] = useState<Date | null>(autoStart ? new Date() : null)
+  const [startTime, setStartTime] = useState<Date | null>(null)
   const [isFinished, setIsFinished] = useState(finished)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -80,13 +82,71 @@ export function TestRunner({
   const currentEssay = essayQuestions[essayIndex]
   const currentProject = projectQuestions[projectIndex]
 
+  // Load state from localStorage on mount
+  useEffect(() => {
+    if (typeof window === "undefined" || isFinished) return
+
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (saved) {
+      try {
+        const data = JSON.parse(saved)
+        setObjectiveAnswers(data.objectiveAnswers || {})
+        setEssayAnswers(data.essayAnswers || {})
+        setProjectAnswers(data.projectAnswers || {})
+        
+        if (data.startTime) {
+          const savedStartTime = new Date(data.startTime)
+          setStartTime(savedStartTime)
+          setHasStarted(true)
+          
+          // Calculate remaining time
+          const elapsedSeconds = Math.floor((new Date().getTime() - savedStartTime.getTime()) / 1000)
+          const remaining = Math.max(0, (testData.durationMinutes * 60) - elapsedSeconds)
+          setTimeLeft(remaining)
+        }
+      } catch (e) {
+        console.error("Failed to load saved progress:", e)
+      }
+    }
+  }, [isFinished, assignmentId, enrollmentId, testData.durationMinutes])
+
+  // Save state to localStorage on changes
+  useEffect(() => {
+    if (typeof window === "undefined" || isFinished || !hasStarted) return
+
+    const data = {
+      objectiveAnswers,
+      essayAnswers,
+      projectAnswers,
+      startTime: startTime?.toISOString(),
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+  }, [objectiveAnswers, essayAnswers, projectAnswers, startTime, hasStarted, isFinished])
+
   const handleStart = () => {
+    const now = new Date()
     setHasStarted(true)
-    setStartTime(new Date())
+    setStartTime(now)
+    
+    // Also save immediately
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        objectiveAnswers: {},
+        essayAnswers: {},
+        projectAnswers: {},
+        startTime: now.toISOString()
+      }))
+    }
   }
 
   const handleSubmitClick = () => {
     setIsModalOpen(true)
+  }
+
+  const cleanupStorage = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(STORAGE_KEY)
+    }
   }
 
   const handleConfirmSubmit = async () => {
@@ -123,6 +183,7 @@ export function TestRunner({
       const response = await submitTest(formData)
 
       if (response.success) {
+        cleanupStorage()
         setIsModalOpen(false)
         if (assignmentType === "PROJECT") {
           window.location.href = `/classes/${classId}/feedback`
@@ -155,7 +216,7 @@ export function TestRunner({
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [hasStarted, isFinished])
+  }, [hasStarted, isFinished, startTime])
 
   const getUnansweredCount = () => {
     let count = 0

@@ -16,7 +16,7 @@ async function login(driver, username, password) {
   await driver.findElement(By.id('username')).sendKeys(username);
   await driver.findElement(By.id('password')).sendKeys(password);
   await driver.findElement(By.id('login-btn')).click();
-  await driver.wait(until.urlContains('/member'), 5000);
+  await driver.wait(until.urlContains('/classes'), 10000);
 }
 
 module.exports = {

@@ -48,11 +48,11 @@ export default function ClassCard({
 
         let style;
         if (status === "Ongoing") {
-            style = 'bg-[#B8FFA2] text-black';
+            style = 'bg-[#B8FFA2] text-grey-400';
         } else if (status === "Not Started" || status === "Upcoming") {
-            style = 'bg-[#8FF6FF] text-black';
+            style = 'bg-[#8FF6FF] text-grey-400';
         } else {
-            style = 'bg-[#A2A2A2] text-black';
+            style = 'bg-[#A2A2A2] text-grey-700';
         }
 
         return <Chip label={status} variant="default" size="sm" className={style} />;
@@ -92,7 +92,7 @@ export default function ClassCard({
             {/* Content */}
             <div className="flex flex-col flex-grow gap-4">
                 <div className="flex flex-row items-center justify-between gap-3">
-                    <h3 className="font-bold text-base text-gray-900 text-left leading-snug">
+                    <h3 className="font-medium text-base text-gray-900 text-left leading-snug">
                         {title}
                     </h3>
 
@@ -101,20 +101,20 @@ export default function ClassCard({
 
                 {/* Method & Schedule */}
                 <div className="grid grid-cols-2 text-gray-700 gap-4">
-                    <div className="flex flex-col items-start text-left text-xs gap-1.5">
-                        <span className="font-bold text-gray-900">Methods</span>
-                        <div className="text-gray-700" dangerouslySetInnerHTML={{ __html: method }} />
+                    <div className="flex flex-col items-start text-left text-xs gap-1">
+                        <span className="text-gray-900 text-sm">Methods</span>
+                        <div className="text-light text-gray-700" dangerouslySetInnerHTML={{ __html: method }} />
                     </div>
-                    <div className="flex flex-col items-start text-left text-xs gap-1.5">
-                        <span className="font-bold text-gray-900">Schedules</span>
-                        <span className="text-gray-700">{formatDate(scheduleStart)} - {formatDate(scheduleEnd)}</span>
+                    <div className="flex flex-col items-start text-left text-xs gap-1">
+                        <span className="text-gray-900 text-sm">Schedules</span>
+                        <span className="text-light text-gray-700">{formatDate(scheduleStart)} - {formatDate(scheduleEnd)}</span>
                     </div>
                 </div>
 
                 {/* Description */}
-                <div className="text-left text-xs text-gray-700 flex flex-col gap-1.5">
-                    <span className="font-bold text-gray-900">Description</span>
-                    <div className="leading-relaxed line-clamp-4" dangerouslySetInnerHTML={{ __html: description }} />
+                <div className="text-left text-xs text-gray-700 flex flex-col gap-1">
+                    <span className="text-gray-900 text-sm">Description</span>
+                    <div className="text-light leading-relaxed line-clamp-4" dangerouslySetInnerHTML={{ __html: description }} />
                 </div>
             </div>
 
@@ -122,11 +122,11 @@ export default function ClassCard({
             <div className="flex flex-row items-center justify-between gap-4 mt-5">
                 <div className="flex flex-row gap-4 items-center">
                     <div className="flex flex-row items-center gap-1.5 text-xs text-gray-600">
-                        <Clock className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
+                        <Image src="/icons/Clock.svg" alt="Clock" width={16} height={16} />
                         <span>{duration} hours</span>
                     </div>
                     <div className="flex flex-row items-center gap-1.5 text-xs text-gray-600">
-                        <BookText className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
+                        <Image src="/icons/Modules.svg" alt="Modules" width={16} height={16} />
                         <span>{courses} courses</span>
                     </div>
                 </div>
@@ -136,7 +136,7 @@ export default function ClassCard({
                             onClick={handleDelete}
                             className="p-2 rounded-lg border border-gray-200 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all"
                         >
-                            <Trash2 size={16} />
+                            <Image src="/icons/Trash.svg" alt="Delete" width={16} height={16} />
                         </button>
                     )}
                     {canEdit && (
@@ -144,7 +144,7 @@ export default function ClassCard({
                             onClick={handleEdit}
                             className="p-2 rounded-lg bg-[#D9F55C] text-black hover:bg-[#c8e44a] transition-all"
                         >
-                            <Pencil size={16} />
+                            <Image src="/icons/Edit.svg" alt="Edit" width={16} height={16} />
                         </button>
                     )}
                     {canViewAnalytics && (

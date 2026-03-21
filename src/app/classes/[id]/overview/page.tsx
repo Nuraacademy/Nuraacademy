@@ -20,7 +20,7 @@ export default async function CourseOverviewPage({
     const canUpdateSchedule = await hasPermission('Class', 'UPDATE_SCHEDULE_CLASS');
     const canCreateCourse = await hasPermission('Course', 'CREATE_COURSE');
     const canUpdateCourse = await hasPermission('Course', 'UPDATE_COURSE');
-    const canCreatePlacement = await hasPermission('PlacementTest', 'CREATE');
+    const canCreatePlacement = await hasPermission('Class', 'PLACEMENT_TEST_CREATE');
     const canViewFeedbackReport = await hasPermission('Feedback', 'VIEW_DETAIL_REFLECTION');
     
     const session = await getFullSession();
