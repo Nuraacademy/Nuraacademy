@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { NuraButton } from "../button/button";
 import { useRouter } from "next/navigation";
 
@@ -39,10 +40,12 @@ export default function WelcomingModal({
         {/* Icon */}
         <div className="mb-6 mt-2">
           <div className="w-24 h-24 flex items-center justify-center mx-auto">
-            <img
+            <Image
               src="/icons/Confetti.svg"
               alt="Congratulation"
               className="w-24 h-24 object-cover"
+              width={96}
+              height={96}
             />
           </div>
         </div>

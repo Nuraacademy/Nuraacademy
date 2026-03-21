@@ -13,6 +13,7 @@ import { NuraSelect } from '@/components/ui/input/nura_select';
 import { hasPermission } from '@/lib/rbac';
 import { useRouter } from 'next/navigation';
 import { ConfirmModal } from '@/components/ui/modal/confirmation_modal';
+import Image from 'next/image';
 
 // Mapping backend types to frontend types format
 const parseDiscussionType = (type: string) => {
@@ -284,15 +285,20 @@ export default function DiscussionTopicPage({
     return (
         <main className="relative min-h-screen bg-white flex flex-col text-gray-800">
             {/* Background Image */}
-            <img
+            <Image
                 src="/background/PolygonBGTop.svg"
-                alt="Background"
-                className="absolute h-[40rem] object-cover top-0 left-0 pointer-events-none opacity-60"
+                alt=""
+                className="absolute top-0 left-0 -z-10 w-auto h-[40rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
+                priority
             />
-            <img
+            <Image
                 src="/background/PolygonBGBot.svg"
-                alt="Background"
-                className="absolute h-[40rem] object-cover bottom-0 right-0 pointer-events-none opacity-60"
+                alt=""
+                className="absolute bottom-0 right-0 -z-10 w-auto h-[40rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
             />
 
             <div className="flex-grow mx-auto z-1 w-full max-w-7xl py-12 px-6 md:px-16">

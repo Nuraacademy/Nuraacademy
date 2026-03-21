@@ -44,15 +44,22 @@ export default async function ClassesPage() {
             <SidebarWrapper />
 
             {/* Background Image */}
-            <img
+            <Image
                 src="/background/PolygonBGTop.svg"
-                alt="Background"
-                className="absolute h-[30rem] object-cover top-0 left-0 pointer-events-none opacity-60"
+                alt=""
+                className="absolute top-0 left-0 -z-10 w-auto h-[30rem] pointer-events-none opacity-60"
+                width={500} // Increased to prevent distortion
+                height={500}
+                priority
             />
-            <img
+
+            {/* Bottom Right Background */}
+            <Image
                 src="/background/PolygonBGBot.svg"
-                alt="Background"
-                className="absolute h-[30rem] object-cover bottom-0 right-0 pointer-events-none opacity-60"
+                alt=""
+                className="absolute bottom-0 right-0 -z-10 w-auto h-[30rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
             />
 
             {/* Render the interactive grid using Client Component */}

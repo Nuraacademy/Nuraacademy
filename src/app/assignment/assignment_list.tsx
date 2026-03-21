@@ -9,6 +9,7 @@ import { AssignmentCard } from "@/components/ui/card/assignment_card";
 import { mapPrismaAssignmentType } from "@/utils/assignment";
 
 import Link from "next/link";
+import Image from "next/image";
 
 interface AssignmentListProps {
     initialAssignments: any[];
@@ -35,15 +36,20 @@ export default function AssignmentList({ initialAssignments, canAddAssignment, c
             <Sidebar onOpenChange={setIsSidebarOpen} />
 
             {/* Background Image */}
-            <img
+            <Image
                 src="/background/PolygonBGTop.svg"
-                alt="Background"
-                className="absolute -z-10 h-[40rem] object-cover top-0 left-0"
+                alt=""
+                className="absolute top-0 left-0 -z-10 w-auto h-[40rem] pointer-events-none"
+                width={500}
+                height={500}
+                priority
             />
-            <img
+            <Image
                 src="/background/PolygonBGBot.svg"
-                alt="Background"
-                className="absolute -z-10 h-[40rem] object-cover bottom-0 right-0"
+                alt=""
+                className="absolute bottom-0 right-0 -z-10 w-auto h-[40rem] pointer-events-none"
+                width={500}
+                height={500}
             />
 
             {/* Content */}

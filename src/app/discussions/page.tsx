@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { NuraSearchInput } from "@/components/ui/input/nura_search_input";
 import { NuraSelect } from "@/components/ui/input/nura_select";
 import { hasPermission } from "@/lib/rbac";
+import Image from "next/image";
 
 // Mapping backend types to frontend types format
 const parseDiscussionType = (type: string) => {
@@ -101,15 +102,20 @@ export default function DiscussionPage() {
             <Sidebar onOpenChange={setIsSidebarOpen} />
 
             {/* Background Image */}
-            <img
+            <Image
                 src="/background/PolygonBGTop.svg"
-                alt="Background"
-                className="absolute h-[40rem] object-cover top-0 left-0 pointer-events-none opacity-60"
+                alt=""
+                className="absolute top-0 left-0 -z-10 w-auto h-[40rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
+                priority
             />
-            <img
+            <Image
                 src="/background/PolygonBGBot.svg"
-                alt="Background"
-                className="absolute h-[40rem] object-cover bottom-0 right-0 pointer-events-none opacity-60"
+                alt=""
+                className="absolute bottom-0 right-0 -z-10 w-auto h-[40rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
             />
 
             <div className="flex-grow z-1 mx-auto w-full max-w-7xl py-12 px-6 md:px-16">

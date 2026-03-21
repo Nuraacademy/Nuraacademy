@@ -6,6 +6,7 @@ import { NuraSearchInput } from "@/components/ui/input/nura_search_input";
 import Sidebar from "@/components/ui/sidebar/sidebar";
 import { FeedbackCard, FeedbackType } from "@/components/ui/card/feedback_card";
 import { FeedbackItem } from "@/app/actions/feedback";
+import Image from "next/image";
 
 interface Trainer {
     id: number;
@@ -100,15 +101,20 @@ export default function FeedbackHubClient({ data }: FeedbackHubClientProps) {
 
             {/* Background Images */}
             <div className="absolute top-0 left-0 -z-10 w-full h-full overflow-hidden pointer-events-none">
-                <img
+                <Image
                     src="/background/PolygonBGTop.svg"
-                    alt="Background"
-                    className="absolute h-[40rem] object-cover top-0 left-0 opacity-40"
+                    alt=""
+                    className="absolute top-0 left-0 w-auto h-[40rem] opacity-40"
+                    width={500}
+                    height={500}
+                    priority
                 />
-                <img
+                <Image
                     src="/background/PolygonBGBot.svg"
-                    alt="Background"
-                    className="absolute h-[40rem] object-cover bottom-0 right-0 opacity-40"
+                    alt=""
+                    className="absolute bottom-0 right-0 w-auto h-[40rem] opacity-40"
+                    width={500}
+                    height={500}
                 />
             </div>
 

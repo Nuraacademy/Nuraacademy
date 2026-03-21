@@ -20,25 +20,25 @@ export default async function UsersPage() {
     ]);
 
     return (
-        <div className="min-h-screen bg-[#F9F9EE] relative overflow-hidden font-sans">
-            {/* Background Decorative Elements */}
-            <div className="absolute top-0 left-0 w-full md:w-[60%] h-[40rem] pointer-events-none opacity-40">
-                <Image 
-                    src="/background/PolygonBGTop.svg" 
-                    alt="Background Top" 
-                    fill 
-                    className="object-cover object-left-top"
-                    priority
-                />
-            </div>
-            <div className="absolute bottom-0 right-0 w-full md:w-[60%] h-[40rem] pointer-events-none opacity-40">
-                <Image 
-                    src="/background/PolygonBGBot.svg" 
-                    alt="Background Bottom" 
-                    fill 
-                    className="object-cover object-right-bottom"
-                />
-            </div>
+        <div className="relative min-h-screen w-full overflow-hidden">
+            {/* Background Image */}
+            <Image
+                src="/background/PolygonBGTop.svg"
+                alt=""
+                className="absolute top-0 left-0 -z-10 w-auto h-[30rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
+                priority
+            />
+
+            {/* Bottom Right Background */}
+            <Image
+                src="/background/PolygonBGBot.svg"
+                alt=""
+                className="absolute bottom-0 right-0 -z-10 w-auto h-[30rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
+            />
 
             <div className="relative z-10 px-4 md:px-16 py-12">
                 <div className="mb-12">

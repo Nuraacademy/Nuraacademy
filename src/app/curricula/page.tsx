@@ -58,15 +58,20 @@ export default function CurriculaPage() {
     return (
         <div className="w-full min-h-screen relative overflow-hidden bg-white">
             {/* Background Image */}
-            <img
+            <Image
                 src="/background/PolygonBGTop.svg"
-                alt="Background"
-                className="absolute h-[40rem] object-cover top-0 left-0 pointer-events-none opacity-60"
+                alt=""
+                className="absolute top-0 left-0 -z-10 w-auto h-[40rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
+                priority
             />
-            <img
+            <Image
                 src="/background/PolygonBGBot.svg"
-                alt="Background"
-                className="absolute h-[40rem] object-cover bottom-0 right-0 pointer-events-none opacity-60"
+                alt=""
+                className="absolute bottom-0 right-0 -z-10 w-auto h-[40rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
             />
             <div className="relative z-10 w-full max-w-7xl mx-auto px-4 py-8">
                 <div className="flex flex-col gap-8">

@@ -10,6 +10,7 @@ import { RichTextInput } from '@/components/ui/input/rich_text_input';
 import { NuraButton } from '@/components/ui/button/button';
 import { X, Paperclip, FileText } from 'lucide-react';
 import Sidebar from '@/components/ui/sidebar/sidebar';
+import Image from 'next/image';
 
 interface AttachedFile {
     name: string;
@@ -103,8 +104,21 @@ export default function AssignmentFeedbackEditor({
             <Sidebar />
             
             <div className="absolute top-0 left-0 -z-10 w-full h-full overflow-hidden pointer-events-none opacity-40">
-                <img src="/background/PolygonBGTop.svg" alt="" className="absolute h-[40rem] object-cover top-0 left-0" />
-                <img src="/background/PolygonBGBot.svg" alt="" className="absolute h-[40rem] object-cover bottom-0 right-0" />
+                <Image
+                    src="/background/PolygonBGTop.svg"
+                    alt=""
+                    className="absolute top-0 left-0 w-auto h-[40rem]"
+                    width={500}
+                    height={500}
+                    priority
+                />
+                <Image
+                    src="/background/PolygonBGBot.svg"
+                    alt=""
+                    className="absolute bottom-0 right-0 w-auto h-[40rem]"
+                    width={500}
+                    height={500}
+                />
             </div>
 
             <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 py-8 space-y-8 transition-all duration-300 md:pl-80">

@@ -161,9 +161,9 @@ export default function ClassCard({
                     )}
                     { !canEdit && (
                         <NuraButton
-                            label={isEnrolled ? "View" : "Enroll"}
+                            label={isEnrolled ? "View Class" : "Enroll Now"}
                             variant="navigate"
-                            className="!w-fit !max-w-none !px-6 !text-sm"
+                            className="min-w-[100px]"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 router.push(isEnrolled ? `/classes/${id}/overview` : `/classes/${id}/enrollment`);

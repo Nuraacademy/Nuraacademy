@@ -13,20 +13,31 @@ interface NuraSearchInputProps {
 export const NuraSearchInput = ({
     value,
     onChange,
-    placeholder = "Search...",
+    placeholder = "Search",
     className = ""
 }: NuraSearchInputProps) => {
     return (
-        <div className={`relative isolate flex items-center ${className}`}>
+        <div className={`relative group flex items-center ${className}`}>
             <input
                 type="text"
                 value={value}
                 onChange={onChange}
                 placeholder={placeholder}
-                className="w-full rounded-xl border border-gray-200 bg-white py-1.5 pl-4 pr-10 text-base font-medium shadow-sm transition-all focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-4 pr-11 text-sm md:text-base 
+                           transition-all duration-200 
+                           hover:border-gray-300
+                           focus:border-black focus:outline-none focus:ring-1 focus:ring-black
+                           placeholder:text-gray-400 text-black"
             />
-            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-800">
-                <Image src="/icons/Search.svg" alt="Search" width={20} height={20} />
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none 
+                            transition-opacity duration-200 group-focus-within:opacity-100 opacity-70">
+                <Image 
+                    src="/icons/Search.svg" 
+                    alt="" 
+                    width={18} 
+                    height={18} 
+                    className="grayscale brightness-0" // Ensures icon matches text color if it's colorful
+                />
             </div>
         </div>
     );
