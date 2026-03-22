@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { NuraTextInput } from "@/components/ui/input/text_input"
 import Chip from "@/components/ui/chip/chip"
@@ -160,16 +161,20 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
 
     return (
         <main className="relative min-h-screen w-full overflow-hidden bg-white">
-            {/* Background Images */}
-            <img
+            {/* Background */}
+            <Image
                 src="/background/OvalBGLeft.svg"
-                alt="Background"
-                className="absolute h-[40rem] object-cover top-0 left-0"
+                alt=""
+                className="absolute top-0 left-0 z-10 w-auto h-[30rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
             />
-            <img
+            <Image
                 src="/background/OvalBGRight.svg"
-                alt="Background"
-                className="absolute h-[40rem] object-cover bottom-0 right-0"
+                alt=""
+                className="absolute bottom-0 right-0 z-10 w-auto h-[30rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
             />
 
             {/* Content */}

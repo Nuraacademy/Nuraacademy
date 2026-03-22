@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { getCurriculaDetail, updateCurriculaAction, uploadCurriculaFile } from "@/app/actions/curricula"
 import { getClassesAction } from "@/app/actions/classes"
 import { NuraButton } from "@/components/ui/button/button"
@@ -127,15 +128,20 @@ export default function EditCurriculaPage({ params }: { params: Promise<{ id: st
 
     return (
         <div className="relative min-h-screen w-full overflow-hidden  pb-16">
-            <img
+            {/* Background */}
+            <Image
                 src="/background/OvalBGLeft.svg"
-                alt="Background"
-                className="absolute h-[40rem] object-cover top-0 left-0"
+                alt=""
+                className="absolute top-0 left-0 z-10 w-auto h-[30rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
             />
-            <img
+            <Image
                 src="/background/OvalBGRight.svg"
-                alt="Background"
-                className="absolute h-[40rem] object-cover bottom-0 right-0"
+                alt=""
+                className="absolute bottom-0 right-0 z-10 w-auto h-[30rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
             />
             <div className="relative z-10 w-full max-w-7xl mx-auto px-4 py-8">
                 <Breadcrumb

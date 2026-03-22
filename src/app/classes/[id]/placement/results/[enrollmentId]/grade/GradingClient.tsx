@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react";
+import Image from "next/image";
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import { NuraButton } from "@/components/ui/button/button";
 import { useRouter } from "next/navigation";
@@ -104,9 +105,21 @@ export default function GradingClient({
 
     return (
         <main className="min-h-screen bg-[#FDFDF7]  text-gray-800 pb-20">
-            {/* Background Images */}
-            <img src="/background/OvalBGLeft.svg" alt="" className="absolute h-[40rem] object-cover top-0 left-0 pointer-events-none" />
-            <img src="/background/OvalBGRight.svg" alt="" className="absolute h-[40rem] object-cover bottom-0 right-0 pointer-events-none" />
+            {/* Background */}
+            <Image
+                src="/background/OvalBGLeft.svg"
+                alt=""
+                className="absolute top-0 left-0 z-10 w-auto h-[30rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
+            />
+            <Image
+                src="/background/OvalBGRight.svg"
+                alt=""
+                className="absolute bottom-0 right-0 z-10 w-auto h-[30rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
+            />
 
             <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 py-8">
                 <div className="mb-6">
