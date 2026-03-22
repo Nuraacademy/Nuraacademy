@@ -105,7 +105,7 @@ export default function PaymentPage({ params }: PaymentPageProps) {
                 <div className="mb-8 font-medium">
                     <Breadcrumb
                         items={[
-                            { label: "Home", href: "/" },
+                            { label: "Home", href: "/classes" },
                             { label: classData.title, href: `/classes/${id}/overview` },
                             { label: "Payment Class", href: `/classes/${id}/payment` },
                         ]}

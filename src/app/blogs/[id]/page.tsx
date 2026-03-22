@@ -59,7 +59,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
     if (!blog) return <div className="min-h-screen flex items-center justify-center">Blog not found</div>;
 
     const breadcrumbItems = [
-        { label: "Home", href: "/" },
+        { label: "Home", href: "/classes" },
         { label: "Blog", href: "/blogs" },
         { label: blog.title, href: "#" }
     ];

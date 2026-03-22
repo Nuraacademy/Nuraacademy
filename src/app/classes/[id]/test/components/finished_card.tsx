@@ -12,8 +12,8 @@ interface FinishedCardProps {
 
 export function FinishedCard({ classId, testData, pageText, userName, totalScore, feedback }: FinishedCardProps) {
     return (
-        <section className="mt-6 flex flex-col items-center px-4 pb-20">
-            <div className="w-full max-w-5xl bg-white rounded-[1.5rem] shadow-sm border border-gray-200 px-8 py-10 md:px-12 md:py-12 mb-8">
+        <section className="mt-6 flex flex-col items-center pb-20">
+            <div className="w-full bg-white rounded-[1.5rem] shadow-sm border border-gray-200 px-8 py-10 md:px-12 md:py-12 mb-8">
                 <h2 className="text-xl md:text-2xl font-medium text-gray-900">{userName || "Learner"}</h2>
                 <p className="text-sm md:text-base text-gray-700 mt-2 mb-8">{testData.courseName}</p>
 
@@ -74,7 +74,6 @@ export function FinishedCard({ classId, testData, pageText, userName, totalScore
                 <NuraButton
                     label="Back"
                     variant="secondary"
-                    className="border-transparent"
                     onClick={() => {
                         window.location.href = `/classes/${classId}/overview`
                     }}
@@ -82,7 +81,6 @@ export function FinishedCard({ classId, testData, pageText, userName, totalScore
                 <NuraButton
                     label="See Groups"
                     variant="primary"
-                    className="min-w-[160px]"
                     onClick={() => {
                         window.location.href = `/classes/${classId}/groups`
                     }}

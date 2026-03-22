@@ -12,7 +12,7 @@ interface ClassFeedbackListProps {
 
 export default function ClassFeedbackList({ classId, data, feedbacks }: ClassFeedbackListProps) {
     const breadcrumbItems = [
-        { label: "Home", href: "/" },
+        { label: "Home", href: "/classes" },
         { label: "Feedback", href: "/feedback" },
         { label: `${data.class.title} Feedback`, href: "#" },
     ];

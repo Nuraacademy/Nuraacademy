@@ -57,7 +57,7 @@ export default function ReflectionFeedbackDetail({ reflection, hasPrivilege }: R
     };
 
     const breadcrumbItems = [
-        { label: "Home", href: "/" },
+        { label: "Home", href: "/classes" },
         { label: "Feedback", href: "/feedback/reflection" },
         { label: reflection.user.name || reflection.user.username, href: "#" },
     ];

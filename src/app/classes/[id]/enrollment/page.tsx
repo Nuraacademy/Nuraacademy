@@ -182,7 +182,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
                 <div className="px-8 md:px-12">
                     <Breadcrumb
                         items={[
-                            { label: "Home", href: "/" },
+                            { label: "Home", href: "/classes" },
                             { label: className, href: `/classes/${classId}/overview` },
                             { label: "Enroll Class", href: `/classes/${classId}/enrollment` },
                         ]}

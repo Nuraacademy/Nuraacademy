@@ -66,7 +66,7 @@ export default function ReflectionClient({ classId, courseId, moduleId, data, in
     };
 
     const breadcrumbItems = [
-        { label: "Home", href: "/" },
+        { label: "Home", href: "/classes" },
         { label: data.class.title, href: `/classes/${classId}/overview` },
         { label: data.course.title, href: `/classes/${classId}/course/${courseId}/overview` },
         { label: moduleId ? "Session Reflection" : "Course Reflection", href: "#" },

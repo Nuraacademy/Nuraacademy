@@ -50,7 +50,7 @@ export default function PlacementResultsClient({
                 <div className="mb-6">
                     <Breadcrumb
                         items={[
-                            { label: "Home", href: "/" },
+                            { label: "Home", href: "/classes" },
                             { label: classTitle, href: `/classes/${classId}/overview` },
                             { label: "Results", href: "#" },
                         ]}

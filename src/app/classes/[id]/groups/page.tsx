@@ -41,7 +41,7 @@ export default async function ViewGroupPage({ params }: { params: Promise<{ id: 
                 <div className="mb-6">
                     <Breadcrumb
                         items={[
-                            { label: "Home", href: "/" },
+                            { label: "Home", href: "/classes" },
                             { label: classData.title, href: `/classes/${classId}/overview` },
                             { label: "View Group", href: "#" },
                         ]}

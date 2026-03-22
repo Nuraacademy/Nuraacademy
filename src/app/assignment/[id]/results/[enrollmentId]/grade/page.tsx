@@ -12,7 +12,7 @@ export default async function IndividualGradingPage({
 }) {
     const { id, enrollmentId: rawEnrollmentId } = await params;
     const assignmentId = parseInt(id);
-    
+
     // Check if it's a numeric ID or a string name
     const isNumeric = /^\d+$/.test(rawEnrollmentId);
     const eid = isNumeric ? parseInt(rawEnrollmentId) : rawEnrollmentId;
@@ -37,7 +37,7 @@ export default async function IndividualGradingPage({
 
         // Resolve group context
         const group = await prisma.group.findFirst({
-            where: { 
+            where: {
                 name: typeof eid === 'string' ? decodeURIComponent(eid) : undefined,
                 id: typeof eid === 'number' ? eid : undefined,
                 enrollmentId: typeof eid === 'number' ? eid : undefined,
@@ -52,7 +52,7 @@ export default async function IndividualGradingPage({
 
             // Find all members of this group in this class
             const members = await prisma.group.findMany({
-                where: { 
+                where: {
                     name: group.name,
                     deletedAt: null,
                     enrollment: { classId: assignment.classId }
@@ -71,8 +71,8 @@ export default async function IndividualGradingPage({
     }
 
     if (!enrollment && typeof eid === 'number') {
-         // Fallback for individual if not found via group logic
-         enrollment = await getEnrollmentById(eid);
+        // Fallback for individual if not found via group logic
+        enrollment = await getEnrollmentById(eid);
     }
 
     if (!enrollment && typeof eid !== 'string') return notFound();
@@ -91,7 +91,7 @@ export default async function IndividualGradingPage({
             title={`Grading: ${assignment.title}`}
             subtitle={assignment.class?.title || assignment.course?.title || "Assignment"}
             breadcrumbItems={[
-                { label: "Home", href: "/" },
+                { label: "Home", href: "/classes" },
                 { label: "Assignments", href: "/assignment" },
                 { label: assignment.title || "Assignment", href: `/assignment/${id}` },
                 { label: "Results", href: `/assignment/${id}/results` },

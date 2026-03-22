@@ -124,7 +124,7 @@ export default function AssignmentFeedbackEditor({
             <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 py-8 space-y-8 transition-all duration-300 md:pl-80">
                 <Breadcrumb
                     items={[
-                        { label: "Home", href: "/" },
+                        { label: "Home", href: "/classes" },
                         { label: "Assignment", href: "/feedback" },
                         { label: assignmentTitle, href: `/assignment/${assignmentId}/results` },
                         { label: learnerName, href: "#" },

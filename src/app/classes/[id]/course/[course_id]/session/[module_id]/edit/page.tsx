@@ -54,7 +54,7 @@ export default async function EditSessionPage({
     }
 
     const breadcrumbItems = [
-        { label: "Home", href: "/" },
+        { label: "Home", href: "/classes" },
         { label: classTitle, href: `/classes/${classId}/overview` },
         { label: courseTitle, href: `/classes/${classId}/course/${courseId}/overview` },
         { label: isNew ? "New Session" : sessionTitle, href: isNew ? "#" : `/classes/${classId}/course/${courseId}/session/${moduleId}` }

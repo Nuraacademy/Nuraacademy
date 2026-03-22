@@ -525,7 +525,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
 
     // ── Breadcrumbs ──────────────────────────────────────────────────────────
     const breadcrumbBase = [
-        { label: "Home", href: "/" },
+        { label: "Home", href: "/classes" },
         { label: classData.title || "Class Overview", href: `/classes/${classData.id}/overview` },
         { label: existingTest ? "Edit Placement Test" : "Create Placement Test", href: "#" },
     ];
@@ -534,7 +534,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
     const TOTAL_COURSES = classData.courses?.length || 0;
 
     return (
-        <main className="relative min-h-screen bg-white flex flex-col text-gray-800 overflow-hidden">
+        <main className="relative min-h-screen max-w-7xl bg-white flex flex-col text-gray-800 overflow-hidden">
             {/* Background */}
             <Image
                 src="/background/OvalBGLeft.svg"

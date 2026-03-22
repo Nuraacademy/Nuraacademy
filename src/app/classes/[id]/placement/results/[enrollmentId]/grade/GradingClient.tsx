@@ -125,7 +125,7 @@ export default function GradingClient({
                 <div className="mb-6">
                     <Breadcrumb
                         items={[
-                            { label: "Home", href: "/" },
+                            { label: "Home", href: "/classes" },
                             { label: "Placement Test", href: `/classes/${classId}/test` },
                             { label: "Results", href: `/classes/${classId}/placement/results` },
                             { label: learnerName, href: "#" },

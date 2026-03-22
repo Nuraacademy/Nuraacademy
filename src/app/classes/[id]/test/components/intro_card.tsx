@@ -12,8 +12,8 @@ export function IntroCard({ onStart, testData, pageText }: IntroCardProps) {
     const router = useRouter();
 
     return (
-        <section className="mt-6 flex justify-center px-4">
-            <div className="w-full max-w-5xl bg-white rounded-[2.5rem] shadow-sm border border-gray-200 px-10 py-10">
+        <section className="mt-6 flex justify-center">
+            <div className="w-full max-w-7xl bg-white rounded-2xl shadow-sm border border-gray-200 px-10 py-10">
                 <h2 className="text-base font-semibold mb-4">{pageText.introTitle}</h2>
                 <div
                     className="text-sm text-gray-700 leading-relaxed mb-8 prose prose-sm max-w-none"

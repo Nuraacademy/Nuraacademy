@@ -39,7 +39,7 @@ export default async function GradingPage({
             title="Placement Test"
             subtitle="Foundation to Data Analytics"
             breadcrumbItems={[
-                { label: "Home", href: "/" },
+                { label: "Home", href: "/classes" },
                 { label: "Placement Test", href: `/classes/${classId}/test` },
                 { label: "Results", href: `/classes/${classId}/placement/results` },
                 { label: enrollment.user.name || enrollment.user.username, href: "#" },

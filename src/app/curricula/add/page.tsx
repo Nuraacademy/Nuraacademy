@@ -95,7 +95,7 @@ export default function AddCurriculaPage() {
             <div className="relative z-10 w-full max-w-7xl mx-auto px-4 py-8">
                 <Breadcrumb
                     items={[
-                        { label: "Home", href: "/" },
+                        { label: "Home", href: "/classes" },
                         { label: "Curricula", href: "/curricula" },
                         { label: "Add Curricula", href: "/curricula/add" },
                     ]}

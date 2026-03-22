@@ -18,6 +18,7 @@ import {
   PageText
 } from "@/app/classes/[id]/test/types"
 import { submitTest } from "@/app/actions/assignment"
+import TitleCard from "../ui/card/title_card"
 
 type TestRunnerProps = {
   classId: string
@@ -291,14 +292,6 @@ export function TestRunner({
     }
   }
 
-  const renderBanner = () => (
-    <div className="px-6 mt-2">
-      <div className="w-full bg-[#075546] text-white py-4 px-8 rounded-[1.5rem] shadow-sm">
-        <h1 className="text-lg font-semibold">{pageText.bannerTitle}</h1>
-      </div>
-    </div>
-  )
-
   const renderSidebar = () => (
     <aside className="w-full md:w-64 mb-6 md:mb-0 md:mr-8">
       <div className="mb-6">
@@ -560,8 +553,8 @@ export function TestRunner({
   }
 
   const renderTestCard = () => (
-    <section className="mt-6 flex justify-center px-4">
-      <div className="w-full max-w-5xl bg-white rounded-[2.5rem] shadow-sm border border-gray-200 px-8 py-8 md:px-12 md:py-10">
+    <section className="mt-6 flex justify-center">
+      <div className="w-full bg-white rounded-2xl shadow-sm border border-gray-200 px-8 py-8 md:px-12 md:py-10">
         <div className="flex flex-col md:flex-row">
           {renderSidebar()}
           {currentType === "objective"
@@ -611,8 +604,8 @@ export function TestRunner({
   )
 
   return (
-    <div className="px-6 pb-10">
-      {showBanner && renderBanner()}
+    <div className="max-w-7xl mx-auto">
+      <TitleCard title={pageText.bannerTitle} />
 
       {isFinished ? (
         <FinishedCard

@@ -526,7 +526,7 @@ export function AddAssignmentClient({
     // ── Breadcrumbs ──────────────────────────────────────────────────────────
 
     const breadcrumbBase = [
-        { label: "Home", href: "/" },
+        { label: "Home", href: "/classes" },
         { label: "Assignment", href: "/assignment" },
         { label: "Add Assignment", href: "#" },
     ];

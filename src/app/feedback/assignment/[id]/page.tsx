@@ -53,7 +53,7 @@ export default async function AssignmentFeedbackLearnerListPage({
                 <div className="mb-6">
                     <Breadcrumb
                         items={[
-                            { label: "Home", href: "/" },
+                            { label: "Home", href: "/classes" },
                             { label: "Feedbacks", href: "/feedback" },
                             { label: assignment.title || "Assignment", href: "#" },
                         ]}

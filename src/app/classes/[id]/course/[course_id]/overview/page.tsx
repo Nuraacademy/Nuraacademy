@@ -61,7 +61,7 @@ export default async function CourseOverviewPage({
     const tools = parseStringList(course.tools);
 
     const breadcrumbItems = [
-        { label: "Home", href: "/" },
+        { label: "Home", href: "/classes" },
         { label: classTitle, href: `/classes/${classId}/overview` },
         { label: course.title, href: `#` },
     ];
@@ -117,7 +117,7 @@ export default async function CourseOverviewPage({
                             <ol className="list-decimal pl-4 flex flex-col gap-3 text-sm text-gray-700">
                                 {entrySkills.map((skill, i) => (
                                     <li key={i}>
-                                        <div 
+                                        <div
                                             className="rich-text"
                                             dangerouslySetInnerHTML={{ __html: skill }}
                                         />
@@ -171,10 +171,10 @@ export default async function CourseOverviewPage({
                         {(!course.sessions || course.sessions.length === 0) && (!(course as any).assignments || (course as any).assignments.length === 0) && (
                             <p className="text-sm text-gray-500 italic">No sessions or assignments added yet.</p>
                         )}
-                        
-                        <CourseReflectionLink 
-                            classId={classId} 
-                            courseId={courseId} 
+
+                        <CourseReflectionLink
+                            classId={classId}
+                            courseId={courseId}
                             href={reflectionLink}
                         />
 

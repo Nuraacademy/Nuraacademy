@@ -26,7 +26,7 @@ export default async function ExercisePage({
     const sessionTitle = session.title;
 
     const breadcrumbItems = [
-        { label: "Home", href: "/" },
+        { label: "Home", href: "/classes" },
         { label: classTitle, href: `/classes/${classId}/overview` },
         { label: courseTitle, href: `/classes/${classId}/course/${courseId}/overview` },
         { label: sessionTitle, href: `/classes/${classId}/course/${courseId}/session/${moduleId}` },

@@ -28,7 +28,7 @@ export default function AddClassPage() {
             <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 py-8">
                 <Breadcrumb
                     items={[
-                        { label: "Home", href: "/" },
+                        { label: "Home", href: "/classes" },
                         { label: "Class", href: "/classes" },
                         { label: "Add Class", href: "/classes/add" },
                     ]}

@@ -20,7 +20,7 @@ export default function ReflectionFeedbackList({ classId, courseId, data, reflec
     const router = useRouter();
 
     const breadcrumbItems = [
-        { label: "Home", href: "/" },
+        { label: "Home", href: "/classes" },
         { label: "Feedback", href: "#" },
         { label: `${data.course.title} Reflection Feedback`, href: "#" },
     ];

@@ -146,7 +146,7 @@ export default function EditCurriculaPage({ params }: { params: Promise<{ id: st
             <div className="relative z-10 w-full max-w-7xl mx-auto px-4 py-8">
                 <Breadcrumb
                     items={[
-                        { label: "Home", href: "/" },
+                        { label: "Home", href: "/classes" },
                         { label: "Curricula", href: "/curricula" },
                         { label: title, href: `/curricula/${id}/edit` },
                         { label: "Edit Curricula", href: `/curricula/${id}/edit` },

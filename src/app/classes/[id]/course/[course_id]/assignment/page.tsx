@@ -15,7 +15,7 @@ export default function CourseAssignmentPage() {
     const courseId = params.course_id as string;
 
     const breadcrumbItems = [
-        { label: "Home", href: "/" },
+        { label: "Home", href: "/classes" },
         { label: PAGE_DATA.classTitle, href: `/classes/${classId}/overview` },
         { label: PAGE_DATA.courseTitle, href: `/classes/${classId}/course/${courseId}/overview` },
         { label: ASSIGNMENT_DATA.title, href: "#" },

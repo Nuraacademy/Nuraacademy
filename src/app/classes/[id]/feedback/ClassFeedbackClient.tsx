@@ -44,7 +44,7 @@ export default function ClassFeedbackClient({ classId, data, initialFeedback }: 
     };
 
     const breadcrumbItems = [
-        { label: "Home", href: "/" },
+        { label: "Home", href: "/classes" },
         { label: data.classTitle, href: `/classes/${classId}/overview` },
         { label: "Class Feedback", href: "#" },
     ];

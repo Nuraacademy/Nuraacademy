@@ -80,10 +80,10 @@ export default async function PlacementTestPage({
 
   return (
     <main className="min-h-screen w-full bg-[#F9F9F0]">
-      <div className="px-6 pt-6">
+      <div className="py-6 max-w-7xl mx-auto">
         <Breadcrumb
           items={[
-            { label: pageText.breadcrumbHome, href: "/" },
+            { label: pageText.breadcrumbHome, href: "/classes" },
             { label: testData.courseName, href: `/classes/${classId}/overview` },
             { label: pageText.breadcrumbTest, href: `/classes/${classId}/test` },
           ]}
