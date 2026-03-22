@@ -441,7 +441,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
 
         const payload = {
             classId: classData.id,
-            type: "PLACEMENT", 
+            type: "PLACEMENT",
             startDate: start,
             endDate: endTime || undefined,
             duration: durationMinutes,
@@ -557,7 +557,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                 {view === "overview" && (
                     <>
                         <Breadcrumb items={breadcrumbBase} />
-                        <h1 className="text-2xl font-bold mt-6 mb-6">{existingTest ? "Edit Test" : "Create Test"}</h1>
+                        <h1 className="text-2xl font-medium mt-6 mb-6">{existingTest ? "Edit Test" : "Create Test"}</h1>
 
                         {/* ── Form Row ── */}
                         <div className="grid grid-cols-1 md:grid-cols-[1fr_120px_240px_180px] gap-4 items-start mb-8">
@@ -668,11 +668,11 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                         {/* Footer */}
                         <div className="flex justify-end items-center gap-4">
                             <NuraButton label="Cancel" variant="secondary" onClick={() => router.back()} disabled={isSubmitting} />
-                            <NuraButton 
-                                label={isSubmitting ? "Saving..." : (existingTest ? "Save Changes" : "Create")} 
-                                variant="primary" 
-                                onClick={handleCreate} 
-                                disabled={isSubmitting} 
+                            <NuraButton
+                                label={isSubmitting ? "Saving..." : (existingTest ? "Save Changes" : "Create")}
+                                variant="primary"
+                                onClick={handleCreate}
+                                disabled={isSubmitting}
                                 id="create-test-submit-btn"
                             />
                         </div>
@@ -683,7 +683,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                 {view === "editor" && selectedCourse && (
                     <>
                         <Breadcrumb items={[...breadcrumbBase, { label: selectedCourse.title, href: "#" }]} />
-                        <h1 className="text-2xl font-bold mt-6 mb-6">{existingTest ? "Edit Test" : "Create Test"}</h1>
+                        <h1 className="text-2xl font-medium mt-6 mb-6">{existingTest ? "Edit Test" : "Create Test"}</h1>
 
                         {/* Course Title & Passing Grade */}
                         <div className="grid grid-cols-1 md:grid-cols-[1fr_240px] gap-6 mb-8">
@@ -712,16 +712,16 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                                     const val = parseFloat(e.target.value);
                                                     setThresholds(prev => ({ ...prev, [selectedCourse.id]: isNaN(val) ? 0 : val }));
                                                 }}
-                                                className="flex-1 text-right text-base font-bold text-black outline-none bg-transparent"
+                                                className="flex-1 text-right text-base font-medium text-black outline-none bg-transparent"
                                                 placeholder="e.g. 80"
                                             />
                                             <span className="text-gray-400 text-sm font-medium shrink-0">/ {currentMax}</span>
                                         </div>
                                         {threshold > currentMax && (
-                                            <span className="text-[10px] text-red-500 font-bold mt-1 italic">Cannot exceed max score ({currentMax})</span>
+                                            <span className="text-[10px] text-red-500 font-medium mt-1 italic">Cannot exceed max score ({currentMax})</span>
                                         )}
                                         {threshold < 0 && (
-                                            <span className="text-[10px] text-red-500 font-bold mt-1 italic">Cannot be negative</span>
+                                            <span className="text-[10px] text-red-500 font-medium mt-1 italic">Cannot be negative</span>
                                         )}
                                     </div>
                                 );

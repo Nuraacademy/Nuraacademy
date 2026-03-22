@@ -56,7 +56,7 @@ export function FeedbackModal({
                 </div>
 
                 {/* Title */}
-                <h2 className="text-xl font-bold text-gray-900 mb-2">{title}</h2>
+                <h2 className="text-xl font-medium text-gray-900 mb-2">{title}</h2>
 
                 {/* Message */}
                 <div className="text-sm text-gray-600 mb-4 leading-relaxed">{message}</div>

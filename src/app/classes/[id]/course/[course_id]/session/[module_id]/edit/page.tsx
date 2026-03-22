@@ -3,6 +3,7 @@ import { getSessionById } from "@/controllers/sessionController";
 import { getCourseById } from "@/controllers/courseController";
 import { notFound } from "next/navigation";
 import EditSessionForm from "@/app/classes/[id]/course/[course_id]/session/[module_id]/edit/edit_form";
+import TitleCard from "@/components/ui/card/title_card";
 
 export default async function EditSessionPage({
     params
@@ -68,11 +69,7 @@ export default async function EditSessionPage({
                 </div>
 
                 {/* Hero Title */}
-                <section className="bg-[#005954] rounded-[1.5rem] p-6 mb-8">
-                    <h1 className="text-xl font-bold text-white">
-                        {isNew ? "Create New Session" : `Edit Session: ${sessionTitle}`}
-                    </h1>
-                </section>
+                <TitleCard title={isNew ? "Create New Session" : `Edit Session: ${sessionTitle}`} />
 
                 {/* Edit Form */}
                 <div className="bg-white rounded-[2rem] p-8 md:p-10 shadow-sm border border-gray-100">

@@ -22,27 +22,27 @@ export default function ClassFeedbackList({ classId, data, feedbacks }: ClassFee
 
             {/* Hero */}
             <div className="bg-[#005954] rounded-[1.5rem] p-6 text-white shadow-sm">
-                <h1 className="text-xl font-bold mb-1">{data.class.title} Feedback</h1>
+                <h1 className="text-xl font-medium mb-1">{data.class.title} Feedback</h1>
                 <p className="text-sm opacity-90">{data.class.title}</p>
             </div>
 
             {/* List View */}
             <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-100 flex flex-col gap-6">
-                <h2 className="text-sm font-bold text-gray-900 px-2">Learner Feedbacks</h2>
-                
+                <h2 className="text-sm font-medium text-gray-900 px-2">Learner Feedbacks</h2>
+
                 <div className="border border-gray-200 rounded-[2rem] overflow-hidden">
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="border-b border-gray-200">
-                                <th className="px-8 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider w-1/4">Learner</th>
-                                <th className="px-8 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider">Feedback Content</th>
-                                <th className="px-8 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider text-right w-1/4">Date</th>
+                                <th className="px-8 py-4 text-xs font-medium text-gray-900 uppercase tracking-wider w-1/4">Learner</th>
+                                <th className="px-8 py-4 text-xs font-medium text-gray-900 uppercase tracking-wider">Feedback Content</th>
+                                <th className="px-8 py-4 text-xs font-medium text-gray-900 uppercase tracking-wider text-right w-1/4">Date</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
                             {feedbacks.map((fb) => (
-                                <tr 
-                                    key={fb.id} 
+                                <tr
+                                    key={fb.id}
                                     className="hover:bg-gray-50 transition-colors"
                                 >
                                     <td className="px-8 py-6 align-top">
@@ -52,7 +52,7 @@ export default function ClassFeedbackList({ classId, data, feedbacks }: ClassFee
                                         </div>
                                     </td>
                                     <td className="px-8 py-6">
-                                        <div 
+                                        <div
                                             className="text-xs text-gray-600 leading-relaxed max-w-2xl rich-text"
                                             dangerouslySetInnerHTML={{ __html: fb.content }}
                                         />

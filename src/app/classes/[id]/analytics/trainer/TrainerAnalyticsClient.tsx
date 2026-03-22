@@ -51,13 +51,13 @@ export default function TrainerAnalyticsClient({ data, classId }: TrainerAnalyti
 
     return (
         <div className="min-h-screen bg-[#F9F9EE] px-4 md:px-16 py-8 md:py-12 space-y-8 font-sans">
-            <Breadcrumb 
+            <Breadcrumb
                 items={[
                     { label: 'Home', href: '/' },
                     { label: className, href: `/classes/${classId}/overview` },
                     { label: 'Report & Analytics', href: `/classes/${classId}/analytics` },
                     { label: 'Trainer Analytics', href: '#' },
-                ]} 
+                ]}
             />
 
             {/* Header */}
@@ -65,24 +65,24 @@ export default function TrainerAnalyticsClient({ data, classId }: TrainerAnalyti
                 <h1 className="text-2xl md:text-4xl font-black font-merriweather tracking-tight">
                     Report & Analytics
                 </h1>
-                <p className="text-gray-300 font-bold text-sm tracking-wide opacity-90 uppercase">
+                <p className="text-gray-300 font-medium text-sm tracking-wide opacity-90 uppercase">
                     {className} <span className="mx-3 opacity-30">|</span> Trainer: {trainer?.name || trainer?.username || 'Batch Trainer'}
                 </p>
             </div>
 
             <div className="bg-white rounded-[40px] p-8 md:p-12 shadow-sm border border-white/50 space-y-16">
-                
+
                 {/* Feedback Metrics */}
                 <div className="space-y-10">
                     <h2 className="text-xl font-black text-[#1C3A37] tracking-tight border-l-4 border-[#DAEE49] pl-4">Feedback</h2>
                     <div className="space-y-8 max-w-5xl">
                         {metrics.map((metric) => (
                             <div key={metric.label} className="grid grid-cols-1 md:grid-cols-12 items-center gap-4">
-                                <span className="md:col-span-2 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                <span className="md:col-span-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     {metric.label}
                                 </span>
                                 <div className="md:col-span-9 h-3 bg-gray-50 rounded-full overflow-hidden relative border border-gray-100/50 shadow-inner">
-                                    <div 
+                                    <div
                                         className={`absolute inset-y-0 left-0 rounded-full transition-all duration-1000 ease-out ${metric.color} shadow-lg`}
                                         style={{ width: `${(metric.value / 10) * 100}%` }}
                                     />
@@ -125,15 +125,15 @@ export default function TrainerAnalyticsClient({ data, classId }: TrainerAnalyti
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div className="bg-white border-2 border-gray-100 rounded-[32px] p-8 space-y-2 hover:border-[#1C3A37]/10 transition-all shadow-sm">
                                 <span className="text-4xl font-black text-[#1C3A37]">{forum.totalPost}</span>
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Post</p>
+                                <p className="text-xs font-medium text-gray-400 uppercase tracking-widest">Total Post</p>
                             </div>
                             <div className="bg-white border-2 border-gray-100 rounded-[32px] p-8 space-y-2 hover:border-[#1C3A37]/10 transition-all shadow-sm">
                                 <span className="text-4xl font-black text-[#1C3A37]">{forum.totalLikes}</span>
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Likes</p>
+                                <p className="text-xs font-medium text-gray-400 uppercase tracking-widest">Total Likes</p>
                             </div>
                             <div className="bg-white border-2 border-gray-100 rounded-[32px] p-8 space-y-2 hover:border-[#1C3A37]/10 transition-all shadow-sm">
                                 <span className="text-4xl font-black text-[#1C3A37]">{forum.totalReply}</span>
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Reply</p>
+                                <p className="text-xs font-medium text-gray-400 uppercase tracking-widest">Total Reply</p>
                             </div>
                         </div>
 

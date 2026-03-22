@@ -120,7 +120,7 @@ export default function DiscussionPage() {
 
             <div className="flex-grow z-1 mx-auto w-full max-w-7xl py-12 px-6 md:px-16">
                 <div className="flex flex-col gap-6 mb-12">
-                    <h1 className="text-5xl font-bold text-gray-950 tracking-tight">
+                    <h1 className="text-5xl font-medium text-gray-950 tracking-tight">
                         Forums
                     </h1>
 
@@ -162,7 +162,7 @@ export default function DiscussionPage() {
                         <div className="bg-blue-50 p-6 rounded-full mb-6 text-blue-500">
                             <img src="/icons/Reply.svg" alt="" className="w-12 h-12 opacity-50" />
                         </div>
-                        <h3 className="text-2xl font-bold text-gray-800 mb-3">No discussions found</h3>
+                        <h3 className="text-2xl font-medium text-gray-800 mb-3">No discussions found</h3>
                         <p className="text-gray-500 max-w-md mb-8 text-lg">
                             {searchQuery ? `No results for "${searchQuery}". Try a different search term.` : "Be the first to start a conversation!"}
                         </p>

@@ -6,7 +6,8 @@ import { updateSessionContent, createSession, uploadSessionFile } from "@/app/ac
 import { NuraButton } from "@/components/ui/button/button";
 import { NuraTextInput } from "@/components/ui/input/text_input";
 import { NuraTextArea } from "@/components/ui/input/text_area";
-import { Trash2, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
+import Image from "next/image";
 import FileUpload from "@/components/ui/upload/file_upload";
 import M3DateTimePicker from "@/components/ui/input/datetime_picker";
 
@@ -42,8 +43,8 @@ export default function EditSessionForm({
     const [isSynchronous, setIsSynchronous] = useState(initialIsSynchronous);
 
     // State for Async Content Type (Video vs File)
-    const [asyncContentType, setAsyncContentType] = useState<'video' | 'file'>(
-        initialContent?.file ? 'file' : 'video'
+    const [asyncContentType, setAsyncContentType] = useState<'file' | 'video'>(
+        initialContent?.video ? 'video' : 'file'
     );
 
     // State for Schedule
@@ -219,7 +220,7 @@ export default function EditSessionForm({
 
             <div className="flex flex-col gap-6 text-sm w-full bg-gray-50 p-6 rounded-[1.5rem] border border-gray-100">
                 <div className="flex flex-col gap-2">
-                    <span className="font-bold text-gray-900">Session Settings</span>
+                    <span className="font-medium text-gray-900">Session Settings</span>
                     <p className="text-gray-500 text-xs">Configure the basic settings for this session.</p>
                 </div>
                 <NuraTextInput
@@ -236,7 +237,7 @@ export default function EditSessionForm({
                             type="button"
                             onClick={() => setIsSynchronous(false)}
                             className={`rounded-xl px-6 py-1.5 text-sm transition-all ${!isSynchronous
-                                ? "bg-[#cdff2b] font-bold text-gray-900"
+                                ? "bg-[#cdff2b] font-medium text-gray-900"
                                 : "text-gray-500 hover:text-gray-900"
                                 }`}
                         >
@@ -246,7 +247,7 @@ export default function EditSessionForm({
                             type="button"
                             onClick={() => setIsSynchronous(true)}
                             className={`rounded-xl px-6 py-1.5 text-sm transition-all ${isSynchronous
-                                ? "bg-[#cdff2b] font-bold text-gray-900"
+                                ? "bg-[#cdff2b] font-medium text-gray-900"
                                 : "text-gray-500 hover:text-gray-900"
                                 }`}
                         >
@@ -266,29 +267,29 @@ export default function EditSessionForm({
             {!isSynchronous && (
                 <div className="flex flex-col gap-6 w-full bg-gray-50 p-6 rounded-[1.5rem] border border-gray-100">
                     <div className="flex flex-col gap-2">
-                        <span className="font-bold text-gray-900">Asynchronous Content Type</span>
+                        <span className="font-medium text-gray-900">Asynchronous Content Type</span>
                         <p className="text-gray-500 text-xs">Choose the type of content for this asynchronous session.</p>
                     </div>
                     <div className="flex bg-white border border-gray-200 p-1 rounded-2xl w-fit">
                         <button
                             type="button"
-                            onClick={() => setAsyncContentType('video')}
-                            className={`rounded-xl px-6 py-1.5 text-sm transition-all ${asyncContentType === 'video'
-                                ? "bg-[#cdff2b] font-bold text-gray-900"
-                                : "text-gray-500 hover:text-gray-900"
-                                }`}
-                        >
-                            Video
-                        </button>
-                        <button
-                            type="button"
                             onClick={() => setAsyncContentType('file')}
                             className={`rounded-xl px-6 py-1.5 text-sm transition-all ${asyncContentType === 'file'
-                                ? "bg-[#cdff2b] font-bold text-gray-900"
+                                ? "bg-[#cdff2b] font-medium text-gray-900"
                                 : "text-gray-500 hover:text-gray-900"
                                 }`}
                         >
                             File (PDF)
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setAsyncContentType('video')}
+                            className={`rounded-xl px-6 py-1.5 text-sm transition-all ${asyncContentType === 'video'
+                                ? "bg-[#cdff2b] font-medium text-gray-900"
+                                : "text-gray-500 hover:text-gray-900"
+                                }`}
+                        >
+                            Video
                         </button>
                     </div>
 
@@ -336,7 +337,7 @@ export default function EditSessionForm({
             {/* Zoom Section */}
             {isSynchronous && (
                 <div className="flex flex-col gap-4 text-sm w-full">
-                    <span className="font-bold text-gray-900">Live Zoom Link</span>
+                    <span className="font-medium text-gray-900">Live Zoom Link</span>
                     <div className="flex flex-col gap-4">
                         <NuraTextInput
                             label="Zoom URL"
@@ -352,7 +353,7 @@ export default function EditSessionForm({
                         />
                     </div>
                     <div className="flex flex-col gap-2 mt-4">
-                        <span className="font-bold text-gray-900">Recording (Optional)</span>
+                        <span className="font-medium text-gray-900">Recording (Optional)</span>
                         <p className="text-gray-500 text-xs">Add a link to the session recording once it's available.</p>
                     </div>
                     <div className="flex flex-col gap-4">
@@ -372,12 +373,10 @@ export default function EditSessionForm({
                 </div>
             )}
 
-            <div className="border-t border-gray-100" />
-
             {/* References Section */}
             <div className="flex flex-col gap-4 text-sm w-full">
                 <div className="flex items-center justify-between">
-                    <span className="font-bold text-gray-900">Reference Materials</span>
+                    <span className="font-medium text-gray-900">Reference Materials</span>
                     <button
                         type="button"
                         onClick={handleAddReference}
@@ -398,7 +397,12 @@ export default function EditSessionForm({
                                     onClick={() => handleRemoveReference(index)}
                                     className="absolute top-4 right-4 text-red-500 hover:text-red-700 transition z-10"
                                 >
-                                    <Trash2 size={18} />
+                                    <Image
+                                        src="/icons/Delete.svg"
+                                        alt="Delete"
+                                        width={16}
+                                        height={16}
+                                    />
                                 </button>
 
                                 <div className="flex flex-col gap-4 pr-10">
@@ -434,7 +438,6 @@ export default function EditSessionForm({
                 <NuraButton
                     label="Cancel"
                     variant="secondary"
-                    className="min-w-[120px] h-10 text-sm font-bold border border-black"
                     onClick={(e) => {
                         e.preventDefault();
                         router.push(`/classes/${classId}/course/${courseId}/overview`);

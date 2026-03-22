@@ -36,7 +36,7 @@ export const ConfirmModal = ({
 
       {/* Modal Card */}
       <div className="relative bg-white w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl flex flex-col items-center text-center animate-in zoom-in-95 duration-200">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+        <h2 className="text-2xl font-medium text-gray-900 mb-4">
           {title}
         </h2>
 

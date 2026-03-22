@@ -194,7 +194,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
                     <form onSubmit={handleSubmit} className="space-y-8">
                         {/* Personal Information Section */}
                         <div className="space-y-6">
-                            <h2 className="text-xl font-bold text-gray-900 mb-6">Personal Information</h2>
+                            <h2 className="text-xl font-medium text-gray-900 mb-6">Personal Information</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <NuraTextInput
                                     label="Profession"
@@ -234,7 +234,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
 
                         {/* Learning Objectives Section */}
                         <div>
-                            <h2 className="text-xl font-bold text-gray-900 mb-4">Learning Objectives</h2>
+                            <h2 className="text-xl font-medium text-gray-900 mb-4">Learning Objectives</h2>
                             <div className="flex flex-wrap gap-3">
                                 {learningObjectives.map((objective) => (
                                     <Chip
@@ -250,7 +250,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
 
                         {/* Final Expectations Section */}
                         <div>
-                            <h2 className="text-xl font-bold text-gray-900 mb-4">Final Expectations</h2>
+                            <h2 className="text-xl font-medium text-gray-900 mb-4">Final Expectations</h2>
                             <div className="relative">
                                 <NuraTextArea
                                     label="Final Expectations"
@@ -263,7 +263,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
 
                         {/* Upload CV Section */}
                         <div>
-                            <h2 className="text-xl font-bold text-gray-900 mb-4">Upload CV</h2>
+                            <h2 className="text-xl font-medium text-gray-900 mb-4">Upload CV</h2>
                             <CVUpload
                                 onFileSelect={(file) => setCvFile(file)}
                                 maxSizeMB={5}

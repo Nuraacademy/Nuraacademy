@@ -25,15 +25,15 @@ export const BlogCard = ({
     const router = useRouter();
 
     return (
-        <div 
+        <div
             className="flex flex-col bg-white rounded-[20px] p-5 shadow-sm border border-gray-100 w-full hover:shadow-lg transition-all duration-200 cursor-pointer"
             onClick={() => router.push(`/blogs/${id}`)}
         >
             {/* Banner Image */}
             <div className="mb-4 relative h-44 w-full">
-                <img 
-                    src={bannerUrl || "/placeholder-blog.jpg"} 
-                    alt={title} 
+                <img
+                    src={bannerUrl || "/placeholder-blog.jpg"}
+                    alt={title}
                     className="w-full h-full object-cover rounded-2xl"
                 />
             </div>
@@ -41,7 +41,7 @@ export const BlogCard = ({
             {/* Content */}
             <div className="flex flex-col flex-1 gap-4">
                 <div className="flex flex-col gap-1.5">
-                    <h3 className="font-bold text-base text-gray-900 leading-snug line-clamp-2">
+                    <h3 className="font-medium text-base text-gray-900 leading-snug line-clamp-2">
                         {title}
                     </h3>
 
@@ -63,7 +63,7 @@ export const BlogCard = ({
                 </div>
 
                 <div className="text-left text-xs text-gray-700 flex flex-col gap-1.5">
-                    <span className="font-bold text-gray-900">Description</span>
+                    <span className="font-medium text-gray-900">Description</span>
                     <p className="leading-relaxed line-clamp-3">
                         {description}
                     </p>

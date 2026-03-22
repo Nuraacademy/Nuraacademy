@@ -83,7 +83,7 @@ export default function CurriculaPage() {
                     />
 
                     <div className="flex justify-between items-center">
-                        <h1 className="text-2xl font-bold text-gray-900">Curricula</h1>
+                        <h1 className="text-2xl font-medium text-gray-900">Curricula</h1>
                         <div className="flex gap-4 items-center">
                             <div className="w-40">
                                 <NuraSelect
@@ -101,7 +101,7 @@ export default function CurriculaPage() {
                                 label="Add Curricula"
                                 variant="primary"
                                 onClick={() => router.push('/curricula/add')}
-                                className="bg-[#cdff2b] hover:bg-[#bce627] text-gray-900 border-none px-10 h-10 rounded-full font-bold shadow-lg shadow-[#cdff2b33] transition-all"
+                                className="bg-[#cdff2b] hover:bg-[#bce627] text-gray-900 border-none px-10 h-10 rounded-full font-medium shadow-lg shadow-[#cdff2b33] transition-all"
                             />
                         </div>
                     </div>
@@ -135,18 +135,18 @@ export default function CurriculaPage() {
                                             />
                                         </div>
                                         <div className="flex flex-col">
-                                            <h3 className="text-base font-bold text-gray-900 group-hover:text-gray-950 transition-colors tracking-tight">{item.title}</h3>
+                                            <h3 className="text-base font-medium text-gray-900 group-hover:text-gray-950 transition-colors tracking-tight">{item.title}</h3>
                                             <div className="flex gap-3 items-center mt-0.5">
                                                 {item.classes.length > 0 ? (
-                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                                                    <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">
                                                         {item.classes.length} {item.classes.length === 1 ? 'CLASS' : 'CLASSES'} LINKED
                                                     </p>
                                                 ) : (
-                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider italic">UNLINKED</p>
+                                                    <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider italic">UNLINKED</p>
                                                 )}
                                                 <div className="flex items-center gap-1.5">
                                                     <span className={`w-1.5 h-1.5 rounded-full ${item.status === 'Active' ? 'bg-[#cdff2b]' : 'bg-gray-300'}`} />
-                                                    <span className="text-[10px] uppercase tracking-wider font-bold text-gray-400 group-hover:text-gray-500">{item.status}</span>
+                                                    <span className="text-[10px] uppercase tracking-wider font-medium text-gray-400 group-hover:text-gray-500">{item.status}</span>
                                                 </div>
                                             </div>
                                         </div>

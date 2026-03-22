@@ -120,7 +120,7 @@ export default function EditCurriculaPage({ params }: { params: Promise<{ id: st
     if (loading) {
         return (
             <div className="w-full h-screen flex items-center justify-center">
-                <p className="text-gray-400 animate-pulse font-bold tracking-widest uppercase">Loading Curricula Data...</p>
+                <p className="text-gray-400 animate-pulse font-medium tracking-widest uppercase">Loading Curricula Data...</p>
             </div>
         );
     }
@@ -148,7 +148,7 @@ export default function EditCurriculaPage({ params }: { params: Promise<{ id: st
                 />
 
                 <div className="max-w-7xl mt-8 space-y-8">
-                    <h1 className="text-2xl font-bold text-gray-900">Edit Curricula</h1>
+                    <h1 className="text-2xl font-medium text-gray-900">Edit Curricula</h1>
 
                     <div className="flex flex-col gap-2">
                         <label className="text-sm font-semibold text-gray-900">Curricula Title</label>
@@ -168,7 +168,7 @@ export default function EditCurriculaPage({ params }: { params: Promise<{ id: st
                                     <div className="p-1.5 bg-green-50 rounded-lg group-hover:bg-green-100 transition-colors">
                                         <FileText size={14} className="text-green-600" />
                                     </div>
-                                    <span className="text-xs font-bold text-green-700">Existing: {fileUrl.split('/').pop()}</span>
+                                    <span className="text-xs font-medium text-green-700">Existing: {fileUrl.split('/').pop()}</span>
                                 </div>
                             )}
                             <FileUpload
@@ -199,7 +199,7 @@ export default function EditCurriculaPage({ params }: { params: Promise<{ id: st
                                                 toggleClassSelection(c.id);
                                                 setClassSearch("");
                                             }}
-                                            className="w-full text-left p-3 hover:bg-gray-50 text-xs font-bold transition-colors border-b border-gray-100 last:border-0"
+                                            className="w-full text-left p-3 hover:bg-gray-50 text-xs font-medium transition-colors border-b border-gray-100 last:border-0"
                                         >
                                             {c.title}
                                         </button>
@@ -211,7 +211,7 @@ export default function EditCurriculaPage({ params }: { params: Promise<{ id: st
                             {selectedClassIds.map(id => {
                                 const c = allClasses.find(item => item.id === id);
                                 return (
-                                    <div key={id} className="flex items-center gap-2 px-4 py-1.5 border border-gray-100 rounded-full bg-white shadow-sm text-xs font-bold text-gray-900">
+                                    <div key={id} className="flex items-center gap-2 px-4 py-1.5 border border-gray-100 rounded-full bg-white shadow-sm text-xs font-medium text-gray-900">
                                         {c?.title || `Class ID: ${id}`}
                                         <button
                                             onClick={() => toggleClassSelection(id)}
@@ -228,7 +228,7 @@ export default function EditCurriculaPage({ params }: { params: Promise<{ id: st
                     <div className="flex justify-between items-center pt-8">
                         <button
                             onClick={() => setStatus(status === 'Active' ? 'Deactivated' : 'Active')}
-                            className={`px-8 h-10 rounded-full border text-sm font-bold transition-all ${status === 'Active'
+                            className={`px-8 h-10 rounded-full border text-sm font-medium transition-all ${status === 'Active'
                                 ? 'bg-white border-[#cdff2b] text-gray-900'
                                 : 'bg-gray-50 border-gray-200 text-gray-300'
                                 }`}

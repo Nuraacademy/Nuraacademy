@@ -73,9 +73,9 @@ export default function DiscussionTopicPage({
             hasPermission('Forums', 'CREATE_EDIT_TOPIC'),
             getSession()
         ]).then(([
-            replySelf, replyOthers, 
-            delSelfTopic, delOthersTopic, 
-            editSelfReply, editOthersReply, 
+            replySelf, replyOthers,
+            delSelfTopic, delOthersTopic,
+            editSelfReply, editOthersReply,
             delSelfReply, delOthersReply,
             createEditTopic,
             sessionUserId
@@ -311,7 +311,7 @@ export default function DiscussionTopicPage({
                     ]}
                 />
 
-                <h1 className="text-5xl font-bold text-gray-950 tracking-tight pt-10 pb-12">Forums</h1>
+                <h1 className="text-5xl font-medium text-gray-950 tracking-tight pt-10 pb-12">Forums</h1>
 
                 {isLoading || !discussion_data ? (
                     <div className="flex flex-col items-center justify-center p-20 gap-4">
@@ -330,7 +330,7 @@ export default function DiscussionTopicPage({
 
                             <div className="flex items-center justify-between mb-6">
                                 <div className="flex items-center flex-wrap gap-4">
-                                    <h2 className="text-3xl font-bold text-gray-900 leading-tight">
+                                    <h2 className="text-3xl font-medium text-gray-900 leading-tight">
                                         {discussion_data.title}
                                     </h2>
                                     <ForumTag type={discussion_data.type} />
@@ -392,7 +392,7 @@ export default function DiscussionTopicPage({
                         <div className="bg-white/40 backdrop-blur-md rounded-[3rem] p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-white/50">
                             {/* Replies Header */}
                             <div className="flex justify-between items-center mb-12">
-                                <h2 className="text-4xl font-bold text-gray-950">Replies</h2>
+                                <h2 className="text-4xl font-medium text-gray-950">Replies</h2>
                                 <div className="flex items-center gap-4">
                                     <NuraSelect
                                         options={sortOptions}
@@ -492,8 +492,8 @@ export default function DiscussionTopicPage({
                     isOpen={isEditTopicModalOpen}
                     onConfirm={handleEditTopicConfirm}
                     onCancel={() => setIsEditTopicModalOpen(false)}
-                    initialData={{ 
-                        title: discussion_data?.title || "", 
+                    initialData={{
+                        title: discussion_data?.title || "",
                         content: discussion_data?.content || "",
                         type: discussion_data?.type.toUpperCase().replace(" ", "_") // Simple mapping back
                     }}

@@ -25,7 +25,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
         const init = async () => {
             const userId = await getSession();
             setCurrentUserId(userId || undefined);
-            
+
             const admin = await hasPermission('Blogs', 'POST_EDIT');
             setIsAdmin(admin);
 
@@ -94,7 +94,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
                         </div>
                     </div>
 
-                    <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight tracking-tight">
+                    <h1 className="text-4xl md:text-5xl font-medium text-gray-900 mb-6 leading-tight tracking-tight">
                         {blog.title}
                     </h1>
 
@@ -117,7 +117,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
                         {/* Admin Controls */}
                         {(currentUserId === blog.author || isAdmin) && (
                             <div className="flex items-center gap-2">
-                                <button 
+                                <button
                                     onClick={() => router.push(`/blogs/${blog.id}/edit`)}
                                     className="p-2 text-gray-400 hover:text-gray-900 transition-all"
                                 >
@@ -144,7 +144,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
                         {(blog.content as any[]).map((section: any, idx: number) => (
                             <div key={idx} className="animate-in fade-in duration-500">
                                 {section.type === "text" ? (
-                                    <div 
+                                    <div
                                         className="prose prose-p:text-gray-800 prose-p:leading-[1.7] prose-p:text-[17px] max-w-none font-medium"
                                         dangerouslySetInnerHTML={{ __html: section.content }}
                                     />
@@ -159,29 +159,29 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
 
                     {/* Interactions Bar - Exactly as Image */}
                     <div className="flex items-center gap-8 py-8 mt-12 border-b border-gray-100/60">
-                        <button 
+                        <button
                             onClick={handleToggleLike}
                             className={`flex items-center gap-2 transition-all ${blog.isLikedByCurrentUser ? 'text-red-500' : 'text-gray-500 hover:text-red-500'}`}
                         >
                             <Heart size={20} strokeWidth={1.5} className={blog.isLikedByCurrentUser ? 'fill-current' : ''} />
-                            <span className="text-xs font-bold text-gray-500">{blog._count.likes} likes</span>
+                            <span className="text-xs font-medium text-gray-500">{blog._count.likes} likes</span>
                         </button>
                         <div className="flex items-center gap-2 text-gray-500">
                             <MessageCircle size={20} strokeWidth={1.5} />
-                            <span className="text-xs font-bold">{blog._count.comments} comment</span>
+                            <span className="text-xs font-medium">{blog._count.comments} comment</span>
                         </div>
                         <button className="flex items-center gap-2 text-gray-500 hover:text-blue-500 transition-all">
                             <Send size={20} strokeWidth={1.5} />
-                            <span className="text-xs font-bold">5 shares</span>
+                            <span className="text-xs font-medium">5 shares</span>
                         </button>
                     </div>
                 </div>
 
                 {/* Comments Section */}
                 <div className="max-w-4xl mx-auto pb-24">
-                    <CommentSection 
-                        blogId={blog.id} 
-                        comments={blog.comments} 
+                    <CommentSection
+                        blogId={blog.id}
+                        comments={blog.comments}
                         currentUserId={currentUserId}
                         isAdmin={isAdmin}
                     />

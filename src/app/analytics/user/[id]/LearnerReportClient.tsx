@@ -23,18 +23,18 @@ export default function LearnerReportClient({ data }: LearnerReportClientProps) 
 
     return (
         <div className="min-h-screen bg-[#F9F9EE] px-4 md:px-16 py-8 md:py-12 space-y-8 font-sans">
-            <Breadcrumb 
+            <Breadcrumb
                 items={[
                     { label: 'Home', href: '/' },
                     { label: 'Report & Analytics', href: '/admin' },
                     { label: classTitle, href: '#' },
                     { label: user.name || user.username, href: '#' },
-                ]} 
+                ]}
             />
 
             {/* Header */}
             <div className="bg-[#1C3A37] rounded-[24px] p-8 md:p-10 text-white space-y-2 shadow-lg">
-                <h1 className="text-2xl md:text-3xl font-bold">{user.name || user.username}</h1>
+                <h1 className="text-2xl md:text-3xl font-medium">{user.name || user.username}</h1>
                 <p className="text-gray-300 font-medium opacity-80">
                     {classTitle} <span className="mx-2">|</span> Batch Number
                 </p>
@@ -43,18 +43,18 @@ export default function LearnerReportClient({ data }: LearnerReportClientProps) 
             {/* Peer Feedback Summary */}
             <div className="bg-white rounded-[40px] p-8 md:p-12 shadow-sm border border-white/50 space-y-12">
                 <div className="space-y-8">
-                    <h2 className="text-xl md:text-2xl font-bold text-[#1C3A37]">Peer Feedback Summary</h2>
+                    <h2 className="text-xl md:text-2xl font-medium text-[#1C3A37]">Peer Feedback Summary</h2>
                     <div className="space-y-6">
                         {metrics.map((metric) => (
                             <div key={metric.label} className="flex items-center gap-6">
                                 <span className="w-32 md:w-40 text-sm md:text-base font-medium text-gray-500">{metric.label}</span>
                                 <div className="flex-grow h-3 bg-gray-50 rounded-full overflow-hidden relative">
-                                    <div 
+                                    <div
                                         className={`absolute inset-y-0 left-0 rounded-full transition-all duration-1000 ease-out ${metric.color}`}
                                         style={{ width: `${metric.score}%` }}
                                     />
                                 </div>
-                                <span className="w-10 text-right text-sm md:text-base font-bold text-[#1C3A37]">{metric.score}%</span>
+                                <span className="w-10 text-right text-sm md:text-base font-medium text-[#1C3A37]">{metric.score}%</span>
                             </div>
                         ))}
                     </div>
@@ -62,11 +62,11 @@ export default function LearnerReportClient({ data }: LearnerReportClientProps) 
 
                 {/* Feedback Details */}
                 <div className="space-y-8 pt-8 border-t border-gray-100">
-                    <h2 className="text-xl md:text-2xl font-bold text-[#1C3A37]">Feedback Details</h2>
+                    <h2 className="text-xl md:text-2xl font-medium text-[#1C3A37]">Feedback Details</h2>
                     <div className="bg-[#F9F9EE]/50 rounded-[32px] p-6 md:p-10 space-y-10">
                         {metrics.map((metric) => (
                             <div key={metric.label} className="space-y-3">
-                                <h3 className="text-base md:text-lg font-bold text-[#1C3A37]">{metric.label}</h3>
+                                <h3 className="text-base md:text-lg font-medium text-[#1C3A37]">{metric.label}</h3>
                                 <p className="text-sm md:text-base text-gray-600 leading-relaxed">
                                     {metric.feedback || "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."}
                                 </p>
@@ -78,7 +78,7 @@ export default function LearnerReportClient({ data }: LearnerReportClientProps) 
             </div>
 
             <div className="flex justify-center pt-8">
-                <button 
+                <button
                     onClick={() => router.push(`/analytics/${data.id}/edit`)}
                     className="bg-[#DAEE49] hover:bg-[#C9D942] text-[#1C3A37] font-black py-4 px-12 rounded-full transition-all shadow-md hover:shadow-lg uppercase tracking-widest text-xs"
                 >

@@ -80,7 +80,7 @@ export default function FileUploadModal({
       <div className="relative bg-white w-full max-w-3xl rounded-[2.5rem] p-10 shadow-2xl animate-in fade-in zoom-in-95">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+          <h2 className="text-2xl font-medium text-gray-900">{title}</h2>
           <button
             onClick={onClose}
             className="p-1.5 border-2 border-gray-200 rounded-full hover:bg-gray-100 transition-colors"

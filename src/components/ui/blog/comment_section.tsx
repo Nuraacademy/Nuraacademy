@@ -71,7 +71,7 @@ export const CommentSection = ({ blogId, comments: initialComments, currentUserI
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-950">Comment</h2>
+                <h2 className="text-2xl font-medium text-gray-950">Comment</h2>
                 {/* Sort Dropdown as shown in image */}
                 <button className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-lg text-xs font-semibold text-gray-500 hover:bg-gray-50 transition-all">
                     Sorted
@@ -82,14 +82,14 @@ export const CommentSection = ({ blogId, comments: initialComments, currentUserI
             {/* Comment Input Box */}
             {currentUserId ? (
                 <div className="bg-white rounded-[24px] border border-gray-200 p-6 shadow-sm mb-12">
-                    <RichTextInput 
+                    <RichTextInput
                         value={commentText}
                         onChange={setCommentText}
                     />
                     <div className="flex justify-end items-center gap-6 mt-6">
-                        <button 
+                        <button
                             onClick={() => setCommentText("")}
-                            className="text-xs font-bold text-gray-500 hover:text-gray-950 transition-colors"
+                            className="text-xs font-medium text-gray-500 hover:text-gray-950 transition-colors"
                         >
                             Clear
                         </button>
@@ -113,31 +113,31 @@ export const CommentSection = ({ blogId, comments: initialComments, currentUserI
                 {comments.map((comment) => (
                     <div key={comment.id} className="group animate-in fade-in slide-in-from-bottom-2 duration-500">
                         <div className="flex items-start justify-between mb-3">
-                            <div className="flex items-center gap-2 text-[11px] font-bold">
+                            <div className="flex items-center gap-2 text-[11px] font-medium">
                                 <span className="text-[#D9F55C] bg-[#D9F55C]/10 px-1 rounded">@{comment.user.username}</span>
                                 <span className="text-gray-400 font-normal">
                                     {formatDistanceToNow(new Date(comment.createdAt))} ago
                                 </span>
                             </div>
                             {(currentUserId === comment.user.id || isAdmin) && (
-                                <button 
+                                <button
                                     onClick={() => handleDelete(comment.id)}
-                                    className="text-[10px] font-bold text-gray-400 hover:text-red-500 transition-colors"
+                                    className="text-[10px] font-medium text-gray-400 hover:text-red-500 transition-colors"
                                 >
                                     Delete
                                 </button>
                             )}
                         </div>
-                        <div 
+                        <div
                             className="text-gray-900 text-[13px] leading-relaxed mb-4 max-w-none prose prose-p:my-0 prose-sm focus:outline-none"
                             dangerouslySetInnerHTML={{ __html: comment.text }}
                         />
                         <div className="flex items-center gap-5 text-gray-400">
-                            <button className="flex items-center gap-1.5 hover:text-red-500 transition-colors text-[10px] font-bold">
+                            <button className="flex items-center gap-1.5 hover:text-red-500 transition-colors text-[10px] font-medium">
                                 <Heart size={16} strokeWidth={1.5} />
                                 <span>67 likes</span>
                             </button>
-                            <button className="flex items-center gap-1.5 hover:text-blue-500 transition-colors text-[10px] font-bold">
+                            <button className="flex items-center gap-1.5 hover:text-blue-500 transition-colors text-[10px] font-medium">
                                 <Send size={16} strokeWidth={1.5} />
                                 <span>5 shares</span>
                             </button>

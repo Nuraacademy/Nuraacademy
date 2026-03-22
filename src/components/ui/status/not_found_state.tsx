@@ -40,7 +40,7 @@ export function NotFoundState({
                 </div>
             </div>
 
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">{title}</h2>
+            <h2 className="text-3xl font-medium text-gray-900 mb-4">{title}</h2>
             <p className="text-gray-600 max-w-md mb-10 leading-relaxed">
                 {message}
             </p>

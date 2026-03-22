@@ -22,17 +22,17 @@ export default function TimelineSection({ schedule }: TimelineSectionProps) {
     return (
         <section className="bg-white rounded-[40px] p-8 md:p-10 shadow-sm border border-white/50 space-y-10">
             <div className="flex items-center justify-between">
-                <h2 className="text-lg md:text-xl font-bold text-[#1C3A37]">Timeline</h2>
-                <button 
+                <h2 className="text-lg md:text-xl font-medium text-[#1C3A37]">Timeline</h2>
+                <button
                     onClick={() => router.push('/classes')}
-                    className="text-sm font-bold text-gray-400 hover:text-[#1C3A37] transition-colors"
+                    className="text-sm font-medium text-gray-400 hover:text-[#1C3A37] transition-colors"
                 >
                     See All
                 </button>
             </div>
-            
+
             <div className="space-y-8">
-                <h3 className="text-base md:text-lg font-bold text-[#1C3A37]">{firstClassName}</h3>
+                <h3 className="text-base md:text-lg font-medium text-[#1C3A37]">{firstClassName}</h3>
                 <div className="relative pb-6 px-4 overflow-x-auto scrollbar-hide">
                     <div className="flex justify-between min-w-[700px] relative">
                         {classSchedule.map((step, idx) => (

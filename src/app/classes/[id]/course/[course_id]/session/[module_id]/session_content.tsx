@@ -8,6 +8,7 @@ import PDFViewer from "@/components/ui/video/pdf_viewer";
 import { startSessionAction } from "@/app/actions/session";
 import { toast } from "sonner";
 import { useState } from "react";
+import Link from "next/link";
 
 interface SessionContentProps {
     classId: string;
@@ -57,7 +58,7 @@ export default function SessionContent({
             {/* Video */}
             {content?.video && (
                 <div className="flex flex-col gap-4">
-                    <h2 className="text-sm font-bold text-gray-900">Video: {content.video.title}</h2>
+                    <h2 className="text-sm font-medium text-gray-900">Video: {content.video.title}</h2>
                     <div className="relative w-full aspect-video rounded-3xl overflow-hidden group cursor-pointer shadow-lg">
                         <iframe
                             width="100%"
@@ -101,11 +102,11 @@ export default function SessionContent({
                 <>
                     <div className="border-t border-gray-100"></div>
                     <div className="flex flex-col gap-6">
-                        <h2 className="text-sm font-bold text-gray-900">Zoom</h2>
+                        <h2 className="text-sm font-medium text-gray-900">Zoom</h2>
                         <div className="flex flex-col gap-3 text-sm">
                             <p className="flex items-center gap-2">
                                 <span className="text-gray-600">Link Zoom :</span>
-                                <a href={content.zoom.url} className="text-gray-900 font-medium hover:underline flex items-center gap-1">
+                                <a href={content.zoom.url} className="text-blue-600 underline hover:text-blue-800 flex items-center gap-1">
                                     {content.zoom.url}
                                 </a>
                             </p>
@@ -118,22 +119,22 @@ export default function SessionContent({
                             <NuraButton
                                 label={isStarting ? "Starting..." : "Join"}
                                 variant="medium"
-                                className="min-w-[120px] h-10 text-sm font-bold"
                                 onClick={handleJoin}
                                 disabled={isStarting}
                             />
                             <NuraButton
                                 label="View Record"
                                 variant="secondary"
-                                className="min-w-[120px] h-10 text-sm font-bold border border-black"
                                 onClick={() => {
                                     router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/recording`);
                                 }}
                             />
                         </div>
 
+                        <div className="border-t border-gray-100"></div>
+
                         <div className="flex flex-col gap-2">
-                            <h2 className="text-sm font-bold text-gray-900">Presence & SES</h2>
+                            <h2 className="text-sm font-medium text-gray-900">Presence & SES</h2>
                             <a
                                 href={`/classes/${classId}/course/${courseId}/session/${moduleId}/presence`}
                                 className="text-xs text-[#008B8B] font-medium hover:underline flex items-center gap-1"
@@ -170,7 +171,6 @@ export default function SessionContent({
                         <NuraButton
                             label={preTestId ? "Pre-test" : isAdmin ? "Create Pre-test" : "Pre-test"}
                             variant={preTestId ? "primary" : isAdmin ? "secondary" : "primary"}
-                            className={`min-w-[160px] h-10 text-sm font-bold ${!preTestId && isAdmin ? "border border-black" : ""}`}
                             onClick={() => {
                                 if (preTestId) {
                                     router.push(`/assignment/${preTestId}`);
@@ -183,12 +183,12 @@ export default function SessionContent({
                             disabled={!preTestId && !isAdmin}
                         />
                         {isAdmin && preTestId && (
-                            <button
-                                onClick={() => router.push(`/assignment/add?id=${preTestId}`)}
-                                className="text-[10px] font-bold text-[#005954] hover:underline uppercase tracking-wider"
+                            <Link
+                                href={`/assignment/add?id=${preTestId}`}
+                                className="text-[10px] font-medium text-[#005954] hover:underline uppercase tracking-wider"
                             >
                                 Manage Pre-test
-                            </button>
+                            </Link>
                         )}
                     </div>
 
@@ -196,7 +196,6 @@ export default function SessionContent({
                         <NuraButton
                             label={postTestId ? "Post-test" : isAdmin ? "Create Post-test" : "Post-test"}
                             variant={postTestId ? "primary" : isAdmin ? "secondary" : "primary"}
-                            className={`min-w-[160px] h-10 text-sm font-bold ${!postTestId && isAdmin ? "border border-black" : ""}`}
                             onClick={() => {
                                 if (postTestId) {
                                     router.push(`/assignment/${postTestId}`);
@@ -209,12 +208,12 @@ export default function SessionContent({
                             disabled={!postTestId && !isAdmin}
                         />
                         {isAdmin && postTestId && (
-                            <button
-                                onClick={() => router.push(`/assignment/add?id=${postTestId}`)}
-                                className="text-[10px] font-bold text-[#005954] hover:underline uppercase tracking-wider"
+                            <Link
+                                href={`/assignment/add?id=${postTestId}`}
+                                className="text-[10px] font-medium text-[#005954] hover:underline uppercase tracking-wider"
                             >
                                 Manage Post-test
-                            </button>
+                            </Link>
                         )}
                     </div>
                 </div>

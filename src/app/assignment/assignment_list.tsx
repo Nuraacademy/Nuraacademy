@@ -54,7 +54,7 @@ export default function AssignmentList({ initialAssignments, canAddAssignment, c
 
             {/* Content */}
             <div className="text-black md:px-12 py-6 space-y-6 w-full max-w-screen-2xl mx-auto">
-                <h1 className="text-4xl font-bold">
+                <h1 className="text-4xl font-medium">
                     Assignments
                 </h1>
 

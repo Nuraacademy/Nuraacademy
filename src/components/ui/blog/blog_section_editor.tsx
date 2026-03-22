@@ -16,7 +16,7 @@ interface BlogSectionEditorProps {
 }
 
 export const BlogSectionEditor = ({ sections, onChange }: BlogSectionEditorProps) => {
-    
+
     const addTextSection = () => {
         const newSection: BlogSection = {
             id: crypto.randomUUID(),
@@ -45,8 +45,8 @@ export const BlogSectionEditor = ({ sections, onChange }: BlogSectionEditorProps
 
     return (
         <div className="space-y-6">
-            <h3 className="text-lg font-bold text-gray-900">Content Section</h3>
-            
+            <h3 className="text-lg font-medium text-gray-900">Content Section</h3>
+
             <div className="space-y-6">
                 {sections.map((section, index) => (
                     <div key={section.id} className="relative group bg-white border border-gray-100 rounded-3xl p-6 shadow-sm">
@@ -54,7 +54,7 @@ export const BlogSectionEditor = ({ sections, onChange }: BlogSectionEditorProps
                             <span className="text-sm font-medium text-gray-500 uppercase tracking-wider">
                                 {section.type} Section {index + 1}
                             </span>
-                            <button 
+                            <button
                                 onClick={() => removeSection(section.id)}
                                 className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
                             >
@@ -63,14 +63,14 @@ export const BlogSectionEditor = ({ sections, onChange }: BlogSectionEditorProps
                         </div>
 
                         {section.type === "text" ? (
-                            <RichTextInput 
+                            <RichTextInput
                                 value={section.content}
                                 onChange={(val) => updateSectionContent(section.id, val)}
                             />
                         ) : (
                             <div className="space-y-2">
-                                <input 
-                                    type="text" 
+                                <input
+                                    type="text"
                                     placeholder="Paste image URL here..."
                                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-lime-400 transition-all font-medium text-gray-700"
                                     value={section.content}
@@ -91,13 +91,13 @@ export const BlogSectionEditor = ({ sections, onChange }: BlogSectionEditorProps
             <div className="flex gap-4">
                 <button
                     onClick={addImageSection}
-                    className="flex-1 py-4 border-2 border-dashed border-gray-200 rounded-3xl text-gray-500 hover:border-lime-400 hover:text-lime-600 transition-all flex items-center justify-center gap-2 font-bold"
+                    className="flex-1 py-4 border-2 border-dashed border-gray-200 rounded-3xl text-gray-500 hover:border-lime-400 hover:text-lime-600 transition-all flex items-center justify-center gap-2 font-medium"
                 >
                     <Plus size={20} /> Add Image Block
                 </button>
                 <button
                     onClick={addTextSection}
-                    className="flex-1 py-4 border-2 border-dashed border-gray-200 rounded-3xl text-gray-500 hover:border-lime-400 hover:text-lime-600 transition-all flex items-center justify-center gap-2 font-bold"
+                    className="flex-1 py-4 border-2 border-dashed border-gray-200 rounded-3xl text-gray-500 hover:border-lime-400 hover:text-lime-600 transition-all flex items-center justify-center gap-2 font-medium"
                 >
                     <Plus size={20} /> Add Text Block
                 </button>

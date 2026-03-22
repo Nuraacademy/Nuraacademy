@@ -150,7 +150,7 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
                                     {showDropdown && (
                                         <div className="absolute right-0 mt-6 w-64 bg-white rounded-xl shadow-lg border border-gray-100 py-4 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                                             <div className="px-4 pb-4 mb-3 border-b border-gray-50 flex items-center gap-3">
-                                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
+                                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium text-lg shadow-sm">
                                                     {getInitials(userData?.username, userData?.name)}
                                                 </div>
                                                 <div className="flex flex-col truncate">

@@ -15,17 +15,17 @@ export default function PeerResultsListClient({ classData, groupMembers, myEnrol
 
     return (
         <div className="min-h-screen bg-[#F9F9EE] px-4 md:px-16 py-8 md:py-12 space-y-8 font-sans">
-            <Breadcrumb 
+            <Breadcrumb
                 items={[
                     { label: 'Home', href: '/' },
                     { label: 'Feedback', href: '/feedback' },
                     { label: 'Final Project Peer Feedback', href: '#' },
-                ]} 
+                ]}
             />
 
             {/* Header */}
             <div className="bg-[#1C3A37] rounded-[24px] p-8 md:p-10 text-white space-y-1 shadow-lg">
-                <h1 className="text-2xl md:text-3xl font-bold font-merriweather">
+                <h1 className="text-2xl md:text-3xl font-medium font-merriweather">
                     Final Project Peer Feedback
                 </h1>
                 <p className="text-gray-300 font-medium opacity-80">
@@ -34,8 +34,8 @@ export default function PeerResultsListClient({ classData, groupMembers, myEnrol
             </div>
 
             <div className="bg-white rounded-[40px] p-8 md:p-12 shadow-sm border border-white/50 space-y-8">
-                <h2 className="text-lg font-bold text-[#1C3A37]">Hasil Peer Feedback Learners</h2>
-                
+                <h2 className="text-lg font-medium text-[#1C3A37]">Hasil Peer Feedback Learners</h2>
+
                 <div className="border border-gray-200 rounded-[24px] overflow-hidden">
                     <table className="w-full text-left">
                         <thead className="border-b border-gray-100">
@@ -47,11 +47,11 @@ export default function PeerResultsListClient({ classData, groupMembers, myEnrol
                         <tbody className="divide-y divide-gray-100">
                             {list.map((member) => (
                                 <tr key={member.id} className="hover:bg-gray-50/50 transition-colors">
-                                    <td className="px-6 py-5 text-sm font-bold text-[#1C3A37]">
+                                    <td className="px-6 py-5 text-sm font-medium text-[#1C3A37]">
                                         {member.user.name || member.user.username}
                                     </td>
                                     <td className="px-6 py-5 text-right">
-                                        <Link 
+                                        <Link
                                             href={`/classes/${classData.id}/analytics/peer-results/${member.id}`}
                                             className="px-6 py-1.5 bg-[#DAEE49] hover:bg-[#C9D942] text-[#1C3A37] text-[10px] font-black uppercase rounded-full transition-all inline-flex items-center"
                                         >

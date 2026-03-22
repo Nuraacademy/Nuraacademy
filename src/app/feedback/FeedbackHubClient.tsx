@@ -43,7 +43,7 @@ export default function FeedbackHubClient({ data }: FeedbackHubClientProps) {
 
     // Flatten data for the list layout
     const flattenedList: FlattenedFeedback[] = [];
-    
+
     // 1. Add "Give Feedback" targets
     data.targets?.forEach(item => {
         // Peer Feedback Target
@@ -88,8 +88,8 @@ export default function FeedbackHubClient({ data }: FeedbackHubClientProps) {
     });
 
     const filteredFeedbacks = flattenedList.filter((fb) => {
-        const matchesSearch = fb.title.toLowerCase().includes(searchValue.toLowerCase()) || 
-                             fb.classTitle.toLowerCase().includes(searchValue.toLowerCase());
+        const matchesSearch = fb.title.toLowerCase().includes(searchValue.toLowerCase()) ||
+            fb.classTitle.toLowerCase().includes(searchValue.toLowerCase());
         const matchesType = feedbackType === "all" || fb.type === feedbackType;
         return matchesSearch && matchesType;
     });
@@ -120,7 +120,7 @@ export default function FeedbackHubClient({ data }: FeedbackHubClientProps) {
 
             {/* Content */}
             <div className="text-black md:px-12 py-6 space-y-8 w-full max-w-screen-2xl mx-auto">
-                <h1 className="text-4xl font-bold">
+                <h1 className="text-4xl font-medium">
                     Feedbacks
                 </h1>
 
@@ -162,7 +162,7 @@ export default function FeedbackHubClient({ data }: FeedbackHubClientProps) {
                     ))}
                     {filteredFeedbacks.length === 0 && (
                         <div className="flex flex-col items-center justify-center py-20 bg-white/50 rounded-3xl border border-dashed border-gray-300">
-                             <img src="/icons/sidebar/Feedback.svg" alt="No feedback" className="w-16 h-16 opacity-20 mb-4" />
+                            <img src="/icons/sidebar/Feedback.svg" alt="No feedback" className="w-16 h-16 opacity-20 mb-4" />
                             <p className="text-gray-500 text-lg">No feedback found.</p>
                         </div>
                     )}

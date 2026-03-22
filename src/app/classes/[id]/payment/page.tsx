@@ -113,7 +113,7 @@ export default function PaymentPage({ params }: PaymentPageProps) {
                 </div>
 
                 {/* Page Title */}
-                <h1 className="text-2xl font-bold mb-8">Payment Information</h1>
+                <h1 className="text-2xl font-medium mb-8">Payment Information</h1>
 
                 {error && (
                     <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl">
@@ -134,7 +134,7 @@ export default function PaymentPage({ params }: PaymentPageProps) {
                         </div>
                         <div className="flex-grow">
                             <h2 className="text-md font-semibold text-gray-400 mb-2 whitespace-nowrap">My Item</h2>
-                            <h3 className="text-xl font-bold mb-6">{classData.title}</h3>
+                            <h3 className="text-xl font-medium mb-6">{classData.title}</h3>
 
                             <div className="grid grid-cols-2 gap-8 text-sm">
                                 <div className="flex flex-col gap-2">
@@ -153,7 +153,7 @@ export default function PaymentPage({ params }: PaymentPageProps) {
 
                     {/* Price Detail Card - Right Column */}
                     <div className="lg:col-span-4 bg-white rounded-[2rem] p-8 shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-gray-100">
-                        <h2 className="text-xl font-bold mb-6">Price Detail</h2>
+                        <h2 className="text-xl font-medium mb-6">Price Detail</h2>
 
                         <div className="space-y-4">
                             <div className="flex justify-between items-center text-sm">
@@ -165,8 +165,8 @@ export default function PaymentPage({ params }: PaymentPageProps) {
                                 <span className="text-gray-900 font-medium text-right">Rp0,00</span>
                             </div>
                             <div className="pt-4 border-t border-gray-100 flex justify-between items-center text-sm">
-                                <span className="text-gray-700 font-bold">Total</span>
-                                <span className="text-gray-900 font-bold">Rp0,00</span>
+                                <span className="text-gray-700 font-medium">Total</span>
+                                <span className="text-gray-900 font-medium">Rp0,00</span>
                             </div>
                         </div>
                     </div>
@@ -174,13 +174,13 @@ export default function PaymentPage({ params }: PaymentPageProps) {
 
                 {/* Action Buttons */}
                 <div className="mt-12 flex justify-end items-center gap-10">
-                    <button onClick={() => router.back()} className="text-gray-900 font-bold hover:underline">
+                    <button onClick={() => router.back()} className="text-gray-900 font-medium hover:underline">
                         Back
                     </button>
                     <NuraButton
                         label={isSubmitting ? "Processing..." : "Pay"}
                         variant="primary"
-                        className="w-40 bg-[#D9F55C] hover:bg-[#c8e44a] text-black font-bold h-12 rounded-[1rem]"
+                        className="w-40 bg-[#D9F55C] hover:bg-[#c8e44a] text-black font-medium h-12 rounded-[1rem]"
                         onClick={handlePay}
                         disabled={isSubmitting}
                         isLoading={isSubmitting}

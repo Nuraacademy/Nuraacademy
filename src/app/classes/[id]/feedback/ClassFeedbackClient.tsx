@@ -56,25 +56,25 @@ export default function ClassFeedbackClient({ classId, data, initialFeedback }: 
 
                 {/* Hero */}
                 <div className="bg-[#005954] rounded-[1.5rem] p-6 text-white shadow-sm">
-                    <h1 className="text-xl font-bold mb-1">Class Feedback</h1>
+                    <h1 className="text-xl font-medium mb-1">Class Feedback</h1>
                     <p className="text-sm opacity-90">{data.classTitle}</p>
                 </div>
 
                 {/* Details View */}
                 <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-100 flex flex-col gap-6">
-                    <h2 className="text-sm font-bold text-gray-900 px-2">Your Feedback</h2>
-                    
+                    <h2 className="text-sm font-medium text-gray-900 px-2">Your Feedback</h2>
+
                     <div className="bg-[#FBFCF2] rounded-3xl p-8 space-y-4 border border-[#F0F5D8]">
                         <div className="space-y-1">
-                            <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-900">Question</h3>
+                            <h3 className="text-[10px] font-medium uppercase tracking-widest text-gray-900">Question</h3>
                             <p className="text-xs text-gray-700 leading-relaxed font-medium">
                                 Please share with us what you feel about this class, how you would improve it, and any other feedback you have.
                             </p>
                         </div>
-                        
+
                         <div className="space-y-1">
-                            <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-900">Answer</h3>
-                            <div 
+                            <h3 className="text-[10px] font-medium uppercase tracking-widest text-gray-900">Answer</h3>
+                            <div
                                 className="rich-text text-xs text-gray-700 leading-relaxed"
                                 dangerouslySetInnerHTML={{ __html: initialFeedback.content }}
                             />
@@ -82,10 +82,10 @@ export default function ClassFeedbackClient({ classId, data, initialFeedback }: 
                     </div>
 
                     <div className="flex justify-end items-center gap-4 mt-4">
-                        <NuraButton 
+                        <NuraButton
                             label="Edit"
                             variant="primary"
-                            className="min-w-[140px] h-11 text-xs font-bold rounded-2xl bg-[#D9F55C] hover:bg-[#c8e54b] text-black border-none shadow-none"
+                            className="min-w-[140px] h-11 text-xs font-medium rounded-2xl bg-[#D9F55C] hover:bg-[#c8e54b] text-black border-none shadow-none"
                             onClick={() => setIsEditing(true)}
                         />
                     </div>
@@ -100,7 +100,7 @@ export default function ClassFeedbackClient({ classId, data, initialFeedback }: 
 
             {/* Hero */}
             <div className="bg-[#005954] rounded-[1.5rem] p-6 text-white shadow-sm">
-                <h1 className="text-xl font-bold">Class Feedback</h1>
+                <h1 className="text-xl font-medium">Class Feedback</h1>
             </div>
 
             {/* Editor View */}
@@ -110,9 +110,9 @@ export default function ClassFeedbackClient({ classId, data, initialFeedback }: 
                 </p>
 
                 <div className="space-y-4">
-                    <span className="text-sm font-bold text-gray-900">Your Feedback</span>
+                    <span className="text-sm font-medium text-gray-900">Your Feedback</span>
                     <div className="border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm p-4">
-                        <RichTextInput 
+                        <RichTextInput
                             value={content}
                             onChange={(val) => setContent(val)}
                         />
@@ -120,16 +120,16 @@ export default function ClassFeedbackClient({ classId, data, initialFeedback }: 
                 </div>
 
                 <div className="flex justify-end items-center gap-8">
-                    <button 
+                    <button
                         onClick={() => initialFeedback ? setIsEditing(false) : router.back()}
-                        className="text-xs font-bold text-gray-400 hover:text-gray-900 transition-colors"
+                        className="text-xs font-medium text-gray-400 hover:text-gray-900 transition-colors"
                     >
                         Cancel
                     </button>
-                    <NuraButton 
+                    <NuraButton
                         label={isSaving ? "Saving..." : "Submit"}
                         variant="primary"
-                        className="min-w-[160px] h-10 text-sm font-bold"
+                        className="min-w-[160px] h-10 text-sm font-medium"
                         onClick={handleSave}
                         disabled={isSaving}
                     />

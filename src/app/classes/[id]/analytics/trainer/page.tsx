@@ -26,7 +26,7 @@ export default async function TrainerAnalyticsPage({
                     <p className="text-gray-500 text-sm leading-relaxed mb-8">
                         There is no feedback or forum activity data available for the trainer of this class yet.
                     </p>
-                    <a href={`/classes/${classId}/overview`} className="text-sm font-bold text-[#1C3A37] underline decoration-[#DAEE49] underline-offset-4 decoration-2">
+                    <a href={`/classes/${classId}/overview`} className="text-sm font-medium text-[#1C3A37] underline decoration-[#DAEE49] underline-offset-4 decoration-2">
                         Back to Class Overview
                     </a>
                 </div>

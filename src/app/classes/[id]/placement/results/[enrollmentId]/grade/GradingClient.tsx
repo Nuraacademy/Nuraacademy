@@ -121,27 +121,27 @@ export default function GradingClient({
                 </div>
 
                 <div className="bg-[#00524D] rounded-2xl p-6 mb-10">
-                    <h1 className="text-2xl font-bold text-white">Placement Test</h1>
+                    <h1 className="text-2xl font-medium text-white">Placement Test</h1>
                 </div>
 
                 <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-sm border border-gray-100">
                     <div className="mb-10">
-                        <h2 className="text-xl font-bold text-black">{learnerName}</h2>
+                        <h2 className="text-xl font-medium text-black">{learnerName}</h2>
                         <p className="text-gray-500 text-sm">Foundation to Data Analytics</p>
                     </div>
 
                     {/* Objective Section */}
                     <div className="mb-12">
-                        <h3 className="text-lg font-bold text-black mb-6">Soal Objektif</h3>
+                        <h3 className="text-lg font-medium text-black mb-6">Soal Objektif</h3>
                         <div className="w-full border border-gray-200 rounded-[1.5rem] overflow-hidden">
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="border-b border-gray-200 bg-gray-50">
-                                        <th className="px-6 py-4 text-xs font-bold text-gray-500 w-16">No</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-gray-500">Question</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-gray-500">Given Answer</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-gray-500">Correct Answer</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-gray-500 text-right">Score</th>
+                                        <th className="px-6 py-4 text-xs font-medium text-gray-500 w-16">No</th>
+                                        <th className="px-6 py-4 text-xs font-medium text-gray-500">Question</th>
+                                        <th className="px-6 py-4 text-xs font-medium text-gray-500">Given Answer</th>
+                                        <th className="px-6 py-4 text-xs font-medium text-gray-500">Correct Answer</th>
+                                        <th className="px-6 py-4 text-xs font-medium text-gray-500 text-right">Score</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -151,14 +151,14 @@ export default function GradingClient({
                                             <td className="px-6 py-5 text-sm text-black">{item.question}</td>
                                             <td className="px-6 py-5 text-sm text-gray-700">{item.givenAnswer || "-"}</td>
                                             <td className="px-6 py-5 text-sm text-green-700 font-medium">{item.correctAnswer}</td>
-                                            <td className="px-6 py-5 text-right text-sm font-bold text-black">
+                                            <td className="px-6 py-5 text-right text-sm font-medium text-black">
                                                 {item.score || 0}/{item.maxScore}
                                             </td>
                                         </tr>
                                     ))}
                                     <tr className="bg-gray-50">
-                                        <td colSpan={4} className="px-6 py-4 text-sm font-bold text-black text-right uppercase tracking-wider">Total Score</td>
-                                        <td className="px-6 py-4 text-right text-sm font-bold text-black">
+                                        <td colSpan={4} className="px-6 py-4 text-sm font-medium text-black text-right uppercase tracking-wider">Total Score</td>
+                                        <td className="px-6 py-4 text-right text-sm font-medium text-black">
                                             {initialData.objective.reduce((acc, i) => acc + (i.score || 0), 0)}/{initialData.objective.reduce((acc, i) => acc + (i.maxScore || 0), 0)}
                                         </td>
                                     </tr>
@@ -169,15 +169,15 @@ export default function GradingClient({
 
                     {/* Essay Section */}
                     <div className="mb-12">
-                        <h3 className="text-lg font-bold text-black mb-6">Soal Essay</h3>
+                        <h3 className="text-lg font-medium text-black mb-6">Soal Essay</h3>
                         <div className="w-full border border-gray-200 rounded-[1.5rem] overflow-hidden">
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="border-b border-gray-200 bg-gray-50">
-                                        <th className="px-6 py-4 text-xs font-bold text-gray-500 w-16">No</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-gray-500 w-1/4">Question</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-gray-500">Given Answer</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-gray-500 text-right w-32">Score</th>
+                                        <th className="px-6 py-4 text-xs font-medium text-gray-500 w-16">No</th>
+                                        <th className="px-6 py-4 text-xs font-medium text-gray-500 w-1/4">Question</th>
+                                        <th className="px-6 py-4 text-xs font-medium text-gray-500">Given Answer</th>
+                                        <th className="px-6 py-4 text-xs font-medium text-gray-500 text-right w-32">Score</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -193,9 +193,9 @@ export default function GradingClient({
                                                         value={scores[item.resultItemId] ?? ""}
                                                         placeholder="Score"
                                                         onChange={(e) => handleScoreChange(item.resultItemId, e.target.value, item.maxScore)}
-                                                        className={`w-16 border-b text-right text-sm focus:border-[#00524D] outline-none font-bold transition-colors ${getValidationError(scores[item.resultItemId], item.maxScore)
-                                                                ? "border-red-500 text-red-600"
-                                                                : "border-gray-300 text-black"
+                                                        className={`w-16 border-b text-right text-sm focus:border-[#00524D] outline-none font-medium transition-colors ${getValidationError(scores[item.resultItemId], item.maxScore)
+                                                            ? "border-red-500 text-red-600"
+                                                            : "border-gray-300 text-black"
                                                             }`}
                                                     />
                                                     <span className="text-gray-400 text-sm font-medium">/{item.maxScore}</span>
@@ -213,8 +213,8 @@ export default function GradingClient({
                                         </tr>
                                     ))}
                                     <tr className="bg-gray-50">
-                                        <td colSpan={3} className="px-6 py-4 text-sm font-bold text-black text-right uppercase tracking-wider">Total Score</td>
-                                        <td className="px-6 py-4 text-right text-sm font-bold text-black">
+                                        <td colSpan={3} className="px-6 py-4 text-sm font-medium text-black text-right uppercase tracking-wider">Total Score</td>
+                                        <td className="px-6 py-4 text-right text-sm font-medium text-black">
                                             {initialData.essay.reduce((acc, i) => acc + (scores[i.resultItemId] || 0), 0)}/{initialData.essay.reduce((acc, i) => acc + (i.maxScore || 0), 0)}
                                         </td>
                                     </tr>
@@ -225,15 +225,15 @@ export default function GradingClient({
 
                     {/* Project Section */}
                     <div className="mb-12">
-                        <h3 className="text-lg font-bold text-black mb-6">Soal Project</h3>
+                        <h3 className="text-lg font-medium text-black mb-6">Soal Project</h3>
                         <div className="w-full border border-gray-200 rounded-[1.5rem] overflow-hidden">
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="border-b border-gray-200 bg-gray-50">
-                                        <th className="px-6 py-4 text-xs font-bold text-gray-500 w-16">No</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-gray-500 w-1/4">Question</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-gray-500">File Submission</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-gray-500 text-right w-32">Score</th>
+                                        <th className="px-6 py-4 text-xs font-medium text-gray-500 w-16">No</th>
+                                        <th className="px-6 py-4 text-xs font-medium text-gray-500 w-1/4">Question</th>
+                                        <th className="px-6 py-4 text-xs font-medium text-gray-500">File Submission</th>
+                                        <th className="px-6 py-4 text-xs font-medium text-gray-500 text-right w-32">Score</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -260,7 +260,7 @@ export default function GradingClient({
                                                         value={scores[item.resultItemId] ?? ""}
                                                         placeholder="Score"
                                                         onChange={(e) => handleScoreChange(item.resultItemId, e.target.value, item.maxScore)}
-                                                        className="w-16 border-b border-gray-300 text-right text-sm focus:border-[#00524D] outline-none font-bold"
+                                                        className="w-16 border-b border-gray-300 text-right text-sm focus:border-[#00524D] outline-none font-medium"
                                                     />
                                                     <span className="text-gray-400 text-sm font-medium">/{item.maxScore}</span>
                                                     <Pencil size={14} className="text-gray-300" />
@@ -269,8 +269,8 @@ export default function GradingClient({
                                         </tr>
                                     ))}
                                     <tr className="bg-gray-50">
-                                        <td colSpan={3} className="px-6 py-4 text-sm font-bold text-black text-right uppercase tracking-wider">Total Score</td>
-                                        <td className="px-6 py-4 text-right text-sm font-bold text-black">
+                                        <td colSpan={3} className="px-6 py-4 text-sm font-medium text-black text-right uppercase tracking-wider">Total Score</td>
+                                        <td className="px-6 py-4 text-right text-sm font-medium text-black">
                                             {initialData.project.reduce((acc, i) => acc + (scores[i.resultItemId] || 0), 0)}/{initialData.project.reduce((acc, i) => acc + (i.maxScore || 0), 0)}
                                         </td>
                                     </tr>
@@ -282,13 +282,13 @@ export default function GradingClient({
                     {/* Final Footer */}
                     <div className="mt-16 flex flex-col items-end border-t border-gray-100 pt-8">
                         <div className="flex items-center gap-8 mb-10">
-                            <span className="text-lg font-bold text-black uppercase tracking-wider">Final Score</span>
+                            <span className="text-lg font-medium text-black uppercase tracking-wider">Final Score</span>
                             <span className="text-2xl font-black text-black">{calculateCurrentTotal().toFixed(1)} / {maxTestScore}</span>
                         </div>
                         <div className="flex items-center gap-3">
                             <button
                                 onClick={() => router.back()}
-                                className="px-8 py-3 text-sm font-bold text-gray-500 hover:text-black transition-colors"
+                                className="px-8 py-3 text-sm font-medium text-gray-500 hover:text-black transition-colors"
                             >
                                 Cancel
                             </button>

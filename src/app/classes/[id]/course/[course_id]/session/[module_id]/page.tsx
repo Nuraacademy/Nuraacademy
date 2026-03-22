@@ -4,8 +4,9 @@ import { getSessionById } from "@/controllers/sessionController";
 import { notFound } from "next/navigation";
 import SessionContent from "./session_content";
 import Link from "next/link";
-import { Pencil } from "lucide-react";
 import { hasPermission } from "@/lib/rbac";
+import TitleCard from "@/components/ui/card/title_card";
+import Image from "next/image";
 
 export default async function SessionPage({
     params
@@ -77,28 +78,27 @@ export default async function SessionPage({
                     <Breadcrumb items={breadcrumbItems} />
                 </div>
 
-                {/* Hero Title with Badge & Admin Edit */}
-                <section className="bg-[#005954] rounded-[1.5rem] p-6 mb-8 flex items-center justify-between gap-4">
-                    <h1 className="text-xl font-bold text-white">
-                        {session.title}
-                    </h1>
-                    {canUpdateSession && (
-                        <Link
-                            href={`/classes/${classId}/course/${courseId}/session/${moduleId}/edit`}
-                            className="flex items-center gap-2 bg-white text-[#005954] px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-                        >
-                            <Pencil size={18} />
-                            Edit Session
-                        </Link>
-                    )}
-                </section>
+                <TitleCard
+                    title={session.title}
+                    actions={
+                        canUpdateSession && (
+                            <Link
+                                href={`/classes/${classId}/course/${courseId}/session/${moduleId}/edit`}
+                                className="flex items-center gap-2 bg-white text-[#005954] px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+                            >
+                                <Image src="/icons/edit.svg" alt="Edit" width={20} height={20} />
+                                Edit Session
+                            </Link>
+                        )
+                    }
+                />
 
                 {/* Main Content Card */}
                 <div className="bg-white rounded-[2rem] p-10 shadow-sm border border-gray-100 flex flex-col gap-8">
                     {/* Time Section */}
                     <div>
                         <p className="text-sm">
-                            <span className="font-bold text-gray-900 mr-2">Time:</span>
+                            <span className="font-medium text-gray-900 mr-2">Time:</span>
                             <span className="text-gray-700">{timeString}</span>
                         </p>
                     </div>

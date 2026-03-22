@@ -90,9 +90,9 @@ export function CourseFormClient({ classData, courseData }: Props) {
 
             <div className="flex-1 w-full max-w-7xl mx-auto px-6 py-8 relative z-10 flex flex-col">
                 <Breadcrumb items={breadcrumbItems} />
-                <h1 className="text-2xl font-bold mt-6 mb-8">{courseData ? "Edit Course" : "Add Course"}</h1>
+                <h1 className="text-2xl mt-6 mb-8">{courseData ? "Edit Course" : "Add Course"}</h1>
 
-                <div className="space-y-8 max-w-4xl mx-auto w-full">
+                <div className="space-y-8 mx-auto w-full">
                     {/* Course Title */}
                     <div>
                         <NuraTextInput
@@ -105,7 +105,7 @@ export function CourseFormClient({ classData, courseData }: Props) {
 
                     {/* Description */}
                     <div>
-                        <label className="block text-sm font-medium mb-1">Description</label>
+                        <label className="block text-sm mb-1">Description</label>
                         <RichTextInput
                             value={form.description}
                             onChange={(val) => handleFieldChange("description", val)}
@@ -114,7 +114,7 @@ export function CourseFormClient({ classData, courseData }: Props) {
 
                     {/* Learning Objective */}
                     <div>
-                        <label className="block text-sm font-medium mb-1">Learning Objective</label>
+                        <label className="block text-sm mb-1">Learning Objective</label>
                         <RichTextInput
                             value={form.learningObjectives}
                             onChange={(val) => handleFieldChange("learningObjectives", val)}
@@ -123,7 +123,7 @@ export function CourseFormClient({ classData, courseData }: Props) {
 
                     {/* Entry Skill */}
                     <div>
-                        <label className="block text-sm font-medium mb-1">Entry Skill</label>
+                        <label className="block text-sm mb-1">Entry Skill</label>
                         <RichTextInput
                             value={form.entrySkills}
                             onChange={(val) => handleFieldChange("entrySkills", val)}
@@ -132,7 +132,7 @@ export function CourseFormClient({ classData, courseData }: Props) {
 
                     {/* Tools */}
                     <div>
-                        <label className="block text-sm font-medium mb-1">Tools</label>
+                        <label className="block text-sm mb-1">Tools</label>
                         <RichTextInput
                             value={form.tools}
                             onChange={(val) => handleFieldChange("tools", val)}

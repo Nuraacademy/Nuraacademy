@@ -40,7 +40,7 @@ export default function DiscussionList({ topics }: { topics: Topic[] }) {
                     </div>
 
                     <div className="flex items-center flex-wrap gap-4 mb-5">
-                        <h2 className="text-2xl font-bold text-gray-900 leading-tight">
+                        <h2 className="text-2xl font-medium text-gray-900 leading-tight">
                             {topic.title}
                         </h2>
                         <ForumTag type={topic.type} />

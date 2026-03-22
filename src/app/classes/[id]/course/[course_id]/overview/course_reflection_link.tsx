@@ -2,6 +2,7 @@
 
 import { ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface CourseReflectionLinkProps {
     classId: string;
@@ -19,14 +20,15 @@ export default function CourseReflectionLink({ classId, courseId, href }: Course
         >
             <div className="flex items-center gap-3">
                 <div className="text-gray-700">
-                    <img
+                    <Image  
                         src="/icons/sidebar/SubReflection.svg"
                         alt="Reflection"
-                        className="w-5 h-5"
+                        width={20}
+                        height={20}
                     />
                 </div>
                 <div className="flex items-center">
-                    <h3 className="text-sm font-bold text-gray-900">Course Reflection</h3>
+                    <h3 className="text-md font-medium text-gray-900">Course Reflection</h3>
                 </div>
             </div>
             <div className="flex items-center gap-4 ml-auto">

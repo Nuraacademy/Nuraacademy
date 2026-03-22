@@ -11,15 +11,15 @@ export default async function UsersPage() {
 
   return (
     <main className="min-h-screen bg-[#F9F9EE] px-4 md:px-16 py-8 md:py-12 space-y-8 font-sans">
-      <Breadcrumb 
+      <Breadcrumb
         items={[
           { label: 'Home', href: '/' },
           { label: 'Users', href: '#' },
-        ]} 
+        ]}
       />
 
       <div className="bg-[#1C3A37] rounded-[24px] p-8 text-white shadow-lg">
-        <h1 className="text-2xl md:text-3xl font-bold font-merriweather">User Directory</h1>
+        <h1 className="text-2xl md:text-3xl font-medium font-merriweather">User Directory</h1>
         <p className="text-gray-300 text-sm mt-2 opacity-80">Manage and view all registered members</p>
       </div>
 
@@ -36,23 +36,23 @@ export default async function UsersPage() {
                 className="group p-6 rounded-[24px] border-2 border-gray-50 hover:border-[#DAEE49] transition-all duration-300 bg-white"
               >
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-full bg-[#F9F9EE] flex items-center justify-center text-[#1C3A37] font-bold">
+                  <div className="w-12 h-12 rounded-full bg-[#F9F9EE] flex items-center justify-center text-[#1C3A37] font-medium">
                     {(user.name || user.username)[0].toUpperCase()}
                   </div>
                   <div className="flex flex-col truncate">
-                    <span className="font-bold text-[#1C3A37] truncate">{user.name || user.username}</span>
+                    <span className="font-medium text-[#1C3A37] truncate">{user.name || user.username}</span>
                     <span className="text-xs text-gray-400">@{user.username}</span>
                   </div>
                 </div>
                 <div className="space-y-3 mb-6">
                   <div className="flex flex-col">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Email</span>
+                    <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">Email</span>
                     <span className="text-xs font-semibold text-[#1C3A37] truncate">{user.email}</span>
                   </div>
                 </div>
-                <Link 
+                <Link
                   href={`/admin/users/${user.id}`}
-                  className="block text-center py-2.5 rounded-xl bg-gray-50 text-[#1C3A37] text-xs font-bold hover:bg-[#DAEE49] transition-colors"
+                  className="block text-center py-2.5 rounded-xl bg-gray-50 text-[#1C3A37] text-xs font-medium hover:bg-[#DAEE49] transition-colors"
                 >
                   View Full Profile
                 </Link>

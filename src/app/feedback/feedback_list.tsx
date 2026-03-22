@@ -18,8 +18,8 @@ export default function FeedbackList({ initialFeedbacks }: FeedbackListProps) {
     const [feedbackType, setFeedbackType] = useState("all");
 
     const filteredFeedbacks = initialFeedbacks.filter((feedback) => {
-        const matchesSearch = feedback.title.toLowerCase().includes(searchValue.toLowerCase()) || 
-                             feedback.className.toLowerCase().includes(searchValue.toLowerCase());
+        const matchesSearch = feedback.title.toLowerCase().includes(searchValue.toLowerCase()) ||
+            feedback.className.toLowerCase().includes(searchValue.toLowerCase());
         const matchesType = feedbackType === "all" || feedback.type === feedbackType;
         return matchesSearch && matchesType;
     });
@@ -50,7 +50,7 @@ export default function FeedbackList({ initialFeedbacks }: FeedbackListProps) {
 
             {/* Content */}
             <div className="text-black md:px-12 py-6 space-y-8 w-full max-w-screen-2xl mx-auto">
-                <h1 className="text-4xl font-bold">
+                <h1 className="text-4xl font-medium">
                     Feedbacks
                 </h1>
 
@@ -92,7 +92,7 @@ export default function FeedbackList({ initialFeedbacks }: FeedbackListProps) {
                     ))}
                     {filteredFeedbacks.length === 0 && (
                         <div className="flex flex-col items-center justify-center py-20 bg-white/50 rounded-3xl border border-dashed border-gray-300">
-                             <img src="/icons/sidebar/Feedback.svg" alt="No feedback" className="w-16 h-16 opacity-20 mb-4" />
+                            <img src="/icons/sidebar/Feedback.svg" alt="No feedback" className="w-16 h-16 opacity-20 mb-4" />
                             <p className="text-gray-500 text-lg">No feedbacks found.</p>
                         </div>
                     )}

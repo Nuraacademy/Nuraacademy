@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { deleteSession } from "@/app/actions/session";
 import { useState } from "react";
 import { ConfirmModal } from "@/components/ui/modal/confirmation_modal";
+import Image from "next/image";
 
 interface CourseSessionLinkProps {
     classId: string;
@@ -31,10 +32,10 @@ export default function CourseSessionLink({ classId, courseId, session, isAdmin 
 
     const getIcon = () => {
         if (session.title.includes("Video") || session.type === "Asynchronous") {
-            return <img src="/icons/Video.svg" alt="Video" className="w-5 h-5" />;
+            return <Image src="/icons/Video.svg" alt="Video" width={20} height={20} />;
         }
         if (session.title.includes("Zoom") || session.type === "Synchronous") {
-            return <img src="/icons/Zoom.svg" alt="Zoom" className="w-5 h-5" />;
+            return <Image src="/icons/Zoom.svg" alt="Zoom" width={20} height={20} />;
         }
     };
 
@@ -79,7 +80,7 @@ export default function CourseSessionLink({ classId, courseId, session, isAdmin 
                         {getIcon()}
                     </div>
                     <div className="flex items-center">
-                        <h3 className="text-sm font-bold text-gray-900">{session.title}</h3>
+                        <h3 className="text-md font-medium text-gray-900">{session.title}</h3>
                         <SessionTag label={session.type} />
                     </div>
                 </div>
@@ -91,13 +92,13 @@ export default function CourseSessionLink({ classId, courseId, session, isAdmin 
                                 onClick={handleDeleteClick}
                                 disabled={isDeleting}
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                <Image src="/icons/Delete.svg" alt="Delete" width={16} height={16} />
                             </button>
                             <button
                                 className="p-1.5 hover:bg-gray-100 rounded hover:text-gray-900 transition-colors z-10"
                                 onClick={handleEdit}
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="2" x2="22" y2="6"></line><path d="M7.5 20.5 19 9l-4-4L3.5 16.5 2 22z"></path></svg>
+                                <Image src="/icons/Edit.svg" alt="Edit" width={16} height={16} />
                             </button>
                         </div>
                     )}

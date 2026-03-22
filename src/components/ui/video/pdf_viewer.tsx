@@ -90,7 +90,7 @@ export default function PDFViewer({ url, title, editUrl, isAdmin }: PDFViewerPro
             <div className={`p-4 rounded-full mb-6 ${type === "not_found" ? "bg-orange-50 text-orange-600" : "bg-red-50 text-red-600"}`}>
                 <FileText size={48} />
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
                 {type === "not_found" ? "File Not Found (404)" : "Failed to Load PDF"}
             </h3>
             <p className="text-gray-500 text-sm max-w-xs mx-auto mb-8 leading-relaxed">
@@ -129,7 +129,7 @@ export default function PDFViewer({ url, title, editUrl, isAdmin }: PDFViewerPro
                     <div className="p-2 bg-red-50 rounded-lg text-red-600">
                         <FileText size={20} />
                     </div>
-                    <h2 className="text-sm font-bold text-gray-900">{title || "Session Document"}</h2>
+                    <h2 className="text-sm font-medium text-gray-900">{title || "Session Document"}</h2>
                 </div>
                 {fileStatus === "found" && (
                     <NuraButton
@@ -181,7 +181,7 @@ export default function PDFViewer({ url, title, editUrl, isAdmin }: PDFViewerPro
                                 <button
                                     onClick={goToFirstPage}
                                     disabled={pageNumber <= 1}
-                                    className="w-8 h-8 flex items-center justify-center rounded-full border border-black/40 text-black hover:bg-black/10 disabled:opacity-20 transition-all font-bold text-xs"
+                                    className="w-8 h-8 flex items-center justify-center rounded-full border border-black/40 text-black hover:bg-black/10 disabled:opacity-20 transition-all font-medium text-xs"
                                     title="First Page"
                                 >
                                     K
@@ -205,9 +205,9 @@ export default function PDFViewer({ url, title, editUrl, isAdmin }: PDFViewerPro
                                             const val = parseInt(e.target.value)
                                             if (val >= 1 && val <= numPages) setPageNumber(val)
                                         }}
-                                        className="w-12 h-8 text-center text-sm font-bold border border-black/40 rounded-lg bg-transparent focus:outline-none focus:ring-1 focus:ring-black"
+                                        className="w-12 h-8 text-center text-sm font-medium border border-black/40 rounded-lg bg-transparent focus:outline-none focus:ring-1 focus:ring-black"
                                     />
-                                    <span className="text-xs text-black font-bold whitespace-nowrap">of {numPages || '--'}</span>
+                                    <span className="text-xs text-black font-medium whitespace-nowrap">of {numPages || '--'}</span>
                                 </div>
 
                                 <button
@@ -221,7 +221,7 @@ export default function PDFViewer({ url, title, editUrl, isAdmin }: PDFViewerPro
                                 <button
                                     onClick={goToLastPage}
                                     disabled={pageNumber >= numPages}
-                                    className="w-8 h-8 flex items-center justify-center rounded-full border border-black/40 text-black hover:bg-black/10 disabled:opacity-20 transition-all font-bold text-xs"
+                                    className="w-8 h-8 flex items-center justify-center rounded-full border border-black/40 text-black hover:bg-black/10 disabled:opacity-20 transition-all font-medium text-xs"
                                     title="Last Page"
                                 >
                                     &gt;|
@@ -244,7 +244,7 @@ export default function PDFViewer({ url, title, editUrl, isAdmin }: PDFViewerPro
                                     <select
                                         value={scale}
                                         onChange={(e) => setScale(parseFloat(e.target.value))}
-                                        className="text-sm font-bold border border-black/40 rounded-lg px-3 py-1 bg-transparent h-8 cursor-pointer focus:outline-none appearance-none pr-8 min-w-[90px]"
+                                        className="text-sm font-medium border border-black/40 rounded-lg px-3 py-1 bg-transparent h-8 cursor-pointer focus:outline-none appearance-none pr-8 min-w-[90px]"
                                     >
                                         <option value={0.5}>50%</option>
                                         <option value={0.75}>75%</option>

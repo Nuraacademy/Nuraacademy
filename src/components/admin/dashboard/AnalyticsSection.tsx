@@ -14,15 +14,15 @@ export default function AnalyticsSection({ data }: AnalyticsSectionProps) {
     return (
         <section className="bg-white rounded-[40px] p-4 md:p-6 shadow-sm border border-white/50 space-y-8">
             <div className="flex items-center justify-between">
-                <h2 className="text-lg md:text-xl font-bold text-[#1C3A37]">Analytics</h2>
-                <button 
+                <h2 className="text-lg md:text-xl font-medium text-[#1C3A37]">Analytics</h2>
+                <button
                     onClick={() => router.push('/admin/users?filter=learner')}
-                    className="text-sm font-bold text-gray-400 hover:text-[#1C3A37] transition-colors"
+                    className="text-sm font-medium text-gray-400 hover:text-[#1C3A37] transition-colors"
                 >
                     See All
                 </button>
             </div>
-            
+
             <div className="space-y-6">
                 {data.slice(0, 3).map((learner, idx) => (
                     <React.Fragment key={learner.id}>
@@ -45,7 +45,7 @@ export default function AnalyticsSection({ data }: AnalyticsSectionProps) {
                                 )}
                             </div>
                             <div className="space-y-0.5">
-                                <h4 className="text-base md:text-lg font-bold text-[#1C3A37] group-hover:text-[#2D5A54] transition-colors">{learner.name}</h4>
+                                <h4 className="text-base md:text-lg font-medium text-[#1C3A37] group-hover:text-[#2D5A54] transition-colors">{learner.name}</h4>
                                 <p className="text-sm md:text-base text-gray-400 font-medium line-clamp-1">{learner.className}</p>
                             </div>
                         </div>

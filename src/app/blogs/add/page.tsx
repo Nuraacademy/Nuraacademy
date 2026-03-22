@@ -68,9 +68,9 @@ export default function AddBlogPage() {
 
             <div className="max-w-5xl mx-auto px-6 pt-12 md:pl-16 relative z-10">
                 {/* Back Link */}
-                <button 
+                <button
                     onClick={() => router.back()}
-                    className="flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors mb-8"
+                    className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors mb-8"
                 >
                     <ChevronLeft size={18} strokeWidth={2.5} />
                     Back
@@ -79,15 +79,15 @@ export default function AddBlogPage() {
                 <div className="flex justify-between items-center mb-12">
                     <h1 className="text-4xl font-extrabold text-gray-950">Add Blog</h1>
                     <div className="flex gap-4">
-                        <button 
+                        <button
                             onClick={() => router.back()}
-                            className="px-8 py-3 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors"
+                            className="px-8 py-3 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
                         >
                             Cancel
                         </button>
-                        <NuraButton 
-                            label="Create" 
-                            variant="primary" 
+                        <NuraButton
+                            label="Create"
+                            variant="primary"
                             onClick={handleCreate}
                             isLoading={isSubmitting}
                             className="!w-auto px-12"
@@ -99,18 +99,18 @@ export default function AddBlogPage() {
                     {/* Basic Info Card */}
                     <div className="bg-white/80 backdrop-blur-sm rounded-[2.5rem] border border-gray-100 p-10 shadow-sm space-y-8">
                         <div>
-                            <label className="block text-sm font-bold text-gray-900 mb-3 ml-1">Blog Title</label>
-                            <NuraTextInput 
-                                placeholder="Enter blog title..." 
+                            <label className="block text-sm font-medium text-gray-900 mb-3 ml-1">Blog Title</label>
+                            <NuraTextInput
+                                placeholder="Enter blog title..."
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-bold text-gray-900 mb-3 ml-1">Picture Banner (URL)</label>
-                            <NuraTextInput 
-                                placeholder="Paste image URL here..." 
+                            <label className="block text-sm font-medium text-gray-900 mb-3 ml-1">Picture Banner (URL)</label>
+                            <NuraTextInput
+                                placeholder="Paste image URL here..."
                                 value={bannerUrl}
                                 onChange={(e) => setBannerUrl(e.target.value)}
                             />
@@ -122,9 +122,9 @@ export default function AddBlogPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-bold text-gray-900 mb-3 ml-1">Short Description</label>
-                            <NuraTextArea 
-                                placeholder="Enter brief summary..." 
+                            <label className="block text-sm font-medium text-gray-900 mb-3 ml-1">Short Description</label>
+                            <NuraTextArea
+                                placeholder="Enter brief summary..."
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                                 label=""
@@ -134,7 +134,7 @@ export default function AddBlogPage() {
 
                     {/* Content Editor */}
                     <div className="bg-white/80 backdrop-blur-sm rounded-[2.5rem] border border-gray-100 p-10 shadow-sm">
-                        <BlogSectionEditor 
+                        <BlogSectionEditor
                             sections={sections}
                             onChange={setSections}
                         />
@@ -142,9 +142,9 @@ export default function AddBlogPage() {
 
                     {/* Bottom Save Button */}
                     <div className="flex justify-end pt-12">
-                        <NuraButton 
-                            label="Create Blog" 
-                            variant="primary" 
+                        <NuraButton
+                            label="Create Blog"
+                            variant="primary"
                             onClick={handleCreate}
                             isLoading={isSubmitting}
                             className="!w-auto px-16 py-4 text-lg shadow-xl shadow-lime-100"

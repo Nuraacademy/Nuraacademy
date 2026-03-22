@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useRef, useEffect, ChangeEvent } from "react";
-import { 
-    ChevronLeft, 
-    ChevronRight, 
-    Calendar, 
-    Clock, 
-    X 
+import {
+    ChevronLeft,
+    ChevronRight,
+    Calendar,
+    Clock,
+    X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -35,7 +35,7 @@ function CalendarPopover({ value, onChange, onClose, withTime = true, minDate, m
     const [viewYear, setViewYear] = useState(value?.getFullYear() ?? today.getFullYear());
     const [viewMonth, setViewMonth] = useState(value?.getMonth() ?? today.getMonth());
     const [selectedDate, setSelectedDate] = useState<Date | null>(value);
-    
+
     // Time State
     const [hour, setHour] = useState(value?.getHours() ?? 0);
     const [minute, setMinute] = useState(value?.getMinutes() ?? 0);
@@ -78,18 +78,18 @@ function CalendarPopover({ value, onChange, onClose, withTime = true, minDate, m
         <div className="bg-white rounded-[1.5rem] shadow-2xl border border-gray-200 p-5 w-[320px] select-none animate-in fade-in zoom-in-95 duration-200">
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
-                <button 
-                    type="button" 
+                <button
+                    type="button"
                     onClick={() => viewMonth === 0 ? (setViewMonth(11), setViewYear(v => v - 1)) : setViewMonth(v => v - 1)}
                     className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                     <ChevronLeft size={18} strokeWidth={2.5} />
                 </button>
-                <span className="text-sm font-bold text-black uppercase tracking-tight">
+                <span className="text-sm font-medium text-black uppercase tracking-tight">
                     {MONTHS[viewMonth]} {viewYear}
                 </span>
-                <button 
-                    type="button" 
+                <button
+                    type="button"
                     onClick={() => viewMonth === 11 ? (setViewMonth(0), setViewYear(v => v + 1)) : setViewMonth(v => v + 1)}
                     className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
                 >
@@ -150,36 +150,36 @@ function CalendarPopover({ value, onChange, onClose, withTime = true, minDate, m
             {withTime && (
                 <div className="mt-5 pt-5 border-t border-gray-100">
                     <div className="flex items-center justify-between mb-4">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                        <span className="text-[10px] font-medium text-gray-400 uppercase tracking-widest flex items-center gap-2">
                             <Clock size={12} /> Set Time
                         </span>
                     </div>
                     <div className="flex items-center justify-center gap-3">
                         {/* Hours */}
                         <div className="flex flex-col items-center">
-                            <div className="w-14 h-12 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-center text-xl font-bold tabular-nums">
+                            <div className="w-14 h-12 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-center text-xl font-medium tabular-nums">
                                 {String(hour).padStart(2, '0')}
                             </div>
                             <div className="flex gap-1 mt-1">
-                                <button type="button" onClick={() => setHour(h => (h + 23) % 24)} className="p-1 hover:bg-gray-100 rounded"><ChevronLeft size={14} className="-rotate-90"/></button>
-                                <button type="button" onClick={() => setHour(h => (h + 1) % 24)} className="p-1 hover:bg-gray-100 rounded"><ChevronLeft size={14} className="rotate-90"/></button>
+                                <button type="button" onClick={() => setHour(h => (h + 23) % 24)} className="p-1 hover:bg-gray-100 rounded"><ChevronLeft size={14} className="-rotate-90" /></button>
+                                <button type="button" onClick={() => setHour(h => (h + 1) % 24)} className="p-1 hover:bg-gray-100 rounded"><ChevronLeft size={14} className="rotate-90" /></button>
                             </div>
                         </div>
-                        <span className="text-xl font-bold text-gray-300 pb-6">:</span>
+                        <span className="text-xl font-medium text-gray-300 pb-6">:</span>
                         {/* Minutes */}
                         <div className="flex flex-col items-center">
-                            <div className="w-14 h-12 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-center text-xl font-bold tabular-nums">
+                            <div className="w-14 h-12 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-center text-xl font-medium tabular-nums">
                                 {String(minute).padStart(2, '0')}
                             </div>
                             <div className="flex gap-1 mt-1">
-                                <button type="button" onClick={() => setMinute(m => (m + 55) % 60)} className="p-1 hover:bg-gray-100 rounded"><ChevronLeft size={14} className="-rotate-90"/></button>
-                                <button type="button" onClick={() => setMinute(m => (m + 5) % 60)} className="p-1 hover:bg-gray-100 rounded"><ChevronLeft size={14} className="rotate-90"/></button>
+                                <button type="button" onClick={() => setMinute(m => (m + 55) % 60)} className="p-1 hover:bg-gray-100 rounded"><ChevronLeft size={14} className="-rotate-90" /></button>
+                                <button type="button" onClick={() => setMinute(m => (m + 5) % 60)} className="p-1 hover:bg-gray-100 rounded"><ChevronLeft size={14} className="rotate-90" /></button>
                             </div>
                         </div>
                     </div>
                     <div className="flex justify-end gap-2 mt-6">
-                        <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-bold text-gray-400 hover:text-black transition-colors">Cancel</button>
-                        <button type="button" onClick={handleConfirm} className="px-6 py-2 bg-black text-white rounded-xl text-sm font-bold hover:bg-zinc-800 shadow-sm transition-all">OK</button>
+                        <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-400 hover:text-black transition-colors">Cancel</button>
+                        <button type="button" onClick={handleConfirm} className="px-6 py-2 bg-black text-white rounded-xl text-sm font-medium hover:bg-zinc-800 shadow-sm transition-all">OK</button>
                     </div>
                 </div>
             )}
@@ -201,13 +201,13 @@ interface M3DateTimePickerProps {
     maxDate?: Date | null;
 }
 
-export default function M3DateTimePicker({ 
-    label, 
-    value, 
-    onChange, 
-    error, 
-    required, 
-    className, 
+export default function M3DateTimePicker({
+    label,
+    value,
+    onChange,
+    error,
+    required,
+    className,
     id,
     placeholder = "DD/MM/YYYY HH:mm",
     minDate,
@@ -226,13 +226,13 @@ export default function M3DateTimePicker({
     }, []);
 
     const displayDate = value
-        ? value.toLocaleString("id-ID", { 
-            day: "2-digit", 
-            month: "2-digit", 
-            year: "numeric", 
-            hour: "2-digit", 
-            minute: "2-digit" 
-          })
+        ? value.toLocaleString("id-ID", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        })
         : "";
 
     return (
@@ -242,7 +242,7 @@ export default function M3DateTimePicker({
                     {label} {required && <span className="text-red-500">*</span>}
                 </label>
             )}
-            
+
             <div className="relative">
                 <button
                     id={id}
@@ -251,10 +251,10 @@ export default function M3DateTimePicker({
                     className={cn(
                         "w-full flex items-center justify-between bg-white border px-4 py-2 text-sm transition-all text-left",
                         "rounded-[0.5rem]", // Exact match to NuraTextInput
-                        error 
-                            ? "border-red-500" 
-                            : open 
-                                ? "border-black ring-2 ring-black/5" 
+                        error
+                            ? "border-red-500"
+                            : open
+                                ? "border-black ring-2 ring-black/5"
                                 : "border-black hover:border-zinc-700",
                         "focus:outline-none focus:ring-2 focus:ring-black"
                     )}

@@ -113,7 +113,7 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
 
     return (
         <div className="w-full mt-4">
-            <h1 className="text-2xl font-bold mb-4">{isEditing ? "Edit Class" : "Add Class"}</h1>
+            <h1 className="text-2xl font-medium mb-4">{isEditing ? "Edit Class" : "Add Class"}</h1>
 
             <div className="space-y-8">
                 {/* Title and Stats */}

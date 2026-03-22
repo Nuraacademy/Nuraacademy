@@ -31,7 +31,7 @@ export default async function SessionRecordingPage({
         return (
             <main className="min-h-screen bg-[#FDFDF7] font-sans flex items-center justify-center">
                 <div className="p-10 text-center bg-white rounded-3xl shadow-sm border border-gray-100">
-                    <h2 className="text-xl font-bold mb-4">No Recording Available</h2>
+                    <h2 className="text-xl font-medium mb-4">No Recording Available</h2>
                     <p className="text-gray-600 mb-6">Recording is not available for this session at the moment.</p>
                     <RecordingClient classId={classId} courseId={courseId} moduleId={moduleId} />
                 </div>
@@ -75,7 +75,7 @@ export default async function SessionRecordingPage({
 
                 {/* Hero Title */}
                 <section className="bg-[#005954] rounded-[1.5rem] p-6 mb-8 flex items-center gap-4">
-                    <h1 className="text-xl font-bold text-white">{session.title}</h1>
+                    <h1 className="text-xl font-medium text-white">{session.title}</h1>
                 </section>
 
                 {/* Main Content Card */}
@@ -83,7 +83,7 @@ export default async function SessionRecordingPage({
                     {/* Time Section */}
                     <div>
                         <p className="text-sm">
-                            <span className="font-bold text-gray-900 mr-2">Time:</span>
+                            <span className="font-medium text-gray-900 mr-2">Time:</span>
                             <span className="text-gray-700">{timeString}</span>
                         </p>
                     </div>
@@ -92,7 +92,7 @@ export default async function SessionRecordingPage({
 
                     {/* Video - Render Asynchronous Layout Style */}
                     <div className="flex flex-col gap-4">
-                        <h2 className="text-sm font-bold text-gray-900">Recording: {content.recording.title}</h2>
+                        <h2 className="text-sm font-medium text-gray-900">Recording: {content.recording.title}</h2>
                         <div className="relative w-full aspect-video rounded-3xl overflow-hidden group cursor-pointer shadow-lg">
                             <iframe
                                 width="100%"

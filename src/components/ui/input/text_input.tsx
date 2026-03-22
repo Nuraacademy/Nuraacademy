@@ -42,7 +42,7 @@ export const NuraTextInput = ({
     return (
         <div className="w-full">
             {label && (
-                <label className={cn("block text-sm font-medium mb-1", `text-${color}`)}>
+                <label className={cn("block text-sm mb-1", `text-${color}`)}>
                     {label}
                 </label>
             )}

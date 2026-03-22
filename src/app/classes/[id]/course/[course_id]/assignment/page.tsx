@@ -31,7 +31,7 @@ export default function CourseAssignmentPage() {
                 {/* Hero Title */}
                 <section className="bg-[#005954] rounded-[1.5rem] p-6 mb-8 flex items-center justify-between gap-4">
                     <div className="flex flex-col gap-1">
-                        <h1 className="text-xl font-bold text-white">{ASSIGNMENT_DATA.title}</h1>
+                        <h1 className="text-xl font-medium text-white">{ASSIGNMENT_DATA.title}</h1>
                         <p className="text-xs text-white/80">
                             {PAGE_DATA.classTitle} | {PAGE_DATA.courseTitle} | {ASSIGNMENT_DATA.context}
                         </p>
@@ -46,7 +46,7 @@ export default function CourseAssignmentPage() {
                     {/* Dates */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                         <div className="flex flex-col gap-1">
-                            <span className="font-bold text-gray-900">Start Date:</span>
+                            <span className="font-medium text-gray-900">Start Date:</span>
                             <span className="text-gray-700">{ASSIGNMENT_DATA.startDate.toLocaleDateString("id-ID", {
                                 weekday: "long",
                                 year: "numeric",
@@ -55,7 +55,7 @@ export default function CourseAssignmentPage() {
                             })}</span>
                         </div>
                         <div className="flex flex-col gap-1">
-                            <span className="font-bold text-gray-900">End Date:</span>
+                            <span className="font-medium text-gray-900">End Date:</span>
                             <span className="text-gray-700">{ASSIGNMENT_DATA.endDate.toLocaleDateString("id-ID", {
                                 weekday: "long",
                                 year: "numeric",
@@ -69,7 +69,7 @@ export default function CourseAssignmentPage() {
 
                     {/* Detail Tugas */}
                     <div className="flex flex-col gap-2 text-sm">
-                        <span className="font-bold text-gray-900">Detail Tugas</span>
+                        <span className="font-medium text-gray-900">Detail Tugas</span>
                         <p className="text-gray-700 leading-relaxed">{ASSIGNMENT_DATA.detail}</p>
                     </div>
 
@@ -84,7 +84,7 @@ export default function CourseAssignmentPage() {
                         <NuraButton
                             label="Work on Assignment"
                             variant="primary"
-                            className="h-10 text-sm font-bold"
+                            className="h-10 text-sm font-medium"
                             onClick={() => { }}
                         />
                     </div>

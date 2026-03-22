@@ -126,12 +126,12 @@ export default function GradingClient({
                 </div>
 
                 <div className="bg-[#00524D] rounded-2xl p-6 mb-10">
-                    <h1 className="text-2xl font-bold text-white">{title}</h1>
+                    <h1 className="text-2xl font-medium text-white">{title}</h1>
                 </div>
 
                 <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-sm border border-gray-100">
                     <div className="mb-10">
-                        <h2 className="text-xl font-bold text-black mb-4">{learnerName}</h2>
+                        <h2 className="text-xl font-medium text-black mb-4">{learnerName}</h2>
                         {groupMembers.length > 0 && (
                             <ol className="space-y-2 ml-1">
                                 {groupMembers.map((m, idx) => (
@@ -148,15 +148,15 @@ export default function GradingClient({
                     {/* Objective Section */}
                     {initialData.objective.length > 0 && (
                         <div className="mb-12">
-                            <h3 className="text-lg font-bold text-black mb-6">Objective Results</h3>
+                            <h3 className="text-lg font-medium text-black mb-6">Objective Results</h3>
                             <div className="w-full border border-gray-200 rounded-[1.5rem] overflow-hidden">
                                 <table className="w-full text-left border-collapse">
                                     <thead>
                                         <tr className="border-b border-gray-200 bg-gray-50">
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 w-16">No</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 w-1/3">Question</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-500">Given Answer</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 text-right">Score</th>
+                                            <th className="px-6 py-4 text-xs font-medium text-gray-500 w-16">No</th>
+                                            <th className="px-6 py-4 text-xs font-medium text-gray-500 w-1/3">Question</th>
+                                            <th className="px-6 py-4 text-xs font-medium text-gray-500">Given Answer</th>
+                                            <th className="px-6 py-4 text-xs font-medium text-gray-500 text-right">Score</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -166,9 +166,9 @@ export default function GradingClient({
                                                 <td className="px-6 py-5 text-sm text-black border-l border-r border-gray-100" dangerouslySetInnerHTML={{ __html: item.question }} />
                                                 <td className="px-6 py-5 text-sm text-gray-700">
                                                     <div dangerouslySetInnerHTML={{ __html: isEmptyAnswer(item.givenAnswer) ? "-" : item.givenAnswer }} />
-                                                    <div className="text-[10px] text-green-600 font-bold mt-1 uppercase tracking-tighter">Correct: <span dangerouslySetInnerHTML={{ __html: item.correctAnswer }} /></div>
+                                                    <div className="text-[10px] text-green-600 font-medium mt-1 uppercase tracking-tighter">Correct: <span dangerouslySetInnerHTML={{ __html: item.correctAnswer }} /></div>
                                                 </td>
-                                                <td className="px-6 py-5 text-right text-sm font-bold text-black border-l border-gray-100">
+                                                <td className="px-6 py-5 text-right text-sm font-medium text-black border-l border-gray-100">
                                                     {item.score || 0}/{item.maxScore}
                                                 </td>
                                             </tr>
@@ -182,15 +182,15 @@ export default function GradingClient({
                     {/* Essay Section */}
                     {initialData.essay.length > 0 && (
                         <div className="mb-12">
-                            <h3 className="text-lg font-bold text-black mb-6">Essay Evaluation</h3>
+                            <h3 className="text-lg font-medium text-black mb-6">Essay Evaluation</h3>
                             <div className="w-full border border-gray-200 rounded-[1.5rem] overflow-hidden">
                                 <table className="w-full text-left border-collapse">
                                     <thead>
                                         <tr className="border-b border-gray-200 bg-gray-50">
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 w-16">No</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 w-1/3">Question</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-500">Student Response</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 text-right w-40">Score</th>
+                                            <th className="px-6 py-4 text-xs font-medium text-gray-500 w-16">No</th>
+                                            <th className="px-6 py-4 text-xs font-medium text-gray-500 w-1/3">Question</th>
+                                            <th className="px-6 py-4 text-xs font-medium text-gray-500">Student Response</th>
+                                            <th className="px-6 py-4 text-xs font-medium text-gray-500 text-right w-40">Score</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -210,12 +210,12 @@ export default function GradingClient({
                                                                     value={scores[item.resultItemId] ?? ""}
                                                                     placeholder="__"
                                                                     onChange={(e) => handleScoreChange(item.resultItemId, e.target.value, item.maxScore)}
-                                                                    className={`w-12 text-right text-base outline-none font-bold bg-transparent transition-colors ${getValidationError(scores[item.resultItemId], item.maxScore)
+                                                                    className={`w-12 text-right text-base outline-none font-medium bg-transparent transition-colors ${getValidationError(scores[item.resultItemId], item.maxScore)
                                                                         ? "text-red-600"
                                                                         : "text-black"
                                                                         }`}
                                                                 />
-                                                                <span className="text-gray-400 text-sm font-bold">/{item.maxScore}</span>
+                                                                <span className="text-gray-400 text-sm font-medium">/{item.maxScore}</span>
                                                             </div>
                                                         </div>
                                                         <Pencil size={16} className={getValidationError(scores[item.resultItemId], item.maxScore) ? "text-red-400" : "text-gray-300 group-hover:text-gray-500 transition-colors"} />
@@ -237,14 +237,14 @@ export default function GradingClient({
                     {/* Project Result Section (Mockup Design) */}
                     {initialData.project.length > 0 && (
                         <div className="mb-12">
-                            <h3 className="text-lg font-bold text-black mb-6">Project Result</h3>
+                            <h3 className="text-lg font-medium text-black mb-6">Project Result</h3>
                             <div className="w-full border border-gray-200 rounded-[1.5rem] overflow-hidden">
                                 <table className="w-full text-left border-collapse">
                                     <thead>
                                         <tr className="border-b border-gray-200 bg-gray-50">
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 w-16">No</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 w-2/3">Question</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-500">File Submission</th>
+                                            <th className="px-6 py-4 text-xs font-medium text-gray-500 w-16">No</th>
+                                            <th className="px-6 py-4 text-xs font-medium text-gray-500 w-2/3">Question</th>
+                                            <th className="px-6 py-4 text-xs font-medium text-gray-500">File Submission</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -282,14 +282,14 @@ export default function GradingClient({
                     {/* Project Score Section (Mockup Design) */}
                     {initialData.project.length > 0 && (
                         <div className="mb-12">
-                            <h3 className="text-lg font-bold text-black mb-6">Project Score</h3>
+                            <h3 className="text-lg font-medium text-black mb-6">Project Score</h3>
                             <div className="w-full border border-gray-200 rounded-[1.5rem] overflow-hidden">
                                 <table className="w-full text-left border-collapse">
                                     <thead>
                                         <tr className="border-b border-gray-200 bg-gray-50">
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 w-16">No</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-500">Parameter</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-500 text-right w-40">Score</th>
+                                            <th className="px-6 py-4 text-xs font-medium text-gray-500 w-16">No</th>
+                                            <th className="px-6 py-4 text-xs font-medium text-gray-500">Parameter</th>
+                                            <th className="px-6 py-4 text-xs font-medium text-gray-500 text-right w-40">Score</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -308,12 +308,12 @@ export default function GradingClient({
                                                                     value={scores[item.resultItemId] ?? ""}
                                                                     placeholder="__"
                                                                     onChange={(e) => handleScoreChange(item.resultItemId, e.target.value, item.maxScore)}
-                                                                    className={`w-12 text-right text-base outline-none font-bold bg-transparent transition-colors ${getValidationError(scores[item.resultItemId], item.maxScore)
+                                                                    className={`w-12 text-right text-base outline-none font-medium bg-transparent transition-colors ${getValidationError(scores[item.resultItemId], item.maxScore)
                                                                         ? "text-red-600"
                                                                         : "text-black"
                                                                         }`}
                                                                 />
-                                                                <span className="text-gray-400 text-sm font-bold">/{item.maxScore}</span>
+                                                                <span className="text-gray-400 text-sm font-medium">/{item.maxScore}</span>
                                                             </div>
                                                         </div>
                                                         <Pencil
@@ -339,24 +339,23 @@ export default function GradingClient({
                     {/* Final Footer */}
                     <div className="mt-8 flex flex-col items-end pt-8">
                         <div className="flex items-center gap-12 mb-6 pr-6">
-                            <span className="text-sm font-bold text-black uppercase tracking-wider">Total Score</span>
-                            <span className="text-sm font-bold text-gray-800">{calculateCurrentTotal().toFixed(1)} / {maxTestScore}</span>
+                            <span className="text-sm font-medium text-black uppercase tracking-wider">Total Score</span>
+                            <span className="text-sm font-medium text-gray-800">{calculateCurrentTotal().toFixed(1)} / {maxTestScore}</span>
                         </div>
                         <div className="flex items-center gap-8 pr-6 mt-4">
                             <button
                                 onClick={() => router.push(backUrl)}
-                                className="text-sm font-bold text-gray-700 hover:text-black transition-colors"
+                                className="text-sm font-medium text-gray-700 hover:text-black transition-colors"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={onSubmit}
                                 disabled={isSubmitting}
-                                className={`px-10 py-3 rounded-xl text-sm font-bold transition-all shadow-md ${
-                                    isSubmitting 
-                                    ? "bg-gray-200 text-gray-400 cursor-not-allowed" 
-                                    : "bg-[#D6E63A] text-black hover:bg-[#C5D42E] active:scale-95"
-                                }`}
+                                className={`px-10 py-3 rounded-xl text-sm font-medium transition-all shadow-md ${isSubmitting
+                                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                        : "bg-[#D6E63A] text-black hover:bg-[#C5D42E] active:scale-95"
+                                    }`}
                             >
                                 {isSubmitting ? "Submitting..." : "Submit"}
                             </button>

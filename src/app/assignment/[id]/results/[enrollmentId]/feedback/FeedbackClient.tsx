@@ -65,7 +65,7 @@ export default function FeedbackClient({
 
                 {/* Hero Section */}
                 <div className="bg-[#005954] rounded-[1.5rem] p-8 text-white shadow-sm space-y-2">
-                    <h1 className="text-2xl font-bold">{learnerName}</h1>
+                    <h1 className="text-2xl font-medium">{learnerName}</h1>
                     <p className="text-white/80 text-sm font-medium">
                         {className} {courseName ? `| ${courseName}` : ''}
                     </p>
@@ -74,9 +74,9 @@ export default function FeedbackClient({
                 {/* Feedback Card */}
                 <div className="bg-white rounded-[2rem] p-10 shadow-sm border border-gray-100 flex flex-col gap-8">
                     <div className="space-y-4">
-                        <h2 className="text-sm font-bold text-gray-900">Feedback Answer</h2>
+                        <h2 className="text-sm font-medium text-gray-900">Feedback Answer</h2>
                         <div className="border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm p-4">
-                            <RichTextInput 
+                            <RichTextInput
                                 value={feedback}
                                 onChange={(val) => setFeedback(val)}
                             />
@@ -84,16 +84,16 @@ export default function FeedbackClient({
                     </div>
 
                     <div className="flex justify-center items-center gap-6 pt-4">
-                        <button 
+                        <button
                             onClick={handleClear}
-                            className="text-sm font-bold text-gray-400 hover:text-gray-900 transition-colors uppercase tracking-widest"
+                            className="text-sm font-medium text-gray-400 hover:text-gray-900 transition-colors uppercase tracking-widest"
                         >
                             Clear
                         </button>
-                        <NuraButton 
+                        <NuraButton
                             label={isSaving ? "Submitting..." : "Submit"}
                             variant="primary"
-                            className="min-w-[160px] h-12 text-sm font-bold bg-[#DAEE49] text-[#005954] hover:bg-[#C9D942]"
+                            className="min-w-[160px] h-12 text-sm font-medium bg-[#DAEE49] text-[#005954] hover:bg-[#C9D942]"
                             onClick={handleSave}
                             disabled={isSaving}
                         />

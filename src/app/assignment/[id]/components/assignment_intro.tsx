@@ -72,7 +72,7 @@ export function AssignmentIntroCard({
                     <div>{formatDate(startDate)}</div>
 
                     <div className="font-semibold">End Date:</div>
-                    <div className={isExpired ? "text-red-600 font-bold" : ""}>{formatDate(endDate)} {isExpired && "(Expired)"}</div>
+                    <div className={isExpired ? "text-red-600 font-medium" : ""}>{formatDate(endDate)} {isExpired && "(Expired)"}</div>
                 </div>
 
                 <hr className="border-gray-100 my-6" />
@@ -88,43 +88,42 @@ export function AssignmentIntroCard({
                 <div className="flex items-center gap-4 mb-8 text-sm">
                     <span className="text-gray-600">Status:</span>
                     <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            isSubmitted
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${isSubmitted
                                 ? "bg-emerald-100 text-emerald-800"
                                 : isExpired
                                     ? "bg-red-100 text-red-800"
                                     : "bg-[#a5b4fc] text-indigo-900"
-                        }`}
+                            }`}
                     >
                         {isSubmitted ? "Submitted" : isExpired ? "Assignment Expired" : "Assignment has not been submitted"}
                     </span>
                 </div>
 
-                    <div className="flex justify-center gap-4">
+                <div className="flex justify-center gap-4">
+                    <NuraButton
+                        label="Back"
+                        variant="secondary"
+                        type="button"
+                        className="w-[180px] border-transparent"
+                        onClick={() => router.back()}
+                    />
+                    {type === "EXERCISE" && description && description.startsWith("http") && (
                         <NuraButton
-                            label="Back"
-                            variant="secondary"
-                            type="button"
-                            className="w-[180px] border-transparent"
-                            onClick={() => router.back()}
-                        />
-                        {type === "EXERCISE" && description && description.startsWith("http") && (
-                            <NuraButton
-                                label="Open in Colab"
-                                variant="primary"
-                                type="button"
-                                className="w-[180px]"
-                                onClick={() => window.open(description, "_blank")}
-                            />
-                        )}
-                        <NuraButton
-                            label={isSubmitted ? "View Result" : "Work on Assignment"}
+                            label="Open in Colab"
                             variant="primary"
                             type="button"
-                            onClick={() => router.push(`?skipIntro=1`)}
-                            disabled={!isSubmitted && isExpired}
+                            className="w-[180px]"
+                            onClick={() => window.open(description, "_blank")}
                         />
-                    </div>
+                    )}
+                    <NuraButton
+                        label={isSubmitted ? "View Result" : "Work on Assignment"}
+                        variant="primary"
+                        type="button"
+                        onClick={() => router.push(`?skipIntro=1`)}
+                        disabled={!isSubmitted && isExpired}
+                    />
+                </div>
             </div>
         </section>
     );

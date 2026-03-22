@@ -46,14 +46,14 @@ export default function PlacementResultsClient({
 
                 {/* Banner */}
                 <div className="bg-[#00524D] rounded-2xl p-6 mb-10">
-                    <h1 className="text-2xl font-bold text-white">Placement Test Results</h1>
+                    <h1 className="text-2xl font-medium text-white">Placement Test Results</h1>
                     <p className="text-white/80 text-sm mt-1">Review and grade placement tests for all enrolled learners.</p>
                 </div>
 
                 {/* Content Card */}
                 <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-sm border border-gray-100">
                     <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-lg font-bold text-black">Learner Submissions</h2>
+                        <h2 className="text-lg font-medium text-black">Learner Submissions</h2>
                         <NuraButton
                             label="View Pass List"
                             variant="secondary"
@@ -84,7 +84,7 @@ export default function PlacementResultsClient({
                                             {res.submittedAt ? new Date(res.submittedAt).toLocaleDateString() : "N/A"}
                                         </td>
                                         <td className="px-8 py-6 text-center">
-                                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${res.status === "Graded" ? "bg-green-100 text-green-700" :
+                                            <span className={`px-3 py-1 rounded-full text-[10px] font-medium uppercase ${res.status === "Graded" ? "bg-green-100 text-green-700" :
                                                 res.status === "To Grade" ? "bg-amber-100 text-amber-700" :
                                                     "bg-gray-100 text-gray-500"
                                                 }`}>
@@ -101,7 +101,7 @@ export default function PlacementResultsClient({
                                             <button
                                                 disabled={res.status === "Not Started"}
                                                 onClick={() => router.push(`/classes/${classId}/placement/results/${res.enrollmentId}/grade`)}
-                                                className={`inline-flex items-center gap-1 text-sm font-bold ${res.status === "Not Started" ? "text-gray-300 cursor-not-allowed" : "text-[#00524D] hover:underline"
+                                                className={`inline-flex items-center gap-1 text-sm font-medium ${res.status === "Not Started" ? "text-gray-300 cursor-not-allowed" : "text-[#00524D] hover:underline"
                                                     }`}
                                             >
                                                 {res.status === "Graded" ? "Review" : "Grade"}

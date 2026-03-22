@@ -5,7 +5,7 @@ import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 
 export default async function MyProfilePage() {
     const session = await getFullSession();
-    
+
     if (!session) {
         redirect("/login");
     }
@@ -25,12 +25,12 @@ export default async function MyProfilePage() {
 
     return (
         <div className="min-h-screen bg-[#F9F9EE] px-4 md:px-16 py-8 md:py-12 space-y-8 font-sans">
-            <Breadcrumb 
+            <Breadcrumb
                 items={[
                     { label: 'Home', href: '/' },
                     { label: 'Users', href: '/users' },
                     { label: 'My Profile', href: '#' },
-                ]} 
+                ]}
             />
 
             <div className="bg-white rounded-[40px] p-8 md:p-12 shadow-sm border border-white/50 max-w-4xl mx-auto">
@@ -42,14 +42,14 @@ export default async function MyProfilePage() {
                         <h1 className="text-3xl md:text-4xl font-black text-[#1C3A37] font-merriweather">
                             {user.name || user.username}
                         </h1>
-                        <p className="text-[#8BB730] font-bold text-lg uppercase tracking-wider">
+                        <p className="text-[#8BB730] font-medium text-lg uppercase tracking-wider">
                             {user.role?.name || 'Member'}
                         </p>
                         <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-4">
-                            <span className="bg-[#F9F9EE] px-4 py-1.5 rounded-full text-xs font-bold text-[#1C3A37] border border-[#1C3A37]/5">
+                            <span className="bg-[#F9F9EE] px-4 py-1.5 rounded-full text-xs font-medium text-[#1C3A37] border border-[#1C3A37]/5">
                                 @{user.username}
                             </span>
-                            <span className="bg-[#F9F9EE] px-4 py-1.5 rounded-full text-xs font-bold text-[#1C3A37] border border-[#1C3A37]/5">
+                            <span className="bg-[#F9F9EE] px-4 py-1.5 rounded-full text-xs font-medium text-[#1C3A37] border border-[#1C3A37]/5">
                                 {user.email}
                             </span>
                         </div>
@@ -62,12 +62,12 @@ export default async function MyProfilePage() {
                             <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Contact Information</h2>
                             <div className="space-y-4">
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] font-bold text-gray-400 uppercase">WhatsApp</span>
-                                    <span className="text-sm font-bold text-[#1C3A37]">{user.whatsapp || '-'}</span>
+                                    <span className="text-[10px] font-medium text-gray-400 uppercase">WhatsApp</span>
+                                    <span className="text-sm font-medium text-[#1C3A37]">{user.whatsapp || '-'}</span>
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] font-bold text-gray-400 uppercase">Email Address</span>
-                                    <span className="text-sm font-bold text-[#1C3A37]">{user.email}</span>
+                                    <span className="text-[10px] font-medium text-gray-400 uppercase">Email Address</span>
+                                    <span className="text-sm font-medium text-[#1C3A37]">{user.email}</span>
                                 </div>
                             </div>
                         </div>
@@ -78,14 +78,14 @@ export default async function MyProfilePage() {
                             <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Account Details</h2>
                             <div className="space-y-4">
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] font-bold text-gray-400 uppercase">Joined Since</span>
-                                    <span className="text-sm font-bold text-[#1C3A37]">
+                                    <span className="text-[10px] font-medium text-gray-400 uppercase">Joined Since</span>
+                                    <span className="text-sm font-medium text-[#1C3A37]">
                                         {new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                                     </span>
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] font-bold text-gray-400 uppercase">Role Status</span>
-                                    <span className="text-sm font-bold text-[#1C3A37] border-l-4 border-[#DAEE49] pl-3 py-1 bg-gray-50/50 rounded-r-lg">
+                                    <span className="text-[10px] font-medium text-gray-400 uppercase">Role Status</span>
+                                    <span className="text-sm font-medium text-[#1C3A37] border-l-4 border-[#DAEE49] pl-3 py-1 bg-gray-50/50 rounded-r-lg">
                                         Active {user.role?.name || 'Member'}
                                     </span>
                                 </div>

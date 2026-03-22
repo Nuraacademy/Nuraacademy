@@ -98,7 +98,7 @@ export const AssignmentCard = ({
                                 e.stopPropagation();
                                 router.push(`/assignment/${id}/results`);
                             }}
-                            className="rounded-full bg-[#00524D] px-4 py-1.5 text-xs font-bold text-white transition-all hover:bg-[#00423D]"
+                            className="rounded-full bg-[#00524D] px-4 py-1.5 text-xs font-medium text-white transition-all hover:bg-[#00423D]"
                         >
                             Results
                         </button>
@@ -110,7 +110,7 @@ export const AssignmentCard = ({
                                 e.stopPropagation();
                                 router.push(`/classes/${classId}/feedback`);
                             }}
-                            className="rounded-full bg-[#D9F55C] px-4 py-1.5 text-xs font-bold text-black transition-all hover:bg-[#c8e54b]"
+                            className="rounded-full bg-[#D9F55C] px-4 py-1.5 text-xs font-medium text-black transition-all hover:bg-[#c8e54b]"
                         >
                             Class Feedback
                         </button>

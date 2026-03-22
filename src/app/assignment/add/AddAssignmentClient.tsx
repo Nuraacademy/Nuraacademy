@@ -561,7 +561,7 @@ export function AddAssignmentClient({
                 {view === "overview" && (
                     <>
                         <Breadcrumb items={breadcrumbBase} />
-                        <h1 className="text-2xl font-bold mt-6 mb-6">Add Assignment</h1>
+                        <h1 className="text-2xl font-medium mt-6 mb-6">Add Assignment</h1>
 
                         {/* ── Row 1: Title ── */}
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mb-4">
@@ -803,7 +803,7 @@ export function AddAssignmentClient({
                 {view === "editor" && selectedCourseForEditor && (
                     <>
                         <Breadcrumb items={[...breadcrumbBase, { label: selectedCourseForEditor.title, href: "#" }]} />
-                        <h1 className="text-2xl font-bold mt-6 mb-6">Add Assignment</h1>
+                        <h1 className="text-2xl font-medium mt-6 mb-6">Add Assignment</h1>
 
                         <TestEditor
                             selectedCourse={selectedCourseForEditor}
@@ -827,7 +827,7 @@ export function AddAssignmentClient({
                 {view === "simple-editor" && selectedCourseForEditor && (
                     <>
                         <Breadcrumb items={[...breadcrumbBase, { label: selectedCourseForEditor.title, href: "#" }]} />
-                        <h1 className="text-2xl font-bold mt-6 mb-6">Add Assignment</h1>
+                        <h1 className="text-2xl font-medium mt-6 mb-6">Add Assignment</h1>
 
                         <TestEditor
                             selectedCourse={selectedCourseForEditor}

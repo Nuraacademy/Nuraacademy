@@ -52,7 +52,7 @@ export default function ExercisePageClient({
                                 { label: "Exercise", href: "#" },
                             ]}
                         />
-                        <h1 className="text-4xl font-bold mt-6 text-black">
+                        <h1 className="text-4xl font-medium mt-6 text-black">
                             Exercise: {exerciseTitle}
                         </h1>
                     </div>
@@ -61,7 +61,7 @@ export default function ExercisePageClient({
                         {/* Title & Description */}
                         <div className="flex flex-col gap-2 text-sm">
                             <div className="flex flex-col gap-1">
-                                <h2 className="text-2xl font-bold text-black">
+                                <h2 className="text-2xl font-medium text-black">
                                     {exerciseTitle}
                                 </h2>
                             </div>
@@ -76,7 +76,7 @@ export default function ExercisePageClient({
 
                         {/* Detail Tugas */}
                         <div className="flex flex-col gap-2 text-sm">
-                            <span className="font-bold text-gray-900">Task Detail</span>
+                            <span className="font-medium text-gray-900">Task Detail</span>
                             <div
                                 className="text-gray-700 leading-relaxed whitespace-pre-wrap"
                                 dangerouslySetInnerHTML={{ __html: instruction || "No instruction provided." }}

@@ -51,7 +51,7 @@ export default function WelcomingModal({
         </div>
 
         {/* Heading */}
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+        <h2 className="text-2xl md:text-3xl font-medium text-gray-900 mb-3">
           Welcome to the Journey!
         </h2>
         <p className="text-sm md:text-base text-gray-700 mb-10">

@@ -30,7 +30,7 @@ export default function UsersClient({
     const [editingUserId, setEditingUserId] = useState<number | null>(null);
     const [selectedRoleId, setSelectedRoleId] = useState<string>("");
     const [isSaving, setIsSaving] = useState(false);
-    
+
     // Deletion state
     const [userToDelete, setUserToDelete] = useState<UserWithRole | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -60,9 +60,9 @@ export default function UsersClient({
         // Apply Search query
         if (searchQuery) {
             const query = searchQuery.toLowerCase();
-            result = result.filter(u => 
-                u.name?.toLowerCase().includes(query) || 
-                u.email.toLowerCase().includes(query) || 
+            result = result.filter(u =>
+                u.name?.toLowerCase().includes(query) ||
+                u.email.toLowerCase().includes(query) ||
                 u.username.toLowerCase().includes(query)
             );
         }
@@ -143,7 +143,7 @@ export default function UsersClient({
             <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white/50 backdrop-blur-md p-4 rounded-2xl border border-white shadow-sm">
                 <div className="relative w-full md:w-96">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input 
+                    <input
                         type="text"
                         placeholder="Search by name, email, or username..."
                         className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-[#D9F55C] transition-all text-sm"
@@ -151,7 +151,7 @@ export default function UsersClient({
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 </div>
-                <NuraButton 
+                <NuraButton
                     label="Add New User"
                     variant="primary"
                     leftIcon={<UserPlus className="w-4 h-4" />}
@@ -164,7 +164,7 @@ export default function UsersClient({
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="border-b bg-gray-50/50 text-gray-400 text-[10px] uppercase tracking-widest font-bold">
+                            <tr className="border-b bg-gray-50/50 text-gray-400 text-[10px] uppercase tracking-widest font-medium">
                                 <th className="py-4 px-8">User Profile</th>
                                 <th className="py-4 px-8">Permission / Role</th>
                                 <th className="py-4 px-8">Engagement</th>
@@ -176,11 +176,11 @@ export default function UsersClient({
                                 <tr key={user.id} className="group hover:bg-[#FDFDF7] transition-colors">
                                     <td className="py-5 px-8">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#005954] to-[#00897B] flex items-center justify-center text-white font-bold text-sm shadow-sm group-hover:scale-110 transition-transform">
+                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#005954] to-[#00897B] flex items-center justify-center text-white font-medium text-sm shadow-sm group-hover:scale-110 transition-transform">
                                                 {user.name ? user.name[0].toUpperCase() : user.username[0].toUpperCase()}
                                             </div>
                                             <div>
-                                                <div className="font-bold text-gray-900 group-hover:text-[#005954] transition-colors">{user.name || "Unnamed User"}</div>
+                                                <div className="font-medium text-gray-900 group-hover:text-[#005954] transition-colors">{user.name || "Unnamed User"}</div>
                                                 <div className="text-xs text-gray-400 flex items-center gap-1">
                                                     <span className="opacity-70">@{user.username}</span>
                                                     <span>•</span>
@@ -205,14 +205,14 @@ export default function UsersClient({
                                                         </option>
                                                     ))}
                                                 </select>
-                                                <button 
+                                                <button
                                                     onClick={() => handleSaveRole(user.id)}
                                                     disabled={isSaving}
                                                     className="p-1.5 bg-[#D9F55C] text-emerald-900 rounded-lg hover:bg-[#c6e14b] transition-colors disabled:opacity-50"
                                                 >
                                                     <Check className="w-4 h-4" />
                                                 </button>
-                                                <button 
+                                                <button
                                                     onClick={handleCancelClick}
                                                     className="p-1.5 bg-gray-100 text-gray-500 rounded-lg hover:bg-gray-200 transition-colors"
                                                 >
@@ -221,11 +221,10 @@ export default function UsersClient({
                                             </div>
                                         ) : (
                                             <div className="flex items-center gap-2">
-                                                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                                                    user.role?.name === 'Admin' ? 'bg-[#1C3A37] text-white' :
-                                                    user.role?.name === 'Learner' ? 'bg-[#D9F55C]/20 text-[#005954]' :
-                                                    'bg-orange-50 text-orange-700'
-                                                }`}>
+                                                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider ${user.role?.name === 'Admin' ? 'bg-[#1C3A37] text-white' :
+                                                        user.role?.name === 'Learner' ? 'bg-[#D9F55C]/20 text-[#005954]' :
+                                                            'bg-orange-50 text-orange-700'
+                                                    }`}>
                                                     <Shield className="w-3 h-3" />
                                                     {user.role?.name || "Unassigned"}
                                                 </span>
@@ -252,7 +251,7 @@ export default function UsersClient({
                                                 className="w-auto h-8 px-3 text-[10px]"
                                                 onClick={() => handleEditClick(user)}
                                             />
-                                            <button 
+                                            <button
                                                 onClick={() => setUserToDelete(user)}
                                                 className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                                                 title="Delete User"
@@ -279,12 +278,12 @@ export default function UsersClient({
             </div>
 
             {/* Confirmation Modal */}
-            <ConfirmModal 
+            <ConfirmModal
                 isOpen={!!userToDelete}
                 title="Delete User?"
                 message={
                     <span>
-                        Are you sure you want to delete <b>{userToDelete?.name || userToDelete?.username}</b>? 
+                        Are you sure you want to delete <b>{userToDelete?.name || userToDelete?.username}</b>?
                         This action will soft-delete the user and they will no longer be able to log in.
                     </span>
                 }
@@ -300,65 +299,65 @@ export default function UsersClient({
                     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => !isSaving && setIsCreateModalOpen(false)} />
                     <div className="relative bg-white w-full max-w-xl rounded-[2.5rem] p-10 shadow-2xl animate-in zoom-in-95 duration-200">
                         <div className="flex justify-between items-center mb-8">
-                            <h2 className="text-2xl font-bold text-[#1C3A37]">Add New User</h2>
+                            <h2 className="text-2xl font-medium text-[#1C3A37]">Add New User</h2>
                             <button onClick={() => setIsCreateModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                                 <X className="w-6 h-6 text-gray-400" />
                             </button>
                         </div>
-                        
+
                         <form onSubmit={handleCreateUser} className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Full Name</label>
-                                    <input 
+                                    <label className="text-xs font-medium text-gray-500 uppercase tracking-wider ml-1">Full Name</label>
+                                    <input
                                         required
-                                        type="text" 
+                                        type="text"
                                         className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#D9F55C] transition-all text-sm"
                                         value={newUser.name}
-                                        onChange={e => setNewUser({...newUser, name: e.target.value})}
+                                        onChange={e => setNewUser({ ...newUser, name: e.target.value })}
                                         placeholder="John Doe"
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Username</label>
-                                    <input 
+                                    <label className="text-xs font-medium text-gray-500 uppercase tracking-wider ml-1">Username</label>
+                                    <input
                                         required
-                                        type="text" 
+                                        type="text"
                                         className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#D9F55C] transition-all text-sm"
                                         value={newUser.username}
-                                        onChange={e => setNewUser({...newUser, username: e.target.value})}
+                                        onChange={e => setNewUser({ ...newUser, username: e.target.value })}
                                         placeholder="johndoe"
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Email Address</label>
-                                    <input 
+                                    <label className="text-xs font-medium text-gray-500 uppercase tracking-wider ml-1">Email Address</label>
+                                    <input
                                         required
-                                        type="email" 
+                                        type="email"
                                         className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#D9F55C] transition-all text-sm"
                                         value={newUser.email}
-                                        onChange={e => setNewUser({...newUser, email: e.target.value})}
+                                        onChange={e => setNewUser({ ...newUser, email: e.target.value })}
                                         placeholder="john@example.com"
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Initial Password</label>
-                                    <input 
+                                    <label className="text-xs font-medium text-gray-500 uppercase tracking-wider ml-1">Initial Password</label>
+                                    <input
                                         required
-                                        type="password" 
+                                        type="password"
                                         className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#D9F55C] transition-all text-sm"
                                         value={newUser.password}
-                                        onChange={e => setNewUser({...newUser, password: e.target.value})}
+                                        onChange={e => setNewUser({ ...newUser, password: e.target.value })}
                                         placeholder="••••••••"
                                     />
                                 </div>
                                 <div className="space-y-1.5 md:col-span-2">
-                                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Assign Role</label>
-                                    <select 
+                                    <label className="text-xs font-medium text-gray-500 uppercase tracking-wider ml-1">Assign Role</label>
+                                    <select
                                         required
                                         className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#D9F55C] transition-all text-sm appearance-none"
                                         value={newUser.roleId}
-                                        onChange={e => setNewUser({...newUser, roleId: e.target.value})}
+                                        onChange={e => setNewUser({ ...newUser, roleId: e.target.value })}
                                     >
                                         <option value="">Select a role...</option>
                                         {roles.map(r => (
@@ -369,14 +368,14 @@ export default function UsersClient({
                             </div>
 
                             <div className="pt-4 flex gap-4">
-                                <NuraButton 
+                                <NuraButton
                                     label="Cancel"
                                     variant="secondary"
                                     className="flex-1"
                                     onClick={() => setIsCreateModalOpen(false)}
                                     disabled={isSaving}
                                 />
-                                <NuraButton 
+                                <NuraButton
                                     label="Create Account"
                                     variant="primary"
                                     className="flex-1 text-emerald-900"

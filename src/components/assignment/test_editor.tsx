@@ -321,16 +321,16 @@ export function TestEditor({
                                 const val = parseFloat(e.target.value);
                                 setThresholds(prev => ({ ...prev, [selectedCourse.id]: isNaN(val) ? 0 : val }));
                             }}
-                            className="flex-1 text-right text-base font-bold text-black outline-none bg-transparent"
+                            className="flex-1 text-right text-base font-medium text-black outline-none bg-transparent"
                             placeholder="e.g. 80"
                         />
                         <span className="text-gray-400 text-sm font-medium shrink-0">/ {currentMax}</span>
                     </div>
                     {threshold > currentMax && (
-                        <span className="text-[10px] text-red-500 font-bold mt-1 italic">Cannot exceed max score ({currentMax})</span>
+                        <span className="text-[10px] text-red-500 font-medium mt-1 italic">Cannot exceed max score ({currentMax})</span>
                     )}
                     {threshold < 0 && (
-                        <span className="text-[10px] text-red-500 font-bold mt-1 italic">Cannot be negative</span>
+                        <span className="text-[10px] text-red-500 font-medium mt-1 italic">Cannot be negative</span>
                     )}
                 </div>
             </div>

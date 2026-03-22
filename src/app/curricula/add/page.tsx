@@ -96,7 +96,7 @@ export default function AddCurriculaPage() {
                 />
 
                 <div className="max-w-7xl mt-8 space-y-8">
-                    <h1 className="text-2xl font-bold text-gray-900">Add Curricula</h1>
+                    <h1 className="text-2xl font-medium text-gray-900">Add Curricula</h1>
 
                     <div className="flex flex-col gap-2">
                         <label className="text-sm font-semibold text-gray-900">Curricula Title</label>

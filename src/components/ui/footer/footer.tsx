@@ -7,7 +7,7 @@ interface FooterProps {
     x?: string;
 }
 
-export default function Footer({ variant = "default", instagram, youtube, x } : FooterProps) {
+export default function Footer({ variant = "default", instagram, youtube, x }: FooterProps) {
     return (
         <main className={`bg-[#042940] text-white ${variant === "minimal" ? "py-4" : "py-12"} px-4 md:px-8 z-10`}>
             {variant === "default" ? (
@@ -15,7 +15,7 @@ export default function Footer({ variant = "default", instagram, youtube, x } : 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
                         {/* Company Information Column */}
                         <div>
-                            <h3 className="font-bold text-xl mb-4">Nura Academy</h3>
+                            <h3 className="font-medium text-xl mb-4">Nura Academy</h3>
                             <p className="text-white text-sm leading-relaxed mb-4">
                                 Menara Tinggi Kav. 12, Pasar Lama, Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta 12340
                             </p>
@@ -25,14 +25,14 @@ export default function Footer({ variant = "default", instagram, youtube, x } : 
                             <div className="flex gap-4">
                                 {
                                     !!instagram && (
-                                        <a 
-                                            href={instagram.startsWith('http') ? instagram : `https://${instagram}`} 
-                                            target="_blank" 
+                                        <a
+                                            href={instagram.startsWith('http') ? instagram : `https://${instagram}`}
+                                            target="_blank"
                                             rel="noopener noreferrer"
                                         >
-                                            <img 
-                                                src="/icons/Instagram.svg" 
-                                                alt="Instagram" 
+                                            <img
+                                                src="/icons/Instagram.svg"
+                                                alt="Instagram"
                                                 className="w-6 h-6 hover:opacity-80 transition-all"
                                             />
                                         </a>
@@ -40,14 +40,14 @@ export default function Footer({ variant = "default", instagram, youtube, x } : 
                                 }
                                 {
                                     !!youtube && (
-                                        <a 
-                                            href={youtube.startsWith('http') ? youtube : `https://${youtube}`} 
-                                            target="_blank" 
+                                        <a
+                                            href={youtube.startsWith('http') ? youtube : `https://${youtube}`}
+                                            target="_blank"
                                             rel="noopener noreferrer"
                                         >
-                                            <img 
-                                                src="/icons/Youtube.svg" 
-                                                alt="Youtube" 
+                                            <img
+                                                src="/icons/Youtube.svg"
+                                                alt="Youtube"
                                                 className="w-6 h-6 hover:opacity-80 transition-all"
                                             />
                                         </a>
@@ -55,14 +55,14 @@ export default function Footer({ variant = "default", instagram, youtube, x } : 
                                 }
                                 {
                                     !!x && (
-                                        <a 
-                                            href={x.startsWith('http') ? x : `https://${x}`} 
-                                            target="_blank" 
+                                        <a
+                                            href={x.startsWith('http') ? x : `https://${x}`}
+                                            target="_blank"
                                             rel="noopener noreferrer"
                                         >
-                                            <img 
-                                                src="/icons/X.svg" 
-                                                alt="X" 
+                                            <img
+                                                src="/icons/X.svg"
+                                                alt="X"
                                                 className="w-6 h-6 hover:opacity-80 transition-all"
                                             />
                                         </a>
@@ -113,7 +113,7 @@ export default function Footer({ variant = "default", instagram, youtube, x } : 
                         <p className="text-sm text-white">© 2026 PT Nura Academy. All Rights Reserved.</p>
                     </div>
                 </div>
-            ): (
+            ) : (
                 <div className="max-w-7xl mx-auto">
                     <div className="border-t border-blue-200/40 pt-4 flex items-center justify-between gap-4">
                         <p className="text-xs md:text-sm text-blue-100">
@@ -123,14 +123,14 @@ export default function Footer({ variant = "default", instagram, youtube, x } : 
                         <div className="flex items-center gap-4">
                             {
                                 !!instagram && (
-                                    <a 
-                                        href={instagram.startsWith('http') ? instagram : `https://${instagram}`} 
-                                        target="_blank" 
+                                    <a
+                                        href={instagram.startsWith('http') ? instagram : `https://${instagram}`}
+                                        target="_blank"
                                         rel="noopener noreferrer"
                                     >
-                                        <img 
-                                            src="/icons/Instagram.svg" 
-                                            alt="Instagram" 
+                                        <img
+                                            src="/icons/Instagram.svg"
+                                            alt="Instagram"
                                             className="w-7 h-7 rounded-md hover:bg-white transition-colors p-1.5"
                                         />
                                     </a>
@@ -138,14 +138,14 @@ export default function Footer({ variant = "default", instagram, youtube, x } : 
                             }
                             {
                                 !!youtube && (
-                                    <a 
-                                        href={youtube.startsWith('http') ? youtube : `https://${youtube}`} 
-                                        target="_blank" 
+                                    <a
+                                        href={youtube.startsWith('http') ? youtube : `https://${youtube}`}
+                                        target="_blank"
                                         rel="noopener noreferrer"
                                     >
-                                        <img 
-                                            src="/icons/YouTube.svg" 
-                                            alt="Youtube" 
+                                        <img
+                                            src="/icons/YouTube.svg"
+                                            alt="Youtube"
                                             className="w-7 h-7 rounded-md hover:bg-white transition-colors p-1.5"
                                         />
                                     </a>
@@ -153,14 +153,14 @@ export default function Footer({ variant = "default", instagram, youtube, x } : 
                             }
                             {
                                 !!x && (
-                                    <a 
-                                        href={x.startsWith('http') ? x : `https://${x}`} 
-                                        target="_blank" 
+                                    <a
+                                        href={x.startsWith('http') ? x : `https://${x}`}
+                                        target="_blank"
                                         rel="noopener noreferrer"
                                     >
-                                        <img 
-                                            src="/icons/X.svg" 
-                                            alt="X" 
+                                        <img
+                                            src="/icons/X.svg"
+                                            alt="X"
                                             className="w-7 h-7 rounded-md hover:bg-white transition-colors p-1.5"
                                         />
                                     </a>

@@ -37,10 +37,10 @@ export default async function ViewGroupPage({ params }: { params: Promise<{ id: 
                 {/* Banner */}
                 <div className="bg-[#00524D] rounded-2xl p-6 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-center justify-between w-full">
-                        <h1 className="text-xl md:text-2xl font-bold text-white">View Group</h1>
+                        <h1 className="text-xl md:text-2xl font-medium text-white">View Group</h1>
                         {canManageGroups && (
                             <Link href={`/classes/${classId}/placement/learner-group`}>
-                                <button className="bg-white text-[#00524D] px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-emerald-50 transition-colors shadow-sm">
+                                <button className="bg-white text-[#00524D] px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-emerald-50 transition-colors shadow-sm">
                                     Manage Groups
                                 </button>
                             </Link>
@@ -50,14 +50,14 @@ export default async function ViewGroupPage({ params }: { params: Promise<{ id: 
 
                 {/* Content Card */}
                 <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-sm border border-gray-100 min-h-[500px]">
-                    <h2 className="text-lg font-bold mb-8 text-black">Group List</h2>
+                    <h2 className="text-lg font-medium mb-8 text-black">Group List</h2>
 
                     {/* Group Table - Grid to match exactly */}
                     <div className="w-full border border-black rounded-[2rem] overflow-hidden bg-white">
                         <div className="grid grid-cols-12 border-b border-black bg-white px-8 py-5">
-                            <div className="col-span-4 text-sm font-bold text-black uppercase tracking-tight">Group Name</div>
-                            <div className="col-span-3 text-sm font-bold text-black text-center uppercase tracking-tight">Total Member</div>
-                            <div className="col-span-5 text-sm font-bold text-black uppercase tracking-tight">Member List</div>
+                            <div className="col-span-4 text-sm font-medium text-black uppercase tracking-tight">Group Name</div>
+                            <div className="col-span-3 text-sm font-medium text-black text-center uppercase tracking-tight">Total Member</div>
+                            <div className="col-span-5 text-sm font-medium text-black uppercase tracking-tight">Member List</div>
                         </div>
 
                         {groups.map((group, index) => (
@@ -89,7 +89,7 @@ export default async function ViewGroupPage({ params }: { params: Promise<{ id: 
                     {/* Back Button */}
                     <div className="mt-12 flex justify-center">
                         <Link href={`/classes/${classId}/test?finished=true`}>
-                            <button className="bg-[#D9F438] text-black px-10 py-3 rounded-full text-sm font-bold hover:opacity-90 transition-all shadow-sm">
+                            <button className="bg-[#D9F438] text-black px-10 py-3 rounded-full text-sm font-medium hover:opacity-90 transition-all shadow-sm">
                                 Back to Test Result
                             </button>
                         </Link>

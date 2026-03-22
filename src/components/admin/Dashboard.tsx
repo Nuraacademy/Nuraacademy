@@ -15,25 +15,25 @@ interface DashboardProps {
 }
 
 export default function AdminDashboard({ data }: DashboardProps) {
-    
+
 
     return (
         <div className="min-h-screen bg-[#F9F9EE] relative overflow-hidden font-sans">
             {/* Background Decorative Elements */}
             <div className="absolute top-0 left-0 w-full md:w-[60%] h-[40rem] pointer-events-none opacity-40">
-                <Image 
-                    src="/background/PolygonBGTop.svg" 
-                    alt="Background Top" 
-                    fill 
+                <Image
+                    src="/background/PolygonBGTop.svg"
+                    alt="Background Top"
+                    fill
                     className="object-cover object-left-top"
                     priority
                 />
             </div>
             <div className="absolute bottom-0 right-0 w-full md:w-[60%] h-[40rem] pointer-events-none opacity-40">
-                <Image 
-                    src="/background/PolygonBGBot.svg" 
-                    alt="Background Bottom" 
-                    fill 
+                <Image
+                    src="/background/PolygonBGBot.svg"
+                    alt="Background Bottom"
+                    fill
                     className="object-cover object-right-bottom"
                 />
             </div>
@@ -41,7 +41,7 @@ export default function AdminDashboard({ data }: DashboardProps) {
             <div className="relative z-10 px-4 md:px-16 py-10 md:py-16 space-y-12">
                 {/* Header Welcome Section */}
                 <header className="space-y-2">
-                    <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#1C3A37] tracking-tight">
+                    <h1 className="text-3xl md:text-4xl lg:text-5xl font-medium text-[#1C3A37] tracking-tight">
                         Welcome, {data.user.name}!
                     </h1>
                 </header>
@@ -49,7 +49,7 @@ export default function AdminDashboard({ data }: DashboardProps) {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
                     {/* Main Content Area - 8 columns */}
                     <div className="lg:col-span-8 space-y-12">
-                        
+
                         <ClassSection classes={data.classes} />
 
                         <TimelineSection schedule={data.schedule} />

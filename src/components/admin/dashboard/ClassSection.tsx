@@ -15,17 +15,17 @@ export default function ClassSection({ classes }: ClassSectionProps) {
     return (
         <section className="space-y-6">
             <div className="flex items-center justify-between">
-                <h2 className="text-lg md:text-xl font-bold text-[#1C3A37] flex items-center gap-2">
+                <h2 className="text-lg md:text-xl font-medium text-[#1C3A37] flex items-center gap-2">
                     Classes
                 </h2>
-                <button onClick={() => router.push('/classes')} className="text-sm font-bold text-gray-400 hover:text-[#1C3A37] transition-colors flex items-center gap-1">
+                <button onClick={() => router.push('/classes')} className="text-sm font-medium text-gray-400 hover:text-[#1C3A37] transition-colors flex items-center gap-1">
                     See All <ChevronRight size={16} />
                 </button>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {classes.slice(0, 2).map((cls) => (
-                    <ClassCard 
+                    <ClassCard
                         key={cls.id}
                         id={cls.id}
                         imageUrl={cls.imgUrl}
