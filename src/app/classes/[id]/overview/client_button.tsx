@@ -18,6 +18,9 @@ export function SuccessHandler({ classId, timelines }: { classId: string, timeli
         if (searchParams.get("enrolled") === "true") {
             setIsOpen(true)
         }
+        if (searchParams.get("error") === "not_enrolled") {
+            toast.error("You are not enrolled in this class")
+        }
     }, [searchParams])
 
     return (
@@ -137,7 +140,7 @@ export function CourseCard({ classId, course, isAdmin }: { classId: string, cour
     return (
         <>
             <div
-                className="border border-gray-200 rounded-[1.5rem] p-5 hover:border-gray-400 hover:shadow-sm transition-all duration-200 cursor-pointer group relative"
+                className="border border-gray-200 rounded-xl p-5 hover:border-gray-400 hover:shadow-sm transition-all duration-200 cursor-pointer group relative"
                 onClick={() => router.push(`/classes/${classId}/course/${course.id}/overview`)}
             >
                 <div className="flex justify-between items-start">
@@ -210,7 +213,7 @@ export function ProjectCard({ classId, assignment, isAdmin }: { classId: string,
     return (
         <>
         <div
-            className="border border-gray-200 rounded-[1.5rem] p-5 hover:border-gray-400 hover:shadow-sm transition-all duration-200 cursor-pointer group relative"
+            className="border border-gray-200 rounded-xl p-5 hover:border-gray-400 hover:shadow-sm transition-all duration-200 cursor-pointer group relative"
             onClick={() => router.push(`/assignment/${assignment.id}`)}
         >
             <div className="flex justify-between items-start">

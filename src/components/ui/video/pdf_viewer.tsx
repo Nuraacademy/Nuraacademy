@@ -86,7 +86,7 @@ export default function PDFViewer({ url, title, editUrl, isAdmin }: PDFViewerPro
     }
 
     const renderError = (type: "not_found" | "error") => (
-        <div className="flex flex-col items-center justify-center p-20 text-center bg-white rounded-3xl border border-dashed border-gray-200 shadow-inner min-h-[400px]">
+        <div className="flex flex-col items-center justify-center p-20 text-center bg-white rounded-xl border border-dashed border-gray-200 shadow-inner min-h-[400px]">
             <div className={`p-4 rounded-full mb-6 ${type === "not_found" ? "bg-orange-50 text-orange-600" : "bg-red-50 text-red-600"}`}>
                 <FileText size={48} />
             </div>
@@ -126,7 +126,7 @@ export default function PDFViewer({ url, title, editUrl, isAdmin }: PDFViewerPro
             {/* Header */}
             <div className="flex items-center justify-between px-2">
                 <div className="flex items-center gap-2">
-                    <div className="p-2 bg-red-50 rounded-lg text-red-600">
+                    <div className="p-2 bg-red-50 rounded-xl text-red-600">
                         <FileText size={20} />
                     </div>
                     <h2 className="text-sm font-medium text-gray-900">{title || "Session Document"}</h2>
@@ -142,13 +142,13 @@ export default function PDFViewer({ url, title, editUrl, isAdmin }: PDFViewerPro
             </div>
 
             {/* Content Container */}
-            <div className="bg-gray-100/30 rounded-3xl p-4 md:p-6 shadow-sm border border-gray-100 min-h-[500px] flex flex-col">
+            <div className="bg-gray-100/30 rounded-xl p-4 md:p-6 shadow-sm border border-gray-100 min-h-[500px] flex flex-col">
                 {fileStatus === "found" ? (
                     <>
                         {/* PDF Viewer Area */}
                         <div
                             ref={containerRef}
-                            className="relative w-full overflow-auto flex-grow rounded-2xl bg-white border border-gray-100 shadow-inner flex justify-center mb-6"
+                            className="relative w-full overflow-auto flex-grow rounded-xl bg-white border border-gray-100 shadow-inner flex justify-center mb-6"
                         >
                             <div className="p-4 md:p-8">
                                 <Document
@@ -175,7 +175,7 @@ export default function PDFViewer({ url, title, editUrl, isAdmin }: PDFViewerPro
                         </div>
 
                         {/* Lime Control Bar (Matches User Image) */}
-                        <div className="bg-[#D9F55C] py-3 px-6 rounded-2xl flex flex-wrap items-center justify-center gap-4 shadow-md w-full max-w-2xl mx-auto">
+                        <div className="bg-[#D9F55C] py-3 px-6 rounded-xl flex flex-wrap items-center justify-center gap-4 shadow-md w-full max-w-2xl mx-auto">
                             {/* Page Controls */}
                             <div className="flex items-center gap-2">
                                 <button
@@ -205,7 +205,7 @@ export default function PDFViewer({ url, title, editUrl, isAdmin }: PDFViewerPro
                                             const val = parseInt(e.target.value)
                                             if (val >= 1 && val <= numPages) setPageNumber(val)
                                         }}
-                                        className="w-12 h-8 text-center text-sm font-medium border border-black/40 rounded-lg bg-transparent focus:outline-none focus:ring-1 focus:ring-black"
+                                        className="w-12 h-8 text-center text-sm font-medium border border-black/40 rounded-xl bg-transparent focus:outline-none focus:ring-1 focus:ring-black"
                                     />
                                     <span className="text-xs text-black font-medium whitespace-nowrap">of {numPages || '--'}</span>
                                 </div>
@@ -244,7 +244,7 @@ export default function PDFViewer({ url, title, editUrl, isAdmin }: PDFViewerPro
                                     <select
                                         value={scale}
                                         onChange={(e) => setScale(parseFloat(e.target.value))}
-                                        className="text-sm font-medium border border-black/40 rounded-lg px-3 py-1 bg-transparent h-8 cursor-pointer focus:outline-none appearance-none pr-8 min-w-[90px]"
+                                        className="text-sm font-medium border border-black/40 rounded-xl px-3 py-1 bg-transparent h-8 cursor-pointer focus:outline-none appearance-none pr-8 min-w-[90px]"
                                     >
                                         <option value={0.5}>50%</option>
                                         <option value={0.75}>75%</option>
@@ -271,7 +271,7 @@ export default function PDFViewer({ url, title, editUrl, isAdmin }: PDFViewerPro
                 ) : fileStatus === "loading" ? (
                     <div className="flex-grow flex flex-col items-center justify-center animate-pulse">
                         <div className="w-12 h-12 bg-gray-200 rounded-full mb-4"></div>
-                        <div className="h-4 w-32 bg-gray-200 rounded"></div>
+                        <div className="h-4 w-32 bg-gray-200 rounded-xl"></div>
                     </div>
                 ) : renderError(fileStatus)}
             </div>

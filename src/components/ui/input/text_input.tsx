@@ -58,7 +58,7 @@ export const NuraTextInput = ({
                     disabled={disabled}
                     onWheel={(e) => e.currentTarget.blur()}
                     className={cn(
-                        "w-full rounded-[0.5rem] bg-white border px-4 py-2 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-black",
+                        "w-full rounded-xl bg-white border px-4 py-2 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-black",
                         `border-${color}`,
                         (icon || isPassword) ? "pr-10" : "",
                         disabled ? "opacity-50 cursor-not-allowed bg-gray-50" : "",

@@ -50,7 +50,7 @@ export const NuraSelect = ({
                 type="button"
                 onClick={() => !disabled && setIsOpen(!isOpen)}
                 disabled={disabled}
-                className={`flex w-full items-center justify-between rounded-[1rem] border border-gray-300 bg-white px-5 py-2 text-left shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-black ${isOpen ? "ring-2 ring-black" : ""} ${disabled ? "opacity-50 cursor-not-allowed bg-gray-50" : ""}`}
+                className={`flex w-full items-center justify-between rounded-xl border border-gray-300 bg-white px-5 py-2 text-left shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-black ${isOpen ? "ring-2 ring-black" : ""} ${disabled ? "opacity-50 cursor-not-allowed bg-gray-50" : ""}`}
             >
                 <span className="text-base font-medium">
                     {selectedOption ? selectedOption.label : placeholder}
@@ -63,7 +63,7 @@ export const NuraSelect = ({
             </button>
 
             {isOpen && (
-                <div className="absolute z-50 mt-2 w-full overflow-hidden rounded-[1rem] bg-white border border-gray-200 shadow-xl">
+                <div className="absolute z-50 mt-2 w-full overflow-hidden rounded-xl bg-white border border-gray-200 shadow-xl">
                     <div className="py-2">
                         {options.map((option, index) => (
                             <div key={option.value}>

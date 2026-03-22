@@ -724,7 +724,7 @@ export function AddAssignmentClient({
                                                 </span>
                                             )}
                                         </div>
-                                        <div className="bg-[#F2F5DC] rounded-[2rem] p-5 space-y-3 mb-10">
+                                        <div className="bg-[#F2F5DC] rounded-xl p-5 space-y-3 mb-10">
                                             {(currentClass?.courses || []).map((course: any) => {
                                                 const saved = courseData[course.id]?.saved;
                                                 const totalQ = saved
@@ -733,7 +733,7 @@ export function AddAssignmentClient({
                                                     courseData[course.id].project.length
                                                     : 0;
                                                 return (
-                                                    <div key={course.id} className={`bg-white rounded-2xl px-5 py-3.5 flex items-center justify-between shadow-sm transition-all ${saved ? "ring-2 ring-[#D9F55C]/60" : ""}`}>
+                                                    <div key={course.id} className={`bg-white rounded-xl px-5 py-3.5 flex items-center justify-between shadow-sm transition-all ${saved ? "ring-2 ring-[#D9F55C]/60" : ""}`}>
                                                         <div className="flex items-center gap-3">
                                                             {saved && <CheckCircle size={16} className="text-green-500 shrink-0" />}
                                                             <div className="flex flex-col">
@@ -770,8 +770,8 @@ export function AddAssignmentClient({
                                                 </span>
                                             )}
                                         </div>
-                                        <div className="bg-[#F2F5DC] rounded-[2rem] p-5 mb-10">
-                                            <div className={`bg-white rounded-2xl px-5 py-3.5 flex items-center justify-between shadow-sm transition-all ${simpleTotal > 0 ? "ring-2 ring-[#D9F55C]/60" : ""}`}>
+                                        <div className="bg-[#F2F5DC] rounded-xl p-5 mb-10">
+                                            <div className={`bg-white rounded-xl px-5 py-3.5 flex items-center justify-between shadow-sm transition-all ${simpleTotal > 0 ? "ring-2 ring-[#D9F55C]/60" : ""}`}>
                                                 <div className="flex items-center gap-3">
                                                     {simpleTotal > 0 && <CheckCircle size={16} className="text-green-500 shrink-0" />}
                                                     <div className="flex flex-col">

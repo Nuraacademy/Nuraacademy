@@ -161,7 +161,7 @@ export default function FeedbackHubClient({ data }: FeedbackHubClientProps) {
                         />
                     ))}
                     {filteredFeedbacks.length === 0 && (
-                        <div className="flex flex-col items-center justify-center py-20 bg-white/50 rounded-3xl border border-dashed border-gray-300">
+                        <div className="flex flex-col items-center justify-center py-20 bg-white/50 rounded-xl border border-dashed border-gray-300">
                             <img src="/icons/sidebar/Feedback.svg" alt="No feedback" className="w-16 h-16 opacity-20 mb-4" />
                             <p className="text-gray-500 text-lg">No feedback found.</p>
                         </div>

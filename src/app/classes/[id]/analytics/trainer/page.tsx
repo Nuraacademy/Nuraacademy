@@ -21,7 +21,7 @@ export default async function TrainerAnalyticsPage({
         // but for now we follow the pattern of other analytics
         return (
             <div className="min-h-screen bg-[#F9F9EE] flex items-center justify-center p-8">
-                <div className="bg-white rounded-[32px] p-12 text-center shadow-sm border border-black/5 max-w-lg">
+                <div className="bg-white rounded-xl p-12 text-center shadow-sm border border-black/5 max-w-lg">
                     <h2 className="text-2xl font-black text-[#1C3A37] mb-4">No Trainer Analytics Found</h2>
                     <p className="text-gray-500 text-sm leading-relaxed mb-8">
                         There is no feedback or forum activity data available for the trainer of this class yet.

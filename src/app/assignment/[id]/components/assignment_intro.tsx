@@ -48,7 +48,7 @@ export function AssignmentIntroCard({
     return (
         <section className="mt-6 flex flex-col gap-6 px-4 pb-12 items-center">
             {/* Banner */}
-            <div className="w-full max-w-7xl bg-[#075546] text-white py-6 px-8 rounded-[1rem] shadow-sm">
+            <div className="w-full max-w-7xl bg-[#075546] text-white py-6 px-8 rounded-xl shadow-sm">
                 <div className="flex items-center gap-3 mb-2">
                     <h1 className="text-xl font-semibold">{title}</h1>
                     <span className="border border-white/50 rounded-full px-3 py-0.5 text-xs text-white/90">
@@ -66,7 +66,7 @@ export function AssignmentIntroCard({
             </div>
 
             {/* Content Card */}
-            <div className="w-full max-w-7xl bg-white rounded-[1.5rem] shadow-sm border border-gray-100 px-8 py-8">
+            <div className="w-full max-w-7xl bg-white rounded-xl shadow-sm border border-gray-100 px-8 py-8">
                 <div className="grid grid-cols-[120px_1fr] gap-y-4 text-sm text-gray-800 mb-6">
                     <div className="font-semibold">Start Date:</div>
                     <div>{formatDate(startDate)}</div>

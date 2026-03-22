@@ -73,7 +73,7 @@ export const CommentSection = ({ blogId, comments: initialComments, currentUserI
             <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-medium text-gray-950">Comment</h2>
                 {/* Sort Dropdown as shown in image */}
-                <button className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-lg text-xs font-semibold text-gray-500 hover:bg-gray-50 transition-all">
+                <button className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-xl text-xs font-semibold text-gray-500 hover:bg-gray-50 transition-all">
                     Sorted
                     <ChevronDown size={14} />
                 </button>
@@ -81,7 +81,7 @@ export const CommentSection = ({ blogId, comments: initialComments, currentUserI
 
             {/* Comment Input Box */}
             {currentUserId ? (
-                <div className="bg-white rounded-[24px] border border-gray-200 p-6 shadow-sm mb-12">
+                <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm mb-12">
                     <RichTextInput
                         value={commentText}
                         onChange={setCommentText}
@@ -103,7 +103,7 @@ export const CommentSection = ({ blogId, comments: initialComments, currentUserI
                     </div>
                 </div>
             ) : (
-                <div className="bg-gray-50 rounded-3xl p-8 text-center border border-dashed border-gray-200 mb-12">
+                <div className="bg-gray-50 rounded-xl p-8 text-center border border-dashed border-gray-200 mb-12">
                     <p className="text-gray-600 font-medium">Please log in to post a comment.</p>
                 </div>
             )}
@@ -114,7 +114,7 @@ export const CommentSection = ({ blogId, comments: initialComments, currentUserI
                     <div key={comment.id} className="group animate-in fade-in slide-in-from-bottom-2 duration-500">
                         <div className="flex items-start justify-between mb-3">
                             <div className="flex items-center gap-2 text-[11px] font-medium">
-                                <span className="text-[#D9F55C] bg-[#D9F55C]/10 px-1 rounded">@{comment.user.username}</span>
+                                <span className="text-[#D9F55C] bg-[#D9F55C]/10 px-1 rounded-xl">@{comment.user.username}</span>
                                 <span className="text-gray-400 font-normal">
                                     {formatDistanceToNow(new Date(comment.createdAt))} ago
                                 </span>

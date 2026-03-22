@@ -71,7 +71,7 @@ export const AssignmentCard = ({
     return (
         <>
             <div
-                className={`flex items-center justify-between gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-gray-400 hover:shadow-md cursor-pointer group relative ${className}`}
+                className={`flex items-center justify-between gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-gray-400 hover:shadow-md cursor-pointer group relative ${className}`}
                 onClick={handleClick}
             >
                 <div className="flex flex-1 items-center gap-4">

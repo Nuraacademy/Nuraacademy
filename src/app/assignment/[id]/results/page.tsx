@@ -54,7 +54,7 @@ export default async function AssignmentResultsPage({
                     />
                 </div>
 
-                <div className="bg-[#00524D] rounded-2xl p-6 mb-10 shadow-sm relative overflow-hidden">
+                <div className="bg-[#00524D] rounded-xl p-6 mb-10 shadow-sm relative overflow-hidden">
                     <div className="relative z-10 flex items-center justify-between">
                         <div>
                             <h1 className="text-2xl font-medium text-white">{assignment.title}</h1>
@@ -66,7 +66,7 @@ export default async function AssignmentResultsPage({
                     </div>
                 </div>
 
-                <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-sm border border-gray-100">
+                <div className="bg-white rounded-xl p-8 md:p-12 shadow-sm border border-gray-100">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 text-sm">
                         <div className="flex items-center gap-3">
                             <span className="font-medium text-gray-900">Start Date:</span>
@@ -80,7 +80,7 @@ export default async function AssignmentResultsPage({
 
                     <h2 className="text-lg font-medium mb-6 text-gray-900">Hasil Tugas Learners</h2>
 
-                    <div className="w-full border border-gray-100 rounded-[1.5rem] overflow-hidden bg-white">
+                    <div className="w-full border border-gray-100 rounded-xl overflow-hidden bg-white">
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="border-b border-gray-100 bg-gray-50/50">

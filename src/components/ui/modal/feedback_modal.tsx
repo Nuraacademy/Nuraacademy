@@ -38,7 +38,7 @@ export function FeedbackModal({
             />
 
             {/* Card */}
-            <div className="relative bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl flex flex-col items-center text-center animate-in zoom-in-95 duration-200">
+            <div className="relative bg-white w-full max-w-md rounded-xl p-8 shadow-2xl flex flex-col items-center text-center animate-in zoom-in-95 duration-200">
                 {/* Close X */}
                 <button
                     onClick={onClose}
@@ -63,7 +63,7 @@ export function FeedbackModal({
 
                 {/* Error list */}
                 {errors && errors.length > 0 && (
-                    <ul className="w-full text-left bg-red-50 border border-red-100 rounded-2xl p-4 mb-5 space-y-1">
+                    <ul className="w-full text-left bg-red-50 border border-red-100 rounded-xl p-4 mb-5 space-y-1">
                         {errors.map((e, i) => (
                             <li key={i} className="text-xs text-red-600 flex items-start gap-2">
                                 <span className="mt-0.5 shrink-0">•</span>

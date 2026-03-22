@@ -197,7 +197,7 @@ export default function EditCurriculaPage({ params }: { params: Promise<{ id: st
                                 className="bg-white"
                             />
                             {filteredClasses.length > 0 && (
-                                <div className="absolute top-full left-0 w-full bg-white border border-gray-100 rounded-2xl mt-1 shadow-lg z-30 max-h-48 overflow-y-auto">
+                                <div className="absolute top-full left-0 w-full bg-white border border-gray-100 rounded-xl mt-1 shadow-lg z-30 max-h-48 overflow-y-auto">
                                     {filteredClasses.map(c => (
                                         <button
                                             key={c.id}

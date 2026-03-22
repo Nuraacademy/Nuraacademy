@@ -78,7 +78,7 @@ export default function FeedbackClient({
                 <Breadcrumb items={breadcrumbItems} />
 
                 {/* Hero Section */}
-                <div className="bg-[#005954] rounded-[1.5rem] p-8 text-white shadow-sm space-y-2">
+                <div className="bg-[#005954] rounded-xl p-8 text-white shadow-sm space-y-2">
                     <h1 className="text-2xl font-medium">{learnerName}</h1>
                     <p className="text-white/80 text-sm font-medium">
                         {className} {courseName ? `| ${courseName}` : ''}
@@ -86,10 +86,10 @@ export default function FeedbackClient({
                 </div>
 
                 {/* Feedback Card */}
-                <div className="bg-white rounded-[2rem] p-10 shadow-sm border border-gray-100 flex flex-col gap-8">
+                <div className="bg-white rounded-xl p-10 shadow-sm border border-gray-100 flex flex-col gap-8">
                     <div className="space-y-4">
                         <h2 className="text-sm font-medium text-gray-900">Feedback Answer</h2>
-                        <div className="border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm p-4">
+                        <div className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm p-4">
                             <RichTextInput
                                 value={feedback}
                                 onChange={(val) => setFeedback(val)}

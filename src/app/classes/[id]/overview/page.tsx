@@ -68,13 +68,13 @@ export default async function CourseOverviewPage({
                 </div>
 
                 {/* Hero Card */}
-                <section className="relative bg-gradient-to-r from-[#005954] via-[#005954] to-[#94B546] rounded-[2rem] overflow-hidden mb-8 flex flex-col md:flex-row items-stretch gap-0">
+                <section className="relative bg-gradient-to-r from-[#005954] via-[#005954] to-[#94B546] rounded-xl overflow-hidden mb-8 flex flex-col md:flex-row items-stretch gap-0">
                     {/* Image */}
                     <div className="relative w-full md:w-[382px] lg:w-[382px] shrink-0 aspect-[382/216] md:aspect-auto mx-8 my-4">
                         <Image
                             src={imageUrl}
                             alt={classData.title}
-                            className="rounded-[2rem] object-cover w-full h-full border border-white/10"
+                            className="rounded-xl object-cover w-full h-full border border-white/10"
                             width={382}
                             height={216}
                         />
@@ -139,14 +139,14 @@ export default async function CourseOverviewPage({
                     <aside className="lg:col-span-4 flex flex-col gap-6">
                         {/* What You Will Learn */}
                         {classData.learningObjective && (
-                            <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100">
+                            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
                                 <h2 className="text-md mb-6">What You Will Learn</h2>
                                 <div className="text-xs" dangerouslySetInnerHTML={{ __html: classData.learningObjective }} />
                             </div>
                         )}
 
                         {/* Timeline Card */}
-                        <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100">
+                        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
                             <div className="flex items-center justify-between mb-6">
                                 <h2 className="text-md">Timeline</h2>
                                 {canUpdateSchedule && (
@@ -204,7 +204,7 @@ export default async function CourseOverviewPage({
                             if (trainers.length === 0) return null;
 
                             return (
-                                <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100">
+                                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
                                     <h2 className="text-md mb-6">Instructor & Trainer</h2>
                                     <div className="space-y-6">
                                         {trainers.map((trainer, idx) => (
@@ -224,11 +224,7 @@ export default async function CourseOverviewPage({
                                                         <p className="text-xs text-gray-400">{trainer.role?.name || "Instructor"}</p>
                                                     </div>
                                                     {isLearner && isEnrolled && (
-                                                        <Link 
-                                                            href={`/feedback/trainer/${trainer.id}?classId=${id}`}
-                                                            className="bg-[#DAEE49] p-2 rounded-lg hover:bg-[#C9D942] transition-colors shadow-sm"
-                                                            title="Give Feedback"
-                                                        >
+                                                            className="bg-[#DAEE49] p-2 rounded-xl hover:bg-[#C9D942] transition-colors shadow-sm"
                                                             <img src="/icons/Information.svg" alt="Feedback" className="w-4 h-4 invert opacity-70" />
                                                         </Link>
                                                     )}
@@ -258,7 +254,7 @@ export default async function CourseOverviewPage({
                     <section className="lg:col-span-8 flex flex-col gap-6">
                         {/* Placement Test */}
                         {(isEnrolled || canCreatePlacement) && (
-                            <div className="bg-[#1C3A37] rounded-[2rem] px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+                            <div className="bg-[#1C3A37] rounded-xl px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
                                 <div>
                                     <h2 className="text-md mb-4 text-white">Placement Test</h2>
                                     <p className="text-xs text-white">You must take the test first before starting this class. The test results are used to determine your group.</p>
@@ -273,7 +269,7 @@ export default async function CourseOverviewPage({
                         )}
 
                         {/* Courses */}
-                        <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 flex flex-col gap-4">
+                        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col gap-4">
                             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
                                 <h2 className="text-md">Courses</h2>
                                 {canCreateCourse && (

@@ -43,7 +43,7 @@ export const RichTextInput = ({ value, onChange, className }: { value: string, o
         },
     });
 
-    if (!isMounted || !editor) return <div className="h-[200px] bg-gray-50 rounded-2xl animate-pulse border border-gray-200" />;
+    if (!isMounted || !editor) return <div className="h-[200px] bg-gray-50 rounded-xl animate-pulse border border-gray-200" />;
 
     // Local Image Upload Logic
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,7 +88,7 @@ export const RichTextInput = ({ value, onChange, className }: { value: string, o
 
     return (
         <div className={cn(
-            "group w-full bg-white border border-gray-200 rounded-[1.5rem] overflow-hidden transition-all focus-within:border-black focus-within:ring-1 focus-within:ring-black",
+            "group w-full bg-white border border-gray-200 rounded-xl overflow-hidden transition-all focus-within:border-black focus-within:ring-1 focus-within:ring-black",
             className
         )}>
             {/* Toolbar Area */}

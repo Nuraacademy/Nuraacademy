@@ -75,7 +75,7 @@ export default function ClassCard({
 
     return (
         <div
-            className="flex flex-col bg-white rounded-[20px] p-5 shadow-sm border border-gray-100 w-full max-w-[400px] hover:shadow-lg transition-all duration-200 cursor-pointer"
+            className="flex flex-col bg-white rounded-xl p-5 shadow-sm border border-gray-100 w-full max-w-[400px] hover:shadow-lg transition-all duration-200 cursor-pointer"
             onClick={onClick}
         >
             {/* Image */}
@@ -84,7 +84,7 @@ export default function ClassCard({
                     src={imageUrl || "/example/dummy.png"}
                     alt={title}
                     fill
-                    className="object-cover rounded-2xl"
+                    className="object-cover rounded-xl"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
             </div>

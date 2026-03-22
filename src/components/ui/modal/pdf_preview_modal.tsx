@@ -32,7 +32,7 @@ export const PdfPreviewModal = ({ file, isOpen, onClose }: PdfPreviewModalProps)
       />
 
       {/* Modal Content */}
-      <div className="relative bg-white w-full h-full max-w-5xl rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col animate-in zoom-in-95 duration-200">
+      <div className="relative bg-white w-full h-full max-w-5xl rounded-xl overflow-hidden shadow-2xl flex flex-col animate-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="flex justify-between items-center p-4 border-b border-gray-100 bg-white">
           <div className="flex items-center gap-3">

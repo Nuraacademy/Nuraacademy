@@ -88,14 +88,14 @@ export default function CourseSessionLink({ classId, courseId, session, isAdmin 
                     {isAdmin && (
                         <div className="flex items-center gap-2 text-gray-400">
                             <button
-                                className={`p-1.5 rounded transition-colors z-10 ${isDeleting ? 'text-gray-300' : 'hover:bg-gray-100 hover:text-red-500'}`}
+                                className={`p-1.5 rounded-xl transition-colors z-10 ${isDeleting ? 'text-gray-300' : 'hover:bg-gray-100 hover:text-red-500'}`}
                                 onClick={handleDeleteClick}
                                 disabled={isDeleting}
                             >
                                 <Image src="/icons/Delete.svg" alt="Delete" width={16} height={16} />
                             </button>
                             <button
-                                className="p-1.5 hover:bg-gray-100 rounded hover:text-gray-900 transition-colors z-10"
+                                className="p-1.5 hover:bg-gray-100 rounded-xl hover:text-gray-900 transition-colors z-10"
                                 onClick={handleEdit}
                             >
                                 <Image src="/icons/Edit.svg" alt="Edit" width={16} height={16} />

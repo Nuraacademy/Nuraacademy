@@ -131,7 +131,7 @@ export default function Footer({ variant = "default", instagram, youtube, x }: F
                                         <img
                                             src="/icons/Instagram.svg"
                                             alt="Instagram"
-                                            className="w-7 h-7 rounded-md hover:bg-white transition-colors p-1.5"
+                                            className="w-7 h-7 rounded-xl hover:bg-white transition-colors p-1.5"
                                         />
                                     </a>
                                 )
@@ -146,7 +146,7 @@ export default function Footer({ variant = "default", instagram, youtube, x }: F
                                         <img
                                             src="/icons/YouTube.svg"
                                             alt="Youtube"
-                                            className="w-7 h-7 rounded-md hover:bg-white transition-colors p-1.5"
+                                            className="w-7 h-7 rounded-xl hover:bg-white transition-colors p-1.5"
                                         />
                                     </a>
                                 )
@@ -161,7 +161,7 @@ export default function Footer({ variant = "default", instagram, youtube, x }: F
                                         <img
                                             src="/icons/X.svg"
                                             alt="X"
-                                            className="w-7 h-7 rounded-md hover:bg-white transition-colors p-1.5"
+                                            className="w-7 h-7 rounded-xl hover:bg-white transition-colors p-1.5"
                                         />
                                     </a>
                                 )

@@ -26,7 +26,7 @@ export const BlogCard = ({
 
     return (
         <div
-            className="flex flex-col bg-white rounded-[20px] p-5 shadow-sm border border-gray-100 w-full hover:shadow-lg transition-all duration-200 cursor-pointer"
+            className="flex flex-col bg-white rounded-xl p-5 shadow-sm border border-gray-100 w-full hover:shadow-lg transition-all duration-200 cursor-pointer"
             onClick={() => router.push(`/blogs/${id}`)}
         >
             {/* Banner Image */}
@@ -34,7 +34,7 @@ export const BlogCard = ({
                 <img
                     src={bannerUrl || "/placeholder-blog.jpg"}
                     alt={title}
-                    className="w-full h-full object-cover rounded-2xl"
+                    className="w-full h-full object-cover rounded-xl"
                 />
             </div>
 

@@ -73,7 +73,7 @@ export default function PresenceClient({
     return (
         <div className="flex flex-col items-center">
             {/* Table */}
-            <div className="w-full border border-black rounded-[1.5rem] overflow-hidden mb-12">
+            <div className="w-full border border-black rounded-xl overflow-hidden mb-12">
                 {/* Table Header */}
                 <div className="grid grid-cols-12 border-b border-black bg-white px-8 py-5">
                     <div className="col-span-4 text-sm font-semibold text-black text-left">Name</div>

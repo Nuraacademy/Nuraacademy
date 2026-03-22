@@ -75,7 +75,7 @@ function CalendarPopover({ value, onChange, onClose, withTime = true, minDate, m
     };
 
     return (
-        <div className="bg-white rounded-[1.5rem] shadow-2xl border border-gray-200 p-5 w-[320px] select-none animate-in fade-in zoom-in-95 duration-200">
+        <div className="bg-white rounded-xl shadow-2xl border border-gray-200 p-5 w-[320px] select-none animate-in fade-in zoom-in-95 duration-200">
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
                 <button
@@ -250,7 +250,7 @@ export default function M3DateTimePicker({
                     onClick={() => setOpen(!open)}
                     className={cn(
                         "w-full flex items-center justify-between bg-white border px-4 py-2 text-sm transition-all text-left",
-                        "rounded-[0.5rem]", // Exact match to NuraTextInput
+                        "rounded-xl", // Exact match to NuraTextInput
                         error
                             ? "border-red-500"
                             : open

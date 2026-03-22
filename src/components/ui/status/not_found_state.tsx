@@ -35,7 +35,7 @@ export function NotFoundState({
         <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
             <div className="relative mb-8">
                 <div className="absolute inset-0 bg-emerald-100 rounded-full blur-2xl opacity-50 scale-150 animate-pulse"></div>
-                <div className="relative bg-white p-8 rounded-[2.5rem] shadow-xl border border-emerald-50 text-[#075546]">
+                <div className="relative bg-white p-8 rounded-xl shadow-xl border border-emerald-50 text-[#075546]">
                     <FileQuestion size={64} strokeWidth={1.5} />
                 </div>
             </div>

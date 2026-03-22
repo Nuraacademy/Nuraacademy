@@ -24,10 +24,10 @@ export default function ClassFeedbackList({ classId, data, feedbacks }: ClassFee
             <TitleCard title={`${data.class.title} Feedback`} />
 
             {/* List View */}
-            <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-100 flex flex-col gap-6">
+            <div className="bg-white rounded-xl p-10 shadow-sm border border-gray-100 flex flex-col gap-6">
                 <h2 className="text-sm font-medium text-gray-900 px-2">Learner Feedbacks</h2>
 
-                <div className="border border-gray-200 rounded-[2rem] overflow-hidden">
+                <div className="border border-gray-200 rounded-xl overflow-hidden">
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="border-b border-gray-200">

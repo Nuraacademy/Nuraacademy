@@ -103,7 +103,7 @@ export default function PeerFeedbackFormClient({ data, evaluatorEnrollmentId, cl
                 ]}
             />
 
-            <div className="bg-[#1C3A37] rounded-[24px] p-8 md:p-10 text-white flex justify-between items-center shadow-lg">
+            <div className="bg-[#1C3A37] rounded-xl p-8 md:p-10 text-white flex justify-between items-center shadow-lg">
                 <div className="space-y-1">
                     <h1 className="text-2xl md:text-3xl font-medium font-merriweather">{data.user.name || data.user.username}</h1>
                     <p className="text-gray-300 font-medium opacity-80">
@@ -118,7 +118,7 @@ export default function PeerFeedbackFormClient({ data, evaluatorEnrollmentId, cl
                 )}
             </div>
 
-            <div className="bg-white rounded-[32px] p-6 md:p-12 shadow-sm border border-white/50 space-y-12">
+            <div className="bg-white rounded-xl p-6 md:p-12 shadow-sm border border-white/50 space-y-12">
                 {sections.map((section) => (
                     <FeedbackCriteriaField
                         key={section.key}

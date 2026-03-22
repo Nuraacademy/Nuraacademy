@@ -33,7 +33,7 @@ export default function ClassReportClient({ data }: ClassReportClientProps) {
             />
 
             {/* Header */}
-            <div className="bg-[#1C3A37] rounded-[24px] p-8 md:p-10 text-white space-y-1 shadow-lg">
+            <div className="bg-[#1C3A37] rounded-xl p-8 md:p-10 text-white space-y-1 shadow-lg">
                 <h1 className="text-2xl md:text-3xl font-medium font-merriweather flex items-center gap-3">
                     Report & Analytics
                 </h1>
@@ -42,7 +42,7 @@ export default function ClassReportClient({ data }: ClassReportClientProps) {
                 </p>
             </div>
 
-            <div className="bg-white rounded-[40px] p-8 md:p-12 shadow-sm border border-white/50 space-y-16">
+            <div className="bg-white rounded-xl p-8 md:p-12 shadow-sm border border-white/50 space-y-16">
 
                 {/* Group Members */}
                 <div className="space-y-6">
@@ -111,21 +111,21 @@ export default function ClassReportClient({ data }: ClassReportClientProps) {
                 <div className="space-y-10 border-t border-gray-100 pt-10">
                     <h2 className="text-lg font-medium text-[#1C3A37]">Engagement</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl">
-                        <div className="bg-white border-2 border-gray-100 rounded-[32px] p-8 flex items-center justify-between shadow-sm">
+                        <div className="bg-white border-2 border-gray-100 rounded-xl p-8 flex items-center justify-between shadow-sm">
                             <div className="space-y-1">
                                 <span className="text-3xl font-black text-[#1C3A37]">{analytics.engagement.sesScore}%</span>
                                 <p className="text-xs font-medium text-gray-400 uppercase">SES Score</p>
                             </div>
-                            <div className="w-12 h-12 bg-[#F9F9EE] rounded-2xl flex items-center justify-center text-[#1C3A37]">
+                            <div className="w-12 h-12 bg-[#F9F9EE] rounded-xl flex items-center justify-center text-[#1C3A37]">
                                 <Zap size={24} fill="currentColor" />
                             </div>
                         </div>
-                        <div className="bg-white border-2 border-gray-100 rounded-[32px] p-8 flex items-center justify-between shadow-sm">
+                        <div className="bg-white border-2 border-gray-100 rounded-xl p-8 flex items-center justify-between shadow-sm">
                             <div className="space-y-1">
                                 <span className="text-3xl font-black text-[#1C3A37]">{analytics.engagement.presence}%</span>
                                 <p className="text-xs font-medium text-gray-400 uppercase">Presence in Session</p>
                             </div>
-                            <div className="w-12 h-12 bg-[#F9F9EE] rounded-2xl flex items-center justify-center text-[#1C3A37]">
+                            <div className="w-12 h-12 bg-[#F9F9EE] rounded-xl flex items-center justify-center text-[#1C3A37]">
                                 <Users size={24} fill="currentColor" />
                             </div>
                         </div>

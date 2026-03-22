@@ -77,7 +77,7 @@ export default function FileUploadModal({
         className="fixed inset-0 bg-black/60 backdrop-blur-sm"
         onClick={handleBackdropClick}
       />
-      <div className="relative bg-white w-full max-w-3xl rounded-[2.5rem] p-10 shadow-2xl animate-in fade-in zoom-in-95">
+      <div className="relative bg-white w-full max-w-3xl rounded-xl p-10 shadow-2xl animate-in fade-in zoom-in-95">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl font-medium text-gray-900">{title}</h2>
@@ -101,7 +101,7 @@ export default function FileUploadModal({
         {/* Dropzone Area */}
         <div
           onClick={() => fileInputRef.current?.click()}
-          className="border-2 border-dashed border-gray-300 rounded-[2rem] bg-[#F9FBE7] p-12 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#D9F55C] transition-colors"
+          className="border-2 border-dashed border-gray-300 rounded-xl bg-[#F9FBE7] p-12 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#D9F55C] transition-colors"
         >
           <div className="mb-4 p-4 bg-white rounded-xl border shadow-sm">
             <Upload size={32} className="text-gray-600" />
@@ -117,7 +117,7 @@ export default function FileUploadModal({
 
         {/* File Preview */}
         {file && (
-          <div className="mt-6 border border-gray-300 rounded-2xl p-5 flex flex-col gap-3 relative">
+          <div className="mt-6 border border-gray-300 rounded-xl p-5 flex flex-col gap-3 relative">
             <button
               onClick={removeFile}
               className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors"

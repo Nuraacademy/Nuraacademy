@@ -61,7 +61,7 @@ export default function TrainerAnalyticsClient({ data, classId }: TrainerAnalyti
             />
 
             {/* Header */}
-            <div className="bg-[#1C3A37] rounded-[24px] p-8 md:p-10 text-white space-y-1 shadow-lg border border-white/10">
+            <div className="bg-[#1C3A37] rounded-xl p-8 md:p-10 text-white space-y-1 shadow-lg border border-white/10">
                 <h1 className="text-2xl md:text-4xl font-black font-merriweather tracking-tight">
                     Report & Analytics
                 </h1>
@@ -70,7 +70,7 @@ export default function TrainerAnalyticsClient({ data, classId }: TrainerAnalyti
                 </p>
             </div>
 
-            <div className="bg-white rounded-[40px] p-8 md:p-12 shadow-sm border border-white/50 space-y-16">
+            <div className="bg-white rounded-xl p-8 md:p-12 shadow-sm border border-white/50 space-y-16">
 
                 {/* Feedback Metrics */}
                 <div className="space-y-10">
@@ -98,7 +98,7 @@ export default function TrainerAnalyticsClient({ data, classId }: TrainerAnalyti
                 {/* Feedback Details */}
                 <div className="space-y-10 border-t border-gray-100 pt-16">
                     <h2 className="text-xl font-black text-[#1C3A37] tracking-tight border-l-4 border-[#DAEE49] pl-4">Feedback Details</h2>
-                    <div className="bg-[#FDFDF7] rounded-[32px] p-8 md:p-10 space-y-12 border border-[#1C3A37]/5 shadow-sm">
+                    <div className="bg-[#FDFDF7] rounded-xl p-8 md:p-10 space-y-12 border border-[#1C3A37]/5 shadow-sm">
                         {metrics.map((metric, idx) => (
                             <div key={metric.label} className={`space-y-4 ${idx !== metrics.length - 1 ? 'border-b border-gray-100 pb-10' : ''}`}>
                                 <h3 className="text-sm font-black text-[#1C3A37] uppercase tracking-[0.1em]">{metric.label}</h3>
@@ -123,22 +123,22 @@ export default function TrainerAnalyticsClient({ data, classId }: TrainerAnalyti
                     <h2 className="text-xl font-black text-[#1C3A37] tracking-tight border-l-4 border-[#DAEE49] pl-4">Forum</h2>
                     <div className="space-y-8">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="bg-white border-2 border-gray-100 rounded-[32px] p-8 space-y-2 hover:border-[#1C3A37]/10 transition-all shadow-sm">
+                            <div className="bg-white border-2 border-gray-100 rounded-xl p-8 space-y-2 hover:border-[#1C3A37]/10 transition-all shadow-sm">
                                 <span className="text-4xl font-black text-[#1C3A37]">{forum.totalPost}</span>
                                 <p className="text-xs font-medium text-gray-400 uppercase tracking-widest">Total Post</p>
                             </div>
-                            <div className="bg-white border-2 border-gray-100 rounded-[32px] p-8 space-y-2 hover:border-[#1C3A37]/10 transition-all shadow-sm">
+                            <div className="bg-white border-2 border-gray-100 rounded-xl p-8 space-y-2 hover:border-[#1C3A37]/10 transition-all shadow-sm">
                                 <span className="text-4xl font-black text-[#1C3A37]">{forum.totalLikes}</span>
                                 <p className="text-xs font-medium text-gray-400 uppercase tracking-widest">Total Likes</p>
                             </div>
-                            <div className="bg-white border-2 border-gray-100 rounded-[32px] p-8 space-y-2 hover:border-[#1C3A37]/10 transition-all shadow-sm">
+                            <div className="bg-white border-2 border-gray-100 rounded-xl p-8 space-y-2 hover:border-[#1C3A37]/10 transition-all shadow-sm">
                                 <span className="text-4xl font-black text-[#1C3A37]">{forum.totalReply}</span>
                                 <p className="text-xs font-medium text-gray-400 uppercase tracking-widest">Total Reply</p>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="bg-[#1C3A37] rounded-[32px] p-8 flex items-center justify-between text-white shadow-xl shadow-[#1C3A37]/10">
+                            <div className="bg-[#1C3A37] rounded-xl p-8 flex items-center justify-between text-white shadow-xl shadow-[#1C3A37]/10">
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2 text-[10px] font-black uppercase text-[#DAEE49] tracking-widest">
                                         <ThumbsUp size={12} fill="currentColor" /> Average Likes
@@ -146,7 +146,7 @@ export default function TrainerAnalyticsClient({ data, classId }: TrainerAnalyti
                                     <span className="text-4xl font-black">{forum.avgLikes}</span>
                                 </div>
                             </div>
-                            <div className="bg-[#DAEE49] rounded-[32px] p-8 flex items-center justify-between text-[#1C3A37] shadow-xl shadow-[#DAEE49]/10">
+                            <div className="bg-[#DAEE49] rounded-xl p-8 flex items-center justify-between text-[#1C3A37] shadow-xl shadow-[#DAEE49]/10">
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2 text-[10px] font-black uppercase opacity-60 tracking-widest">
                                         <Reply size={12} fill="currentColor" /> Average Reply

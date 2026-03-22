@@ -35,7 +35,7 @@ export default function WelcomingModal({
       />
 
       {/* Modal Card */}
-      <div className="relative bg-white w-full max-w-5xl rounded-[2.5rem] px-10 py-10 md:px-16 md:py-12 shadow-2xl flex flex-col items-center text-center">
+      <div className="relative bg-white w-full max-w-5xl rounded-xl px-10 py-10 md:px-16 md:py-12 shadow-2xl flex flex-col items-center text-center">
 
         {/* Icon */}
         <div className="mb-6 mt-2">

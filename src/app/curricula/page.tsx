@@ -122,7 +122,7 @@ export default function CurriculaPage() {
                             curricula.map((item) => (
                                 <div
                                     key={item.id}
-                                    className="group flex items-center justify-between bg-white p-4 px-6 rounded-2xl border border-gray-100 hover:border-[#cdff2b] hover:shadow-xl transition-all duration-300"
+                                    className="group flex items-center justify-between bg-white p-4 px-6 rounded-xl border border-gray-100 hover:border-[#cdff2b] hover:shadow-xl transition-all duration-300"
                                 >
                                     <div className="flex items-center gap-6">
                                         <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:bg-[#cdff2b11]">

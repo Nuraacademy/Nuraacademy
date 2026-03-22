@@ -39,7 +39,7 @@ export default function CourseAssignmentPage() {
                 />
 
                 {/* Main Content Card */}
-                <div className="bg-white rounded-[2rem] p-10 shadow-sm border border-gray-100 flex flex-col gap-8">
+                <div className="bg-white rounded-xl p-10 shadow-sm border border-gray-100 flex flex-col gap-8">
                     {/* Dates */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                         <div className="flex flex-col gap-1">

@@ -49,7 +49,7 @@ export const BlogSectionEditor = ({ sections, onChange }: BlogSectionEditorProps
 
             <div className="space-y-6">
                 {sections.map((section, index) => (
-                    <div key={section.id} className="relative group bg-white border border-gray-100 rounded-3xl p-6 shadow-sm">
+                    <div key={section.id} className="relative group bg-white border border-gray-100 rounded-xl p-6 shadow-sm">
                         <div className="flex justify-between items-center mb-4">
                             <span className="text-sm font-medium text-gray-500 uppercase tracking-wider">
                                 {section.type} Section {index + 1}
@@ -77,7 +77,7 @@ export const BlogSectionEditor = ({ sections, onChange }: BlogSectionEditorProps
                                     onChange={(e) => updateSectionContent(section.id, e.target.value)}
                                 />
                                 {section.content && (
-                                    <div className="mt-4 rounded-2xl overflow-hidden border border-gray-100">
+                                    <div className="mt-4 rounded-xl overflow-hidden border border-gray-100">
                                         <img src={section.content} alt="Preview" className="w-full max-h-96 object-contain bg-gray-50" />
                                     </div>
                                 )}
@@ -91,13 +91,13 @@ export const BlogSectionEditor = ({ sections, onChange }: BlogSectionEditorProps
             <div className="flex gap-4">
                 <button
                     onClick={addImageSection}
-                    className="flex-1 py-4 border-2 border-dashed border-gray-200 rounded-3xl text-gray-500 hover:border-lime-400 hover:text-lime-600 transition-all flex items-center justify-center gap-2 font-medium"
+                    className="flex-1 py-4 border-2 border-dashed border-gray-200 rounded-xl text-gray-500 hover:border-lime-400 hover:text-lime-600 transition-all flex items-center justify-center gap-2 font-medium"
                 >
                     <Plus size={20} /> Add Image Block
                 </button>
                 <button
                     onClick={addTextSection}
-                    className="flex-1 py-4 border-2 border-dashed border-gray-200 rounded-3xl text-gray-500 hover:border-lime-400 hover:text-lime-600 transition-all flex items-center justify-center gap-2 font-medium"
+                    className="flex-1 py-4 border-2 border-dashed border-gray-200 rounded-xl text-gray-500 hover:border-lime-400 hover:text-lime-600 transition-all flex items-center justify-center gap-2 font-medium"
                 >
                     <Plus size={20} /> Add Text Block
                 </button>

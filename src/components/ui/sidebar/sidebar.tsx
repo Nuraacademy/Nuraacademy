@@ -94,8 +94,8 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
                         <div className="flex flex-col gap-4 p-4">
                             {[1, 2, 3].map(i => (
                                 <div key={i} className="animate-pulse space-y-2">
-                                    <div className="h-6 w-24 bg-gray-200 rounded"></div>
-                                    <div className="h-10 w-full bg-gray-100 rounded"></div>
+                                    <div className="h-6 w-24 bg-gray-200 rounded-xl"></div>
+                                    <div className="h-10 w-full bg-gray-100 rounded-xl"></div>
                                 </div>
                             ))}
                         </div>
@@ -121,7 +121,7 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
                                             <div key={item.id}>
                                                 <button
                                                     onClick={() => hasCourses && toggleItem(item.id)}
-                                                    className={`w-full flex items-center justify-between p-2 rounded hover:bg-gray-50 transition-colors ${hasCourses ? "cursor-pointer" : "cursor-default"
+                                                    className={`w-full flex items-center justify-between p-2 rounded-xl hover:bg-gray-50 transition-colors ${hasCourses ? "cursor-pointer" : "cursor-default"
                                                         }`}
                                                 >
                                                     <span className="text-sm text-gray-700 text-left truncate pr-2">{item.title}</span>
@@ -139,7 +139,7 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
                                                             <div key={course.id}>
                                                                 <button
                                                                     onClick={() => router.push(`/classes/${item.id}/course/${course.id}/overview`)}
-                                                                    className="w-full text-left p-2 text-sm text-gray-600 hover:bg-gray-50 rounded transition-colors truncate"
+                                                                    className="w-full text-left p-2 text-sm text-gray-600 hover:bg-gray-50 rounded-xl transition-colors truncate"
                                                                 >
                                                                     {course.title}
                                                                 </button>
@@ -175,7 +175,7 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
                                         <a
                                             key={assignment.id}
                                             href={assignment.href}
-                                            className="flex items-center gap-2 p-2 text-sm text-gray-600 hover:bg-gray-50 rounded transition-colors min-w-0"
+                                            className="flex items-center gap-2 p-2 text-sm text-gray-600 hover:bg-gray-50 rounded-xl transition-colors min-w-0"
                                         >
                                             <img
                                                 src={getAssignmentIcon(mapPrismaAssignmentType(assignment.type))}
@@ -212,7 +212,7 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
                                         <a
                                             key={feedback.id}
                                             href={feedback.href}
-                                            className="flex items-center gap-2 p-2 text-sm text-gray-600 hover:bg-gray-50 rounded transition-colors min-w-0"
+                                            className="flex items-center gap-2 p-2 text-sm text-gray-600 hover:bg-gray-50 rounded-xl transition-colors min-w-0"
                                         >
                                             <img
                                                 src={map_type_to_icon[feedback.type]}
@@ -249,7 +249,7 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
                                         <button
                                             key={item.id}
                                             onClick={() => router.push(`/classes/${item.id}/analytics`)}
-                                            className="w-full flex items-center p-2 rounded hover:bg-gray-50 transition-colors text-sm text-gray-700 text-left truncate"
+                                            className="w-full flex items-center p-2 rounded-xl hover:bg-gray-50 transition-colors text-sm text-gray-700 text-left truncate"
                                         >
                                             {item.title} Report
                                         </button>

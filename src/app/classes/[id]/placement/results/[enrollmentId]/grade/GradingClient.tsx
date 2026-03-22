@@ -133,11 +133,11 @@ export default function GradingClient({
                     />
                 </div>
 
-                <div className="bg-[#00524D] rounded-2xl p-6 mb-10">
+                <div className="bg-[#00524D] rounded-xl p-6 mb-10">
                     <h1 className="text-2xl font-medium text-white">Placement Test</h1>
                 </div>
 
-                <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-sm border border-gray-100">
+                <div className="bg-white rounded-xl p-8 md:p-12 shadow-sm border border-gray-100">
                     <div className="mb-10">
                         <h2 className="text-xl font-medium text-black">{learnerName}</h2>
                         <p className="text-gray-500 text-sm">Foundation to Data Analytics</p>
@@ -146,7 +146,7 @@ export default function GradingClient({
                     {/* Objective Section */}
                     <div className="mb-12">
                         <h3 className="text-lg font-medium text-black mb-6">Soal Objektif</h3>
-                        <div className="w-full border border-gray-200 rounded-[1.5rem] overflow-hidden">
+                        <div className="w-full border border-gray-200 rounded-xl overflow-hidden">
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="border-b border-gray-200 bg-gray-50">
@@ -183,7 +183,7 @@ export default function GradingClient({
                     {/* Essay Section */}
                     <div className="mb-12">
                         <h3 className="text-lg font-medium text-black mb-6">Soal Essay</h3>
-                        <div className="w-full border border-gray-200 rounded-[1.5rem] overflow-hidden">
+                        <div className="w-full border border-gray-200 rounded-xl overflow-hidden">
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="border-b border-gray-200 bg-gray-50">
@@ -239,7 +239,7 @@ export default function GradingClient({
                     {/* Project Section */}
                     <div className="mb-12">
                         <h3 className="text-lg font-medium text-black mb-6">Soal Project</h3>
-                        <div className="w-full border border-gray-200 rounded-[1.5rem] overflow-hidden">
+                        <div className="w-full border border-gray-200 rounded-xl overflow-hidden">
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="border-b border-gray-200 bg-gray-50">

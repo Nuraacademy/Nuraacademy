@@ -71,7 +71,7 @@ export default function UserDetailClient({
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* Sidebar Information Card */}
                     <div className="lg:w-1/3 space-y-8">
-                        <div className="bg-white rounded-[2.5rem] p-10 shadow-xl shadow-black/5 border border-white">
+                        <div className="bg-white rounded-xl p-10 shadow-xl shadow-black/5 border border-white">
                             <div className="flex flex-col items-center text-center">
                                 <div className="w-32 h-32 rounded-full bg-gradient-to-br from-[#005954] to-[#00897B] flex items-center justify-center text-white font-medium text-4xl mb-6 shadow-lg border-4 border-[#D9F55C]/20">
                                     {formData.name ? formData.name[0].toUpperCase() : formData.username[0].toUpperCase()}
@@ -104,7 +104,7 @@ export default function UserDetailClient({
 
                     {/* Edit Form Section */}
                     <div className="lg:w-2/3">
-                        <div className="bg-white rounded-[2.5rem] p-10 md:p-12 shadow-xl shadow-black/5 border border-white">
+                        <div className="bg-white rounded-xl p-10 md:p-12 shadow-xl shadow-black/5 border border-white">
                             <div className="mb-10">
                                 <h2 className="text-3xl font-black text-[#1C3A37] mb-2">Edit Profile Details</h2>
                                 <p className="text-gray-400 font-medium italic">Update administrative information and security settings.</p>
@@ -119,7 +119,7 @@ export default function UserDetailClient({
                                         <input
                                             required
                                             type="text"
-                                            className="w-full px-6 py-4 bg-[#FDFDF7] border border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#D9F55C] focus:shadow-inner transition-all text-sm font-medium"
+                                            className="w-full px-6 py-4 bg-[#FDFDF7] border border-transparent rounded-xl outline-none focus:bg-white focus:border-[#D9F55C] focus:shadow-inner transition-all text-sm font-medium"
                                             value={formData.name}
                                             onChange={e => setFormData({ ...formData, name: e.target.value })}
                                         />
@@ -132,7 +132,7 @@ export default function UserDetailClient({
                                         <input
                                             required
                                             type="text"
-                                            className="w-full px-6 py-4 bg-[#FDFDF7] border border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#D9F55C] focus:shadow-inner transition-all text-sm font-medium"
+                                            className="w-full px-6 py-4 bg-[#FDFDF7] border border-transparent rounded-xl outline-none focus:bg-white focus:border-[#D9F55C] focus:shadow-inner transition-all text-sm font-medium"
                                             value={formData.username}
                                             onChange={e => setFormData({ ...formData, username: e.target.value })}
                                         />
@@ -145,7 +145,7 @@ export default function UserDetailClient({
                                         <input
                                             required
                                             type="email"
-                                            className="w-full px-6 py-4 bg-[#FDFDF7] border border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#D9F55C] focus:shadow-inner transition-all text-sm font-medium"
+                                            className="w-full px-6 py-4 bg-[#FDFDF7] border border-transparent rounded-xl outline-none focus:bg-white focus:border-[#D9F55C] focus:shadow-inner transition-all text-sm font-medium"
                                             value={formData.email}
                                             onChange={e => setFormData({ ...formData, email: e.target.value })}
                                         />
@@ -157,7 +157,7 @@ export default function UserDetailClient({
                                         </label>
                                         <select
                                             required
-                                            className="w-full px-6 py-4 bg-[#FDFDF7] border border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#D9F55C] focus:shadow-inner transition-all text-sm font-medium appearance-none"
+                                            className="w-full px-6 py-4 bg-[#FDFDF7] border border-transparent rounded-xl outline-none focus:bg-white focus:border-[#D9F55C] focus:shadow-inner transition-all text-sm font-medium appearance-none"
                                             value={formData.roleId}
                                             onChange={e => setFormData({ ...formData, roleId: e.target.value })}
                                         >
@@ -177,7 +177,7 @@ export default function UserDetailClient({
                                         </div>
                                         <input
                                             type="password"
-                                            className="w-full px-6 py-4 bg-[#FDFDF7] border border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#D9F55C] focus:shadow-inner transition-all text-sm font-medium"
+                                            className="w-full px-6 py-4 bg-[#FDFDF7] border border-transparent rounded-xl outline-none focus:bg-white focus:border-[#D9F55C] focus:shadow-inner transition-all text-sm font-medium"
                                             placeholder="Leave blank to keep current password"
                                             value={formData.password}
                                             onChange={e => setFormData({ ...formData, password: e.target.value })}

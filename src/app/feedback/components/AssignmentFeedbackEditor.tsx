@@ -132,7 +132,7 @@ export default function AssignmentFeedbackEditor({
                 />
 
                 {/* Hero Section */}
-                <div className="bg-[#005954] rounded-[1.5rem] p-8 text-white shadow-sm space-y-2">
+                <div className="bg-[#005954] rounded-xl p-8 text-white shadow-sm space-y-2">
                     <h1 className="text-2xl font-medium">{learnerName}</h1>
                     <p className="text-white/80 text-sm font-medium">
                         {className} {courseName ? `| ${courseName}` : ''}
@@ -140,10 +140,10 @@ export default function AssignmentFeedbackEditor({
                 </div>
 
                 {/* Feedback Card */}
-                <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-sm border border-gray-100 flex flex-col gap-8">
+                <div className="bg-white rounded-xl p-8 md:p-12 shadow-sm border border-gray-100 flex flex-col gap-8">
                     <div className="space-y-4">
                         <h2 className="text-sm font-medium text-gray-900 uppercase tracking-tight">Feedback Answer</h2>
-                        <div className="border border-gray-200 rounded-2xl overflow-hidden bg-white">
+                        <div className="border border-gray-200 rounded-xl overflow-hidden bg-white">
                             <RichTextInput
                                 value={feedback}
                                 onChange={(val) => setFeedback(val)}
@@ -154,7 +154,7 @@ export default function AssignmentFeedbackEditor({
                     {/* File Attachment List */}
                     <div className="space-y-4">
                         {files.map((file, idx) => (
-                            <div key={idx} className="flex items-center justify-between p-4 border border-gray-200 rounded-2xl bg-[#FAFAFA]">
+                            <div key={idx} className="flex items-center justify-between p-4 border border-gray-200 rounded-xl bg-[#FAFAFA]">
                                 <div className="flex items-center gap-4">
                                     <div className="p-2 bg-white rounded-lg border border-gray-100 shadow-sm">
                                         <FileText className="w-6 h-6 text-gray-400" />

@@ -57,7 +57,7 @@ export default function ExercisePageClient({
                         </h1>
                     </div>
                     {/* Main Content Card */}
-                    <div className="bg-white rounded-[2rem] p-10 shadow-sm border border-gray-100 flex flex-col gap-8">
+                    <div className="bg-white rounded-xl p-10 shadow-sm border border-gray-100 flex flex-col gap-8">
                         {/* Title & Description */}
                         <div className="flex flex-col gap-2 text-sm">
                             <div className="flex flex-col gap-1">

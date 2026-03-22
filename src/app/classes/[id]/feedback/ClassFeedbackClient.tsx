@@ -55,13 +55,13 @@ export default function ClassFeedbackClient({ classId, data, initialFeedback }: 
                 <Breadcrumb items={breadcrumbItems} />
 
                 {/* Hero */}
-                <div className="bg-[#005954] rounded-[1.5rem] p-6 text-white shadow-sm">
+                <div className="bg-[#005954] rounded-xl p-6 text-white shadow-sm">
                     <h1 className="text-xl font-medium mb-1">Class Feedback</h1>
                     <p className="text-sm opacity-90">{data.classTitle}</p>
                 </div>
 
                 {/* Details View */}
-                <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-100 flex flex-col gap-6">
+                <div className="bg-white rounded-xl p-10 shadow-sm border border-gray-100 flex flex-col gap-6">
                     <h2 className="text-sm font-medium text-gray-900 px-2">Your Feedback</h2>
 
                     <div className="bg-[#FBFCF2] rounded-3xl p-8 space-y-4 border border-[#F0F5D8]">
@@ -85,7 +85,7 @@ export default function ClassFeedbackClient({ classId, data, initialFeedback }: 
                         <NuraButton
                             label="Edit"
                             variant="primary"
-                            className="min-w-[140px] h-11 text-xs font-medium rounded-2xl bg-[#D9F55C] hover:bg-[#c8e54b] text-black border-none shadow-none"
+                            className="min-w-[140px] h-11 text-xs font-medium rounded-xl bg-[#D9F55C] hover:bg-[#c8e54b] text-black border-none shadow-none"
                             onClick={() => setIsEditing(true)}
                         />
                     </div>
@@ -99,19 +99,19 @@ export default function ClassFeedbackClient({ classId, data, initialFeedback }: 
             <Breadcrumb items={breadcrumbItems} />
 
             {/* Hero */}
-            <div className="bg-[#005954] rounded-[1.5rem] p-6 text-white shadow-sm">
+            <div className="bg-[#005954] rounded-xl p-6 text-white shadow-sm">
                 <h1 className="text-xl font-medium">Class Feedback</h1>
             </div>
 
             {/* Editor View */}
-            <div className="bg-white rounded-[2rem] p-10 shadow-sm border border-gray-100 flex flex-col gap-10">
+            <div className="bg-white rounded-xl p-10 shadow-sm border border-gray-100 flex flex-col gap-10">
                 <p className="text-gray-700 text-sm leading-relaxed">
                     Please share with us what you feel about this class, how you would improve it, and any other feedback you have.
                 </p>
 
                 <div className="space-y-4">
                     <span className="text-sm font-medium text-gray-900">Your Feedback</span>
-                    <div className="border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm p-4">
+                    <div className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm p-4">
                         <RichTextInput
                             value={content}
                             onChange={(val) => setContent(val)}

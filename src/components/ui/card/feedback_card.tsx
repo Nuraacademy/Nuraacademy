@@ -42,7 +42,7 @@ export const FeedbackCard = ({
 
     return (
         <div
-            className={`flex items-center justify-between gap-4 rounded-[2rem] border border-gray-200 bg-white p-6 shadow-sm transition-all hover:border-gray-400 hover:shadow-md cursor-pointer group relative ${className}`}
+            className={`flex items-center justify-between gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:border-gray-400 hover:shadow-md cursor-pointer group relative ${className}`}
             onClick={() => router.push(href)}
         >
             <div className="flex flex-1 items-center gap-6">

@@ -53,7 +53,7 @@ export default function PeerResultsDetailClient({ classData, learnerName, feedba
             />
 
             {/* Header */}
-            <div className="bg-[#1C3A37] rounded-[24px] p-8 md:p-10 text-white space-y-1 shadow-lg">
+            <div className="bg-[#1C3A37] rounded-xl p-8 md:p-10 text-white space-y-1 shadow-lg">
                 <h1 className="text-2xl md:text-3xl font-medium font-merriweather">
                     {learnerName}
                 </h1>
@@ -62,7 +62,7 @@ export default function PeerResultsDetailClient({ classData, learnerName, feedba
                 </p>
             </div>
 
-            <div className="bg-white rounded-[40px] p-8 md:p-12 shadow-sm border border-white/50 space-y-12">
+            <div className="bg-white rounded-xl p-8 md:p-12 shadow-sm border border-white/50 space-y-12">
                 {/* Summary */}
                 <div className="space-y-8">
                     <h2 className="text-lg font-medium text-[#1C3A37]">Peer Feedback Summary</h2>
@@ -91,7 +91,7 @@ export default function PeerResultsDetailClient({ classData, learnerName, feedba
                 {/* Details */}
                 <div className="space-y-8 pt-8 border-t border-gray-100">
                     <h2 className="text-lg font-medium text-[#1C3A37]">Feedback Details</h2>
-                    <div className="bg-[#FEFEF2] rounded-[32px] p-8 md:p-10 space-y-10 border border-[#F0F0E0]">
+                    <div className="bg-[#FEFEF2] rounded-xl p-8 md:p-10 space-y-10 border border-[#F0F0E0]">
                         {feedbackDetails.map((detail) => {
                             const comment = feedback ? (feedback[detail.key] as string) : null;
                             const hasComment = comment && comment.trim() !== "" && comment !== "null" && comment !== "<p></p>";
@@ -102,7 +102,7 @@ export default function PeerResultsDetailClient({ classData, learnerName, feedba
                                 <div key={detail.label} className="space-y-4 relative">
                                     <h3 className="text-sm font-medium text-[#1C3A37]">{detail.label}</h3>
                                     <div
-                                        className="text-sm text-gray-600 leading-relaxed bg-white/50 p-4 rounded-2xl border border-white/80 shadow-sm"
+                                        className="text-sm text-gray-600 leading-relaxed bg-white/50 p-4 rounded-xl border border-white/80 shadow-sm"
                                         dangerouslySetInnerHTML={{ __html: comment }}
                                     />
                                     <div className="absolute -bottom-5 inset-x-0 border-b border-gray-200/50" />

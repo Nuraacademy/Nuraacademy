@@ -218,7 +218,7 @@ export default function EditSessionForm({
                 </div>
             )}
 
-            <div className="flex flex-col gap-6 text-sm w-full bg-gray-50 p-6 rounded-[1.5rem] border border-gray-100">
+            <div className="flex flex-col gap-6 text-sm w-full bg-gray-50 p-6 rounded-xl border border-gray-100">
                 <div className="flex flex-col gap-2">
                     <span className="font-medium text-gray-900">Session Settings</span>
                     <p className="text-gray-500 text-xs">Configure the basic settings for this session.</p>
@@ -232,7 +232,7 @@ export default function EditSessionForm({
 
                 <div className="flex flex-col gap-2">
                     <label className="block text-sm font-medium mb-1 text-gray-900">Session Type</label>
-                    <div className="flex bg-white border border-gray-200 p-1 rounded-2xl w-fit">
+                    <div className="flex bg-white border border-gray-200 p-1 rounded-xl w-fit">
                         <button
                             type="button"
                             onClick={() => setIsSynchronous(false)}
@@ -265,12 +265,12 @@ export default function EditSessionForm({
             </div>
 
             {!isSynchronous && (
-                <div className="flex flex-col gap-6 w-full bg-gray-50 p-6 rounded-[1.5rem] border border-gray-100">
+                <div className="flex flex-col gap-6 w-full bg-gray-50 p-6 rounded-xl border border-gray-100">
                     <div className="flex flex-col gap-2">
                         <span className="font-medium text-gray-900">Asynchronous Content Type</span>
                         <p className="text-gray-500 text-xs">Choose the type of content for this asynchronous session.</p>
                     </div>
-                    <div className="flex bg-white border border-gray-200 p-1 rounded-2xl w-fit">
+                    <div className="flex bg-white border border-gray-200 p-1 rounded-xl w-fit">
                         <button
                             type="button"
                             onClick={() => setAsyncContentType('file')}
@@ -391,7 +391,7 @@ export default function EditSessionForm({
                 ) : (
                     <div className="flex flex-col gap-6">
                         {references.map((ref, index) => (
-                            <div key={index} className="relative bg-white p-4 rounded-[1.5rem] border border-gray-200">
+                            <div key={index} className="relative bg-white p-4 rounded-xl border border-gray-200">
                                 <button
                                     type="button"
                                     onClick={() => handleRemoveReference(index)}

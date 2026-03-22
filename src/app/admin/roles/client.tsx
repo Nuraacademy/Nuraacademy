@@ -176,7 +176,7 @@ export default function RolesClient({
                                     required
                                     value={newRoleName}
                                     onChange={e => setNewRoleName(e.target.value)}
-                                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-[#D9F55C] focus:border-transparent outline-none"
+                                    className="w-full p-2 border rounded-xl focus:ring-2 focus:ring-[#D9F55C] focus:border-transparent outline-none"
                                     placeholder="e.g. Guest Instructor"
                                 />
                             </div>
@@ -185,7 +185,7 @@ export default function RolesClient({
                                 <textarea
                                     value={newRoleDesc}
                                     onChange={e => setNewRoleDesc(e.target.value)}
-                                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-[#D9F55C] focus:border-transparent outline-none m-0 resize-none h-24"
+                                    className="w-full p-2 border rounded-xl focus:ring-2 focus:ring-[#D9F55C] focus:border-transparent outline-none m-0 resize-none h-24"
                                     placeholder="Brief description of this role"
                                 />
                             </div>

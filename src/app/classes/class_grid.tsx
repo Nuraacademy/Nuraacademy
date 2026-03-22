@@ -66,7 +66,7 @@ export default function ClassesGrid({ initialClasses, canCreate, canDelete }: { 
                 }
 
                 {filteredClasses.length === 0 && (
-                    <div className="col-span-1 border border-dashed rounded-lg flex items-center justify-center p-8 bg-white/50 w-full min-h-32">
+                    <div className="col-span-1 border border-dashed rounded-xl flex items-center justify-center p-8 bg-white/50 w-full min-h-32">
                         <p className="text-black/50">No classes found.</p>
                     </div>
                 )}

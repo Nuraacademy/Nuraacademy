@@ -11,14 +11,14 @@ export default function HomeStoriesCard({
     image, name, bootcamp, description
 }: HomeStoriesCardProp) {
     return (
-        <div className="flex flex-col justify-start items-center rounded-[2rem] p-6 shadow-lg w-full max-w-[320px] bg-white text-black gap-4">
+        <div className="flex flex-col justify-start items-center rounded-xl p-6 shadow-lg w-full max-w-[320px] bg-white text-black gap-4">
             <div className="flex items-center gap-4 w-full">
                 <Image
                     src={image}
                     alt={name}
                     width={56}
                     height={56}
-                    className="rounded-[1rem] object-cover flex-shrink-0"
+                    className="rounded-xl object-cover flex-shrink-0"
                 />
                 <div className="flex flex-col items-start text-left">
                     <h3 className="text-sm font-semibold">{name}</h3>

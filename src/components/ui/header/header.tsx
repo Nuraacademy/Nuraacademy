@@ -88,7 +88,7 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
             <div className="flex justify-between items-center gap-8">
                 <div className="flex justify-center items-center gap-4 bg-white">
                     <button
-                        className="flex justify-center items-center gap-2 w-32 h-12 rounded-lg hover:bg-gray-100 transition-colors px-4 text-s text-black bg-white"
+                        className="flex justify-center items-center gap-2 w-32 h-12 rounded-xl hover:bg-gray-100 transition-colors px-4 text-s text-black bg-white"
                         onClick={() => router.push('/classes')}
                     >
                         <Image
@@ -100,7 +100,7 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
                         Home
                     </button>
                     <button
-                        className="flex justify-center items-center gap-2 w-32 h-12 rounded-lg hover:bg-gray-100 transition-colors px-4 text-s text-black bg-white"
+                        className="flex justify-center items-center gap-2 w-32 h-12 rounded-xl hover:bg-gray-100 transition-colors px-4 text-s text-black bg-white"
                         onClick={() => router.push('/discussions')}
                     >
                         <Image
@@ -112,7 +112,7 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
                         Forums
                     </button>
                     <button
-                        className="flex justify-center items-center gap-2 w-32 h-12 rounded-lg hover:bg-gray-100 transition-colors px-4 text-s text-black bg-white"
+                        className="flex justify-center items-center gap-2 w-32 h-12 rounded-xl hover:bg-gray-100 transition-colors px-4 text-s text-black bg-white"
                         onClick={() => router.push('/blogs')}
                     >
                         <Image
@@ -167,7 +167,7 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
                                             </div>
                                             <div className="px-2 pb-2 mb-2 border-b border-gray-50">
                                                 <button
-                                                    className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors flex items-center gap-2"
+                                                    className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-colors flex items-center gap-2"
                                                     onClick={() => {
                                                         router.push('/users/me');
                                                         setShowDropdown(false);
@@ -179,7 +179,7 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
                                             </div>
                                             <div className="px-2">
                                                 <button
-                                                    className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2"
+                                                    className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-colors flex items-center gap-2"
                                                     onClick={onLogout}
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>

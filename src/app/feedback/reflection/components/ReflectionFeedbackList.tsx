@@ -30,16 +30,16 @@ export default function ReflectionFeedbackList({ classId, courseId, data, reflec
             <Breadcrumb items={breadcrumbItems} />
 
             {/* Hero */}
-            <div className="bg-[#005954] rounded-[1.5rem] p-6 text-white shadow-sm">
+            <div className="bg-[#005954] rounded-xl p-6 text-white shadow-sm">
                 <h1 className="text-xl font-medium mb-1">{data.course.title} Reflection Feedback</h1>
                 <p className="text-sm opacity-90">{data.class.title} <span className="mx-2 opacity-50">|</span> {data.course.title}</p>
             </div>
 
             {/* List View */}
-            <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-100 flex flex-col gap-6">
+            <div className="bg-white rounded-xl p-10 shadow-sm border border-gray-100 flex flex-col gap-6">
                 <h2 className="text-sm font-medium text-gray-900 px-2">Hasil Refleksi Learners</h2>
 
-                <div className="border border-gray-200 rounded-[2rem] overflow-hidden">
+                <div className="border border-gray-200 rounded-xl overflow-hidden">
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="border-b border-gray-200">

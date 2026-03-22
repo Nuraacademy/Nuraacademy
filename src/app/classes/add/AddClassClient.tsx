@@ -170,7 +170,7 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                 {/* Picture Banner */}
                 <div>
                     <label className="block text-sm font-semibold mb-2">Picture Banner</label>
-                    <div className="border-2 border-dashed border-[#D9F55C] rounded-2xl p-10 flex flex-col items-center justify-center bg-[#FEFFF5] text-center">
+                    <div className="border-2 border-dashed border-[#D9F55C] rounded-xl p-10 flex flex-col items-center justify-center bg-[#FEFFF5] text-center">
                         <Upload size={32} className="text-gray-700 mb-2" />
                         <p className="text-sm">
                             <span className="text-gray-600 font-medium underline cursor-pointer">Click to upload</span> or drag and drop
@@ -200,7 +200,7 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                 {/* Preview Video */}
                 <div>
                     <label className="block text-sm font-semibold mb-2">Preview Class (Video)</label>
-                    <div className="border-2 border-dashed border-[#D9F55C] rounded-2xl p-10 flex flex-col items-center justify-center bg-[#FEFFF5] text-center">
+                    <div className="border-2 border-dashed border-[#D9F55C] rounded-xl p-10 flex flex-col items-center justify-center bg-[#FEFFF5] text-center">
                         <Upload size={32} className="text-gray-700 mb-2" />
                         <p className="text-sm">
                             <span className="text-gray-600 font-medium underline cursor-pointer">Click to upload</span> or drag and drop

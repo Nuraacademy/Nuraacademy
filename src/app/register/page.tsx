@@ -96,7 +96,7 @@ export default function RegisterPage() {
 
       {/* Right form panel */}
       <section className="w-full md:w-1/2 flex items-center justify-center px-4 md:px-10 py-10">
-        <div className="w-full max-w-md bg-white rounded-none md:rounded-[32px] shadow-none px-4 md:px-10 py-8 md:py-12">
+        <div className="w-full max-w-md bg-white rounded-none md:rounded-xl shadow-none px-4 md:px-10 py-8 md:py-12">
           {/* Logo */}
           <div className="flex justify-center mb-8">
             <Image

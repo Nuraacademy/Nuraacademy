@@ -82,10 +82,10 @@ export default function ReflectionClient({ classId, courseId, moduleId, data, in
                 <TitleCard title="Reflection" />
 
                 {/* Details View */}
-                <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-100 flex flex-col gap-6">
+                <div className="bg-white rounded-xl p-10 shadow-sm border border-gray-100 flex flex-col gap-6">
                     <h2 className="text-sm font-medium text-gray-900 px-2">Learner Reflection</h2>
 
-                    <div className="bg-[#FBFCF2] rounded-3xl p-8 space-y-4 border border-[#F0F5D8]">
+                    <div className="bg-[#FBFCF2] rounded-xl p-8 space-y-4 border border-[#F0F5D8]">
                         <div className="space-y-1">
                             <h3 className="text-[10px] font-medium uppercase tracking-widest text-gray-900">Question</h3>
                             <p className="text-xs text-gray-700 leading-relaxed font-medium">
@@ -105,7 +105,7 @@ export default function ReflectionClient({ classId, courseId, moduleId, data, in
                     {initialReflection.feedback && (
                         <div className="space-y-4 mt-4">
                             <h2 className="text-sm font-medium text-gray-900 px-2">Reflection Feedback</h2>
-                            <div className="bg-[#FBFCF2] rounded-3xl p-8 border border-[#F0F5D8]">
+                            <div className="bg-[#FBFCF2] rounded-xl p-8 border border-[#F0F5D8]">
                                 <div
                                     className="rich-text text-xs text-gray-700 leading-relaxed"
                                     dangerouslySetInnerHTML={{ __html: initialReflection.feedback.content }}
@@ -125,7 +125,7 @@ export default function ReflectionClient({ classId, courseId, moduleId, data, in
                             <NuraButton
                                 label="Edit"
                                 variant="primary"
-                                className="min-w-[140px] h-11 text-xs font-medium rounded-2xl bg-[#D9F55C] hover:bg-[#c8e54b] text-black border-none shadow-none"
+                                className="min-w-[140px] h-11 text-xs font-medium rounded-xl bg-[#D9F55C] hover:bg-[#c8e54b] text-black border-none shadow-none"
                                 onClick={() => setIsEditing(true)}
                             />
                         </div>
@@ -152,14 +152,14 @@ export default function ReflectionClient({ classId, courseId, moduleId, data, in
             <TitleCard title={heroTitle} />
 
             {/* Editor View */}
-            <div className="bg-white rounded-[2rem] p-10 shadow-sm border border-gray-100 flex flex-col gap-10">
+            <div className="bg-white rounded-xl p-10 shadow-sm border border-gray-100 flex flex-col gap-10">
                 <p className="text-gray-700 text-sm leading-relaxed">
                     Please share with us what you feel about your learning progress, what your difficulties are, how you would improve it. You also can share anything else related this training
                 </p>
 
                 <div className="space-y-4">
                     <span className="text-sm font-medium text-gray-900">Answer</span>
-                    <div className="border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm p-4">
+                    <div className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm p-4">
                         <RichTextInput
                             value={content}
                             onChange={(val) => setContent(val)}

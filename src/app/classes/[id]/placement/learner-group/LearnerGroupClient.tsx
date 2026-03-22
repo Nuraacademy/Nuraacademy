@@ -119,7 +119,7 @@ export default function LearnerGroupClient({
                     />
                 </div>
 
-                <div className="bg-[#00524D] rounded-2xl p-6 mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="bg-[#00524D] rounded-xl p-6 mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-2xl font-medium text-white">Learner Group</h1>
                         <p className="text-emerald-100 text-sm mt-1">Status matrix and group assignment</p>
@@ -145,7 +145,7 @@ export default function LearnerGroupClient({
                     )}
                 </div>
 
-                <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-sm border border-gray-100">
+                <div className="bg-white rounded-xl p-8 md:p-12 shadow-sm border border-gray-100">
                     <div className="mb-8 flex items-center justify-between">
                         <h2 className="text-lg font-medium text-black">Student Course Pass List</h2>
                         <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -155,7 +155,7 @@ export default function LearnerGroupClient({
                     </div>
 
                     {/* Matrix Table */}
-                    <div className="w-full border border-black rounded-[2rem] overflow-hidden bg-white">
+                    <div className="w-full border border-black rounded-xl overflow-hidden bg-white">
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="border-b border-black">
@@ -180,11 +180,11 @@ export default function LearnerGroupClient({
                                             return (
                                                 <td key={course.id} className="px-4 py-6 text-center">
                                                     {status?.isPassed ? (
-                                                        <div className="inline-flex items-center justify-center w-6 h-6 bg-black rounded-md">
+                                                        <div className="inline-flex items-center justify-center w-6 h-6 bg-black rounded-xl">
                                                             <Check size={16} className="text-white" />
                                                         </div>
                                                     ) : (
-                                                        <div className="w-6 h-6 rounded-md border border-gray-200 mx-auto opacity-30" />
+                                                        <div className="w-6 h-6 rounded-xl border border-gray-200 mx-auto opacity-30" />
                                                     )}
                                                 </td>
                                             );

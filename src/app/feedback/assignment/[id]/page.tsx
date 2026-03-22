@@ -60,14 +60,14 @@ export default async function AssignmentFeedbackLearnerListPage({
                     />
                 </div>
 
-                <div className="bg-[#00524D] rounded-2xl p-6 mb-10 shadow-sm">
+                <div className="bg-[#00524D] rounded-xl p-6 mb-10 shadow-sm">
                     <h1 className="text-2xl font-medium text-white">{assignment.title} Feedback</h1>
                     <p className="text-white/80 text-sm mt-1">{assignment.class?.title || assignment.course?.title}</p>
                 </div>
 
-                <div className="bg-white/80 backdrop-blur-sm rounded-[2rem] p-8 md:p-12 shadow-sm border border-gray-100">
+                <div className="bg-white/80 backdrop-blur-sm rounded-xl p-8 md:p-12 shadow-sm border border-gray-100">
                     <h2 className="text-xl font-medium mb-6">Learners</h2>
-                    <div className="w-full border border-gray-100 rounded-[1.5rem] overflow-hidden bg-white shadow-sm">
+                    <div className="w-full border border-gray-100 rounded-xl overflow-hidden bg-white shadow-sm">
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="border-b border-gray-100 bg-gray-50/50">

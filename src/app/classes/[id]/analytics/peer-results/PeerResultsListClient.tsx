@@ -24,7 +24,7 @@ export default function PeerResultsListClient({ classData, groupMembers, myEnrol
             />
 
             {/* Header */}
-            <div className="bg-[#1C3A37] rounded-[24px] p-8 md:p-10 text-white space-y-1 shadow-lg">
+            <div className="bg-[#1C3A37] rounded-xl p-8 md:p-10 text-white space-y-1 shadow-lg">
                 <h1 className="text-2xl md:text-3xl font-medium font-merriweather">
                     Final Project Peer Feedback
                 </h1>
@@ -33,10 +33,10 @@ export default function PeerResultsListClient({ classData, groupMembers, myEnrol
                 </p>
             </div>
 
-            <div className="bg-white rounded-[40px] p-8 md:p-12 shadow-sm border border-white/50 space-y-8">
+            <div className="bg-white rounded-xl p-8 md:p-12 shadow-sm border border-white/50 space-y-8">
                 <h2 className="text-lg font-medium text-[#1C3A37]">Hasil Peer Feedback Learners</h2>
 
-                <div className="border border-gray-200 rounded-[24px] overflow-hidden">
+                <div className="border border-gray-200 rounded-xl overflow-hidden">
                     <table className="w-full text-left">
                         <thead className="border-b border-gray-100">
                             <tr>

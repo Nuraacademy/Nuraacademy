@@ -33,7 +33,7 @@ export default function LearnerReportClient({ data }: LearnerReportClientProps) 
             />
 
             {/* Header */}
-            <div className="bg-[#1C3A37] rounded-[24px] p-8 md:p-10 text-white space-y-2 shadow-lg">
+            <div className="bg-[#1C3A37] rounded-xl p-8 md:p-10 text-white space-y-2 shadow-lg">
                 <h1 className="text-2xl md:text-3xl font-medium">{user.name || user.username}</h1>
                 <p className="text-gray-300 font-medium opacity-80">
                     {classTitle} <span className="mx-2">|</span> Batch Number
@@ -41,7 +41,7 @@ export default function LearnerReportClient({ data }: LearnerReportClientProps) 
             </div>
 
             {/* Peer Feedback Summary */}
-            <div className="bg-white rounded-[40px] p-8 md:p-12 shadow-sm border border-white/50 space-y-12">
+            <div className="bg-white rounded-xl p-8 md:p-12 shadow-sm border border-white/50 space-y-12">
                 <div className="space-y-8">
                     <h2 className="text-xl md:text-2xl font-medium text-[#1C3A37]">Peer Feedback Summary</h2>
                     <div className="space-y-6">
@@ -63,7 +63,7 @@ export default function LearnerReportClient({ data }: LearnerReportClientProps) 
                 {/* Feedback Details */}
                 <div className="space-y-8 pt-8 border-t border-gray-100">
                     <h2 className="text-xl md:text-2xl font-medium text-[#1C3A37]">Feedback Details</h2>
-                    <div className="bg-[#F9F9EE]/50 rounded-[32px] p-6 md:p-10 space-y-10">
+                    <div className="bg-[#F9F9EE]/50 rounded-xl p-6 md:p-10 space-y-10">
                         {metrics.map((metric) => (
                             <div key={metric.label} className="space-y-3">
                                 <h3 className="text-base md:text-lg font-medium text-[#1C3A37]">{metric.label}</h3>

@@ -67,7 +67,7 @@ export default function ReflectionFeedbackDetail({ reflection, hasPrivilege }: R
             <Breadcrumb items={breadcrumbItems} />
 
             {/* Hero */}
-            <div className="bg-[#005954] rounded-[1.5rem] p-6 text-white shadow-sm">
+            <div className="bg-[#005954] rounded-xl p-6 text-white shadow-sm">
                 <h1 className="text-xl font-medium mb-1">{reflection.user.name || reflection.user.username}</h1>
                 <p className="text-sm opacity-90">
                     {reflection.class?.title || "Class Name"} <span className="mx-2 opacity-50">|</span> {reflection.course?.title || reflection.session?.title}
@@ -75,10 +75,10 @@ export default function ReflectionFeedbackDetail({ reflection, hasPrivilege }: R
             </div>
 
             {/* Learner Reflection Card */}
-            <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-100 flex flex-col gap-6">
+            <div className="bg-white rounded-xl p-10 shadow-sm border border-gray-100 flex flex-col gap-6">
                 <h2 className="text-sm font-medium text-gray-900 mb-6">Learner Reflection</h2>
 
-                <div className="bg-[#FBFCF2] rounded-3xl p-8 space-y-4 border border-[#F0F5D8]">
+                <div className="bg-[#FBFCF2] rounded-xl p-8 space-y-4 border border-[#F0F5D8]">
                     <div className="space-y-1">
                         <h3 className="text-[10px] font-medium uppercase tracking-widest text-gray-900">Question</h3>
                         <p className="text-xs text-gray-700 leading-relaxed font-medium">
@@ -102,7 +102,7 @@ export default function ReflectionFeedbackDetail({ reflection, hasPrivilege }: R
 
                         {hasPrivilege && isEditing ? (
                             <div className="space-y-4">
-                                <div className="border border-gray-200 rounded-3xl overflow-hidden bg-white p-4">
+                                <div className="border border-gray-200 rounded-xl overflow-hidden bg-white p-4">
                                     <RichTextInput
                                         value={feedbackContent}
                                         onChange={(val) => setFeedbackContent(val)}
@@ -110,7 +110,7 @@ export default function ReflectionFeedbackDetail({ reflection, hasPrivilege }: R
                                 </div>
                             </div>
                         ) : reflection.feedback ? (
-                            <div className="bg-[#FBFCF2] rounded-3xl p-8 border border-[#F0F5D8] group relative min-h-[100px]">
+                            <div className="bg-[#FBFCF2] rounded-xl p-8 border border-[#F0F5D8] group relative min-h-[100px]">
                                 <div
                                     className="rich-text text-xs text-gray-700 leading-relaxed"
                                     dangerouslySetInnerHTML={{ __html: reflection.feedback?.content }}
@@ -139,7 +139,7 @@ export default function ReflectionFeedbackDetail({ reflection, hasPrivilege }: R
                         <NuraButton
                             label={isSaving ? "Submitting..." : "Submit"}
                             variant="primary"
-                            className="w-[160px] h-10 text-sm font-medium bg-[#D9F55C] hover:bg-[#c8e54b] text-black border-none rounded-2xl"
+                            className="w-[160px] h-10 text-sm font-medium bg-[#D9F55C] hover:bg-[#c8e54b] text-black border-none rounded-xl"
                             onClick={handleSaveFeedback}
                             disabled={isSaving}
                         />
@@ -157,7 +157,7 @@ export default function ReflectionFeedbackDetail({ reflection, hasPrivilege }: R
                         <NuraButton
                             label="Edit"
                             variant="primary"
-                            className="w-[160px] h-10 text-sm font-medium bg-[#D9F55C] hover:bg-[#c8e54b] text-black border-none rounded-2xl"
+                            className="w-[160px] h-10 text-sm font-medium bg-[#D9F55C] hover:bg-[#c8e54b] text-black border-none rounded-xl"
                             onClick={() => setIsEditing(true)}
                         />
                     </div>

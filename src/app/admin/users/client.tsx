@@ -140,7 +140,7 @@ export default function UsersClient({
     return (
         <div className="space-y-6">
             {/* Header / Actions Bar */}
-            <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white/50 backdrop-blur-md p-4 rounded-2xl border border-white shadow-sm">
+            <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white/50 backdrop-blur-md p-4 rounded-xl border border-white shadow-sm">
                 <div className="relative w-full md:w-96">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
@@ -160,7 +160,7 @@ export default function UsersClient({
             </div>
 
             {/* Table Container */}
-            <div className="bg-white rounded-3xl shadow-xl shadow-black/5 border border-gray-100 overflow-hidden">
+            <div className="bg-white rounded-xl shadow-xl shadow-black/5 border border-gray-100 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
@@ -297,7 +297,7 @@ export default function UsersClient({
             {isCreateModalOpen && (
                 <div className="fixed inset-0 z-[10002] flex items-center justify-center p-4">
                     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => !isSaving && setIsCreateModalOpen(false)} />
-                    <div className="relative bg-white w-full max-w-xl rounded-[2.5rem] p-10 shadow-2xl animate-in zoom-in-95 duration-200">
+                    <div className="relative bg-white w-full max-w-xl rounded-xl p-10 shadow-2xl animate-in zoom-in-95 duration-200">
                         <div className="flex justify-between items-center mb-8">
                             <h2 className="text-2xl font-medium text-[#1C3A37]">Add New User</h2>
                             <button onClick={() => setIsCreateModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
@@ -312,7 +312,7 @@ export default function UsersClient({
                                     <input
                                         required
                                         type="text"
-                                        className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#D9F55C] transition-all text-sm"
+                                        className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-xl outline-none focus:bg-white focus:border-[#D9F55C] transition-all text-sm"
                                         value={newUser.name}
                                         onChange={e => setNewUser({ ...newUser, name: e.target.value })}
                                         placeholder="John Doe"
@@ -323,7 +323,7 @@ export default function UsersClient({
                                     <input
                                         required
                                         type="text"
-                                        className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#D9F55C] transition-all text-sm"
+                                        className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-xl outline-none focus:bg-white focus:border-[#D9F55C] transition-all text-sm"
                                         value={newUser.username}
                                         onChange={e => setNewUser({ ...newUser, username: e.target.value })}
                                         placeholder="johndoe"
@@ -334,7 +334,7 @@ export default function UsersClient({
                                     <input
                                         required
                                         type="email"
-                                        className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#D9F55C] transition-all text-sm"
+                                        className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-xl outline-none focus:bg-white focus:border-[#D9F55C] transition-all text-sm"
                                         value={newUser.email}
                                         onChange={e => setNewUser({ ...newUser, email: e.target.value })}
                                         placeholder="john@example.com"
@@ -345,7 +345,7 @@ export default function UsersClient({
                                     <input
                                         required
                                         type="password"
-                                        className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#D9F55C] transition-all text-sm"
+                                        className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-xl outline-none focus:bg-white focus:border-[#D9F55C] transition-all text-sm"
                                         value={newUser.password}
                                         onChange={e => setNewUser({ ...newUser, password: e.target.value })}
                                         placeholder="••••••••"
@@ -355,7 +355,7 @@ export default function UsersClient({
                                     <label className="text-xs font-medium text-gray-500 uppercase tracking-wider ml-1">Assign Role</label>
                                     <select
                                         required
-                                        className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#D9F55C] transition-all text-sm appearance-none"
+                                        className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-xl outline-none focus:bg-white focus:border-[#D9F55C] transition-all text-sm appearance-none"
                                         value={newUser.roleId}
                                         onChange={e => setNewUser({ ...newUser, roleId: e.target.value })}
                                     >

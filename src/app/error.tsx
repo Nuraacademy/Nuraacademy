@@ -24,7 +24,7 @@ export default function Error({
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-[#F5F5EC] px-4 text-center">
-      <div className="bg-white p-8 rounded-[2rem] shadow-xl max-w-md w-full border border-gray-100 italic">
+      <div className="bg-white p-8 rounded-xl shadow-xl max-w-md w-full border border-gray-100 italic">
         <h2 className="text-3xl font-medium text-[#005954] mb-4">Something went wrong!</h2>
         <p className="text-gray-600 mb-8">
           {error.message.includes('Unauthorized') || error.message.includes('logged in')
