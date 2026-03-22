@@ -50,7 +50,7 @@ export default function TrainerAnalyticsClient({ data, classId }: TrainerAnalyti
     ];
 
     return (
-        <div className="min-h-screen bg-[#F9F9EE] px-4 md:px-16 py-8 md:py-12 space-y-8 font-sans">
+        <div className="min-h-screen bg-[#F9F9EE] px-4 md:px-16 py-8 md:py-12 space-y-8 ">
             <Breadcrumb
                 items={[
                     { label: 'Home', href: '/' },
@@ -119,7 +119,7 @@ export default function TrainerAnalyticsClient({ data, classId }: TrainerAnalyti
                 </div>
 
                 {/* Forum Section */}
-                <div className="space-y-10 border-t border-gray-100 pt-16 font-sans">
+                <div className="space-y-10 border-t border-gray-100 pt-16 ">
                     <h2 className="text-xl font-black text-[#1C3A37] tracking-tight border-l-4 border-[#DAEE49] pl-4">Forum</h2>
                     <div className="space-y-8">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

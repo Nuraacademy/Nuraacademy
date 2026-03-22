@@ -61,7 +61,7 @@ export default async function EditSessionPage({
     ];
 
     return (
-        <main className="min-h-screen bg-[#FDFDF7] font-sans pb-16">
+        <main className="min-h-screen bg-[#FDFDF7]  pb-16">
             <div className="max-w-7xl mx-auto px-6 md:px-10 py-8">
                 {/* Breadcrumb */}
                 <div className="mb-6">

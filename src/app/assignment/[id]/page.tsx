@@ -86,7 +86,6 @@ export default async function AssignmentRunnerPage({
     pageText.bannerTitle = typeLabel[assignment.type] ?? pageText.bannerTitle;
     pageText.breadcrumbTest = typeLabel[assignment.type] ?? "Assignment";
 
-    const isAssignmentOrProject = assignment.type === "ASSIGNMENT" || assignment.type === "PROJECT";
     const classTitle = (assignment as any).class?.title;
     const courseTitle = (assignment as any).course?.title;
 
@@ -98,8 +97,8 @@ export default async function AssignmentRunnerPage({
     ];
 
     return (
-        <main className="min-h-screen w-full bg-[#F9F9F0]">
-            <div className="px-6 pt-6">
+        <main className="min-h-screen p-6 bg-[#F9F9F0]">
+            <div className="max-w-7xl mx-auto">
                 <Breadcrumb items={breadcrumbs} />
             </div>
 

@@ -116,7 +116,7 @@ export default function GradingClient({
     };
 
     return (
-        <main className="min-h-screen bg-[#FDFDF7] font-sans text-gray-800 pb-20">
+        <main className="min-h-screen bg-[#FDFDF7]  text-gray-800 pb-20">
             <img src="/background/OvalBGLeft.svg" alt="" className="absolute h-[40rem] object-cover top-0 left-0 pointer-events-none" />
             <img src="/background/OvalBGRight.svg" alt="" className="absolute h-[40rem] object-cover bottom-0 right-0 pointer-events-none" />
 
@@ -353,8 +353,8 @@ export default function GradingClient({
                                 onClick={onSubmit}
                                 disabled={isSubmitting}
                                 className={`px-10 py-3 rounded-xl text-sm font-medium transition-all shadow-md ${isSubmitting
-                                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                                        : "bg-[#D6E63A] text-black hover:bg-[#C5D42E] active:scale-95"
+                                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                    : "bg-[#D6E63A] text-black hover:bg-[#C5D42E] active:scale-95"
                                     }`}
                             >
                                 {isSubmitting ? "Submitting..." : "Submit"}

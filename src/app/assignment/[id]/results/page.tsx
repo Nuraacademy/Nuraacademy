@@ -24,7 +24,7 @@ export default async function AssignmentResultsPage({
     if (!assignment) return notFound();
 
     return (
-        <main className="min-h-screen bg-[#FDFDF7] font-sans text-gray-800 pb-20">
+        <main className="min-h-screen bg-[#FDFDF7]  text-gray-800 pb-20">
             <img src="/background/OvalBGLeft.svg" alt="" className="absolute h-[40rem] object-cover top-0 left-0 pointer-events-none" />
             <img src="/background/OvalBGRight.svg" alt="" className="absolute h-[40rem] object-cover bottom-0 right-0 pointer-events-none" />
 
@@ -95,8 +95,8 @@ export default async function AssignmentResultsPage({
                                                         {res.totalScore || 0} / {res.maxScore || 100}
                                                     </span>
                                                     <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full uppercase tracking-tighter ${res.status === "Graded" ? "bg-green-100 text-green-700" :
-                                                            res.status === "To Grade" || res.status === "Submitted" ? "bg-amber-100 text-amber-700" :
-                                                                "bg-gray-100 text-gray-400"
+                                                        res.status === "To Grade" || res.status === "Submitted" ? "bg-amber-100 text-amber-700" :
+                                                            "bg-gray-100 text-gray-400"
                                                         }`}>
                                                         {res.status}
                                                     </span>

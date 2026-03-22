@@ -55,7 +55,7 @@ export default function FeedbackClient({
     };
 
     return (
-        <main className="min-h-screen bg-[#FDFDF7] font-sans text-gray-800 pb-20">
+        <main className="min-h-screen bg-[#FDFDF7]  text-gray-800 pb-20">
             {/* Background Orbs */}
             <img src="/background/OvalBGLeft.svg" alt="" className="absolute h-[40rem] object-cover top-0 left-0 pointer-events-none" />
             <img src="/background/OvalBGRight.svg" alt="" className="absolute h-[40rem] object-cover bottom-0 right-0 pointer-events-none" />

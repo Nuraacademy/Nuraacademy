@@ -74,7 +74,7 @@ export default function AddCurriculaPage() {
     };
 
     return (
-        <div className="relative min-h-screen w-full overflow-hidden font-sans pb-16">
+        <div className="relative min-h-screen w-full overflow-hidden  pb-16">
             <img
                 src="/background/OvalBGLeft.svg"
                 alt="Background"

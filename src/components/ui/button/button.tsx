@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils"; 
+import { cn } from "@/lib/utils";
 
 interface NuraButtonProps {
   label: string;
@@ -29,7 +29,7 @@ export const NuraButton = ({
   rightIcon,
   id,
 }: NuraButtonProps) => {
-  
+
   // Base styles: Removed hardcoded max-width to allow parent to control layout
   const baseStyles = "inline-flex min-w-[120px] items-center justify-center gap-2 rounded-xl transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 shadow-sm";
 

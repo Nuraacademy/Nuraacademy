@@ -24,7 +24,7 @@ export default async function MyProfilePage() {
         .slice(0, 2);
 
     return (
-        <div className="min-h-screen bg-[#F9F9EE] px-4 md:px-16 py-8 md:py-12 space-y-8 font-sans">
+        <div className="min-h-screen bg-[#F9F9EE] px-4 md:px-16 py-8 md:py-12 space-y-8 ">
             <Breadcrumb
                 items={[
                     { label: 'Home', href: '/' },

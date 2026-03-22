@@ -18,7 +18,7 @@ export default function AdminDashboard({ data }: DashboardProps) {
 
 
     return (
-        <div className="min-h-screen bg-[#F9F9EE] relative overflow-hidden font-sans">
+        <div className="min-h-screen bg-[#F9F9EE] relative overflow-hidden ">
             {/* Background Decorative Elements */}
             <div className="absolute top-0 left-0 w-full md:w-[60%] h-[40rem] pointer-events-none opacity-40">
                 <Image

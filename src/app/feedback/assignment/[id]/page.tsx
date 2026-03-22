@@ -27,7 +27,7 @@ export default async function AssignmentFeedbackLearnerListPage({
     const learners = result.success ? result.data : [];
 
     return (
-        <main className="min-h-screen bg-[#FDFDF7] font-sans text-gray-800 pb-20 relative">
+        <main className="min-h-screen bg-[#FDFDF7]  text-gray-800 pb-20 relative">
             <Sidebar />
 
             {/* Background Images */}
@@ -83,8 +83,8 @@ export default async function AssignmentFeedbackLearnerListPage({
                                         <td className="px-6 py-5 text-sm text-black font-medium">{res.name}</td>
                                         <td className="px-6 py-5">
                                             <span className={`text-[10px] font-medium px-3 py-1 rounded-full uppercase tracking-wider ${res.status === "Graded" ? "bg-green-100 text-green-700" :
-                                                    res.status === "To Grade" ? "bg-amber-100 text-amber-700" :
-                                                        "bg-gray-100 text-gray-500"
+                                                res.status === "To Grade" ? "bg-amber-100 text-amber-700" :
+                                                    "bg-gray-100 text-gray-500"
                                                 }`}>
                                                 {res.status}
                                             </span>

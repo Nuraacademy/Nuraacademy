@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Breadcrumb from '@/components/ui/breadcrumb/breadcrumb';
+import TitleCard from '@/components/ui/card/title_card';
 import { saveReflection, deleteReflection } from '@/app/actions/reflection';
 import { toast } from 'sonner';
 import { ConfirmModal } from '@/components/ui/modal/confirmation_modal';
@@ -75,14 +76,10 @@ export default function ReflectionClient({ classId, courseId, moduleId, data, in
 
     if (!isEditing && initialReflection) {
         return (
-            <div className="min-h-screen bg-[#FDFDF7] px-6 md:px-10 py-8 space-y-8 font-sans">
+            <div className="min-h-screen bg-[#FDFDF7] px-6 md:px-10 py-8 space-y-8 ">
                 <Breadcrumb items={breadcrumbItems} />
 
-                {/* Hero */}
-                <div className="bg-[#005954] rounded-[1.5rem] p-6 text-white shadow-sm">
-                    <h1 className="text-xl font-medium mb-1">Reflection</h1>
-                    <p className="text-sm opacity-90">{data.class.title} <span className="mx-2 opacity-50">|</span> {data.course.title}</p>
-                </div>
+                <TitleCard title="Reflection" />
 
                 {/* Details View */}
                 <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-100 flex flex-col gap-6">
@@ -149,13 +146,10 @@ export default function ReflectionClient({ classId, courseId, moduleId, data, in
     }
 
     return (
-        <div className="min-h-screen bg-[#FDFDF7] px-6 md:px-10 py-8 space-y-8 font-sans">
+        <div className="min-h-screen bg-[#FDFDF7] px-6 md:px-10 py-8 space-y-8 ">
             <Breadcrumb items={breadcrumbItems} />
 
-            {/* Hero */}
-            <div className="bg-[#005954] rounded-[1.5rem] p-6 text-white shadow-sm">
-                <h1 className="text-xl font-medium">{heroTitle}</h1>
-            </div>
+            <TitleCard title={heroTitle} />
 
             {/* Editor View */}
             <div className="bg-white rounded-[2rem] p-10 shadow-sm border border-gray-100 flex flex-col gap-10">

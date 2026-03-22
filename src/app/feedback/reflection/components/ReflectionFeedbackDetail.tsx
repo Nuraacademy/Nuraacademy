@@ -63,7 +63,7 @@ export default function ReflectionFeedbackDetail({ reflection, hasPrivilege }: R
     ];
 
     return (
-        <div className="min-h-screen bg-[#FDFDF7] px-6 md:px-10 py-8 space-y-8 font-sans">
+        <div className="min-h-screen bg-[#FDFDF7] px-6 md:px-10 py-8 space-y-8 ">
             <Breadcrumb items={breadcrumbItems} />
 
             {/* Hero */}

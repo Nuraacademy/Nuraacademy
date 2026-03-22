@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import { NuraButton } from "@/components/ui/button/button";
+import TitleCard from "@/components/ui/card/title_card";
 import { PAGE_DATA } from "../overview/constants";
 import { ASSIGNMENT_DATA } from "./constants";
 
@@ -21,25 +22,21 @@ export default function CourseAssignmentPage() {
     ];
 
     return (
-        <main className="min-h-screen bg-[#FDFDF7] font-sans pb-16">
+        <main className="min-h-screen bg-[#FDFDF7]  pb-16">
             <div className="max-w-7xl mx-auto px-6 md:px-10 py-8">
                 {/* Breadcrumb */}
                 <div className="mb-6">
                     <Breadcrumb items={breadcrumbItems} />
                 </div>
 
-                {/* Hero Title */}
-                <section className="bg-[#005954] rounded-[1.5rem] p-6 mb-8 flex items-center justify-between gap-4">
-                    <div className="flex flex-col gap-1">
-                        <h1 className="text-xl font-medium text-white">{ASSIGNMENT_DATA.title}</h1>
-                        <p className="text-xs text-white/80">
-                            {PAGE_DATA.classTitle} | {PAGE_DATA.courseTitle} | {ASSIGNMENT_DATA.context}
-                        </p>
-                    </div>
-                    <span className="px-3 py-1 bg-[#1C3A37] border border-white/20 rounded-full text-[10px] text-white/80 font-medium">
-                        {ASSIGNMENT_DATA.groupLabel}
-                    </span>
-                </section>
+                <TitleCard
+                    title={ASSIGNMENT_DATA.title}
+                    actions={
+                        <span className="px-3 py-1 bg-[#1C3A37] border border-white/20 rounded-full text-[10px] text-white/80 font-medium">
+                            {ASSIGNMENT_DATA.groupLabel}
+                        </span>
+                    }
+                />
 
                 {/* Main Content Card */}
                 <div className="bg-white rounded-[2rem] p-10 shadow-sm border border-gray-100 flex flex-col gap-8">

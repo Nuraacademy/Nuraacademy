@@ -3,6 +3,7 @@ import { getSessionById, getSessionPresence } from "@/controllers/sessionControl
 import { notFound } from "next/navigation";
 import PresenceClient from "./presence_client";
 import { hasPermission } from "@/lib/rbac";
+import TitleCard from "@/components/ui/card/title_card";
 
 export default async function PresenceAndSESPage({
     params
@@ -51,17 +52,14 @@ export default async function PresenceAndSESPage({
     ];
 
     return (
-        <main className="min-h-screen bg-[#F5F5EC] font-sans text-gray-800 pb-12">
+        <main className="min-h-screen bg-[#F5F5EC]  text-gray-800 pb-12">
             <div className="max-w-7xl mx-auto px-6 md:px-10 py-8">
                 {/* Breadcrumb */}
                 <div className="mb-6">
                     <Breadcrumb items={breadcrumbItems} />
                 </div>
 
-                {/* Banner */}
-                <div className="bg-[#005954] rounded-2xl p-6 mb-8">
-                    <h1 className="text-xl md:text-2xl font-medium text-white">Presence & SES</h1>
-                </div>
+                <TitleCard title="Presence & SES" />
 
                 {/* Content Card */}
                 <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-sm border border-gray-100">

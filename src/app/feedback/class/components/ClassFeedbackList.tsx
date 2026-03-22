@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Breadcrumb from '@/components/ui/breadcrumb/breadcrumb';
+import TitleCard from '@/components/ui/card/title_card';
 
 interface ClassFeedbackListProps {
     classId: string;
@@ -17,14 +18,10 @@ export default function ClassFeedbackList({ classId, data, feedbacks }: ClassFee
     ];
 
     return (
-        <div className="min-h-screen bg-[#FDFDF7] px-6 md:px-10 py-8 space-y-8 font-sans">
+        <div className="min-h-screen bg-[#FDFDF7] px-6 md:px-10 py-8 space-y-8 ">
             <Breadcrumb items={breadcrumbItems} />
 
-            {/* Hero */}
-            <div className="bg-[#005954] rounded-[1.5rem] p-6 text-white shadow-sm">
-                <h1 className="text-xl font-medium mb-1">{data.class.title} Feedback</h1>
-                <p className="text-sm opacity-90">{data.class.title}</p>
-            </div>
+            <TitleCard title={`${data.class.title} Feedback`} />
 
             {/* List View */}
             <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-100 flex flex-col gap-6">

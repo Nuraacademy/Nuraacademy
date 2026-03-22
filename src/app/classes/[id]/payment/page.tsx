@@ -95,7 +95,7 @@ export default function PaymentPage({ params }: PaymentPageProps) {
     const imageUrl = classData.imgUrl || "https://www.lackawanna.edu/wp-content/uploads/2024/08/male-tutor-teaching-university-students-in-classro-2023-11-27-05-16-59-utc.webp";
 
     return (
-        <main className="min-h-screen bg-white font-sans text-gray-800 relative overflow-hidden">
+        <main className="min-h-screen bg-white  text-gray-800 relative overflow-hidden">
             {/* Background Decorative Elements */}
             <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#A8BDB8] opacity-60 rounded-full blur-[100px] pointer-events-none -z-10" />
             <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#D9F55C] opacity-40 rounded-full blur-[100px] pointer-events-none -z-10" />

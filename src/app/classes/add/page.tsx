@@ -5,7 +5,7 @@ import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb"
 
 export default function AddClassPage() {
     return (
-        <main className="relative min-h-screen w-full overflow-hidden bg-white font-sans pb-16">
+        <main className="relative min-h-screen w-full overflow-hidden bg-white  pb-16">
             <SidebarWrapper />
 
             {/* Background Images */}

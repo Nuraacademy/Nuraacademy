@@ -14,7 +14,7 @@ export default function PeerResultsListClient({ classData, groupMembers, myEnrol
     const list = groupMembers.filter(m => m.id !== myEnrollmentId);
 
     return (
-        <div className="min-h-screen bg-[#F9F9EE] px-4 md:px-16 py-8 md:py-12 space-y-8 font-sans">
+        <div className="min-h-screen bg-[#F9F9EE] px-4 md:px-16 py-8 md:py-12 space-y-8 ">
             <Breadcrumb
                 items={[
                     { label: 'Home', href: '/' },

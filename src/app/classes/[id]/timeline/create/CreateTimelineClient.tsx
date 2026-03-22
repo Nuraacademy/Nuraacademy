@@ -7,6 +7,7 @@ import { NuraButton } from "@/components/ui/button/button"
 import { updateClassSchedule } from "@/app/actions/classes"
 import { FeedbackModal } from "@/components/ui/modal/feedback_modal"
 import M3DateTimePicker from "@/components/ui/input/datetime_picker"
+import Image from "next/image"
 
 type Props = {
     classData: any
@@ -146,8 +147,20 @@ export function CreateTimelineClient({ classData }: Props) {
     return (
         <main className="relative min-h-screen bg-white flex flex-col text-gray-800 overflow-hidden">
             {/* Background */}
-            <img src="/background/OvalBGLeft.svg" alt="" className="absolute h-[40rem] object-cover top-0 left-0 pointer-events-none select-none" />
-            <img src="/background/OvalBGRight.svg" alt="" className="absolute h-[40rem] object-cover bottom-0 right-0 pointer-events-none select-none z-0" />
+            <Image
+                src="/background/OvalBGLeft.svg"
+                alt=""
+                className="absolute top-0 left-0 z-10 w-auto h-[30rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
+            />
+            <Image
+                src="/background/OvalBGRight.svg"
+                alt=""
+                className="absolute bottom-0 right-0 z-10 w-auto h-[30rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
+            />
 
             <div className="flex-1 w-full max-w-7xl mx-auto px-6 py-8 relative z-10 flex flex-col">
                 <Breadcrumb items={breadcrumbBase} />

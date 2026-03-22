@@ -22,7 +22,7 @@ export default async function CourseOverviewPage({
     const canUpdateCourse = await hasPermission('Course', 'UPDATE_COURSE');
     const canCreatePlacement = await hasPermission('Class', 'PLACEMENT_TEST_CREATE');
     const canViewFeedbackReport = await hasPermission('Feedback', 'VIEW_DETAIL_REFLECTION');
-    
+
     const session = await getFullSession();
     const isLearner = session?.role === 'Learner';
 
@@ -53,7 +53,7 @@ export default async function CourseOverviewPage({
     const imageUrl = classData.imgUrl || "https://www.lackawanna.edu/wp-content/uploads/2024/08/male-tutor-teaching-university-students-in-classro-2023-11-27-05-16-59-utc.webp";
 
     return (
-        <main className="min-h-screen bg-[#F5F5EC] font-sans text-gray-800">
+        <main className="min-h-screen bg-[#F5F5EC]  text-gray-800">
             <SuccessHandler classId={id} timelines={classData.timelines || []} />
             <div className="max-w-7xl mx-auto px-6 md:px-10 py-8">
 
@@ -291,13 +291,13 @@ export default async function CourseOverviewPage({
                                     />
                                 ))}
                                 {projectAssignments.map((assignment) => (
-                                        <ProjectCard
-                                            key={assignment.id}
-                                            classId={id}
-                                            assignment={assignment}
-                                            isAdmin={canUpdateCourse}
-                                        />
-                                    ))}
+                                    <ProjectCard
+                                        key={assignment.id}
+                                        classId={id}
+                                        assignment={assignment}
+                                        isAdmin={canUpdateCourse}
+                                    />
+                                ))}
                                 {(!classData.courses || classData.courses.length === 0) && (
                                     <p className="text-sm text-gray-500 italic">No courses added yet.</p>
                                 )}

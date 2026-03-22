@@ -52,7 +52,7 @@ export const DiscussionTopicDialog = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-[10002] flex items-center justify-center p-4 font-sans">
+    <div className="fixed inset-0 z-[10002] flex items-center justify-center p-4 ">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity"

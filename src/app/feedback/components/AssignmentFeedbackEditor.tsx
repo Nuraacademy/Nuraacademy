@@ -100,7 +100,7 @@ export default function AssignmentFeedbackEditor({
     };
 
     return (
-        <main className="min-h-screen bg-[#FDFDF7] font-sans text-gray-800 pb-20 relative">
+        <main className="min-h-screen bg-[#FDFDF7]  text-gray-800 pb-20 relative">
             <Sidebar />
 
             <div className="absolute top-0 left-0 -z-10 w-full h-full overflow-hidden pointer-events-none opacity-40">

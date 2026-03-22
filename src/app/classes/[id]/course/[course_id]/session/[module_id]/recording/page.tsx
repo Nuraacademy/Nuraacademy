@@ -3,6 +3,7 @@ import { SessionVideoPlayer } from "@/components/ui/video/session_video_player";
 import { getSessionById } from "@/controllers/sessionController";
 import { notFound } from "next/navigation";
 import RecordingClient from "./recording_client";
+import TitleCard from "@/components/ui/card/title_card";
 
 export default async function SessionRecordingPage({
     params
@@ -29,7 +30,7 @@ export default async function SessionRecordingPage({
 
     if (!content?.recording) {
         return (
-            <main className="min-h-screen bg-[#FDFDF7] font-sans flex items-center justify-center">
+            <main className="min-h-screen bg-[#FDFDF7]  flex items-center justify-center">
                 <div className="p-10 text-center bg-white rounded-3xl shadow-sm border border-gray-100">
                     <h2 className="text-xl font-medium mb-4">No Recording Available</h2>
                     <p className="text-gray-600 mb-6">Recording is not available for this session at the moment.</p>
@@ -66,17 +67,14 @@ export default async function SessionRecordingPage({
     };
 
     return (
-        <main className="min-h-screen bg-[#FDFDF7] font-sans pb-16">
+        <main className="min-h-screen bg-[#FDFDF7]  pb-16">
             <div className="max-w-7xl mx-auto px-6 md:px-10 py-8">
                 {/* Breadcrumb */}
                 <div className="mb-6">
                     <Breadcrumb items={breadcrumbItems} />
                 </div>
 
-                {/* Hero Title */}
-                <section className="bg-[#005954] rounded-[1.5rem] p-6 mb-8 flex items-center gap-4">
-                    <h1 className="text-xl font-medium text-white">{session.title}</h1>
-                </section>
+                <TitleCard title={session.title} />
 
                 {/* Main Content Card */}
                 <div className="bg-white rounded-[2rem] p-10 shadow-sm border border-gray-100 flex flex-col gap-8">
