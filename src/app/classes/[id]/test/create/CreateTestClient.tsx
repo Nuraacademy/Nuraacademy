@@ -10,6 +10,7 @@ import { X, Plus, CheckCircle } from "lucide-react";
 import M3DateTimePicker from "@/components/ui/input/datetime_picker";
 import { useRouter } from "next/navigation";
 import { addAssignment, editAssignment, removeAssignment } from "@/app/actions/assignment";
+import { NuraTextInput } from "@/components/ui/input/text_input";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -105,7 +106,7 @@ function ObjectiveBlock({
     return (
         <div className={`bg-[#F0F5D8] rounded-2xl p-5 mb-4 border-2 transition-colors ${hasError ? "border-orange-200" : "border-transparent"}`}>
             <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-semibold text-gray-700">Question {index + 1}</span>
+                <span className="text-sm font-medium text-gray-700">Question {index + 1}</span>
                 <button onClick={onRemove} className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-lg hover:bg-white">
                     <X size={15} />
                 </button>
@@ -139,7 +140,7 @@ function ObjectiveBlock({
                             <button
                                 type="button"
                                 onClick={() => setCorrect(ans.id)}
-                                className={`px-3 py-2 rounded-lg text-xs font-semibold border transition-all shrink-0 ${ans.isCorrect
+                                className={`px-3 py-2 rounded-lg text-xs font-medium border transition-all shrink-0 ${ans.isCorrect
                                     ? "bg-[#D9F55C] border-[#D9F55C] text-black shadow-sm"
                                     : "bg-white border-gray-300 text-gray-400 hover:border-gray-400"
                                     }`}
@@ -199,7 +200,7 @@ function OpenEndedBlock({
     return (
         <div className={`bg-[#F0F5D8] rounded-2xl p-5 mb-4 border-2 transition-colors ${hasError ? "border-orange-200" : "border-transparent"}`}>
             <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-semibold text-gray-700">{label} {index + 1}</span>
+                <span className="text-sm font-medium text-gray-700">{label} {index + 1}</span>
                 <button onClick={onRemove} className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-lg hover:bg-white">
                     <X size={15} />
                 </button>
@@ -527,14 +528,15 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
     const breadcrumbBase = [
         { label: "Home", href: "/classes" },
         { label: classData.title || "Class Overview", href: `/classes/${classData.id}/overview` },
-        { label: existingTest ? "Edit Placement Test" : "Create Placement Test", href: "#" },
+        { label: "Placement Test", href: `/classes/${classData.id}/test` },
+        { label: existingTest ? "Edit" : "Create", href: `/classes/${classData.id}/test/create` },
     ];
 
     const savedCount = Object.values(courseData).filter((d) => d.saved).length;
     const TOTAL_COURSES = classData.courses?.length || 0;
 
     return (
-        <main className="relative min-h-screen max-w-7xl bg-white flex flex-col text-gray-800 overflow-hidden">
+        <main className="relative min-h-screen bg-white flex flex-col text-gray-800 overflow-hidden">
             {/* Background */}
             <Image
                 src="/background/OvalBGLeft.svg"
@@ -564,7 +566,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                 closeText={modal.closeText}
             />
 
-            <div className="relative z-10 max-w-5xl mx-auto w-full px-6 md:px-10 py-8">
+            <div className="relative z-10 max-w-7xl mx-auto w-full px-6 md:px-10 py-8">
 
                 {/* ══ OVERVIEW VIEW ══════════════════════════════════════════ */}
                 {view === "overview" && (
@@ -573,29 +575,29 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                         <h1 className="text-2xl font-medium mt-6 mb-6">{existingTest ? "Edit Test" : "Create Test"}</h1>
 
                         {/* ── Form Row ── */}
-                        <div className="grid grid-cols-1 md:grid-cols-[1fr_120px_240px_180px] gap-4 items-start mb-8">
+                        <div className="grid grid-cols-1 md:grid-cols-[1fr_120px_240px_240px] gap-4 items-start mb-8">
 
                             {/* Class Title — Read Only */}
                             <div className="relative">
-                                <label className="block text-sm font-semibold mb-1">
+                                <label className="block text-sm font-medium mb-1">
                                     Class Title
                                 </label>
-                                <div className="w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-700">
-                                    {classData.title}
-                                </div>
+                                <NuraTextInput
+                                    value={classData.title}
+                                    disabled
+                                />
                             </div>
 
                             {/* Duration — Number */}
                             <div className="relative">
-                                <label className="block text-sm font-semibold mb-1">
+                                <label className="block text-sm font-medium mb-1">
                                     Duration <span className="text-gray-400 font-normal">(minutes)</span>
                                 </label>
-                                <input
-                                    type="number"
-                                    min={1}
+                                <NuraTextInput
+                                    variant="number"
                                     value={durationMinutes}
                                     onChange={(e) => setDurationMinutes(Math.max(1, parseInt(e.target.value) || 1))}
-                                    className="w-full rounded-full border border-gray-200 px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#D9F55C] bg-white"
+                                    placeholder="120"
                                 />
                             </div>
 
@@ -628,7 +630,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
 
                         {/* ── Course Questions ── */}
                         <div className="flex items-center justify-between mb-3">
-                            <h2 className="text-sm font-semibold">Course Questions</h2>
+                            <h2 className="text-sm font-medium">Course Questions</h2>
                             {savedCount > 0 && (
                                 <span className="text-xs text-gray-500 bg-[#F0F5D8] px-3 py-1 rounded-full">
                                     {savedCount} / {TOTAL_COURSES} courses configured
@@ -639,11 +641,6 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                         <div className="bg-[#F2F5DC] rounded-[2rem] p-5 space-y-3 mb-10">
                             {classData.courses?.map((course: any) => {
                                 const saved = courseData[course.id]?.saved;
-                                const courseMax = saved
-                                    ? courseData[course.id].objective.reduce((a, b) => a + b.score, 0) +
-                                    courseData[course.id].essay.reduce((a, b) => a + b.score, 0) +
-                                    courseData[course.id].project.reduce((a, b) => a + b.score, 0)
-                                    : 0;
                                 const totalQ = saved
                                     ? courseData[course.id].objective.length +
                                     courseData[course.id].essay.length +
@@ -655,7 +652,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                         <div className="flex items-center gap-3">
                                             {saved && <CheckCircle size={16} className="text-green-500 shrink-0" />}
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-semibold text-gray-800">{course.title}</span>
+                                                <span className="text-xs font-medium text-gray-800">{course.title}</span>
                                                 {saved && (
                                                     <p className="text-[10px] text-gray-400 mt-0.5">
                                                         {totalQ} question{totalQ !== 1 ? "s" : ""} added
@@ -701,7 +698,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                         {/* Course Title & Passing Grade */}
                         <div className="grid grid-cols-1 md:grid-cols-[1fr_240px] gap-6 mb-8">
                             <div>
-                                <label className="block text-sm font-semibold mb-1">Course Title</label>
+                                <label className="block text-sm font-medium mb-1">Course Title</label>
                                 <div className="w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-700">
                                     {selectedCourse.title}
                                 </div>
@@ -716,7 +713,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
 
                                 return (
                                     <div className="flex flex-col">
-                                        <label className="block text-sm font-semibold mb-1">Passing Grade</label>
+                                        <label className="block text-sm font-medium mb-1">Passing Grade</label>
                                         <div className={`flex items-center gap-2 border-b-2 transition-colors pb-1.5 ${isError ? "border-red-500" : "border-gray-200 focus-within:border-[#D9F55C]"}`}>
                                             <input
                                                 type="number"
@@ -743,7 +740,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
 
                         {/* ── Objective Questions ── */}
                         <section className="mb-6">
-                            <h2 className="text-sm font-semibold mb-3">Objective Questions</h2>
+                            <h2 className="text-sm font-medium mb-3">Objective Questions</h2>
                             {objectiveQuestions.length === 0 && (
                                 <p className="text-xs text-gray-400 italic mb-3">No objective questions yet.</p>
                             )}
@@ -771,7 +768,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
 
                         {/* ── Essay Questions ── */}
                         <section className="mb-6">
-                            <h2 className="text-sm font-semibold mb-3">Essay Questions</h2>
+                            <h2 className="text-sm font-medium mb-3">Essay Questions</h2>
                             {essayQuestions.length === 0 && (
                                 <p className="text-xs text-gray-400 italic mb-3">No essay questions yet.</p>
                             )}
@@ -799,7 +796,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
 
                         {/* ── Project Questions ── */}
                         <section className="mb-8">
-                            <h2 className="text-sm font-semibold mb-3">Project Questions</h2>
+                            <h2 className="text-sm font-medium mb-3">Project Questions</h2>
                             {projectQuestions.length === 0 && (
                                 <p className="text-xs text-gray-400 italic mb-3">No project questions yet.</p>
                             )}

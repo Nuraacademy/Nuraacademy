@@ -14,14 +14,14 @@ export function FinishedCard({ classId, testData, pageText, userName, totalScore
     return (
         <section className="mt-6 flex flex-col items-center pb-20">
             <div className="w-full bg-white rounded-[1.5rem] shadow-sm border border-gray-200 px-8 py-10 md:px-12 md:py-12 mb-8">
-                <h2 className="text-xl md:text-2xl font-medium text-gray-900">{userName || "Learner"}</h2>
-                <p className="text-sm md:text-base text-gray-700 mt-2 mb-8">{testData.courseName}</p>
+                <h2 className="text-lg md:text-lg font-medium text-gray-900">{userName || "Learner"}</h2>
+                <p className="text-sm md:text-sm text-gray-700 mt-2 mb-8">{testData.courseName}</p>
 
                 <hr className="border-gray-200 mb-8" />
 
                 {feedback && (
                     <div className="mb-10 animate-in fade-in slide-in-from-top-4 duration-700">
-                        <h3 className="text-sm md:text-base font-medium text-[#005954] mb-4 flex items-center gap-2">
+                        <h3 className="text-sm md:text-sm font-medium text-[#005954] mb-4 flex items-center gap-2">
                             <span className="w-2 h-2 rounded-full bg-[#DAEE49]"></span>
                             Trainer Feedback
                         </h3>

@@ -9,6 +9,7 @@ import TitleCard from "@/components/ui/card/title_card";
 import Image from "next/image";
 import { getSession } from "@/app/actions/auth";
 import { getEnrollment } from "@/controllers/enrollmentController";
+import { NotFoundState } from "@/components/ui/status/not_found_state";
 
 export default async function SessionPage({
     params
@@ -30,7 +31,11 @@ export default async function SessionPage({
     const isEnrolled = !!enrollment;
 
     if (!isEnrolled && !canUpdateSession) {
-        redirect(`/classes/${classId}/course/${courseId}/overview?error=not_enrolled`)
+        return <NotFoundState
+            title="Not Enrolled"
+            message="You are not enrolled in this class. Please enroll to access this session."
+            href={`/classes/${classId}/enrollment`}
+        />
     }
 
     if (!session) {

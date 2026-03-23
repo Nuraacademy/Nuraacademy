@@ -604,7 +604,7 @@ export function TestRunner({
   )
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto mt-4">
       <TitleCard title={pageText.bannerTitle} />
 
       {isFinished ? (

@@ -76,7 +76,7 @@ export default function ReflectionClient({ classId, courseId, moduleId, data, in
 
     if (!isEditing && initialReflection) {
         return (
-            <div className="min-h-screen bg-[#FDFDF7] px-6 md:px-10 py-8 space-y-8 ">
+            <div className="min-h-screen max-w-7xl mx-auto bg-[#FDFDF7] px-6 md:px-10 py-8 space-y-8 ">
                 <Breadcrumb items={breadcrumbItems} />
 
                 <TitleCard title="Reflection" />
@@ -116,16 +116,14 @@ export default function ReflectionClient({ classId, courseId, moduleId, data, in
 
                     {!initialReflection.feedback && (
                         <div className="flex justify-end items-center gap-4 mt-4">
-                            <button
+                            <NuraButton
+                                label="Delete"
+                                variant="secondary"
                                 onClick={() => setIsModalOpen(true)}
-                                className="px-6 py-2.5 text-xs font-medium text-gray-900 hover:text-red-500 transition-colors"
-                            >
-                                Delete
-                            </button>
+                            />
                             <NuraButton
                                 label="Edit"
                                 variant="primary"
-                                className="min-w-[140px] h-11 text-xs font-medium rounded-xl bg-[#D9F55C] hover:bg-[#c8e54b] text-black border-none shadow-none"
                                 onClick={() => setIsEditing(true)}
                             />
                         </div>
@@ -146,7 +144,7 @@ export default function ReflectionClient({ classId, courseId, moduleId, data, in
     }
 
     return (
-        <div className="min-h-screen bg-[#FDFDF7] px-6 md:px-10 py-8 space-y-8 ">
+        <div className="min-h-screen max-w-7xl mx-auto bg-[#FDFDF7] px-6 md:px-10 py-8 space-y-8 ">
             <Breadcrumb items={breadcrumbItems} />
 
             <TitleCard title={heroTitle} />
@@ -159,7 +157,7 @@ export default function ReflectionClient({ classId, courseId, moduleId, data, in
 
                 <div className="space-y-4">
                     <span className="text-sm font-medium text-gray-900">Answer</span>
-                    <div className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm p-4">
+                    <div className="mt-4 overflow-hidden bg-white">
                         <RichTextInput
                             value={content}
                             onChange={(val) => setContent(val)}
@@ -168,16 +166,14 @@ export default function ReflectionClient({ classId, courseId, moduleId, data, in
                 </div>
 
                 <div className="flex justify-end items-center gap-8">
-                    <button
+                    <NuraButton
+                        label="Cancel"
+                        variant="secondary"
                         onClick={() => initialReflection ? setIsEditing(false) : router.back()}
-                        className="text-xs font-medium text-gray-400 hover:text-gray-900 transition-colors"
-                    >
-                        Cancel
-                    </button>
+                    />
                     <NuraButton
                         label={isSaving ? "Saving..." : "Submit"}
                         variant="primary"
-                        className="min-w-[160px] h-10 text-sm font-medium"
                         onClick={handleSave}
                         disabled={isSaving}
                     />

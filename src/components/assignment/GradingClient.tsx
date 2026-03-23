@@ -6,6 +6,7 @@ import { NuraButton } from "@/components/ui/button/button";
 import { useRouter } from "next/navigation";
 import { FileText, Download, Pencil } from "lucide-react";
 import { toast } from "sonner";
+import TitleCard from "../ui/card/title_card";
 
 interface GradingData {
     id: number;
@@ -116,7 +117,7 @@ export default function GradingClient({
     };
 
     return (
-        <main className="min-h-screen bg-[#FDFDF7]  text-gray-800 pb-20">
+        <main className="min-h-screen bg-[#FDFDF7] max-w-7xl mx-auto text-gray-800 pb-20">
             <img src="/background/OvalBGLeft.svg" alt="" className="absolute h-[40rem] object-cover top-0 left-0 pointer-events-none" />
             <img src="/background/OvalBGRight.svg" alt="" className="absolute h-[40rem] object-cover bottom-0 right-0 pointer-events-none" />
 
@@ -125,12 +126,13 @@ export default function GradingClient({
                     <Breadcrumb items={breadcrumbItems} />
                 </div>
 
-                <div className="bg-[#00524D] rounded-2xl p-6 mb-10">
-                    <h1 className="text-2xl font-medium text-white">{title}</h1>
-                </div>
+                <TitleCard
+                    title={title}
+                    description={subtitle}
+                />
 
                 <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-sm border border-gray-100">
-                    <div className="mb-10">
+                    <div className="mb-4">
                         <h2 className="text-xl font-medium text-black mb-4">{learnerName}</h2>
                         {groupMembers.length > 0 && (
                             <ol className="space-y-2 ml-1">
@@ -142,37 +144,49 @@ export default function GradingClient({
                                 ))}
                             </ol>
                         )}
-                        <div className="h-px bg-gray-100 w-full mt-10" />
+                        <div className="h-px bg-gray-100 w-full" />
                     </div>
 
                     {/* Objective Section */}
                     {initialData.objective.length > 0 && (
                         <div className="mb-12">
-                            <h3 className="text-lg font-medium text-black mb-6">Objective Results</h3>
+                            <h3 className="text-md font-medium text-black mb-4">Soal Objektif</h3>
                             <div className="w-full border border-gray-200 rounded-[1.5rem] overflow-hidden">
                                 <table className="w-full text-left border-collapse">
                                     <thead>
                                         <tr className="border-b border-gray-200 bg-gray-50">
-                                            <th className="px-6 py-4 text-xs font-medium text-gray-500 w-16">No</th>
-                                            <th className="px-6 py-4 text-xs font-medium text-gray-500 w-1/3">Question</th>
-                                            <th className="px-6 py-4 text-xs font-medium text-gray-500">Given Answer</th>
-                                            <th className="px-6 py-4 text-xs font-medium text-gray-500 text-right">Score</th>
+                                            <th className="px-6 py-4 text-sm font-medium text-black w-16">No</th>
+                                            <th className="px-6 py-4 text-sm font-medium text-black w-1/3">Question</th>
+                                            <th className="px-6 py-4 text-sm font-medium text-black">Given Answer</th>
+                                            <th className="px-6 py-4 text-sm font-medium text-black">Correct Answer</th>
+                                            <th className="px-6 py-4 text-sm font-medium text-black text-right">Score</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {initialData.objective.map((item, idx) => (
                                             <tr key={item.resultItemId} className="border-b border-gray-100 last:border-0 h-full">
-                                                <td className="px-6 py-5 text-sm text-gray-600 font-medium">{idx + 1}</td>
-                                                <td className="px-6 py-5 text-sm text-black border-l border-r border-gray-100" dangerouslySetInnerHTML={{ __html: item.question }} />
-                                                <td className="px-6 py-5 text-sm text-gray-700">
+                                                <td className="px-6 py-5 text-xs text-gray-600">{idx + 1}</td>
+                                                <td className="px-6 py-5 text-xs text-black border-l border-r border-gray-100" dangerouslySetInnerHTML={{ __html: item.question }} />
+                                                <td className="px-6 py-5 text-xs text-gray-700 border-l border-r border-gray-100">
                                                     <div dangerouslySetInnerHTML={{ __html: isEmptyAnswer(item.givenAnswer) ? "-" : item.givenAnswer }} />
-                                                    <div className="text-[10px] text-green-600 font-medium mt-1 uppercase tracking-tighter">Correct: <span dangerouslySetInnerHTML={{ __html: item.correctAnswer }} /></div>
                                                 </td>
-                                                <td className="px-6 py-5 text-right text-sm font-medium text-black border-l border-gray-100">
+                                                <td className="px-6 py-5 text-xs text-gray-700 border-l border-r border-gray-100">
+                                                    <div dangerouslySetInnerHTML={{ __html: isEmptyAnswer(item.correctAnswer) ? "-" : item.correctAnswer }} />
+                                                </td>
+                                                <td className="px-6 py-5 text-right text-xs text-black border-l border-gray-100">
                                                     {item.score || 0}/{item.maxScore}
                                                 </td>
                                             </tr>
                                         ))}
+                                        <tr className="border-b border-gray-100 last:border-0 h-full">
+                                            <td className="px-6 py-5 text-sm text-black font-medium"></td>
+                                            <td className="px-6 py-5 text-sm text-gray-700"></td>
+                                            <td className="px-6 py-5 text-sm text-gray-700"></td>
+                                            <td className="px-6 py-5 text-right text-sm text-black font-medium">Total Score</td>
+                                            <td className="px-6 py-5 text-right text-sm font-medium text-black border-l border-r border-gray-100">
+                                                {initialData.objective.reduce((acc, item) => acc + (item.score || 0), 0)}/{initialData.objective.reduce((acc, item) => acc + (item.maxScore || 0), 0)}
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -182,23 +196,23 @@ export default function GradingClient({
                     {/* Essay Section */}
                     {initialData.essay.length > 0 && (
                         <div className="mb-12">
-                            <h3 className="text-lg font-medium text-black mb-6">Essay Evaluation</h3>
+                            <h3 className="text-lg font-medium text-black mb-4">Soal Essay</h3>
                             <div className="w-full border border-gray-200 rounded-[1.5rem] overflow-hidden">
                                 <table className="w-full text-left border-collapse">
                                     <thead>
                                         <tr className="border-b border-gray-200 bg-gray-50">
-                                            <th className="px-6 py-4 text-xs font-medium text-gray-500 w-16">No</th>
-                                            <th className="px-6 py-4 text-xs font-medium text-gray-500 w-1/3">Question</th>
-                                            <th className="px-6 py-4 text-xs font-medium text-gray-500">Student Response</th>
-                                            <th className="px-6 py-4 text-xs font-medium text-gray-500 text-right w-40">Score</th>
+                                            <th className="px-6 py-4 text-sm font-medium text-black w-16">No</th>
+                                            <th className="px-6 py-4 text-sm font-medium text-black w-1/3">Question</th>
+                                            <th className="px-6 py-4 text-sm font-medium text-black">Student Response</th>
+                                            <th className="px-6 py-4 text-sm font-medium text-black text-right w-40">Score</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {initialData.essay.map((item, idx) => (
                                             <tr key={item.resultItemId} className="border-b border-gray-100 last:border-0 h-full">
-                                                <td className="px-6 py-5 text-sm text-gray-600 font-medium align-top">{idx + 1}</td>
-                                                <td className="px-6 py-5 text-sm text-black align-top border-l border-r border-gray-100" dangerouslySetInnerHTML={{ __html: item.question }} />
-                                                <td className="px-6 py-5 text-sm text-gray-600 italic leading-relaxed whitespace-pre-wrap">
+                                                <td className="px-6 py-5 text-xs text-gray-600 align-top">{idx + 1}</td>
+                                                <td className="px-6 py-5 text-xs text-black align-top border-l border-r border-gray-100" dangerouslySetInnerHTML={{ __html: item.question }} />
+                                                <td className="px-6 py-5 text-xs text-gray-600 italic leading-relaxed whitespace-pre-wrap">
                                                     <div dangerouslySetInnerHTML={{ __html: isEmptyAnswer(item.givenAnswer) ? "-" : item.givenAnswer }} />
                                                 </td>
                                                 <td className="px-6 py-5 text-right align-top border-l border-gray-100">
@@ -210,12 +224,12 @@ export default function GradingClient({
                                                                     value={scores[item.resultItemId] ?? ""}
                                                                     placeholder="__"
                                                                     onChange={(e) => handleScoreChange(item.resultItemId, e.target.value, item.maxScore)}
-                                                                    className={`w-12 text-right text-base outline-none font-medium bg-transparent transition-colors ${getValidationError(scores[item.resultItemId], item.maxScore)
+                                                                    className={`w-12 text-right text-xs outline-none bg-transparent transition-colors ${getValidationError(scores[item.resultItemId], item.maxScore)
                                                                         ? "text-red-600"
                                                                         : "text-black"
                                                                         }`}
                                                                 />
-                                                                <span className="text-gray-400 text-sm font-medium">/{item.maxScore}</span>
+                                                                <span className="text-gray-400 text-xs font-medium">/{item.maxScore}</span>
                                                             </div>
                                                         </div>
                                                         <Pencil size={16} className={getValidationError(scores[item.resultItemId], item.maxScore) ? "text-red-400" : "text-gray-300 group-hover:text-gray-500 transition-colors"} />
@@ -228,16 +242,24 @@ export default function GradingClient({
                                                 </td>
                                             </tr>
                                         ))}
+                                        <tr className="border-b border-gray-100 last:border-0 h-full">
+                                            <td className="px-6 py-5 text-xs text-gray-600"></td>
+                                            <td className="px-6 py-5 text-xs text-black"></td>
+                                            <td className="px-6 py-5 text-right text-sm text-black font-medium">Total Score</td>
+                                            <td className="px-6 py-5 text-right text-sm font-medium text-black border-l border-r border-gray-100">
+                                                {initialData.essay.reduce((acc, item) => acc + (item.score || 0), 0)}/{initialData.essay.reduce((acc, item) => acc + (item.maxScore || 0), 0)}
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     )}
 
-                    {/* Project Result Section (Mockup Design) */}
+                    {/* Project Result Section */}
                     {initialData.project.length > 0 && (
                         <div className="mb-12">
-                            <h3 className="text-lg font-medium text-black mb-6">Project Result</h3>
+                            <h3 className="text-lg font-medium text-black mb-6">Soal Project</h3>
                             <div className="w-full border border-gray-200 rounded-[1.5rem] overflow-hidden">
                                 <table className="w-full text-left border-collapse">
                                     <thead>
@@ -245,6 +267,7 @@ export default function GradingClient({
                                             <th className="px-6 py-4 text-xs font-medium text-gray-500 w-16">No</th>
                                             <th className="px-6 py-4 text-xs font-medium text-gray-500 w-2/3">Question</th>
                                             <th className="px-6 py-4 text-xs font-medium text-gray-500">File Submission</th>
+                                            <th className="px-6 py-4 text-xs font-medium text-gray-500 text-right w-40">Score</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -271,35 +294,7 @@ export default function GradingClient({
                                                         {(!item.answerFiles || (Array.isArray(item.answerFiles) && item.answerFiles.length === 0)) && <span className="text-gray-400 italic">No files submitted.</span>}
                                                     </div>
                                                 </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Project Score Section (Mockup Design) */}
-                    {initialData.project.length > 0 && (
-                        <div className="mb-12">
-                            <h3 className="text-lg font-medium text-black mb-6">Project Score</h3>
-                            <div className="w-full border border-gray-200 rounded-[1.5rem] overflow-hidden">
-                                <table className="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr className="border-b border-gray-200 bg-gray-50">
-                                            <th className="px-6 py-4 text-xs font-medium text-gray-500 w-16">No</th>
-                                            <th className="px-6 py-4 text-xs font-medium text-gray-500">Parameter</th>
-                                            <th className="px-6 py-4 text-xs font-medium text-gray-500 text-right w-40">Score</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {initialData.project.map((item, idx) => (
-                                            <tr key={item.resultItemId} className="border-b border-gray-100 last:border-0 h-full">
-                                                <td className="px-6 py-5 text-sm text-gray-600 font-medium align-top leading-relaxed">{idx + 1}</td>
-                                                <td className="px-6 py-5 text-sm text-black align-top leading-relaxed border-l border-gray-100 border-r border-gray-100">
-                                                    <div className="font-medium text-gray-800" dangerouslySetInnerHTML={{ __html: item.question.replace(/<[^>]*>/g, '').split(':')[0] || "Parameter " + (idx + 1) }} />
-                                                </td>
-                                                <td className="px-6 py-5 text-right align-top">
+                                                <td className="px-6 py-5 text-right align-top border-l border-gray-100">
                                                     <div className="flex items-center justify-end gap-3 group">
                                                         <div className="flex flex-col items-end">
                                                             <div className="flex items-center gap-1 border-b border-gray-300 focus-within:border-[#00524D] transition-all pb-1">
@@ -308,18 +303,15 @@ export default function GradingClient({
                                                                     value={scores[item.resultItemId] ?? ""}
                                                                     placeholder="__"
                                                                     onChange={(e) => handleScoreChange(item.resultItemId, e.target.value, item.maxScore)}
-                                                                    className={`w-12 text-right text-base outline-none font-medium bg-transparent transition-colors ${getValidationError(scores[item.resultItemId], item.maxScore)
+                                                                    className={`w-12 text-right text-xs outline-none bg-transparent transition-colors ${getValidationError(scores[item.resultItemId], item.maxScore)
                                                                         ? "text-red-600"
                                                                         : "text-black"
                                                                         }`}
                                                                 />
-                                                                <span className="text-gray-400 text-sm font-medium">/{item.maxScore}</span>
+                                                                <span className="text-gray-400 text-xs font-medium">/{item.maxScore}</span>
                                                             </div>
                                                         </div>
-                                                        <Pencil
-                                                            size={16}
-                                                            className={getValidationError(scores[item.resultItemId], item.maxScore) ? "text-red-400" : "text-gray-300 group-hover:text-gray-500 transition-colors"}
-                                                        />
+                                                        <Pencil size={16} className={getValidationError(scores[item.resultItemId], item.maxScore) ? "text-red-400" : "text-gray-300 group-hover:text-gray-500 transition-colors"} />
                                                     </div>
                                                     {getValidationError(scores[item.resultItemId], item.maxScore) && (
                                                         <p className="text-[10px] text-red-500 mt-2 font-medium italic">
@@ -329,12 +321,19 @@ export default function GradingClient({
                                                 </td>
                                             </tr>
                                         ))}
+                                        <tr>
+                                            <td className="px-6 py-5 text-xs text-gray-600"></td>
+                                            <td className="px-6 py-5 text-xs text-black"></td>
+                                            <td className="px-6 py-5 text-right text-sm text-black font-medium">Total Score</td>
+                                            <td className="px-6 py-5 text-right text-sm font-medium text-black border-l border-r border-gray-100">
+                                                {initialData.project.reduce((acc, item) => acc + (item.score || 0), 0)}/{initialData.project.reduce((acc, item) => acc + (item.maxScore || 0), 0)}
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     )}
-
 
                     {/* Final Footer */}
                     <div className="mt-8 flex flex-col items-end pt-8">

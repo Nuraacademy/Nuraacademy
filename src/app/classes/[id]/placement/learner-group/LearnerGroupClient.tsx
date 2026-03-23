@@ -9,6 +9,7 @@ import { Check, Plus, Save, Users } from "lucide-react";
 import { hasPermission } from "@/lib/rbac";
 import { assignGroupsAction } from "@/app/actions/placement";
 import { toast } from "sonner";
+import TitleCard from "@/components/ui/card/title_card";
 
 interface Course {
     id: number;
@@ -119,35 +120,33 @@ export default function LearnerGroupClient({
                     />
                 </div>
 
-                <div className="bg-[#00524D] rounded-xl p-6 mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl font-medium text-white">Learner Group</h1>
-                        <p className="text-emerald-100 text-sm mt-1">Status matrix and group assignment</p>
+                <TitleCard
+                    title="Learner Group"
+                    description="Status matrix and group assignment"
+                    actions={
+                        canManage && (
+                            <div className="flex bg-white/10 rounded-xl p-1 border border-white/20">
+                                <input
+                                    type="text"
+                                    placeholder="New group name..."
+                            className="bg-transparent text-white placeholder:text-white/50 px-4 py-2 outline-none text-sm w-48"
+                            value={newGroupName}
+                            onChange={(e) => setNewGroupName(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleCreateGroup()}
+                        />
+                        <button
+                            onClick={handleCreateGroup}
+                            className="bg-white text-[#00524D] p-2 rounded-lg hover:bg-emerald-50 transition-colors"
+                            title="Create Group"
+                        >
+                            <Plus size={18} />
+                        </button>
                     </div>
-                    {canManage && (
-                        <div className="flex bg-white/10 rounded-xl p-1 border border-white/20">
-                            <input
-                                type="text"
-                                placeholder="New group name..."
-                                className="bg-transparent text-white placeholder:text-white/50 px-4 py-2 outline-none text-sm w-48"
-                                value={newGroupName}
-                                onChange={(e) => setNewGroupName(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && handleCreateGroup()}
-                            />
-                            <button
-                                onClick={handleCreateGroup}
-                                className="bg-white text-[#00524D] p-2 rounded-lg hover:bg-emerald-50 transition-colors"
-                                title="Create Group"
-                            >
-                                <Plus size={18} />
-                            </button>
-                        </div>
-                    )}
-                </div>
+                )} />
 
                 <div className="bg-white rounded-xl p-8 md:p-12 shadow-sm border border-gray-100">
                     <div className="mb-8 flex items-center justify-between">
-                        <h2 className="text-lg font-medium text-black">Student Course Pass List</h2>
+                        <h2 className="text-md font-medium text-black">Student Course Pass List</h2>
                         <div className="flex items-center gap-2 text-sm text-gray-500">
                             <Users size={16} />
                             <span>{initialData.learners.length} Students</span>
@@ -159,13 +158,13 @@ export default function LearnerGroupClient({
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="border-b border-black">
-                                    <th className="px-8 py-5 text-xs font-medium text-black uppercase tracking-tight">Name</th>
+                                    <th className="px-8 py-5 text-sm text-gray-800">Name</th>
                                     {initialData.courses.map(course => (
-                                        <th key={course.id} className="px-4 py-5 text-xs font-medium text-black text-center uppercase tracking-tight">
+                                        <th key={course.id} className="px-4 py-5 text-sm text-gray-800 text-center">
                                             {course.title}
                                         </th>
                                     ))}
-                                    <th className="px-8 py-5 text-xs font-medium text-black text-center uppercase tracking-tight w-48">Group</th>
+                                    <th className="px-8 py-5 text-sm text-gray-800 text-center w-48">Group</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -174,7 +173,7 @@ export default function LearnerGroupClient({
                                         key={learner.enrollmentId}
                                         className={`${idx !== initialData.learners.length - 1 ? "border-b border-gray-100" : ""} hover:bg-gray-50/50 transition-colors`}
                                     >
-                                        <td className="px-8 py-6 text-sm text-black font-semibold">{learner.name}</td>
+                                        <td className="px-8 py-6 text-sm text-gray-600">{learner.name}</td>
                                         {initialData.courses.map(course => {
                                             const status = learner.courses.find(c => c.courseId === course.id);
                                             return (
@@ -202,7 +201,7 @@ export default function LearnerGroupClient({
                                                     ))}
                                                 </select>
                                             ) : (
-                                                <span className={`px-4 py-1.5 rounded-full text-xs font-medium ${learner.group !== "-" ? "bg-emerald-100 text-[#00524D]" : "bg-gray-100 text-gray-500"}`}>
+                                                <span className={`px-4 py-1.5 rounded-full text-xs font-medium ${learner.group !== "-" ? "bg-emerald-100 text-[#00524D]" : "bg-gray-100 text-gray-800"}`}>
                                                     {learner.group === "-" ? "Ungrouped" : learner.group}
                                                 </span>
                                             )}

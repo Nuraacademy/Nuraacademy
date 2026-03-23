@@ -5,6 +5,7 @@ import Image from "next/image";
 import { NuraButton } from "@/components/ui/button/button";
 import { useRouter } from "next/navigation";
 import { ChevronRight } from "lucide-react";
+import TitleCard from "@/components/ui/card/title_card";
 
 interface Result {
     enrollmentId: number;
@@ -28,7 +29,7 @@ export default function PlacementResultsClient({
     const router = useRouter();
 
     return (
-        <main className="min-h-screen bg-[#FDFDF7]  text-gray-800 pb-16">
+        <main className="min-h-screen bg-[#FDFDF7] max-w-7xl mx-auto text-gray-800 pb-16">
             {/* Background */}
             <Image
                 src="/background/OvalBGLeft.svg"
@@ -45,23 +46,23 @@ export default function PlacementResultsClient({
                 height={500}
             />
 
-            <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 py-8">
+            <div className="relative z-10 px-6 md:px-10 py-8">
                 {/* Breadcrumb */}
                 <div className="mb-6">
                     <Breadcrumb
                         items={[
                             { label: "Home", href: "/classes" },
                             { label: classTitle, href: `/classes/${classId}/overview` },
+                            { label: "Placement Test", href: `#` },
                             { label: "Results", href: "#" },
                         ]}
                     />
                 </div>
 
-                {/* Banner */}
-                <div className="bg-[#00524D] rounded-xl p-6 mb-10">
-                    <h1 className="text-2xl font-medium text-white">Placement Test Results</h1>
-                    <p className="text-white/80 text-sm mt-1">Review and grade placement tests for all enrolled learners.</p>
-                </div>
+                <TitleCard
+                    title="Placement Test Results"
+                    description="Review and grade placement tests for all enrolled learners."
+                />
 
                 {/* Content Card */}
                 <div className="bg-white rounded-xl p-8 md:p-12 shadow-sm border border-gray-100">
