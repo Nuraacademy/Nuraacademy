@@ -83,7 +83,10 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
         exercise: "/icons/sidebar/SubExercise.svg",
         project: "/icons/sidebar/SubFinalProject.svg",
         feedback: "/icons/feedback/ClassFeedback.svg",
-        reflection: "/icons/feedback/ReflectionFeedback.svg"
+        reflection: "/icons/feedback/ReflectionFeedback.svg",
+        assignment: "/icons/sidebar/SubExercise.svg",
+        peer: "/icons/feedback/PeerFeedback.svg",
+        class: "/icons/feedback/ClassFeedback.svg"
     }
 
     return (

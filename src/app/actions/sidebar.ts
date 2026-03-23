@@ -52,19 +52,36 @@ export async function getSidebarData() {
         });
         const isLearner = user?.role?.name === 'Learner';
 
-        // 3. Fetch Upcoming Assignments for these classes
+        // 3. Fetch Assignments for this user (same logic as /assignment page)
+        const isAdmin = user?.role?.name === 'Admin' || user?.role?.name === 'Instructor' || user?.role?.name === 'Superadmin';
+        
+        let assignments = [];
         const classIds = enrollments.map(en => en.classId);
-        const assignments = await prisma.assignment.findMany({
-            where: {
-                classId: { in: classIds },
-                deletedAt: null,
-                endDate: { gte: new Date() }
-            },
-            orderBy: {
-                endDate: 'asc'
-            },
-            take: 5 // Limit to avoid clutter
-        });
+        
+        if (!isAdmin && isLearner) {
+            assignments = await prisma.assignment.findMany({
+                where: {
+                    classId: { in: classIds },
+                    deletedAt: null,
+                    NOT: {
+                        assignmentResults: {
+                            some: {
+                                enrollment: { userId: userId },
+                                finishedAt: { not: null }
+                            }
+                        }
+                    }
+                },
+                orderBy: { endDate: 'asc' }, // nearest due date order
+                take: 6
+            });
+        } else {
+            assignments = await prisma.assignment.findMany({
+                where: { deletedAt: null },
+                orderBy: { endDate: 'asc' }, // nearest due date order
+                take: 6
+            });
+        }
 
         const { getAssignmentEndpoint, mapPrismaAssignmentType } = await import("@/utils/assignment");
 
@@ -85,68 +102,36 @@ export async function getSidebarData() {
             };
         });
 
-        // 4. Generate Course-level Reflection/Feedback links (based on CourseReflectionLink logic)
-        // Use a Set to keep unique courses if user has multiple enrollments (unlikely but safe)
-        const feedbackLinks: any[] = [];
-        const processedCourseIds = new Set<number>();
-
-        // Fetch user's class feedback status
-        const classFeedbacks = await prisma.classFeedback.findMany({
-            where: { userId, deletedAt: null },
-            select: { classId: true }
-        });
-        const submittedClassIds = new Set(classFeedbacks.map(f => f.classId));
-
-        enrollments.forEach(en => {
-            // Add Class Feedback link
-            const hasSubmitted = submittedClassIds.has(en.classId);
-
-            // For learners, only show if NOT submitted. For staff, always show (to view list).
-            if (!isLearner || !hasSubmitted) {
-                feedbackLinks.push({
-                    id: `class-fb-${en.classId}`,
-                    name: isLearner ? `${en.class.title} Feedback` : `${en.class.title} Feedback`,
-                    type: 'feedback',
-                    href: isLearner
-                        ? `/classes/${en.classId}/feedback`
-                        : `/feedback/class/${en.classId}`
-                });
-            }
-
-            en.class.courses.forEach(course => {
-                if (!processedCourseIds.has(course.id)) {
-                    processedCourseIds.add(course.id);
-
-                    const isInstructor = !isLearner;
-
-                    feedbackLinks.push({
-                        id: `course-ref-${course.id}`,
-                        name: isInstructor ? `${course.title} Feedback` : `${course.title} Reflection`,
-                        type: isInstructor ? 'feedback' : 'reflection',
-                        href: isInstructor
-                            ? `/feedback/reflection/course/${course.id}`
-                            : `/classes/${en.classId}/course/${course.id}/reflection`
-                    });
-                }
-            });
-        });
-
-        // 5. Add "My feedback" for Learners
+        // 4. Fetch Actual Feedback Items (same as /feedback page)
+        const { getFeedbacks, getFeedbackHubData } = await import("@/app/actions/feedback");
+        let allFeedbacks: any[] = [];
+        
         if (isLearner) {
-            feedbackLinks.unshift({
-                id: 'my-feedback',
-                name: 'My feedback',
-                type: 'feedback',
-                href: '/feedback'
-            });
+            const hubRes = await getFeedbackHubData();
+            if (hubRes.success && hubRes.data) {
+                allFeedbacks = hubRes.data.received || [];
+            }
+        } else {
+            const res = await getFeedbacks();
+            if (res.success && res.data) {
+                allFeedbacks = res.data;
+            }
         }
+
+        // The feedbacks returned are already sorted by createdAt desc. We just take top 6.
+        const feedbackLinks = allFeedbacks.slice(0, 6).map(f => ({
+            id: f.id.toString(),
+            name: f.title,
+            type: f.type.toLowerCase(), // 'reflection', 'assignment', 'peer', 'class'
+            href: f.href
+        }));
 
         return {
             success: true,
             data: {
                 myClasses: myClasses.slice(0, 5),
-                assignments: formattedAssignments,
-                feedbacks: feedbackLinks.slice(0, 5)
+                assignments: formattedAssignments.slice(0, 6),
+                feedbacks: feedbackLinks
             }
         };
     } catch (error: any) {
