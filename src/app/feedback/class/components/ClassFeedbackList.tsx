@@ -18,7 +18,7 @@ export default function ClassFeedbackList({ classId, data, feedbacks }: ClassFee
     ];
 
     return (
-        <div className="min-h-screen bg-[#FDFDF7] px-6 md:px-10 py-8 space-y-8 ">
+        <div className="min-h-screen max-w-7xl mx-auto bg-[#FDFDF7] px-6 md:px-10 py-8 space-y-8 ">
             <Breadcrumb items={breadcrumbItems} />
 
             <TitleCard title={`${data.class.title} Feedback`} />

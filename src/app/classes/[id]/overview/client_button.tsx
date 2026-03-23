@@ -94,7 +94,7 @@ export function PlacementTestButton({
             {isAdmin && (
                 <NuraButton
                     label="Mapping"
-                    variant="secondary"
+                    variant="primary"
                     onClick={() => router.push(`/classes/${classId}/placement/results`)}
                 />
             )}
