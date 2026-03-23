@@ -360,9 +360,10 @@ export default function DiscussionTopicPage({
                                 </div>
                             </div>
 
-                            <p className="text-gray-700 leading-[1.7] text-base mb-10 max-w-5xl">
-                                {discussion_data.content}
-                            </p>
+                            <div 
+                                className="prose prose-base max-w-5xl text-gray-700 leading-[1.7] mb-10"
+                                dangerouslySetInnerHTML={{ __html: discussion_data.content }}
+                            />
 
                             <div className="flex items-center text-gray-500 gap-10">
                                 <button
@@ -449,9 +450,10 @@ export default function DiscussionTopicPage({
                                                 )}
                                             </div>
                                         </div>
-                                        <p className="text-gray-700 leading-[1.7] text-base mb-6 whitespace-pre-wrap">
-                                            {reply.text}
-                                        </p>
+                                        <div 
+                                            className="prose prose-base max-w-none text-gray-700 leading-[1.7] mb-6"
+                                            dangerouslySetInnerHTML={{ __html: reply.text }}
+                                        />
                                         <div className="flex items-center text-gray-500 gap-8">
                                             <button
                                                 onClick={() => handleToggleLikeReply((reply as any).id)}

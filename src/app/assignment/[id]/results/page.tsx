@@ -6,6 +6,7 @@ import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import Link from "next/link";
 import { format } from "date-fns";
 import { notFound } from "next/navigation";
+import TitleCard from "@/components/ui/card/title_card";
 
 export default async function AssignmentResultsPage({
     params
@@ -53,18 +54,11 @@ export default async function AssignmentResultsPage({
                         ]}
                     />
                 </div>
-
-                <div className="bg-[#00524D] rounded-xl p-6 mb-10 shadow-sm relative overflow-hidden">
-                    <div className="relative z-10 flex items-center justify-between">
-                        <div>
-                            <h1 className="text-2xl font-medium text-white">{assignment.title}</h1>
-                            <p className="text-white/80 text-sm mt-1">{assignment.class?.title} | {assignment.course?.title} {(assignment as any).session ? `| ${(assignment as any).session.title}` : ""}</p>
-                        </div>
-                        <span className="bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-medium text-white uppercase tracking-wider border border-white/10">
-                            {assignment.submissionType}
-                        </span>
-                    </div>
-                </div>
+                
+                <TitleCard
+                    title={assignment.title}
+                    description={`${assignment.class?.title} | ${assignment.course?.title} ${(assignment as any).session ? `| ${(assignment as any).session.title}` : ""}`}
+                />
 
                 <div className="bg-white rounded-xl p-8 md:p-12 shadow-sm border border-gray-100">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 text-sm">
@@ -120,7 +114,7 @@ export default async function AssignmentResultsPage({
                                             <td className="px-6 py-5 text-right">
                                                 <Link
                                                     href={`/assignment/${id}/results/${res.isGroup ? encodeURIComponent(res.name) : (res.id || res.enrollmentId)}/grade`}
-                                                    className="text-xs text-[#00524D] hover:underline"
+                                                    className="text-sm font-medium underline text-[#00524D] hover:underline"
                                                 >
                                                     Grade
                                                 </Link>
@@ -129,7 +123,7 @@ export default async function AssignmentResultsPage({
                                                 {!res.isGroup ? (
                                                     <Link
                                                         href={`/feedback/assignment/${id}/learner/${res.enrollmentId}`}
-                                                        className="inline-flex items-center justify-center px-6 py-2 bg-[#DAEE49] text-[#00524D] text-xs font-black rounded-full hover:bg-[#C9D942] transition-all shadow-sm hover:shadow-md uppercase tracking-widest whitespace-nowrap"
+                                                        className="text-sm font-medium underline text-[#00524D] hover:underline"
                                                     >
                                                         Feedback
                                                     </Link>

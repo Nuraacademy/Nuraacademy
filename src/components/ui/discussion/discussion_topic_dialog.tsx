@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { NuraButton } from '../button/button';
 import { NuraTextInput } from '../input/text_input';
-import { NuraTextArea } from '../input/text_area';
+import { RichTextInput } from '../input/rich_text_input';
 import { NuraSelect } from '../input/nura_select';
 
 interface DiscussionTopicDialogProp {
@@ -85,15 +85,15 @@ export const DiscussionTopicDialog = ({
             />
           )}
 
-          {/* Description Textarea */}
+          {/* Description RichText */}
           <div className="flex flex-col">
             <label className="block text-sm font-medium mb-1 px-1">Description</label>
-            <NuraTextArea
-              label="Description"
-              placeholder={isReply ? "Write your reply here..." : "As a new student to software engineering..."}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
+            <div className="border border-gray-200 rounded-xl overflow-hidden bg-white">
+                <RichTextInput
+                  value={description}
+                  onChange={(val) => setDescription(val)}
+                />
+            </div>
           </div>
         </div>
 

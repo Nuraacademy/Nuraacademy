@@ -47,7 +47,7 @@ export default function DiscussionPage() {
                 author: d.authorName,
                 timeAgo: "12 hours ago", // Placeholder to match image exactly, or use real logic: new Date(d.createdAt).toLocaleDateString()
                 title: d.title,
-                preview: d.content,
+                preview: (d.content || "").replace(/<[^>]*>?/gm, ''),
                 likeCount: d.likeCount,
                 repliesCount: d.repliesCount,
                 type: parseDiscussionType(d.type),
