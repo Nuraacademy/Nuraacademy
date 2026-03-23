@@ -77,7 +77,7 @@ export default function AddBlogPage() {
                 </button>
 
                 <div className="flex justify-between items-center mb-12">
-                    <h1 className="text-4xl font-extrabold text-gray-950">Add Blog</h1>
+                    <h1 className="text-3xl font-medium tracking-tight text-black">Add Blog</h1>
                     <div className="flex gap-4">
                         <button
                             onClick={() => router.back()}

@@ -41,30 +41,30 @@ export const BlogCard = ({
             {/* Content */}
             <div className="flex flex-col flex-1 gap-4">
                 <div className="flex flex-col gap-1.5">
-                    <h3 className="font-medium text-base text-gray-900 leading-snug line-clamp-2">
+                    <h3 className="text-xl font-medium text-gray-900 leading-tight line-clamp-2">
                         {title}
                     </h3>
 
                     {/* Metadata */}
-                    <div className="flex flex-wrap items-center gap-3 text-[10px] text-gray-500 font-medium">
-                        <div className="flex items-center gap-1">
-                            <User size={14} strokeWidth={1.5} className="text-lime-600" />
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 font-medium opacity-80">
+                        <div className="flex items-center gap-1.5">
+                            <User size={15} strokeWidth={1.5} className="text-lime-600" />
                             <span>{authorName}</span>
                         </div>
-                        <div className="flex items-center gap-1">
-                            <Calendar size={14} strokeWidth={1.5} className="text-lime-600" />
+                        <div className="flex items-center gap-1.5">
+                            <Calendar size={15} strokeWidth={1.5} className="text-lime-600" />
                             <span>{date}</span>
                         </div>
-                        <div className="flex items-center gap-1">
-                            <Clock size={14} strokeWidth={1.5} className="text-lime-600" />
+                        <div className="flex items-center gap-1.5">
+                            <Clock size={15} strokeWidth={1.5} className="text-lime-600" />
                             <span>{readTime}</span>
                         </div>
                     </div>
                 </div>
 
-                <div className="text-left text-xs text-gray-700 flex flex-col gap-1.5">
-                    <span className="font-medium text-gray-900">Description</span>
-                    <p className="leading-relaxed line-clamp-3">
+                <div className="text-left text-gray-600 flex flex-col gap-2">
+                    <span className="font-semibold text-xs text-gray-900 uppercase tracking-wider">Description</span>
+                    <p className="text-sm leading-relaxed line-clamp-3">
                         {description}
                     </p>
                 </div>

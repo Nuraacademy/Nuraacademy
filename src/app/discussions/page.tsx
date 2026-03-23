@@ -105,7 +105,7 @@ export default function DiscussionPage() {
             <Image
                 src="/background/PolygonBGTop.svg"
                 alt=""
-                className="absolute top-0 left-0 -z-10 w-auto h-[40rem] pointer-events-none opacity-60"
+                className="absolute top-0 left-0 w-auto h-[40rem] pointer-events-none opacity-60"
                 width={500}
                 height={500}
                 priority
@@ -113,14 +113,14 @@ export default function DiscussionPage() {
             <Image
                 src="/background/PolygonBGBot.svg"
                 alt=""
-                className="absolute bottom-0 right-0 -z-10 w-auto h-[40rem] pointer-events-none opacity-60"
+                className="absolute bottom-0 right-0 w-auto h-[40rem] pointer-events-none opacity-60"
                 width={500}
                 height={500}
             />
 
             <div className="flex-grow z-1 mx-auto w-full max-w-7xl py-12 px-6 md:px-16">
                 <div className="flex flex-col gap-6 mb-12">
-                    <h1 className="text-5xl font-medium text-gray-950 tracking-tight">
+                    <h1 className="text-3xl font-medium text-black tracking-tight">
                         Forums
                     </h1>
 

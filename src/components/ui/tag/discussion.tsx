@@ -6,7 +6,7 @@ interface ForumTagProp {
 }
 
 export default function ForumTag({ type, label, color, className }: ForumTagProp) {
-    const base_style = "inline-flex items-center px-4 py-1 rounded-full text-[13px] font-semibold";
+    const base_style = "inline-flex items-center px-4 py-1 rounded-full text-[10px]";
     if (type !== null) {
         let color_style = "";
         if (type === "Technical Help") {

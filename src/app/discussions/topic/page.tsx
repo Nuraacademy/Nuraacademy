@@ -14,6 +14,8 @@ import { hasPermission } from '@/lib/rbac';
 import { useRouter } from 'next/navigation';
 import { ConfirmModal } from '@/components/ui/modal/confirmation_modal';
 import Image from 'next/image';
+import Sidebar from '@/components/ui/sidebar/sidebar';
+import { ShareModal } from '@/components/ui/modal/share_modal';
 
 // Mapping backend types to frontend types format
 const parseDiscussionType = (type: string) => {
@@ -35,7 +37,9 @@ export default function DiscussionTopicPage({
     const params = use(searchParams);
     const idStr = params.id;
     const router = useRouter();
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [sortRepliesBy, setSortRepliesBy] = useState("newest");
 
@@ -166,9 +170,7 @@ export default function DiscussionTopicPage({
     };
 
     const handleShare = () => {
-        const url = window.location.href;
-        navigator.clipboard.writeText(url);
-        toast.success("Link copied to clipboard!");
+        setIsShareModalOpen(true);
     };
 
     const handleToggleLike = async () => {
@@ -284,11 +286,12 @@ export default function DiscussionTopicPage({
 
     return (
         <main className="relative min-h-screen bg-white flex flex-col text-gray-800">
+            <Sidebar onOpenChange={setIsSidebarOpen} />
             {/* Background Image */}
             <Image
                 src="/background/PolygonBGTop.svg"
                 alt=""
-                className="absolute top-0 left-0 -z-10 w-auto h-[40rem] pointer-events-none opacity-60"
+                className="absolute top-0 left-0 w-auto h-[40rem] pointer-events-none opacity-60"
                 width={500}
                 height={500}
                 priority
@@ -296,12 +299,12 @@ export default function DiscussionTopicPage({
             <Image
                 src="/background/PolygonBGBot.svg"
                 alt=""
-                className="absolute bottom-0 right-0 -z-10 w-auto h-[40rem] pointer-events-none opacity-60"
+                className="absolute bottom-0 right-0 w-auto h-[40rem] pointer-events-none opacity-60"
                 width={500}
                 height={500}
             />
 
-            <div className="flex-grow mx-auto z-1 w-full max-w-7xl py-12 px-6 md:px-16">
+            <div className="flex-grow z-1 mx-auto w-full max-w-7xl py-12 px-6 md:px-16">
                 {/* Breadcrumbs */}
                 <Breadcrumb
                     items={[
@@ -311,7 +314,7 @@ export default function DiscussionTopicPage({
                     ]}
                 />
 
-                <h1 className="text-5xl font-medium text-gray-950 tracking-tight pt-10 pb-12">Forums</h1>
+                <h1 className="text-3xl font-medium text-black tracking-tight pt-10 pb-12">Forums</h1>
 
                 {isLoading || !discussion_data ? (
                     <div className="flex flex-col items-center justify-center p-20 gap-4">
@@ -321,8 +324,8 @@ export default function DiscussionTopicPage({
                 ) : (
                     <div className="flex flex-col gap-10">
                         {/* Main Post Card */}
-                        <div className="border border-gray-100 bg-white rounded-[2.5rem] p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
-                            <div className="flex items-center text-gray-400 text-sm font-medium mb-5">
+                        <div className="border border-gray-100 bg-white rounded-2xl p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+                            <div className="flex items-center text-gray-400 text-xs font-medium mb-5">
                                 <span>{discussion_data.author}</span>
                                 <span className="mx-2 text-[10px]">●</span>
                                 <span>{discussion_data.timeAgo}</span>
@@ -330,7 +333,7 @@ export default function DiscussionTopicPage({
 
                             <div className="flex items-center justify-between mb-6">
                                 <div className="flex items-center flex-wrap gap-4">
-                                    <h2 className="text-3xl font-medium text-gray-900 leading-tight">
+                                    <h2 className="text-2xl font-medium text-gray-900 leading-tight">
                                         {discussion_data.title}
                                     </h2>
                                     <ForumTag type={discussion_data.type} />
@@ -357,7 +360,7 @@ export default function DiscussionTopicPage({
                                 </div>
                             </div>
 
-                            <p className="text-gray-700 leading-[1.7] text-lg mb-10 max-w-5xl">
+                            <p className="text-gray-700 leading-[1.7] text-base mb-10 max-w-5xl">
                                 {discussion_data.content}
                             </p>
 
@@ -370,17 +373,17 @@ export default function DiscussionTopicPage({
                                         size={22}
                                         className={`stroke-[1.5] ${discussion_data.isLikedByCurrentUser ? 'fill-current' : ''}`}
                                     />
-                                    <span className="text-sm font-semibold">{discussion_data.likeCount} likes</span>
+                                    <span className="text-xs font-semibold">{discussion_data.likeCount} likes</span>
                                 </button>
 
                                 <div className='flex items-center gap-2'>
                                     <MessageCircle size={22} className="stroke-[1.5]" />
-                                    <span className="text-sm font-semibold">{discussion_data.repliesCount} replies</span>
+                                    <span className="text-xs font-semibold">{discussion_data.repliesCount} replies</span>
                                 </div>
 
                                 <button
                                     onClick={handleShare}
-                                    className='flex items-center gap-2 transition-all hover:text-green-500 hover:scale-105 font-semibold text-sm'
+                                    className='flex items-center gap-2 transition-all hover:text-green-500 hover:scale-105 font-semibold text-xs'
                                 >
                                     <Send size={21} className="stroke-[1.5]" />
                                     <span>{Math.floor(discussion_data.likeCount / 3)} shares</span>
@@ -389,10 +392,10 @@ export default function DiscussionTopicPage({
                         </div>
 
                         {/* Replies Section Container */}
-                        <div className="bg-white/40 backdrop-blur-md rounded-[3rem] p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-white/50">
+                        <div className="bg-white/40 backdrop-blur-md rounded-2xl p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-white/50">
                             {/* Replies Header */}
                             <div className="flex justify-between items-center mb-12">
-                                <h2 className="text-4xl font-medium text-gray-950">Replies</h2>
+                                <h2 className="text-2xl font-medium text-gray-900">Replies</h2>
                                 <div className="flex items-center gap-4">
                                     <NuraSelect
                                         options={sortOptions}
@@ -417,7 +420,7 @@ export default function DiscussionTopicPage({
                                 {sortedReplies.map((reply, index) => (
                                     <div key={index} className="border-b border-gray-100 pb-10 last:border-0 last:pb-0">
                                         <div className="flex items-center justify-between mb-4">
-                                            <div className="flex items-center text-gray-400 text-sm font-medium">
+                                            <div className="flex items-center text-gray-400 text-xs font-medium">
                                                 <span>{reply.author}</span>
                                                 <span className="mx-2 text-[10px]">●</span>
                                                 <span>{reply.timeAgo}</span>
@@ -446,7 +449,7 @@ export default function DiscussionTopicPage({
                                                 )}
                                             </div>
                                         </div>
-                                        <p className="text-gray-700 leading-[1.7] text-lg mb-6 whitespace-pre-wrap">
+                                        <p className="text-gray-700 leading-[1.7] text-base mb-6 whitespace-pre-wrap">
                                             {reply.text}
                                         </p>
                                         <div className="flex items-center text-gray-500 gap-8">
@@ -472,7 +475,7 @@ export default function DiscussionTopicPage({
                                 ))}
                                 {sortedReplies.length === 0 && (
                                     <div className="text-center py-10">
-                                        <p className="text-gray-400 text-lg">No replies yet. Be the first to join the conversation!</p>
+                                        <p className="text-gray-400 text-base">No replies yet. Be the first to join the conversation!</p>
                                     </div>
                                 )}
                             </div>
@@ -526,6 +529,13 @@ export default function DiscussionTopicPage({
                         setReplyToDelete(null);
                     }}
                     confirmText="Delete"
+                />
+
+                <ShareModal
+                    isOpen={isShareModalOpen}
+                    onClose={() => setIsShareModalOpen(false)}
+                    shareUrl={typeof window !== 'undefined' ? window.location.href : ""}
+                    title="Share Forum"
                 />
             </div>
         </main>

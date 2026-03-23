@@ -85,31 +85,30 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
                 height={500}
             />
 
-            <div className="max-w-[1440px] mx-auto px-6 pt-6 md:pl-16 relative z-10">
-                <div className="max-w-4xl">
+            <div className="max-w-7xl mx-auto px-6 pt-6 md:pl-16 relative z-10">
+                <div className="w-full">
                     <div className="mb-6">
-                        {/* Slightly smaller and lighter breadcrumbs */}
                         <div className="scale-90 origin-left opacity-80">
                             <Breadcrumb items={breadcrumbItems} />
                         </div>
                     </div>
 
-                    <h1 className="text-4xl md:text-5xl font-medium text-gray-900 mb-6 leading-tight tracking-tight">
+                    <h1 className="text-3xl font-medium text-gray-900 mb-6 leading-tight tracking-tight">
                         {blog.title}
                     </h1>
 
-                    <div className="flex flex-wrap items-center justify-between gap-6 mb-8">
-                        <div className="flex items-center gap-5 text-gray-500 text-sm font-medium">
-                            <div className="flex items-center gap-1.5 opacity-80">
-                                <User size={16} strokeWidth={1.5} className="text-gray-900" />
+                    <div className="flex flex-wrap items-center justify-between mb-8">
+                        <div className="flex items-center gap-5 text-gray-500 text-xs font-medium opacity-80">
+                            <div className="flex items-center gap-1.5">
+                                <User size={15} strokeWidth={1.5} className="text-gray-900" />
                                 <span>{blog.user.name || blog.user.username}</span>
                             </div>
-                            <div className="flex items-center gap-1.5 opacity-80">
-                                <Calendar size={16} strokeWidth={1.5} className="text-gray-900" />
+                            <div className="flex items-center gap-1.5">
+                                <Calendar size={15} strokeWidth={1.5} className="text-gray-900" />
                                 <span>{format(new Date(blog.createdAt), "dd MMMM yyyy")}</span>
                             </div>
-                            <div className="flex items-center gap-1.5 opacity-80">
-                                <Clock size={16} strokeWidth={1.5} className="text-gray-900" />
+                            <div className="flex items-center gap-1.5">
+                                <Clock size={15} strokeWidth={1.5} className="text-gray-900" />
                                 <span>5 minutes</span>
                             </div>
                         </div>
@@ -145,7 +144,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
                             <div key={idx} className="animate-in fade-in duration-500">
                                 {section.type === "text" ? (
                                     <div
-                                        className="prose prose-p:text-gray-800 prose-p:leading-[1.7] prose-p:text-[17px] max-w-none font-medium"
+                                        className="prose prose-p:text-gray-700 prose-p:leading-[1.7] prose-p:text-base max-w-none"
                                         dangerouslySetInnerHTML={{ __html: section.content }}
                                     />
                                 ) : (

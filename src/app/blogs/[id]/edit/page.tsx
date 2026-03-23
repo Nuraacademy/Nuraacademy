@@ -97,7 +97,7 @@ export default function EditBlogPage({ params }: { params: Promise<{ id: string 
                 </button>
 
                 <div className="flex justify-between items-center mb-12">
-                    <h1 className="text-4xl font-extrabold text-gray-950">Edit Blog</h1>
+                    <h1 className="text-3xl font-medium tracking-tight text-black">Edit Blog</h1>
                     <div className="flex gap-4">
                         <button
                             onClick={() => router.back()}
