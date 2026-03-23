@@ -502,61 +502,81 @@ export async function getGradingData(assignmentId: number, targetId: number | st
             const classId = assignment.classId || groupContext?.enrollment.classId;
 
             if (groupName && classId) {
-                // Find ANY submission from anyone in THIS specific group (matched by name + classId)
-                result = await prisma.assignmentResult.findFirst({
-                    where: {
-                        assignmentId,
-                        enrollment: {
-                            classId: classId,
-                            groups: { some: { name: groupName, deletedAt: null } },
-                        }
-                    },
-                    orderBy: { finishedAt: 'desc' },
-                    include: {
-                        assignment: {
-                            include: {
-                                assignmentItems: {
-                                    where: { deletedAt: null },
-                                    orderBy: { id: 'asc' }
-                                }
-                            }
-                        },
-                        assignmentItemResults: {
-                            include: { assignmentItem: true }
-                        }
-                    }
-                }) as any;
+                // Find ALL group members' enrollment IDs
+                const groupMembers = await prisma.group.findMany({
+                    where: { name: groupName, deletedAt: null, enrollment: { classId } },
+                    select: { enrollmentId: true }
+                });
+                const memberEnrollmentIds = groupMembers.map(m => m.enrollmentId);
 
-                // If still no result, create one for a representative member
-                if (!result) {
-                    // Find a representative enrollment for this group/class
-                    const member = await prisma.group.findFirst({
-                        where: { name: groupName, enrollment: { classId } },
-                        select: { enrollmentId: true }
+                if (memberEnrollmentIds.length > 0) {
+                    // Fetch ALL AssignmentResults from ALL group members
+                    const allMemberResults = await prisma.assignmentResult.findMany({
+                        where: {
+                            assignmentId,
+                            enrollmentId: { in: memberEnrollmentIds }
+                        },
+                        orderBy: { id: 'asc' },
+                        include: {
+                            assignment: {
+                                include: {
+                                    assignmentItems: {
+                                        where: { deletedAt: null },
+                                        orderBy: { id: 'asc' }
+                                    }
+                                }
+                            },
+                            assignmentItemResults: {
+                                include: { assignmentItem: true }
+                            }
+                        }
                     });
 
-                    if (member) {
-                        result = await prisma.assignmentResult.create({
-                            data: {
-                                assignmentId,
-                                enrollmentId: member.enrollmentId,
-                                status: 'NOT_PASS'
-                            },
-                            include: {
-                                assignment: {
-                                    include: {
-                                        assignmentItems: {
-                                            where: { deletedAt: null },
-                                            orderBy: { id: 'asc' }
-                                        }
-                                    }
-                                },
-                                assignmentItemResults: {
-                                    include: { assignmentItem: true }
-                                }
-                            }
-                        }) as any;
+                    if (allMemberResults.length > 0) {
+                        // Use the most recently finished result as the "primary" (for grading target)
+                        const primary = allMemberResults
+                            .filter(r => r.finishedAt !== null)
+                            .sort((a, b) => (b.finishedAt?.getTime() ?? 0) - (a.finishedAt?.getTime() ?? 0))[0]
+                            ?? allMemberResults[allMemberResults.length - 1];
+
+                        // Merge ALL item results from all members into one flat list
+                        const allItemResults = allMemberResults.flatMap(r => r.assignmentItemResults);
+
+                        // Build merged result with primary's metadata but aggregated item results
+                        result = {
+                            ...primary,
+                            assignmentItemResults: allItemResults
+                        };
                     }
+                }
+
+                // If no submitted result exists, create a placeholder for a representative member
+                if (!result && memberEnrollmentIds.length > 0) {
+                    // Use first member's enrollment for the placeholder
+                    const representativeId = memberEnrollmentIds[0];
+
+
+
+                    result = await prisma.assignmentResult.create({
+                        data: {
+                            assignmentId,
+                            enrollmentId: representativeId,
+                            status: 'NOT_PASS'
+                        },
+                        include: {
+                            assignment: {
+                                include: {
+                                    assignmentItems: {
+                                        where: { deletedAt: null },
+                                        orderBy: { id: 'asc' }
+                                    }
+                                }
+                            },
+                            assignmentItemResults: {
+                                include: { assignmentItem: true }
+                            }
+                        }
+                    }) as any;
                 }
             }
         } else if (typeof targetId === 'number') {
@@ -654,8 +674,10 @@ function processGradingData(result: any) {
         // Priority: 
         // 1. Record with an answer OR a manually given score
         // 2. Most recent record (higher ID) if both have or both lack the above
-        const hasData = (ir.answer !== null && ir.answer !== undefined && ir.answer !== "") || (ir.score !== null && ir.score !== undefined);
-        const existingHasData = existing && ((existing.answer !== null && existing.answer !== undefined && existing.answer !== "") || (existing.score !== null && existing.score !== undefined));
+        const hasFiles = Array.isArray(ir.answerFiles) ? ir.answerFiles.length > 0 : (ir.answerFiles !== null && ir.answerFiles !== undefined);
+        const hasData = (ir.answer !== null && ir.answer !== undefined && ir.answer !== "") || (ir.score !== null && ir.score !== undefined) || hasFiles;
+        const existingHasFiles = existing && (Array.isArray(existing.answerFiles) ? existing.answerFiles.length > 0 : (existing.answerFiles !== null && existing.answerFiles !== undefined));
+        const existingHasData = existing && ((existing.answer !== null && existing.answer !== undefined && existing.answer !== "") || (existing.score !== null && existing.score !== undefined) || existingHasFiles);
 
         const shouldReplace = !existing || (hasData && !existingHasData) || (hasData === existingHasData && ir.id > existing.id);
 
@@ -666,6 +688,15 @@ function processGradingData(result: any) {
 
     uniqueResults.forEach((ir: any) => {
         const item = ir.assignmentItem;
+        // Normalize answerFiles from Prisma JsonValue to a plain string[]
+        const rawFiles = ir.answerFiles;
+        let answerFiles: string[] = [];
+        if (Array.isArray(rawFiles)) {
+            answerFiles = rawFiles.filter((f: any) => typeof f === 'string') as string[];
+        } else if (typeof rawFiles === 'string' && rawFiles.length > 0) {
+            answerFiles = [rawFiles];
+        }
+
         const data = {
             id: item.id,
             question: item.question,
@@ -673,7 +704,7 @@ function processGradingData(result: any) {
             correctAnswer: item.correctAnswer,
             score: ir.score,
             maxScore: item.maxScore || 10,
-            answerFiles: ir.answerFiles,
+            answerFiles,
             resultItemId: ir.id,
         };
 

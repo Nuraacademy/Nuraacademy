@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
-import { NuraButton } from "@/components/ui/button/button";
 import { useRouter } from "next/navigation";
 import { FileText, Download, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import TitleCard from "../ui/card/title_card";
+import { NuraButton } from "../ui/button/button";
 
 interface GradingData {
     id: number;
@@ -135,7 +135,7 @@ export default function GradingClient({
                     <div className="mb-4">
                         <h2 className="text-xl font-medium text-black mb-4">{learnerName}</h2>
                         {groupMembers.length > 0 && (
-                            <ol className="space-y-2 ml-1">
+                            <ol className="space-y-2 ml-2 mb-4">
                                 {groupMembers.map((m, idx) => (
                                     <li key={m.id} className="text-sm text-gray-700 flex items-center gap-3">
                                         <span className="text-gray-400 font-medium w-4">{idx + 1}.</span>
@@ -264,25 +264,28 @@ export default function GradingClient({
                                 <table className="w-full text-left border-collapse">
                                     <thead>
                                         <tr className="border-b border-gray-200 bg-gray-50">
-                                            <th className="px-6 py-4 text-xs font-medium text-gray-500 w-16">No</th>
-                                            <th className="px-6 py-4 text-xs font-medium text-gray-500 w-2/3">Question</th>
-                                            <th className="px-6 py-4 text-xs font-medium text-gray-500">File Submission</th>
-                                            <th className="px-6 py-4 text-xs font-medium text-gray-500 text-right w-40">Score</th>
+                                            <th className="px-6 py-4 text-sm font-medium text-gray-500 w-16">No</th>
+                                            <th className="px-6 py-4 text-sm font-medium text-gray-500 w-2/3">Question</th>
+                                            <th className="px-6 py-4 text-sm font-medium text-gray-500 w-2/3">Answer</th>
+                                            <th className="px-6 py-4 text-sm font-medium text-gray-500">File Submission</th>
+                                            <th className="px-6 py-4 text-sm font-medium text-gray-500 text-right w-40">Score</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {initialData.project.map((item, idx) => (
                                             <tr key={item.resultItemId} className="border-b border-gray-100 last:border-0 border-r border-l border-gray-100 h-full">
-                                                <td className="px-6 py-8 text-sm text-gray-600 font-medium align-top leading-relaxed">{idx + 1}</td>
-                                                <td className="px-6 py-8 text-sm text-black align-top leading-relaxed border-l border-gray-100 border-r border-gray-100">
+                                                <td className="px-6 py-4 text-xs text-gray-600 font-medium align-top leading-relaxed">{idx + 1}</td>
+                                                <td className="px-6 py-4 text-xs text-black align-top leading-relaxed border-l border-gray-100 border-r border-gray-100">
                                                     <div className="prose prose-sm max-w-none prose-p:leading-relaxed" dangerouslySetInnerHTML={{ __html: item.question }} />
-                                                    {!isEmptyAnswer(item.givenAnswer) && (
-                                                        <div className="mt-4 p-4 bg-gray-50 rounded-xl text-gray-600 italic border border-gray-100">
-                                                            <div dangerouslySetInnerHTML={{ __html: item.givenAnswer }} />
-                                                        </div>
+                                                </td>
+                                                <td className="px-6 py-4 text-xs text-black align-top leading-relaxed border-l border-gray-100 border-r border-gray-100">
+                                                    {isEmptyAnswer(item.givenAnswer) ? (
+                                                        <span className="text-gray-400 italic">No answer submitted.</span>
+                                                    ) : (
+                                                        <div className="prose prose-sm max-w-none prose-p:leading-relaxed" dangerouslySetInnerHTML={{ __html: item.givenAnswer }} />
                                                     )}
                                                 </td>
-                                                <td className="px-6 py-8 text-sm align-top leading-relaxed">
+                                                <td className="px-6 py-4 text-xs align-top leading-relaxed border-l border-gray-100 border-r border-gray-100">
                                                     <div className="space-y-3">
                                                         {(Array.isArray(item.answerFiles) ? item.answerFiles : []).map((file: any, fIdx: number) => (
                                                             <div key={fIdx} className="flex items-center gap-3 text-gray-700 font-medium hover:text-black transition-colors group cursor-pointer" onClick={() => window.open(file, '_blank')}>
@@ -324,6 +327,7 @@ export default function GradingClient({
                                         <tr>
                                             <td className="px-6 py-5 text-xs text-gray-600"></td>
                                             <td className="px-6 py-5 text-xs text-black"></td>
+                                            <td className="px-6 py-5 text-xs text-black"></td>
                                             <td className="px-6 py-5 text-right text-sm text-black font-medium">Total Score</td>
                                             <td className="px-6 py-5 text-right text-sm font-medium text-black border-l border-r border-gray-100">
                                                 {initialData.project.reduce((acc, item) => acc + (item.score || 0), 0)}/{initialData.project.reduce((acc, item) => acc + (item.maxScore || 0), 0)}
@@ -342,22 +346,16 @@ export default function GradingClient({
                             <span className="text-sm font-medium text-gray-800">{calculateCurrentTotal().toFixed(1)} / {maxTestScore}</span>
                         </div>
                         <div className="flex items-center gap-8 pr-6 mt-4">
-                            <button
+                            <NuraButton
+                                label="Cancel"
                                 onClick={() => router.push(backUrl)}
-                                className="text-sm font-medium text-gray-700 hover:text-black transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button
+                                variant="secondary"
+                            />
+                            <NuraButton
+                                label="Submit"
                                 onClick={onSubmit}
                                 disabled={isSubmitting}
-                                className={`px-10 py-3 rounded-xl text-sm font-medium transition-all shadow-md ${isSubmitting
-                                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                                    : "bg-[#D6E63A] text-black hover:bg-[#C5D42E] active:scale-95"
-                                    }`}
-                            >
-                                {isSubmitting ? "Submitting..." : "Submit"}
-                            </button>
+                            />
                         </div>
                     </div>
                 </div>
