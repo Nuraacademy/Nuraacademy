@@ -480,9 +480,23 @@ model Blog {
   deletedAt   DateTime?
   comments    BlogComment[]
   likes       BlogLike[]
+  views       BlogView[]
   user        User          @relation(fields: [author], references: [id])
 
   @@map("blogs")
+}
+
+model BlogView {
+  id        Int      @id @default(autoincrement())
+  blogId    Int
+  userId    Int?
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  blog      Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  @@index([blogId])
+  @@map("blog_views")
 }
 
 model BlogComment {

@@ -160,3 +160,13 @@ export const deleteComment = async (commentId: number, userId: number, isAdmin: 
         data: { deletedAt: new Date() }
     });
 };
+
+export const trackBlogView = async (blogId: number, userId?: number, ip?: string, userAgent?: string) => {
+    try {
+        return await (prisma as any).blogView.create({
+            data: { blogId, userId, ip, userAgent }
+        });
+    } catch {
+        // Silently ignore if table doesn't exist yet (migration pending)
+    }
+};

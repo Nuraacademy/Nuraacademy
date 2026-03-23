@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { User, Calendar, Clock } from "lucide-react";
+import Image from "next/image";
 
 interface BlogCardProps {
     id: number;
@@ -31,9 +32,11 @@ export const BlogCard = ({
         >
             {/* Banner Image */}
             <div className="mb-4 relative h-44 w-full">
-                <img
-                    src={bannerUrl || "/placeholder-blog.jpg"}
+                <Image
+                    src={bannerUrl || "/logo/logo_nura.png"}
                     alt={title}
+                    width={500}
+                    height={500}
                     className="w-full h-full object-cover rounded-xl"
                 />
             </div>

@@ -25,14 +25,6 @@ export default async function MyProfilePage() {
 
     return (
         <div className="min-h-screen bg-[#F9F9EE] px-4 md:px-16 py-8 md:py-12 space-y-8 ">
-            <Breadcrumb
-                items={[
-                    { label: 'Home', href: '/' },
-                    { label: 'Users', href: '/users' },
-                    { label: 'My Profile', href: '#' },
-                ]}
-            />
-
             <div className="bg-white rounded-xl p-8 md:p-12 shadow-sm border border-white/50 max-w-4xl mx-auto">
                 <div className="flex flex-col md:flex-row gap-8 items-center md:items-start mb-12">
                     <div className="w-32 h-32 rounded-full bg-gradient-to-br from-[#1C3A37] to-[#2D5A56] flex items-center justify-center text-white font-black text-4xl shadow-xl border-4 border-white">

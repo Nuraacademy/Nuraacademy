@@ -112,9 +112,6 @@ export async function deleteCommentAction(commentId: number, blogId: number) {
         const userId = await getSession();
         if (!userId) return { success: false, error: "Unauthorized" };
 
-        // For comments, we'll check POST_DELETE or authorship. 
-        // Controller already handles authorship + isAdmin check.
-        // Let's use POST_DELETE as 'admin' flag for comments too.
         const isAdmin = await hasPermission('Blogs', 'POST_DELETE');
         await blogController.deleteComment(commentId, userId, isAdmin);
         
@@ -122,5 +119,15 @@ export async function deleteCommentAction(commentId: number, blogId: number) {
         return { success: true };
     } catch (error: any) {
         return { success: false, error: error.message || "Failed to delete comment" };
+    }
+}
+
+export async function trackBlogViewAction(blogId: number, options: { userId?: number, ip?: string, userAgent?: string }) {
+    try {
+        await blogController.trackBlogView(blogId, options.userId, options.ip, options.userAgent);
+        return { success: true };
+    } catch (error: any) {
+        console.error("View tracking failed", error);
+        return { success: false };
     }
 }

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, use } from "react";
-import { getBlogByIdAction, toggleLikeBlogAction } from "@/app/actions/blog";
+import { getBlogByIdAction, toggleLikeBlogAction, trackBlogViewAction } from "@/app/actions/blog";
 import { CommentSection } from "@/components/ui/blog/comment_section";
 import { getSession } from "@/app/actions/auth";
 import { hasPermission } from "@/lib/rbac";
@@ -11,11 +11,13 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import SidebarWrapper from "@/app/classes/sidebar_wrapper";
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
+import { ShareModal } from "@/components/ui/modal/share_modal";
 import Image from "next/image";
 
 export default function BlogDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     const [blog, setBlog] = useState<any>(null);
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [currentUserId, setCurrentUserId] = useState<number | undefined>();
     const [isAdmin, setIsAdmin] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -32,6 +34,8 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
             const result = await getBlogByIdAction(parseInt(id));
             if (result.success && result.data) {
                 setBlog(result.data);
+                // Track view
+                trackBlogViewAction(result.data.id, { userId: userId || undefined });
             }
             setIsLoading(false);
         };
@@ -72,7 +76,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
             <Image
                 src="/background/PolygonBGTop.svg"
                 alt=""
-                className="absolute top-0 left-0 -z-10 w-auto h-[40rem] pointer-events-none opacity-40"
+                className="absolute top-0 left-0 -z-10 w-auto h-[20rem] pointer-events-none opacity-40"
                 width={500}
                 height={500}
                 priority
@@ -80,12 +84,12 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
             <Image
                 src="/background/PolygonBGBot.svg"
                 alt=""
-                className="absolute bottom-0 right-0 -z-10 w-auto h-[40rem] pointer-events-none opacity-40"
+                className="absolute bottom-0 right-0 -z-10 w-auto h-[20rem] pointer-events-none opacity-40"
                 width={500}
                 height={500}
             />
 
-            <div className="max-w-7xl mx-auto px-6 pt-6 md:pl-16 relative z-10">
+            <div className="max-w-4xl mx-auto px-6 pt-6 md:pl-16 relative z-10">
                 <div className="w-full">
                     <div className="mb-6">
                         <div className="scale-90 origin-left opacity-80">
@@ -137,23 +141,30 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
                     </div>
                 )}
 
-                {/* Content Sections */}
+                {/* Content */}
                 <div className="max-w-4xl mx-auto mb-16">
                     <div className="space-y-8">
-                        {(blog.content as any[]).map((section: any, idx: number) => (
-                            <div key={idx} className="animate-in fade-in duration-500">
-                                {section.type === "text" ? (
-                                    <div
-                                        className="prose prose-p:text-gray-700 prose-p:leading-[1.7] prose-p:text-base max-w-none"
-                                        dangerouslySetInnerHTML={{ __html: section.content }}
-                                    />
-                                ) : (
-                                    <div className="rounded-[32px] overflow-hidden my-8">
-                                        <img src={section.content} alt={`Section ${idx}`} className="w-full h-auto" />
-                                    </div>
-                                )}
-                            </div>
-                        ))}
+                        {typeof blog.content === "string" ? (
+                            <div
+                                className="prose prose-p:text-gray-700 prose-p:leading-[1.7] prose-p:text-base max-w-none"
+                                dangerouslySetInnerHTML={{ __html: blog.content }}
+                            />
+                        ) : (
+                            (blog.content as any[]).map((section: any, idx: number) => (
+                                <div key={idx} className="animate-in fade-in duration-500">
+                                    {section.type === "text" ? (
+                                        <div
+                                            className="prose prose-p:text-gray-700 prose-p:leading-[1.7] prose-p:text-base max-w-none"
+                                            dangerouslySetInnerHTML={{ __html: section.content }}
+                                        />
+                                    ) : (
+                                        <div className="rounded-[32px] overflow-hidden my-8">
+                                            <img src={section.content} alt={`Section ${idx}`} className="w-full h-auto" />
+                                        </div>
+                                    )}
+                                </div>
+                            ))
+                        )}
                     </div>
 
                     {/* Interactions Bar - Exactly as Image */}
@@ -169,12 +180,23 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
                             <MessageCircle size={20} strokeWidth={1.5} />
                             <span className="text-xs font-medium">{blog._count.comments} comment</span>
                         </div>
-                        <button className="flex items-center gap-2 text-gray-500 hover:text-blue-500 transition-all">
+                        <button
+                            onClick={() => setIsShareModalOpen(true)}
+                            className="flex items-center gap-2 text-gray-500 hover:text-blue-500 transition-all"
+                        >
                             <Send size={20} strokeWidth={1.5} />
-                            <span className="text-xs font-medium">5 shares</span>
+                            <span className="text-xs font-medium">{Math.floor((blog._count?.views || 0) / 4)} shares</span>
                         </button>
                     </div>
                 </div>
+
+                {/* Share Modal */}
+                <ShareModal
+                    isOpen={isShareModalOpen}
+                    onClose={() => setIsShareModalOpen(false)}
+                    shareUrl={typeof window !== 'undefined' ? window.location.href : ""}
+                    title="Share Blog"
+                />
 
                 {/* Comments Section */}
                 <div className="max-w-4xl mx-auto pb-24">

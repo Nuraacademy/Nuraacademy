@@ -26,7 +26,7 @@ export default function ReflectionFeedbackList({ classId, courseId, data, reflec
     ];
 
     return (
-        <div className="min-h-screen bg-[#FDFDF7] px-6 md:px-10 py-8 space-y-8 ">
+        <div className="min-h-screen max-w-7xl mx-auto bg-[#FDFDF7] px-6 md:px-10 py-8 space-y-8 ">
             <Breadcrumb items={breadcrumbItems} />
 
             {/* Hero */}
@@ -43,8 +43,8 @@ export default function ReflectionFeedbackList({ classId, courseId, data, reflec
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="border-b border-gray-200">
-                                <th className="px-8 py-4 text-xs font-medium text-gray-900 uppercase tracking-wider">Name</th>
-                                <th className="px-8 py-4 text-xs font-medium text-gray-900 uppercase tracking-wider text-right">Feedback</th>
+                                <th className="px-8 py-4 text-sm font-medium text-gray-900 tracking-wider">Name</th>
+                                <th className="px-8 py-4 text-sm font-medium text-gray-900 tracking-wider text-right">Feedback</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
@@ -55,7 +55,7 @@ export default function ReflectionFeedbackList({ classId, courseId, data, reflec
                                     onClick={() => router.push(`/feedback/reflection/detail/${reflection.id}`)}
                                 >
                                     <td className="px-8 py-6">
-                                        <span className="text-sm font-medium text-gray-700">{reflection.user.name || reflection.user.username}</span>
+                                        <span className="text-xs font-medium text-gray-700">{reflection.user.name || reflection.user.username}</span>
                                     </td>
                                     <td className="px-8 py-6 text-right">
                                         <button
