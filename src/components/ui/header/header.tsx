@@ -5,6 +5,7 @@ import { NuraButton } from '../button/button';
 import { getSession, getFullSession, handleLogout } from '@/app/actions/auth';
 import { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
+import { NotificationDropdown } from './notification_dropdown';
 
 export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedIn?: boolean }) {
     const router = useRouter();
@@ -129,13 +130,7 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
                     <div className="flex justify-end items-center gap-4 bg-white">
                         {isLoggedIn ? (
                             <>
-                                <Image
-                                    src="/icons/Notifications.svg"
-                                    alt="Notifications"
-                                    width={24}
-                                    height={24}
-                                    className="cursor-pointer"
-                                />
+                                <NotificationDropdown />
                                 <div className="relative" ref={dropdownRef}>
                                     <Image
                                         src="/icons/Profile.svg"
@@ -177,6 +172,18 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
                                                     My Profile
                                                 </button>
                                             </div>
+                                            {userData?.role !== 'Learner' && <div className="px-2 pb-2 mb-2 border-b border-gray-50">
+                                                <button
+                                                    className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-colors flex items-center gap-2"
+                                                    onClick={() => {
+                                                        router.push('/admin');
+                                                        setShowDropdown(false);
+                                                    }}
+                                                >
+                                                    <Image src="/icons/Profile.svg" alt="Profile" width={16} height={16} className="opacity-70" />
+                                                    Admin
+                                                </button>
+                                            </div>}
                                             <div className="px-2">
                                                 <button
                                                     className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-colors flex items-center gap-2"

@@ -7,6 +7,7 @@ import { saveClassFeedback } from '@/app/actions/classFeedback';
 import { toast } from 'sonner';
 import { RichTextInput } from '@/components/ui/input/rich_text_input';
 import { NuraButton } from '@/components/ui/button/button';
+import TitleCard from '@/components/ui/card/title_card';
 
 interface ClassFeedbackClientProps {
     classId: string;
@@ -83,9 +84,13 @@ export default function ClassFeedbackClient({ classId, data, initialFeedback }: 
 
                     <div className="flex justify-end items-center gap-4 mt-4">
                         <NuraButton
+                            label="Back to Class"
+                            variant="secondary"
+                            onClick={() => router.push(`/classes/${classId}/overview`)}
+                        />
+                        <NuraButton
                             label="Edit"
                             variant="primary"
-                            className="min-w-[140px] h-11 text-xs font-medium rounded-xl bg-[#D9F55C] hover:bg-[#c8e54b] text-black border-none shadow-none"
                             onClick={() => setIsEditing(true)}
                         />
                     </div>
@@ -95,13 +100,14 @@ export default function ClassFeedbackClient({ classId, data, initialFeedback }: 
     }
 
     return (
-        <div className="min-h-screen bg-[#FDFDF7] px-6 md:px-10 py-8 space-y-8 ">
+        <div className="min-h-screen max-w-7xl mx-auto bg-[#FDFDF7] px-6 md:px-10 py-8 space-y-8 ">
             <Breadcrumb items={breadcrumbItems} />
 
             {/* Hero */}
-            <div className="bg-[#005954] rounded-xl p-6 text-white shadow-sm">
-                <h1 className="text-xl font-medium">Class Feedback</h1>
-            </div>
+            <TitleCard
+                title="Class Feedback"
+                description={data.classTitle}
+            />
 
             {/* Editor View */}
             <div className="bg-white rounded-xl p-10 shadow-sm border border-gray-100 flex flex-col gap-10">
@@ -111,25 +117,21 @@ export default function ClassFeedbackClient({ classId, data, initialFeedback }: 
 
                 <div className="space-y-4">
                     <span className="text-sm font-medium text-gray-900">Your Feedback</span>
-                    <div className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm p-4">
-                        <RichTextInput
-                            value={content}
-                            onChange={(val) => setContent(val)}
-                        />
-                    </div>
+                    <RichTextInput
+                        value={content}
+                        onChange={(val) => setContent(val)}
+                    />
                 </div>
 
                 <div className="flex justify-end items-center gap-8">
-                    <button
+                    <NuraButton
+                        label="Cancel"
+                        variant="secondary"
                         onClick={() => initialFeedback ? setIsEditing(false) : router.back()}
-                        className="text-xs font-medium text-gray-400 hover:text-gray-900 transition-colors"
-                    >
-                        Cancel
-                    </button>
+                    />
                     <NuraButton
                         label={isSaving ? "Saving..." : "Submit"}
                         variant="primary"
-                        className="min-w-[160px] h-10 text-sm font-medium"
                         onClick={handleSave}
                         disabled={isSaving}
                     />

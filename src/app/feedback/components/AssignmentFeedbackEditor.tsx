@@ -11,6 +11,7 @@ import { NuraButton } from '@/components/ui/button/button';
 import { X, Paperclip, FileText } from 'lucide-react';
 import Sidebar from '@/components/ui/sidebar/sidebar';
 import Image from 'next/image';
+import TitleCard from '@/components/ui/card/title_card';
 
 interface AttachedFile {
     name: string;
@@ -100,10 +101,10 @@ export default function AssignmentFeedbackEditor({
     };
 
     return (
-        <main className="min-h-screen bg-[#FDFDF7]  text-gray-800 pb-20 relative">
+        <main className="min-h-screen bg-[#FDFDF7] text-gray-800 pb-20 relative">
             <Sidebar />
 
-            <div className="absolute top-0 left-0 -z-10 w-full h-full overflow-hidden pointer-events-none opacity-40">
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-40">
                 <Image
                     src="/background/PolygonBGTop.svg"
                     alt=""
@@ -121,7 +122,7 @@ export default function AssignmentFeedbackEditor({
                 />
             </div>
 
-            <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 py-8 space-y-8 transition-all duration-300 md:pl-80">
+            <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 py-8 space-y-8 transition-all duration-300">
                 <Breadcrumb
                     items={[
                         { label: "Home", href: "/classes" },
@@ -132,17 +133,15 @@ export default function AssignmentFeedbackEditor({
                 />
 
                 {/* Hero Section */}
-                <div className="bg-[#005954] rounded-xl p-8 text-white shadow-sm space-y-2">
-                    <h1 className="text-2xl font-medium">{learnerName}</h1>
-                    <p className="text-white/80 text-sm font-medium">
-                        {className} {courseName ? `| ${courseName}` : ''}
-                    </p>
-                </div>
+                <TitleCard
+                    title={learnerName}
+                    description={`${className} ${courseName ? `| ${courseName}` : ''}`}
+                />
 
                 {/* Feedback Card */}
                 <div className="bg-white rounded-xl p-8 md:p-12 shadow-sm border border-gray-100 flex flex-col gap-8">
                     <div className="space-y-4">
-                        <h2 className="text-sm font-medium text-gray-900 uppercase tracking-tight">Feedback Answer</h2>
+                        <h2 className="text-sm font-medium text-gray-900 tracking-tight">Feedback Answer</h2>
                         <div className="border border-gray-200 rounded-xl overflow-hidden bg-white">
                             <RichTextInput
                                 value={feedback}
@@ -180,28 +179,24 @@ export default function AssignmentFeedbackEditor({
                             className="hidden"
                         />
 
-                        <button
+                        <NuraButton
+                            label={isUploading ? "Uploading..." : "Attach File"}
+                            variant="primary"
                             onClick={() => fileInputRef.current?.click()}
                             disabled={isUploading}
-                            className={`flex items-center gap-2 px-4 py-2 bg-[#DAEE49] text-[#005954] rounded-full text-xs font-medium hover:bg-[#C9D942] transition-colors ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                            <Paperclip className="w-4 h-4" />
-                            {isUploading ? "Uploading..." : "Attach File"}
-                        </button>
+                        />
                     </div>
 
                     {/* Footer Buttons */}
                     <div className="flex justify-end items-center gap-8 pt-8 border-t border-transparent">
-                        <button
+                        <NuraButton
+                            label="Clear"
+                            variant="secondary"
                             onClick={handleClear}
-                            className="text-sm font-medium text-gray-400 hover:text-gray-900 transition-colors uppercase tracking-widest"
-                        >
-                            Clear
-                        </button>
+                        />
                         <NuraButton
                             label={isSaving ? "Submitting..." : "Submit"}
                             variant="primary"
-                            className="min-w-[160px] h-12 text-sm font-medium bg-[#DAEE49] text-[#005954] hover:bg-[#C9D942] rounded-xl"
                             onClick={handleSave}
                             disabled={isSaving || isUploading}
                         />
