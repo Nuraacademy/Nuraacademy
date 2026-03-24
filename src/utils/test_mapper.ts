@@ -56,7 +56,7 @@ export function mapAssignmentToTestRunner(assignment: any) {
     const testData = {
         courseName: courseName,
         introDescription: assignment.description || defaultIntro[assignment.type] || "Selesaikan assignment ini sesuai instruksi yang diberikan.",
-        durationMinutes: assignment.duration || 120,
+        durationMinutes: (assignment.duration !== null && assignment.duration !== undefined) ? assignment.duration : 120,
         sectionsCount: (objectiveQuestions.length > 0 ? 1 : 0) + (essayQuestions.length > 0 ? 1 : 0) + (projectQuestions.length > 0 ? 1 : 0),
         deadlineValue: assignment.endDate ? new Date(assignment.endDate).toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' }) : "TBA",
         testDescription: assignment.description || "",

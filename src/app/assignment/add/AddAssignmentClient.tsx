@@ -30,7 +30,9 @@ import {
     type ProjectQuestion,
 } from "@/components/assignment/test_editor";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+import { ConfirmModal } from "@/components/ui/modal/confirmation_modal";
+
+// -- Types --
 
 interface CourseQuestions {
     objective: ObjectiveQuestion[];
@@ -39,7 +41,7 @@ interface CourseQuestions {
     saved: boolean;
 }
 
-// ─── Main Client ─────────────────────────────────────────────────────────────
+// -- Main Client --
 
 export function AddAssignmentClient({
     classes,
@@ -92,6 +94,7 @@ export function AddAssignmentClient({
 
     // Modal & submitting
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showDurationConfirm, setShowDurationConfirm] = useState(false);
     const [modal, setModal] = useState<{
         open: boolean;
         type: "success" | "error";
@@ -433,7 +436,6 @@ export function AddAssignmentClient({
         if (!startDate) errs.startDate = "Start date is required.";
         if (!endDate) errs.endDate = "End date is required.";
         if (startDate && endDate && endDate <= startDate) errs.endDate = "End date must be after start date.";
-        if (!duration) errs.duration = "Duration is required.";
 
         const questionErrs: string[] = [];
         if (isPlacement) {
@@ -461,7 +463,18 @@ export function AddAssignmentClient({
             return;
         }
 
+        // If duration is empty, show confirmation
+        if (!duration) {
+            setShowDurationConfirm(true);
+            return;
+        }
+
+        executeCreate();
+    };
+
+    const executeCreate = async () => {
         setIsSubmitting(true);
+        setShowDurationConfirm(false);
 
         const payload = {
             title,
@@ -472,7 +485,7 @@ export function AddAssignmentClient({
             submissionType: hasSubmissionType ? submissionType : null,
             startDate: startDate,
             endDate: endDate,
-            duration: parseInt(duration),
+            duration: duration ? parseInt(duration) : 0,
             passingGrade: thresholds["-1"] || 0,
         };
 
@@ -566,6 +579,18 @@ export function AddAssignmentClient({
                 onConfirm={modal.onConfirm}
                 confirmText={modal.confirmText}
                 closeText={modal.closeText}
+            />
+
+            {/* Duration Confirmation Modal */}
+            <ConfirmModal
+                isOpen={showDurationConfirm}
+                title="Unlimited Duration"
+                message="Duration is empty, want to continue? Learners can do the assignment with unlimited time."
+                onConfirm={executeCreate}
+                onCancel={() => setShowDurationConfirm(false)}
+                confirmText="Yes, Continue"
+                cancelText="No, Go Back"
+                isLoading={isSubmitting}
             />
 
             <div className="relative z-10 max-w-5xl mx-auto w-full px-6 md:px-10 py-8">

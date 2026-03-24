@@ -95,12 +95,12 @@ export function TestRunner({
         setObjectiveAnswers(data.objectiveAnswers || {})
         setEssayAnswers(data.essayAnswers || {})
         setProjectAnswers(data.projectAnswers || {})
-        
+
         if (data.startTime) {
           const savedStartTime = new Date(data.startTime)
           setStartTime(savedStartTime)
           setHasStarted(true)
-          
+
           // Calculate remaining time
           const elapsedSeconds = Math.floor((new Date().getTime() - savedStartTime.getTime()) / 1000)
           const remaining = Math.max(0, (testData.durationMinutes * 60) - elapsedSeconds)
@@ -129,7 +129,7 @@ export function TestRunner({
     const now = new Date()
     setHasStarted(true)
     setStartTime(now)
-    
+
     // Also save immediately
     if (typeof window !== "undefined") {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
@@ -204,7 +204,7 @@ export function TestRunner({
   }
 
   useEffect(() => {
-    if (!hasStarted || isFinished) return
+    if (!hasStarted || isFinished || testData.durationMinutes === 0) return
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
@@ -218,7 +218,7 @@ export function TestRunner({
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [hasStarted, isFinished, startTime])
+  }, [hasStarted, isFinished, startTime, testData.durationMinutes])
 
   const getUnansweredCount = () => {
     let count = 0
@@ -295,16 +295,18 @@ export function TestRunner({
 
   const renderSidebar = () => (
     <aside className="w-full md:w-64 mb-6 md:mb-0 md:mr-8">
-      <div className="mb-6">
-        <p className="text-xs font-semibold text-gray-700 mb-2">{pageText.sidebarTimeLeft}</p>
-        <div
-          className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs ${timeLeft < 300 ? "bg-red-100 text-red-700" : "bg-emerald-50 text-emerald-700"
-            }`}
-        >
-          <Clock size={14} className={timeLeft < 300 ? "text-red-600" : "text-emerald-600"} />
-          <span className="font-medium tracking-wide">{formatTime(timeLeft)}</span>
+      {testData.durationMinutes > 0 && (
+        <div className="mb-6">
+          <p className="text-xs font-semibold text-gray-700 mb-2">{pageText.sidebarTimeLeft}</p>
+          <div
+            className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs ${timeLeft < 300 ? "bg-red-100 text-red-700" : "bg-emerald-50 text-emerald-700"
+              }`}
+          >
+            <Clock size={14} className={timeLeft < 300 ? "text-red-600" : "text-emerald-600"} />
+            <span className="font-medium tracking-wide">{formatTime(timeLeft)}</span>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="mb-4">
         <p className="text-xs font-semibold text-gray-700 mb-2">{pageText.sidebarObjective}</p>

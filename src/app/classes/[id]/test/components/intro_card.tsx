@@ -26,7 +26,11 @@ export function IntroCard({ onStart, testData, pageText }: IntroCardProps) {
                     <div>
                         <p className="font-semibold mb-2">{pageText.infoTitle}</p>
                         <p>
-                            {pageText.durationLabel} {testData.durationMinutes} <span className="font-semibold">{pageText.durationValue}</span>
+                            {pageText.durationLabel} {testData.durationMinutes > 0 ? (
+                                <>{testData.durationMinutes} <span className="font-semibold">{pageText.durationValue}</span></>
+                            ) : (
+                                <span className="font-semibold">Unlimited</span>
+                            )}
                         </p>
                     </div>
                     <div>
