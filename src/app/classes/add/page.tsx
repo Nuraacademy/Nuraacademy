@@ -5,24 +5,26 @@ import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb"
 
 export default function AddClassPage() {
     return (
-        <main className="relative min-h-screen w-full overflow-hidden bg-white  pb-16">
+        <main className="relative min-h-screen w-full bg-white pb-16">
             <SidebarWrapper />
 
             {/* Background */}
-            <Image
-                src="/background/OvalBGLeft.svg"
-                alt=""
-                className="absolute top-0 left-0 z-10 w-auto h-[30rem] pointer-events-none opacity-60"
-                width={500}
-                height={500}
-            />
-            <Image
-                src="/background/OvalBGRight.svg"
-                alt=""
-                className="absolute bottom-0 right-0 z-10 w-auto h-[30rem] pointer-events-none opacity-60"
-                width={500}
-                height={500}
-            />
+            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                <Image
+                    src="/background/OvalBGLeft.svg"
+                    alt=""
+                    className="absolute top-0 left-0 w-auto h-[30rem] opacity-60"
+                    width={500}
+                    height={500}
+                />
+                <Image
+                    src="/background/OvalBGRight.svg"
+                    alt=""
+                    className="absolute bottom-0 right-0 w-auto h-[30rem] opacity-60"
+                    width={500}
+                    height={500}
+                />
+            </div>
 
             {/* Form */}
             <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 py-8">

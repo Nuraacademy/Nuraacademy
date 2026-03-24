@@ -135,7 +135,7 @@ export default async function CourseOverviewPage({
 
                     {/* Action Buttons */}
                     <div className="flex justify-center mt-6 mr-6 gap-4 top-0">
-                        <Link href={`/classes/${id}/overview/edit`}>
+                        <Link href={`/classes/${id}/edit`}>
                             <Image src="/icons/Edit.svg" alt="Edit" width={16} height={16} />
                         </Link>
                     </div>

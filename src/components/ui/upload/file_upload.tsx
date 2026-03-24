@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react"
 import { Upload, FileText, X } from "lucide-react"
+import { toast } from "sonner"
 
 interface FileUploadProps {
     onFileSelect?: (file: File) => void
@@ -35,7 +36,7 @@ export default function FileUpload({
         if (selectedFile) {
             const maxSizeBytes = maxSizeMB * 1024 * 1024
             if (selectedFile.size > maxSizeBytes) {
-                alert(`File size exceeds ${maxSizeMB} MB limit`)
+                toast.error(`File size exceeds ${maxSizeMB} MB limit`)
                 return
             }
             setFile(selectedFile)
@@ -49,7 +50,7 @@ export default function FileUpload({
         if (droppedFile) {
             const maxSizeBytes = maxSizeMB * 1024 * 1024
             if (droppedFile.size > maxSizeBytes) {
-                alert(`File size exceeds ${maxSizeMB} MB limit`)
+                toast.error(`File size exceeds ${maxSizeMB} MB limit`)
                 return
             }
             setFile(droppedFile)

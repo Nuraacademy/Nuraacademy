@@ -47,8 +47,7 @@ export function CreateTimelineClient({ classData }: Props) {
     }
 
     const handleSubmit = async () => {
-        // Validation: Every date must be >= previous date in sequence
-        let lastDate: Date | null = null;
+        // Validation: End date >= Start date, and sequential starts
         let isValid = true;
         let errorMessage = "";
 
@@ -58,22 +57,19 @@ export function CreateTimelineClient({ classData }: Props) {
             const startVal = dates[startKey];
             const endVal = dates[endKey];
 
-            if (startVal) {
-                if (lastDate && startVal < lastDate) {
-                    isValid = false;
-                    errorMessage = `${EVENTS[i].label} Start Date cannot be before the previous step's date.`;
-                    break;
-                }
-                lastDate = startVal;
+            if (startVal && endVal && endVal < startVal) {
+                isValid = false;
+                errorMessage = `${EVENTS[i].label} End Date cannot be before its Start Date.`;
+                break;
             }
 
-            if (endVal) {
-                if (lastDate && endVal < lastDate) {
+            if (i > 0 && startVal) {
+                const prevStart = dates[`${EVENTS[i - 1].prefix} Starts`];
+                if (prevStart && startVal < prevStart) {
                     isValid = false;
-                    errorMessage = `${EVENTS[i].label} End Date cannot be before its Start Date.`;
+                    errorMessage = `${EVENTS[i].label} Start Date cannot be before ${EVENTS[i - 1].label} Start Date.`;
                     break;
                 }
-                lastDate = endVal;
             }
         }
 
@@ -145,22 +141,24 @@ export function CreateTimelineClient({ classData }: Props) {
     ];
 
     return (
-        <main className="relative min-h-screen bg-white flex flex-col text-gray-800 overflow-hidden">
+        <main className="relative min-h-screen bg-white flex flex-col text-gray-800">
             {/* Background */}
-            <Image
-                src="/background/OvalBGLeft.svg"
-                alt=""
-                className="absolute top-0 left-0 z-10 w-auto h-[30rem] pointer-events-none opacity-60"
-                width={500}
-                height={500}
-            />
-            <Image
-                src="/background/OvalBGRight.svg"
-                alt=""
-                className="absolute bottom-0 right-0 z-10 w-auto h-[30rem] pointer-events-none opacity-60"
-                width={500}
-                height={500}
-            />
+            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                <Image
+                    src="/background/OvalBGLeft.svg"
+                    alt=""
+                    className="absolute top-0 left-0 w-auto h-[30rem] opacity-60"
+                    width={500}
+                    height={500}
+                />
+                <Image
+                    src="/background/OvalBGRight.svg"
+                    alt=""
+                    className="absolute bottom-0 right-0 w-auto h-[30rem] opacity-60"
+                    width={500}
+                    height={500}
+                />
+            </div>
 
             <div className="flex-1 w-full max-w-7xl mx-auto px-6 py-8 relative z-10 flex flex-col">
                 <Breadcrumb items={breadcrumbBase} />
@@ -171,11 +169,9 @@ export function CreateTimelineClient({ classData }: Props) {
                         // Calculate minDate for Start Date
                         let startMinDate: Date | null = classData.startDate ? new Date(classData.startDate) : null;
                         if (index > 0) {
-                            // Previous event's End Date, if not available, previous event's Start Date
-                            const prevEnd = dates[`${EVENTS[index - 1].prefix} Ends`];
+                            // Enforce sequential starts, but allow overlap with previous ends
                             const prevStart = dates[`${EVENTS[index - 1].prefix} Starts`];
-                            if (prevEnd) startMinDate = prevEnd;
-                            else if (prevStart) startMinDate = prevStart;
+                            if (prevStart) startMinDate = prevStart;
                         }
 
                         // Calculate minDate for End Date

@@ -6,6 +6,7 @@ import { NuraButton } from "@/components/ui/button/button"
 import { RichTextInput } from "@/components/ui/input/rich_text_input"
 import FileUploadModal from "@/components/ui/modal/file_upload_modal"
 import { ConfirmModal } from "@/components/ui/modal/confirmation_modal"
+import { toast } from "sonner"
 
 import { IntroCard } from "@/app/classes/[id]/test/components/intro_card"
 import { FinishedCard } from "@/app/classes/[id]/test/components/finished_card"
@@ -192,11 +193,11 @@ export function TestRunner({
           window.location.reload()
         }
       } else {
-        alert(response.error || "Failed to submit. Please try again.")
+        toast.error(response.error || "Failed to submit. Please try again.")
       }
     } catch (error) {
       console.error("error submitting:", error)
-      alert("An unexpected error occurred.")
+      toast.error("An unexpected error occurred.")
     } finally {
       setIsSubmitting(false)
     }

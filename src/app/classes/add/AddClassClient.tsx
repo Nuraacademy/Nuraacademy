@@ -12,6 +12,7 @@ import { useEffect } from "react"
 import { NuraSelect } from "@/components/ui/input/nura_select"
 import M3DateTimePicker from "@/components/ui/input/datetime_picker"
 import FileUpload from "@/components/ui/upload/file_upload"
+import { toast } from "sonner"
 
 interface AddClassClientProps {
     classData?: any;
@@ -107,7 +108,7 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
         if (res.success) {
             router.push('/classes');
         } else {
-            alert(res.error || "Failed to save class");
+            toast.error(res.error || "Failed to save class");
             setLoading(false);
         }
     };
@@ -186,7 +187,7 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                             if (res.success) {
                                 setImgUrl(res.url);
                             } else {
-                                alert(res.error || "Failed to upload image");
+                                toast.error(res.error || "Failed to upload image");
                             }
                         }}
                     />
@@ -227,7 +228,7 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                             if (res.success) {
                                 setPreviewVideoUrl(res.url);
                             } else {
-                                alert(res.error || "Failed to upload video");
+                                toast.error(res.error || "Failed to upload video");
                             }
                         }}
                     />
@@ -277,7 +278,7 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                         value=""
                         onChange={(val) => handleCurriculaChange(Number(val))}
                     />
-                    <div className="flex flex-wrap gap-3 mt-4 text-sm">
+                    <div className="flex flex-wrap gap-3 mt-2 text-sm">
                         {selectedCurriculaIds.map(id => {
                             const cur = allCurricula.find(c => c.id === id);
                             return (
@@ -290,6 +291,13 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                             );
                         })}
                     </div>
+
+                    <NuraButton
+                        label="Add Curricula"
+                        variant="primary"
+                        onClick={() => { router.push('/curricula/add') }}
+                        className="mt-4"
+                    />
                 </div>
 
                 {/* Actions */}

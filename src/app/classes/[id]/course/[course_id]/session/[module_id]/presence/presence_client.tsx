@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { NuraButton } from "@/components/ui/button/button";
 import { updatePresence } from "@/app/actions/session";
+import { toast } from "sonner";
 
 interface StudentPresence {
     enrollmentId: number;
@@ -57,14 +58,14 @@ export default function PresenceClient({
 
             const result = await updatePresence(parseInt(moduleId), classId, courseId, updates);
             if (result.success) {
-                alert("Presence and SES scores updated successfully!");
+                toast.success("Presence and SES scores updated successfully!");
                 router.refresh();
             } else {
-                alert("Failed to update: " + result.error);
+                toast.error("Failed to update: " + result.error);
             }
         } catch (error) {
             console.error(error);
-            alert("An error occurred while saving.");
+            toast.error("An error occurred while saving.");
         } finally {
             setLoading(false);
         }

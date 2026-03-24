@@ -14,6 +14,7 @@ import { checkEnrollment } from "@/app/actions/enrollment"
 import { getClassDetails } from "@/app/actions/classes"
 import { hasPermission } from "@/lib/rbac"
 import { uploadFileAction } from "@/app/actions/common"
+import { toast } from "sonner"
 
 export default function EnrollmentPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter()
@@ -28,7 +29,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
             // Check permissions
             hasPermission("Enrollment", "CHECKOUT_CLASS").then(canCheckout => {
                 if (!canCheckout) {
-                    alert("You do not have permission to checkout this class.");
+                    toast.error("You do not have permission to checkout this class.");
                     router.replace(`/classes/${id}/overview`);
                     return;
                 }
@@ -37,7 +38,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
             // Check if user is already enrolled
             checkEnrollment(classIdInt).then(isEnrolled => {
                 if (isEnrolled) {
-                    alert("You are already enrolled in this class.");
+                    toast.error("You are already enrolled in this class.");
                     router.replace(`/classes/${id}/overview`);
                 }
             }).catch(() => { });

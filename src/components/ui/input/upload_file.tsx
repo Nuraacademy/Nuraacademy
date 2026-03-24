@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { X, Upload, FileText } from "lucide-react";
 import { NuraButton } from "../button/button";
+import { toast } from "sonner";
 
 interface SelectedFile {
     file: File
@@ -145,7 +146,7 @@ export function UploadModal({ onClose, onUploadSuccess }: UploadModalProps) {
                                 onUploadSuccess(file.file);
                                 onClose();
                             } else {
-                                alert("Please select a file and wait for upload.");
+                                toast.error("Please select a file and wait for upload.");
                             }
                         }}
                     />

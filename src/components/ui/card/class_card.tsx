@@ -1,5 +1,4 @@
-"use client"
-
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Clock, BookText, BarChart3 } from 'lucide-react';
 import { NuraButton } from '../button/button';
@@ -7,6 +6,8 @@ import Chip from '../chip/chip';
 import Image from 'next/image';
 import { Pencil, Trash2 } from 'lucide-react';
 import { deleteClassAction } from '@/app/actions/classes';
+import { ConfirmModal } from '../modal/confirmation_modal';
+import { toast } from 'sonner';
 
 interface ClassCardProp {
     id: string,
@@ -28,7 +29,9 @@ interface ClassCardProp {
 export default function ClassCard({
     id, imageUrl, title, method, scheduleStart, scheduleEnd, description, duration, courses, isEnrolled, canEdit, canDelete, canViewAnalytics, onClick
 }: ClassCardProp) {
-    const router = useRouter()
+    const router = useRouter();
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const formatDate = (date?: Date) =>
         date ? `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}` : "TBA";
@@ -58,13 +61,25 @@ export default function ClassCard({
         return <Chip label={status} variant="default" size="sm" className={style} />;
     }
 
-    const handleDelete = async (e: React.MouseEvent) => {
+    const handleDeleteClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (confirm("Are you sure you want to delete this class?")) {
+        setIsDeleteModalOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        setIsDeleting(true);
+        try {
             const res = await deleteClassAction(Number(id));
             if (!res.success) {
-                alert(res.error || "Failed to delete class");
+                toast.error(res.error || "Failed to delete class");
+            } else {
+                toast.success("Class deleted successfully");
             }
+        } catch (error) {
+            toast.error("An unexpected error occurred");
+        } finally {
+            setIsDeleting(false);
+            setIsDeleteModalOpen(false);
         }
     };
 
@@ -133,7 +148,7 @@ export default function ClassCard({
                 <div className="flex items-center gap-2">
                     {canDelete && (
                         <button
-                            onClick={handleDelete}
+                            onClick={handleDeleteClick}
                             className="p-2 rounded-lg border border-gray-200 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all"
                         >
                             <Image src="/icons/Trash.svg" alt="Delete" width={16} height={16} />
@@ -171,6 +186,18 @@ export default function ClassCard({
                         />
                     )}
                 </div>
+            </div>
+            <div onClick={(e) => e.stopPropagation()}>
+                <ConfirmModal
+                    isOpen={isDeleteModalOpen}
+                    title="Delete Class"
+                    message="Are you sure you want to delete this class? This action cannot be undone."
+                    onConfirm={handleConfirmDelete}
+                    onCancel={() => setIsDeleteModalOpen(false)}
+                    isLoading={isDeleting}
+                    confirmText="Delete"
+                    cancelText="Cancel"
+                />
             </div>
         </div>
     );

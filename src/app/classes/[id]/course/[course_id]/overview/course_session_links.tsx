@@ -6,6 +6,7 @@ import { deleteSession } from "@/app/actions/session";
 import { useState } from "react";
 import { ConfirmModal } from "@/components/ui/modal/confirmation_modal";
 import Image from "next/image";
+import { toast } from "sonner";
 
 interface CourseSessionLinkProps {
     classId: string;
@@ -57,13 +58,13 @@ export default function CourseSessionLink({ classId, courseId, session, isAdmin 
         try {
             const res = await deleteSession(parseInt(session.id), classId);
             if (!res.success) {
-                alert("Failed to delete session: " + res.error);
+                toast.error("Failed to delete session: " + res.error);
             } else {
                 setIsModalOpen(false);
             }
         } catch (err) {
             console.error(err);
-            alert("Failed to delete session due to an unexpected error.");
+            toast.error("Failed to delete session due to an unexpected error.");
         } finally {
             setIsDeleting(false);
         }

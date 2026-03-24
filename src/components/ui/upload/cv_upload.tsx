@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react"
 import { Upload, FileText, X } from "lucide-react"
+import { toast } from "sonner"
 
 interface CVUploadProps {
     onFileSelect?: (file: File) => void
@@ -26,7 +27,7 @@ export default function CVUpload({ onFileSelect, maxSizeMB = 5 }: CVUploadProps)
         if (selectedFile) {
             const maxSizeBytes = maxSizeMB * 1024 * 1024
             if (selectedFile.size > maxSizeBytes) {
-                alert(`File size exceeds ${maxSizeMB} MB limit`)
+                toast.error(`File size exceeds ${maxSizeMB} MB limit`)
                 return
             }
             setFile(selectedFile)
@@ -40,7 +41,7 @@ export default function CVUpload({ onFileSelect, maxSizeMB = 5 }: CVUploadProps)
         if (droppedFile) {
             const maxSizeBytes = maxSizeMB * 1024 * 1024
             if (droppedFile.size > maxSizeBytes) {
-                alert(`File size exceeds ${maxSizeMB} MB limit`)
+                toast.error(`File size exceeds ${maxSizeMB} MB limit`)
                 return
             }
             setFile(droppedFile)

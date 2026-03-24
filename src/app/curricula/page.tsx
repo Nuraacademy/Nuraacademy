@@ -61,7 +61,7 @@ export default function CurriculaPage() {
             <Image
                 src="/background/PolygonBGTop.svg"
                 alt=""
-                className="absolute top-0 left-0 -z-10 w-auto h-[40rem] pointer-events-none opacity-60"
+                className="absolute top-0 left-0 w-auto h-[40rem] pointer-events-none opacity-60"
                 width={500}
                 height={500}
                 priority
@@ -69,7 +69,7 @@ export default function CurriculaPage() {
             <Image
                 src="/background/PolygonBGBot.svg"
                 alt=""
-                className="absolute bottom-0 right-0 -z-10 w-auto h-[40rem] pointer-events-none opacity-60"
+                className="absolute bottom-0 right-0 w-auto h-[40rem] pointer-events-none opacity-60"
                 width={500}
                 height={500}
             />
@@ -101,7 +101,6 @@ export default function CurriculaPage() {
                                 label="Add Curricula"
                                 variant="primary"
                                 onClick={() => router.push('/curricula/add')}
-                                className="bg-[#cdff2b] hover:bg-[#bce627] text-gray-900 border-none px-10 h-10 rounded-full font-medium shadow-lg shadow-[#cdff2b33] transition-all"
                             />
                         </div>
                     </div>

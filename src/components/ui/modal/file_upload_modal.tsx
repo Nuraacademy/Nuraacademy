@@ -3,6 +3,7 @@
 import { useState, useRef } from "react"
 import { X, Upload, FileText } from "lucide-react"
 import { NuraButton } from "../button/button"
+import { toast } from "sonner"
 
 interface FileUploadModalProps {
   isOpen: boolean
@@ -42,7 +43,7 @@ export default function FileUploadModal({
     if (selectedFile) {
       const maxSizeBytes = maxSizeMB * 1024 * 1024
       if (selectedFile.size > maxSizeBytes) {
-        alert(`File size exceeds ${maxSizeMB} MB limit`)
+        toast.error(`File size exceeds ${maxSizeMB} MB limit`)
         return
       }
       setFile(selectedFile)
@@ -56,7 +57,7 @@ export default function FileUploadModal({
       if (fileInputRef.current) fileInputRef.current.value = ""
       onClose()
     } else {
-      alert("Please select a file first.")
+      toast.error("Please select a file first.")
     }
   }
 

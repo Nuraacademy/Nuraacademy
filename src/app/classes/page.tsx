@@ -38,6 +38,11 @@ export default async function ClassesPage() {
         }));
     }
 
+    // Only show started classes to learners (users without create permission)
+    if (!canCreate) {
+        classesWithStatus = classesWithStatus.filter((c: any) => c.startDate && new Date(c.startDate) <= new Date());
+    }
+
     return (
         <main className="relative min-h-screen w-full overflow-hidden py-4 px-4 md:py-8 md:pr-8 transition-all duration-300 md:pl-8">
             {/* Sidebar State Managed Separately to Avoid Client Wrapper */}

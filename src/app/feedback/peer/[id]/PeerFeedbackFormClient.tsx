@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import { savePeerFeedback, clearPeerFeedback } from '@/app/actions/peer_feedback';
 import { toast } from 'sonner';
 import Breadcrumb from '@/components/ui/breadcrumb/breadcrumb';
-import { Trash2, History } from 'lucide-react';
 import { FeedbackCriteriaField } from '@/components/ui/feedback/FeedbackCriteriaField';
+import { ConfirmModal } from '@/components/ui/modal/confirmation_modal';
 
 interface PeerFeedbackFormClientProps {
     data: any; // evaluatee enrollment
@@ -20,6 +20,7 @@ export default function PeerFeedbackFormClient({ data, evaluatorEnrollmentId, cl
     const router = useRouter();
     const [isSaving, setIsSaving] = useState(false);
     const [isClearing, setIsClearing] = useState(false);
+    const [isClearModalOpen, setIsClearModalOpen] = useState(false);
 
     const formatScore = (val: number | undefined | null, defaultScore: number) => {
         if (val === undefined || val === null) return defaultScore;
@@ -58,9 +59,11 @@ export default function PeerFeedbackFormClient({ data, evaluatorEnrollmentId, cl
         setIsSaving(false);
     };
 
-    const handleClear = async () => {
-        if (!confirm("Are you sure you want to clear all feedback data on this page?")) return;
+    const handleClearClick = () => {
+        setIsClearModalOpen(true);
+    };
 
+    const handleConfirmClear = async () => {
         setIsClearing(true);
         const res = await clearPeerFeedback(evaluatorEnrollmentId, data.id, classId);
 
@@ -82,6 +85,7 @@ export default function PeerFeedbackFormClient({ data, evaluatorEnrollmentId, cl
             toast.error("Failed to clear feedback: " + res.error);
         }
         setIsClearing(false);
+        setIsClearModalOpen(false);
     };
 
     const sections = [
@@ -133,7 +137,7 @@ export default function PeerFeedbackFormClient({ data, evaluatorEnrollmentId, cl
 
                 <div className="flex justify-between items-center pt-8 border-t border-gray-100">
                     <button
-                        onClick={handleClear}
+                        onClick={handleClearClick}
                         disabled={isClearing || !initialFeedback}
                         className="text-sm font-medium text-red-400 hover:text-red-600 transition-colors flex items-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed"
                     >
@@ -158,6 +162,17 @@ export default function PeerFeedbackFormClient({ data, evaluatorEnrollmentId, cl
                     </div>
                 </div>
             </div>
+
+            <ConfirmModal
+                isOpen={isClearModalOpen}
+                title="Clear Feedback Data"
+                message="Are you sure you want to clear all feedback data on this page? This action cannot be undone."
+                onConfirm={handleConfirmClear}
+                onCancel={() => setIsClearModalOpen(false)}
+                isLoading={isClearing}
+                confirmText="Clear"
+                cancelText="Cancel"
+            />
         </div>
     );
 }
