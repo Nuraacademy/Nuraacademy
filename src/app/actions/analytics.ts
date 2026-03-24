@@ -103,12 +103,13 @@ export async function getClassAnalytics(classId: number) {
             };
         });
 
-        // Teamwork (Priority: Peer Feedback Averages)
+        // Teamwork (Formula: (score / 10) * 100%, averaged over all potential group records)
         const peerFeedbacks = myEnrollment.peerFeedbackReceiver || [];
+        const potentialPeerCount = Math.max(1, myExperienceMembers.length - 1); 
+        
         const avgPeer = (key: string) => {
-            if (peerFeedbacks.length === 0) return 0;
             const sum = peerFeedbacks.reduce((acc, f: any) => acc + (f[key] || 0), 0);
-            return sum / peerFeedbacks.length;
+            return (sum / potentialPeerCount) * 10; // Convert 0-10 to 0-100%
         };
 
         const teamwork = myEnrollment.learnerAnalytics;
@@ -134,11 +135,11 @@ export async function getClassAnalytics(classId: number) {
             },
             performance,
             teamwork: {
-                cooperation: Math.round(avgPeer('cooperation') || teamwork?.cooperationScore || 0),
-                attendance: Math.round(avgPeer('attendance') || teamwork?.attendanceScore || 0),
-                taskCompletion: Math.round(avgPeer('taskCompletion') || teamwork?.taskCompletionScore || 0),
-                initiatives: Math.round(avgPeer('initiatives') || teamwork?.initiativesScore || 0),
-                communication: Math.round(avgPeer('communication') || teamwork?.communicationScore || 0)
+                cooperation: Math.round(avgPeer('cooperation') || (teamwork?.cooperationScore ? teamwork.cooperationScore * 10 : 0)),
+                attendance: Math.round(avgPeer('attendance') || (teamwork?.attendanceScore ? teamwork.attendanceScore * 10 : 0)),
+                taskCompletion: Math.round(avgPeer('taskCompletion') || (teamwork?.taskCompletionScore ? teamwork.taskCompletionScore * 10 : 0)),
+                initiatives: Math.round(avgPeer('initiatives') || (teamwork?.initiativesScore ? teamwork.initiativesScore * 10 : 0)),
+                communication: Math.round(avgPeer('communication') || (teamwork?.communicationScore ? teamwork.communicationScore * 10 : 0))
             },
             finalProject: {
                 problemUnderstanding: finalProject.problemUnderstandingScore || 0,

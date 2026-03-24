@@ -1,12 +1,15 @@
 "use client"
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { savePeerFeedback, clearPeerFeedback } from '@/app/actions/peer_feedback';
 import { toast } from 'sonner';
 import Breadcrumb from '@/components/ui/breadcrumb/breadcrumb';
 import { FeedbackCriteriaField } from '@/components/ui/feedback/FeedbackCriteriaField';
 import { ConfirmModal } from '@/components/ui/modal/confirmation_modal';
+import Image from 'next/image';
+import TitleCard from '@/components/ui/card/title_card';
+import { NuraButton } from '@/components/ui/button/button';
 
 interface PeerFeedbackFormClientProps {
     data: any; // evaluatee enrollment
@@ -106,22 +109,21 @@ export default function PeerFeedbackFormClient({ data, evaluatorEnrollmentId, cl
                     { label: `Peer Feedback: ${data.user.name || data.user.username}`, href: '#' },
                 ]}
             />
-
-            <div className="bg-[#1C3A37] rounded-xl p-8 md:p-10 text-white flex justify-between items-center shadow-lg">
-                <div className="space-y-1">
-                    <h1 className="text-2xl md:text-3xl font-medium font-merriweather">{data.user.name || data.user.username}</h1>
-                    <p className="text-gray-300 font-medium opacity-80">
-                        {data.class.title} <span className="mx-2">|</span> {groupName}
-                    </p>
-                </div>
-                {initialFeedback?.isEdited && (
+            <TitleCard
+                title={data.user.name || data.user.username}
+                description={`${data.class.title} | ${groupName}`}
+                actions={initialFeedback?.isEdited && (
                     <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/20">
-                        <History size={16} className="text-[#DAEE49]" />
+                        <Image
+                            src="/icons/history.svg"
+                            alt="History"
+                            width={16}
+                            height={16}
+                        />
                         <span className="text-xs font-medium uppercase tracking-widest text-[#DAEE49]">Edited</span>
                     </div>
                 )}
-            </div>
-
+            />
             <div className="bg-white rounded-xl p-6 md:p-12 shadow-sm border border-white/50 space-y-12">
                 {sections.map((section) => (
                     <FeedbackCriteriaField
@@ -141,24 +143,26 @@ export default function PeerFeedbackFormClient({ data, evaluatorEnrollmentId, cl
                         disabled={isClearing || !initialFeedback}
                         className="text-sm font-medium text-red-400 hover:text-red-600 transition-colors flex items-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed"
                     >
-                        <Trash2 size={16} />
+                        <Image
+                            src="/icons/delete.svg"
+                            alt="Clear"
+                            width={16}
+                            height={16}
+                        />
                         Clear All Data
                     </button>
 
                     <div className="flex justify-end items-center gap-10">
-                        <button
+                        <NuraButton
                             onClick={() => router.back()}
-                            className="text-sm font-medium text-gray-500 hover:text-[#1C3A37] transition-colors"
-                        >
-                            Cancel
-                        </button>
-                        <button
+                            label="Cancel"
+                            variant="secondary"
+                        />
+                        <NuraButton
                             onClick={handleSave}
                             disabled={isSaving}
-                            className="bg-[#DAEE49] hover:bg-[#C9D942] disabled:opacity-50 text-[#1C3A37] font-black py-4 px-16 rounded-full transition-all shadow-md hover:shadow-lg uppercase tracking-widest text-xs min-w-[180px]"
-                        >
-                            {isSaving ? "Saving..." : "Submit"}
-                        </button>
+                            label={isSaving ? "Saving..." : "Submit"}
+                        />
                     </div>
                 </div>
             </div>

@@ -303,14 +303,20 @@ export function FeedbackButton({ classId, isLearner }: { classId: string, isLear
     )
 }
 
-export function AnalyticsButton({ classId }: { classId: string }) {
+export function AnalyticsButton({ classId, isLearner }: { classId: string, isLearner: boolean }) {
     const router = useRouter()
     return (
         <NuraButton
             label="Analytics and Report"
             variant="primary"
             leftIcon={<Image src="/icons/Analytics.svg" alt="Analytics" width={20} height={20} />}
-            onClick={() => router.push(`/classes/${classId}/analytics`)}
+            onClick={() => {
+                if (isLearner) {
+                    router.push(`/classes/${classId}/analytics`)
+                } else {
+                    router.push(`/classes/${classId}/analytics/trainer`)
+                }
+            }}
         />
     )
 }

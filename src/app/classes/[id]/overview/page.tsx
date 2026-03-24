@@ -23,6 +23,7 @@ export default async function CourseOverviewPage({
     const canUpdateCourse = await hasPermission('Course', 'UPDATE_COURSE');
     const canCreatePlacement = await hasPermission('Class', 'PLACEMENT_TEST_CREATE');
     const canViewFeedbackReport = await hasPermission('Feedback', 'VIEW_DETAIL_REFLECTION');
+    const canViewTrainerAnalytics = await hasPermission('Analytics', 'ANALYTICS_REPORT_TRAINER');
 
     const session = await getFullSession();
     const isLearner = session?.role === 'Learner';
@@ -249,11 +250,11 @@ export default async function CourseOverviewPage({
 
                         {/* Feedback & Analytics Buttons */}
                         <div className="flex flex-col gap-3">
-                            {(isEnrolled && canViewFeedbackReport) && (
+                            {((isLearner && isEnrolled) || (!isLearner && canViewFeedbackReport)) && (
                                 <FeedbackButton classId={id} isLearner={isLearner} />
                             )}
-                            {(isEnrolled) && (
-                                <AnalyticsButton classId={id} />
+                            {((isLearner && isEnrolled) || (!isLearner && canViewTrainerAnalytics)) && (
+                                <AnalyticsButton classId={id} isLearner={isLearner} />
                             )}
                         </div>
                     </aside>

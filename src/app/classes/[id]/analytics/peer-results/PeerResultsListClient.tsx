@@ -3,6 +3,7 @@
 import React from 'react';
 import Breadcrumb from '@/components/ui/breadcrumb/breadcrumb';
 import Link from 'next/link';
+import TitleCard from '@/components/ui/card/title_card';
 
 interface PeerResultsListClientProps {
     classData: any;
@@ -24,36 +25,32 @@ export default function PeerResultsListClient({ classData, groupMembers, myEnrol
             />
 
             {/* Header */}
-            <div className="bg-[#1C3A37] rounded-xl p-8 md:p-10 text-white space-y-1 shadow-lg">
-                <h1 className="text-2xl md:text-3xl font-medium font-merriweather">
-                    Final Project Peer Feedback
-                </h1>
-                <p className="text-gray-300 font-medium opacity-80">
-                    {classData.title} <span className="mx-2">|</span> Batch Number
-                </p>
-            </div>
+            <TitleCard
+                title="Final Project Peer Feedback"
+                description={`${classData.title}`}
+            />
 
-            <div className="bg-white rounded-xl p-8 md:p-12 shadow-sm border border-white/50 space-y-8">
+            <div className="bg-white rounded-xl max-w-7xl mx-auto p-8 md:p-12 shadow-sm border border-white/50 space-y-8">
                 <h2 className="text-lg font-medium text-[#1C3A37]">Hasil Peer Feedback Learners</h2>
 
                 <div className="border border-gray-200 rounded-xl overflow-hidden">
                     <table className="w-full text-left">
                         <thead className="border-b border-gray-100">
                             <tr>
-                                <th className="px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">Name</th>
-                                <th className="px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest text-right">Feedback</th>
+                                <th className="px-6 py-4 text-sm font-medium text-gray-800">Name</th>
+                                <th className="px-6 py-4 text-sm font-medium text-gray-800 text-right">Feedback</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
                             {list.map((member) => (
                                 <tr key={member.id} className="hover:bg-gray-50/50 transition-colors">
-                                    <td className="px-6 py-5 text-sm font-medium text-[#1C3A37]">
+                                    <td className="px-6 py-5 text-xs text-[#1C3A37]">
                                         {member.user.name || member.user.username}
                                     </td>
                                     <td className="px-6 py-5 text-right">
                                         <Link
                                             href={`/classes/${classData.id}/analytics/peer-results/${member.id}`}
-                                            className="px-6 py-1.5 bg-[#DAEE49] hover:bg-[#C9D942] text-[#1C3A37] text-[10px] font-black uppercase rounded-full transition-all inline-flex items-center"
+                                            className="px-6 py-1.5 bg-[#DAEE49] hover:bg-[#C9D942] text-[#1C3A37] text-xs uppercase rounded-full transition-all inline-flex items-center"
                                         >
                                             Feedback
                                         </Link>

@@ -29,11 +29,11 @@ export const FeedbackCriteriaField: React.FC<FeedbackCriteriaFieldProps> = ({
                 <p className="text-sm text-gray-500">{description}</p>
             </div>
 
-            <div className="bg-[#FFFFF0] rounded-xl p-6 md:p-8 space-y-8 border border-[#F0F0D8]">
+            <div className="bg-[#FFFFF0] rounded-xl p-6 md:p-8 border border-[#F0F0D8] gap-4">
                 {/* Score Slider */}
-                <div className="space-y-4">
+                <div className="space-y-2">
                     <div className="flex justify-between items-center">
-                        <span className="text-xs font-medium uppercase tracking-wider text-[#1C3A37]">Score</span>
+                        <span className="text-xs font-medium text-[#1C3A37]">Score</span>
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="relative flex-grow h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -56,14 +56,12 @@ export const FeedbackCriteriaField: React.FC<FeedbackCriteriaFieldProps> = ({
                 </div>
 
                 {/* Feedback Editor */}
-                <div className="space-y-4">
-                    <span className="text-xs font-medium uppercase tracking-wider text-[#1C3A37]">Feedback</span>
-                    <div className="bg-white rounded-xl border border-gray-100 p-2 shadow-sm">
-                        <RichTextInput
-                            value={feedback}
-                            onChange={onFeedbackChange}
-                        />
-                    </div>
+                <div className="space-y-2">
+                    <span className="text-xs font-medium text-[#1C3A37]">Feedback</span>
+                    <RichTextInput
+                        value={feedback}
+                        onChange={onFeedbackChange}
+                    />
                 </div>
             </div>
         </div>
