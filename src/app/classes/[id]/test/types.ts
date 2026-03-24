@@ -31,7 +31,7 @@ export interface TestData {
     courseResults?: {
         courseId: number
         courseTitle: string
-        status: "Pass" | "Not Pass"
+        status: "Pass" | "Not Pass" | "Grading"
     }[]
 }
 

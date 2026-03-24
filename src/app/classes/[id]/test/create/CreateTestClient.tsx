@@ -176,6 +176,7 @@ function ObjectiveBlock({
                     value={question.score || ""}
                     placeholder="e.g. 10"
                     onChange={(e) => onChange((prev) => ({ ...prev, score: Math.max(0, Number(e.target.value)) }))}
+                    onWheel={(e) => e.currentTarget.blur()}
                     className={`w-28 rounded-lg border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#D9F55C] bg-white ${question.score <= 0 ? "border-orange-200" : "border-gray-300"}`}
                 />
                 {question.score <= 0 && <span className="text-orange-500 text-xs">Required</span>}
@@ -214,6 +215,7 @@ function OpenEndedBlock({
                     value={question.score || ""}
                     placeholder="e.g. 20"
                     onChange={(e) => onChange((prev) => ({ ...prev, score: Math.max(0, Number(e.target.value)) }))}
+                    onWheel={(e) => e.currentTarget.blur()}
                     className={`w-28 rounded-lg border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#D9F55C] bg-white ${question.score <= 0 ? "border-orange-200" : "border-gray-300"}`}
                 />
                 {question.score <= 0 && <span className="text-orange-500 text-xs">Required</span>}
@@ -722,6 +724,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                                     const val = parseFloat(e.target.value);
                                                     setThresholds(prev => ({ ...prev, [selectedCourse.id]: isNaN(val) ? 0 : val }));
                                                 }}
+                                                onWheel={(e) => e.currentTarget.blur()}
                                                 className="flex-1 text-right text-base font-medium text-black outline-none bg-transparent"
                                                 placeholder="e.g. 80"
                                             />

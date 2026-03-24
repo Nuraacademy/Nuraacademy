@@ -122,7 +122,7 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
                             width={24}
                             height={24}
                         />
-                        Blogs
+                        Posts
                     </button>
                 </div>
 

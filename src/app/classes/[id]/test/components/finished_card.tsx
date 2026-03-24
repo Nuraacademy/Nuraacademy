@@ -47,10 +47,16 @@ export function FinishedCard({ classId, testData, pageText, userName, totalScore
                     {(testData.courseResults || []).map((course, idx) => (
                         <div key={idx} className="flex justify-between items-center px-6 py-5 border-b border-gray-200 bg-white last:border-b-0">
                             <span className="text-xs md:text-sm text-gray-800">{course.courseTitle}</span>
-                            <span className={`px-5 py-1.5 text-gray-900 text-xs font-semibold rounded-full min-w-[80px] text-center ${course.status === "Pass" ? "bg-[#b0ff8a]" : "bg-[#ff7066]"
-                                }`}>
-                                {course.status}
-                            </span>
+                            <div className="flex items-center gap-4">
+                                <span className={`px-5 py-1.5 text-gray-900 text-xs font-semibold rounded-full min-w-[80px] text-center ${
+                                    course.status === "Pass" ? "bg-[#b0ff8a]" : course.status === "Grading" ? "bg-[#fae8b4]" : "bg-[#ff7066]"
+                                    }`}>
+                                    {course.status}
+                                </span>
+                                <a href={`/classes/${classId}/feedback`} className="text-xs text-[#075546] underline hover:text-[#005954] transition-colors">
+                                    Feedback
+                                </a>
+                            </div>
                         </div>
                     ))}
 

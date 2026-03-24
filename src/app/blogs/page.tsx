@@ -63,7 +63,7 @@ export default function BlogsPage() {
             {/* Header Content */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-black mb-10 w-full max-w-screen-2xl mx-auto md:pl-16 relative z-10">
                 <h1 className="text-3xl font-medium tracking-tight">
-                    Explore Our Blogs
+                    Explore Our Posts
                 </h1>
 
                 <div className="flex items-center gap-4 w-full md:w-auto">
