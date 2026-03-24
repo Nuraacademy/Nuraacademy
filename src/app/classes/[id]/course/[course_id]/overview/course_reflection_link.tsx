@@ -28,7 +28,7 @@ export default function CourseReflectionLink({ classId, courseId, href }: Course
                     />
                 </div>
                 <div className="flex items-center">
-                    <h3 className="text-md font-medium text-gray-900">Course Reflection</h3>
+                    <h3 className="text-md font-medium text-gray-900">Participant Reflection</h3>
                 </div>
             </div>
             <div className="flex items-center gap-4 ml-auto">

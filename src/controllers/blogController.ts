@@ -3,7 +3,7 @@ import { Prisma } from "@prisma/client";
 
 export const getBlogs = async (options: { skip?: number, take?: number, search?: string } = {}) => {
     const { skip, take, search } = options;
-    
+
     return await prisma.blog.findMany({
         where: {
             deletedAt: null,
@@ -72,12 +72,12 @@ export const getBlogById = async (id: number, currentUserId?: number) => {
     });
 };
 
-export const createBlog = async (data: { 
-    title: string, 
-    bannerUrl?: string, 
-    description?: string, 
-    content: any, 
-    author: number 
+export const createBlog = async (data: {
+    title: string,
+    bannerUrl?: string,
+    description?: string,
+    content: any,
+    author: number
 }) => {
     return await prisma.blog.create({
         data: {
@@ -87,17 +87,17 @@ export const createBlog = async (data: {
     });
 };
 
-export const updateBlog = async (id: number, data: { 
-    title?: string, 
-    bannerUrl?: string, 
-    description?: string, 
-    content?: any 
+export const updateBlog = async (id: number, data: {
+    title?: string,
+    bannerUrl?: string,
+    description?: string,
+    content?: any
 }, author: number, isAdmin: boolean) => {
     const blog = await prisma.blog.findUnique({ where: { id } });
-    if (!blog) throw new Error("Blog not found");
-    
+    if (!blog) throw new Error("Post not found");
+
     if (blog.author !== author && !isAdmin) {
-        throw new Error("You are not authorized to update this blog");
+        throw new Error("You are not authorized to update this post");
     }
 
     return await prisma.blog.update({
@@ -111,10 +111,10 @@ export const updateBlog = async (id: number, data: {
 
 export const deleteBlog = async (id: number, author: number, isAdmin: boolean) => {
     const blog = await prisma.blog.findUnique({ where: { id } });
-    if (!blog) throw new Error("Blog not found");
+    if (!blog) throw new Error("Post not found");
 
     if (blog.author !== author && !isAdmin) {
-        throw new Error("You are not authorized to delete this blog");
+        throw new Error("You are not authorized to delete this post");
     }
 
     return await prisma.blog.update({

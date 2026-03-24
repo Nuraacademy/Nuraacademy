@@ -155,7 +155,7 @@ export default function DiscussionPage() {
                 {isLoading ? (
                     <div className="flex flex-col items-center justify-center p-20 gap-4">
                         <div className="w-12 h-12 border-4 border-lime-200 border-t-lime-500 rounded-full animate-spin" />
-                        <p className="text-xl font-medium text-gray-400">Fetching forum data...</p>
+                        <p className="text-xl font-medium text-gray-400">Fetching thread data...</p>
                     </div>
                 ) : filteredDiscussions.length === 0 ? (
                     <div className="flex flex-col items-center justify-center p-16 text-center border-2 border-dashed border-gray-200 rounded-[3rem] bg-white/50 backdrop-blur-sm mt-8">

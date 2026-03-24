@@ -120,7 +120,7 @@ export default function TrainerAnalyticsClient({ data, classId }: TrainerAnalyti
 
                 {/* Forum Section */}
                 <div className="space-y-10 border-t border-gray-100 pt-16 ">
-                    <h2 className="text-xl font-black text-[#1C3A37] tracking-tight border-l-4 border-[#DAEE49] pl-4">Forum</h2>
+                    <h2 className="text-xl font-black text-[#1C3A37] tracking-tight border-l-4 border-[#DAEE49] pl-4">Thread</h2>
                     <div className="space-y-8">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div className="bg-white border-2 border-gray-100 rounded-xl p-8 space-y-2 hover:border-[#1C3A37]/10 transition-all shadow-sm">

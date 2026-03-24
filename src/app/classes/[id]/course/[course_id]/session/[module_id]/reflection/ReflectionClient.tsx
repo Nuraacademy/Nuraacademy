@@ -69,10 +69,10 @@ export default function ReflectionClient({ classId, courseId, moduleId, data, in
         { label: "Home", href: "/classes" },
         { label: data.class.title, href: `/classes/${classId}/overview` },
         { label: data.course.title, href: `/classes/${classId}/course/${courseId}/overview` },
-        { label: moduleId ? "Session Reflection" : "Course Reflection", href: "#" },
+        { label: moduleId ? "Session Reflection" : "Participant Reflection", href: "#" },
     ];
 
-    const heroTitle = moduleId ? "Session Reflection" : "Course Reflection";
+    const heroTitle = moduleId ? "Session Reflection" : "Participant Reflection";
 
     if (!isEditing && initialReflection) {
         return (

@@ -20,7 +20,7 @@ export async function getBlogByIdAction(id: number) {
         const blog = await blogController.getBlogById(id, userId || undefined);
         return { success: true, data: blog };
     } catch (error: any) {
-        return { success: false, error: error.message || "Failed to fetch blog" };
+        return { success: false, error: error.message || "Failed to fetch post" };
     }
 }
 
@@ -41,7 +41,7 @@ export async function createBlogAction(data: {
         revalidatePath("/blogs");
         return { success: true, data: blog };
     } catch (error: any) {
-        return { success: false, error: error.message || "Failed to create blog" };
+        return { success: false, error: error.message || "Failed to create post" };
     }
 }
 
@@ -62,7 +62,7 @@ export async function updateBlogAction(id: number, data: {
         revalidatePath(`/blogs/${id}`);
         return { success: true, data: blog };
     } catch (error: any) {
-        return { success: false, error: error.message || "Failed to update blog" };
+        return { success: false, error: error.message || "Failed to update post" };
     }
 }
 
@@ -77,20 +77,20 @@ export async function deleteBlogAction(id: number) {
         revalidatePath("/blogs");
         return { success: true };
     } catch (error: any) {
-        return { success: false, error: error.message || "Failed to delete blog" };
+        return { success: false, error: error.message || "Failed to delete post" };
     }
 }
 
 export async function toggleLikeBlogAction(blogId: number) {
     try {
         const userId = await getSession();
-        if (!userId) return { success: false, error: "Log in to like this blog" };
+        if (!userId) return { success: false, error: "Log in to like this post" };
 
         const result = await blogController.toggleLikeBlog(blogId, userId);
         revalidatePath(`/blogs/${blogId}`);
         return { success: true, ...result };
     } catch (error: any) {
-        return { success: false, error: error.message || "Failed to like blog" };
+        return { success: false, error: error.message || "Failed to like post" };
     }
 }
 

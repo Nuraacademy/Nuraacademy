@@ -537,7 +537,7 @@ export default function DiscussionTopicPage({
                     isOpen={isShareModalOpen}
                     onClose={() => setIsShareModalOpen(false)}
                     shareUrl={typeof window !== 'undefined' ? window.location.href : ""}
-                    title="Share Forum"
+                    title="Share Thread"
                 />
             </div>
         </main>

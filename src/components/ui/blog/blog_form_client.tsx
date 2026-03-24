@@ -72,7 +72,7 @@ export function BlogFormClient({
                 {/* Header */}
                 <div className="flex justify-between items-center my-6">
                     <h1 className="text-2xl font-medium tracking-tight text-black">
-                        {isEdit ? "Edit Blog" : "Add Blog"}
+                        {isEdit ? "Edit Post" : "Write Post"}
                     </h1>
                 </div>
 
@@ -80,9 +80,9 @@ export function BlogFormClient({
                     {/* Basic Info */}
                     <div className="bg-white/80 backdrop-blur-sm rounded-[2.5rem] border border-gray-100 p-10 shadow-sm space-y-8">
                         <div>
-                            <label className="block text-sm font-medium text-gray-900 mb-3 ml-1">Blog Title</label>
+                            <label className="block text-sm font-medium text-gray-900 mb-3 ml-1">Post Title</label>
                             <NuraTextInput
-                                placeholder="Enter blog title..."
+                                placeholder="Enter post title..."
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                             />

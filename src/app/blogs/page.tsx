@@ -69,7 +69,7 @@ export default function BlogsPage() {
                 <div className="flex items-center gap-4 w-full md:w-auto">
                     <div className="relative w-full md:w-64">
                         <NuraTextInput
-                            placeholder="Search blog"
+                            placeholder="Search post"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             icon={<Search strokeWidth={1.5} />}
@@ -77,7 +77,7 @@ export default function BlogsPage() {
                     </div>
                     {canAddBlog && (
                         <NuraButton
-                            label="Add Blog"
+                            label="Write Post"
                             variant="primary"
                             onClick={() => router.push("/blogs/add")}
                             className="shrink-0"

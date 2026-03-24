@@ -14,7 +14,7 @@ export default function AddBlogPage() {
         title: string; description: string; bannerUrl: string; content: string;
     }) => {
         if (!title.trim()) {
-            toast.error("Please enter a blog title");
+            toast.error("Please enter a post title");
             return;
         }
         setIsSubmitting(true);
@@ -22,7 +22,7 @@ export default function AddBlogPage() {
         setIsSubmitting(false);
 
         if (result.success) {
-            toast.success("Blog created successfully!");
+            toast.success("Post created successfully!");
             router.push(`/blogs/${result.data.id}`);
         } else {
             toast.error(result.error);

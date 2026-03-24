@@ -81,7 +81,7 @@ export default function DiscussionList({ topics }: { topics: Topic[] }) {
                 isOpen={isShareModalOpen}
                 onClose={() => setIsShareModalOpen(false)}
                 shareUrl={sharingUrl}
-                title="Share Forum"
+                title="Share Thread"
             />
         </div>
     );

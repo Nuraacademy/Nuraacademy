@@ -35,7 +35,7 @@ export default function EditBlogPage({ params }: { params: Promise<{ id: string 
                     content: contentStr,
                 });
             } else {
-                toast.error("Failed to load blog");
+                toast.error("Failed to load post");
                 router.push("/blogs");
             }
         };
@@ -46,7 +46,7 @@ export default function EditBlogPage({ params }: { params: Promise<{ id: string 
         title: string; description: string; bannerUrl: string; content: string;
     }) => {
         if (!title.trim()) {
-            toast.error("Please enter a blog title");
+            toast.error("Please enter a post title");
             return;
         }
         setIsSubmitting(true);
@@ -54,7 +54,7 @@ export default function EditBlogPage({ params }: { params: Promise<{ id: string 
         setIsSubmitting(false);
 
         if (result.success) {
-            toast.success("Blog updated successfully!");
+            toast.success("Post updated successfully!");
             router.push(`/blogs/${id}`);
         } else {
             toast.error(result.error);

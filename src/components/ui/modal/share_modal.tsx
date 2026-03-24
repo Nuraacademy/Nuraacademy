@@ -15,7 +15,7 @@ export const ShareModal = ({
   isOpen,
   onClose,
   shareUrl,
-  title = "Share Forum"
+  title = "Share Thread"
 }: ShareModalProps) => {
   const [copied, setCopied] = useState(false);
 
@@ -32,7 +32,7 @@ export const ShareModal = ({
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
     x: `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}`,
     instagram: `https://www.instagram.com/`, // Instagram doesn't support direct link sharing via URL parameters easily for web
-    email: `mailto:?subject=Check out this forum topic&body=${encodeURIComponent(shareUrl)}`
+    email: `mailto:?subject=Check out this thread topic&body=${encodeURIComponent(shareUrl)}`
   };
 
   return (

@@ -108,7 +108,7 @@ export const DiscussionTopicDialog = ({
 
           <NuraButton
             onClick={handlePost}
-            label={isReply ? "Post Reply" : "Post to Forum"}
+            label={isReply ? "Post Reply" : "Post to Thread"}
             variant="primary"
             className="!w-auto px-8"
           />

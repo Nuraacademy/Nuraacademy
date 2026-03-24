@@ -55,16 +55,16 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
                 }
             });
         } else if (!result.success) {
-            toast.error(result.error || "Failed to like blog");
+            toast.error(result.error || "Failed to like post");
         }
     };
 
     if (isLoading) return <div className="min-h-screen bg-white" />;
-    if (!blog) return <div className="min-h-screen flex items-center justify-center">Blog not found</div>;
+    if (!blog) return <div className="min-h-screen flex items-center justify-center">Post not found</div>;
 
     const breadcrumbItems = [
-        { label: "Home", href: "/classes" },
-        { label: "Blog", href: "/blogs" },
+        { label: "Home", href: "/classes" },    
+        { label: "Posts", href: "/blogs" },
         { label: blog.title, href: "#" }
     ];
 
@@ -195,7 +195,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
                     isOpen={isShareModalOpen}
                     onClose={() => setIsShareModalOpen(false)}
                     shareUrl={typeof window !== 'undefined' ? window.location.href : ""}
-                    title="Share Blog"
+                    title="Share Post"
                 />
 
                 {/* Comments Section */}
