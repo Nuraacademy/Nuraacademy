@@ -80,7 +80,7 @@ export const AssignmentCard = ({
                     </div>
                     <div className="flex flex-col gap-0.5 w-full">
                         <div className="flex items-center gap-3">
-                            <h3 className="text-lg text-black">{title}</h3>
+                            <h3 className="text-lg text-black">{title ? title : courseTitle ? `${courseTitle} - ${type}` : `${classTitle} - ${type}`}</h3>
                             <span className="rounded-full border border-black px-3 py-0 text-xs font-medium text-black">
                                 {tag}
                             </span>

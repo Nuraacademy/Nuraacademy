@@ -6,11 +6,12 @@ import { NuraTextInput } from "@/components/ui/input/text_input"
 import { RichTextInput } from "@/components/ui/input/rich_text_input"
 import { NuraButton } from "@/components/ui/button/button"
 import { X, Upload, Search } from "lucide-react"
-import { createClassAction, updateClassAction } from "@/app/actions/classes"
+import { createClassAction, updateClassAction, uploadClassFile } from "@/app/actions/classes"
 import { getCurriculaList } from "@/app/actions/curricula"
 import { useEffect } from "react"
 import { NuraSelect } from "@/components/ui/input/nura_select"
 import M3DateTimePicker from "@/components/ui/input/datetime_picker"
+import FileUpload from "@/components/ui/upload/file_upload"
 
 interface AddClassClientProps {
     classData?: any;
@@ -170,14 +171,25 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                 {/* Picture Banner */}
                 <div>
                     <label className="block text-sm font-semibold mb-2">Picture Banner</label>
-                    <div className="border-2 border-dashed border-[#D9F55C] rounded-xl p-10 flex flex-col items-center justify-center bg-[#FEFFF5] text-center">
-                        <Upload size={32} className="text-gray-700 mb-2" />
-                        <p className="text-sm">
-                            <span className="text-gray-600 font-medium underline cursor-pointer">Click to upload</span> or drag and drop
-                        </p>
-                        <p className="text-xs text-gray-400 mt-2">Maximum file size 5 MB</p>
-                    </div>
-                    <p className="text-[10px] text-gray-400 mt-2">File supported: .jpg, .png, .jpeg</p>
+                    <FileUpload 
+                        accept=".jpg,.jpeg,.png"
+                        supportedFileType=".jpg, .png, .jpeg"
+                        maxSizeMB={5}
+                        onFileSelect={async (file) => {
+                            if (!file) {
+                                setImgUrl("");
+                                return;
+                            }
+                            const formData = new FormData();
+                            formData.append("file", file);
+                            const res = await uploadClassFile(formData);
+                            if (res.success) {
+                                setImgUrl(res.url);
+                            } else {
+                                alert(res.error || "Failed to upload image");
+                            }
+                        }}
+                    />
                     <div className="relative flex items-center mt-6">
                         <div className="flex-grow border-t border-gray-200"></div>
                         <span className="flex-shrink mx-4 text-xs text-gray-400 font-medium italic">or submit via link</span>
@@ -200,14 +212,25 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                 {/* Preview Video */}
                 <div>
                     <label className="block text-sm font-semibold mb-2">Preview Class (Video)</label>
-                    <div className="border-2 border-dashed border-[#D9F55C] rounded-xl p-10 flex flex-col items-center justify-center bg-[#FEFFF5] text-center">
-                        <Upload size={32} className="text-gray-700 mb-2" />
-                        <p className="text-sm">
-                            <span className="text-gray-600 font-medium underline cursor-pointer">Click to upload</span> or drag and drop
-                        </p>
-                        <p className="text-xs text-gray-400 mt-2">Maximum file size 100 MB</p>
-                    </div>
-                    <p className="text-[10px] text-gray-400 mt-2">File supported: .mp4</p>
+                    <FileUpload 
+                        accept=".mp4"
+                        supportedFileType=".mp4"
+                        maxSizeMB={100}
+                        onFileSelect={async (file) => {
+                            if (!file) {
+                                setPreviewVideoUrl("");
+                                return;
+                            }
+                            const formData = new FormData();
+                            formData.append("file", file);
+                            const res = await uploadClassFile(formData);
+                            if (res.success) {
+                                setPreviewVideoUrl(res.url);
+                            } else {
+                                alert(res.error || "Failed to upload video");
+                            }
+                        }}
+                    />
                     <div className="relative flex items-center mt-6">
                         <div className="flex-grow border-t border-gray-200"></div>
                         <span className="flex-shrink mx-4 text-xs text-gray-400 font-medium italic">or submit via link</span>

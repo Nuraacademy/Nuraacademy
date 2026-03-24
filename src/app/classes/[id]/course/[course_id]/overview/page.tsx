@@ -8,6 +8,7 @@ import AddSessionButton from "./add_session_button";
 import { hasPermission } from "@/lib/rbac";
 import { getFullSession } from "@/app/actions/auth";
 import TitleCard from "@/components/ui/card/title_card";
+import { AddAssignmentButton } from "@/app/classes/[id]/overview/client_button";
 
 interface SectionProps {
     icon: React.ReactNode;
@@ -179,8 +180,9 @@ export default async function CourseOverviewPage({
                         />
 
                         {canCreateSession && (
-                            <div className="flex justify-center mt-6">
+                            <div className="flex justify-center mt-6 gap-4">
                                 <AddSessionButton classId={classId} courseId={courseId} />
+                                <AddAssignmentButton classId={classId} courseId={courseId} />
                             </div>
                         )}
                     </div>

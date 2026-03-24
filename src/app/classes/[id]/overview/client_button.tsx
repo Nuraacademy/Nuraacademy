@@ -114,6 +114,16 @@ export function PlacementTestButton({
     )
 }
 
+export function AddAssignmentButton({ classId, courseId }: { classId: string, courseId?: string }) {
+    const router = useRouter()
+    return <NuraButton
+        label="Add Assignment"
+        variant="primary"
+        onClick={() => router.push(`/assignment/add?classId=${classId}${courseId ? `&courseId=${courseId}` : ""}`)}
+    />
+}
+
+
 export function AddCourseButton({ classId }: { classId: string }) {
     const router = useRouter()
     return <NuraButton label="Add Course" variant="primary" onClick={() => router.push(`/classes/${classId}/course/add`)} />

@@ -4,10 +4,11 @@ import { getPlacementTestByClassId, getAssignmentResult, getProjectAssignmentsBy
 import { getEnrollment } from "@/controllers/enrollmentController";
 import { getSession } from "@/app/actions/auth";
 import { hasPermission } from "@/lib/rbac";
-import { EnrollButton, AddTimelineButton, PlacementTestButton, AddCourseButton, CourseCard, ProjectCard, SuccessHandler, FeedbackButton, AnalyticsButton } from "./client_button";
+import { EnrollButton, AddTimelineButton, PlacementTestButton, AddAssignmentButton, AddCourseButton, CourseCard, ProjectCard, SuccessHandler, FeedbackButton, AnalyticsButton } from "./client_button";
 import { notFound } from "next/navigation";
 import { getFullSession } from "@/app/actions/auth";
 import Image from "next/image";
+import Link from "next/link";
 
 export default async function CourseOverviewPage({
     params
@@ -68,13 +69,13 @@ export default async function CourseOverviewPage({
                 </div>
 
                 {/* Hero Card */}
-                <section className="relative bg-gradient-to-r from-[#005954] via-[#005954] to-[#94B546] rounded-xl overflow-hidden mb-8 flex flex-col md:flex-row items-stretch gap-0">
+                <section className="relative bg-gradient-to-r from-[#005954] via-[#005954] to-[#94B546] rounded-4xl overflow-hidden mb-8 flex flex-col md:flex-row items-stretch gap-0">
                     {/* Image */}
-                    <div className="relative w-full md:w-[382px] lg:w-[382px] shrink-0 aspect-[382/216] md:aspect-auto mx-8 my-4">
+                    <div className="relative w-full md:w-[382px] lg:w-[382px] shrink-0 aspect-[382/216] md:aspect-auto mx-4 my-4">
                         <Image
                             src={imageUrl}
                             alt={classData.title}
-                            className="rounded-xl object-cover w-full h-full border border-white/10"
+                            className="rounded-4xl object-cover w-full h-full border border-white/10"
                             width={382}
                             height={216}
                         />
@@ -130,6 +131,13 @@ export default async function CourseOverviewPage({
                                 <EnrollButton classId={id} />
                             </div>
                         )}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex justify-center mt-6 mr-6 gap-4 top-0">
+                        <Link href={`/classes/${id}/overview/edit`}>
+                            <Image src="/icons/Edit.svg" alt="Edit" width={16} height={16} />
+                        </Link>
                     </div>
                 </section>
 
@@ -273,7 +281,10 @@ export default async function CourseOverviewPage({
                             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
                                 <h2 className="text-md">Courses</h2>
                                 {canCreateCourse && (
-                                    <AddCourseButton classId={id} />
+                                    <div className="flex items-center gap-2">
+                                        <AddCourseButton classId={id} />
+                                        <AddAssignmentButton classId={id} />
+                                    </div>
                                 )}
                             </div>
 

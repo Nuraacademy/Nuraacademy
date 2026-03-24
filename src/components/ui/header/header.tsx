@@ -180,7 +180,7 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
                                                         setShowDropdown(false);
                                                     }}
                                                 >
-                                                    <Image src="/icons/Profile.svg" alt="Profile" width={16} height={16} className="opacity-70" />
+                                                    <Image src="/icons/People.svg" alt="Admin" width={16} height={16} className="opacity-70" />
                                                     Admin
                                                 </button>
                                             </div>}
