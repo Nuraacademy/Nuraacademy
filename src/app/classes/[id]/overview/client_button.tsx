@@ -317,11 +317,7 @@ export function AnalyticsButton({ classId, isLearner }: { classId: string, isLea
             variant="primary"
             leftIcon={<Image src="/icons/Analytics.svg" alt="Analytics" width={20} height={20} />}
             onClick={() => {
-                if (isLearner) {
-                    router.push(`/classes/${classId}/analytics`)
-                } else {
-                    router.push(`/classes/${classId}/analytics/trainer`)
-                }
+                router.push(`/classes/${classId}/analytics`)
             }}
         />
     )

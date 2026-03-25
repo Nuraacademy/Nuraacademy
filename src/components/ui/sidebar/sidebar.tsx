@@ -46,6 +46,7 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
     const [myClasses, setMyClasses] = useState<SidebarClass[]>([])
     const [assignments, setAssignments] = useState<SidebarAssignment[]>([])
     const [feedbacks, setFeedbacks] = useState<SidebarFeedback[]>([])
+    const [isLearner, setIsLearner] = useState(true)
 
     const [expandedItems, setExpandedItems] = useState<{ [key: string]: boolean }>({})
 
@@ -57,6 +58,7 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
                 setMyClasses(res.data.myClasses)
                 setAssignments(res.data.assignments)
                 setFeedbacks(res.data.feedbacks)
+                setIsLearner(res.data.isLearner)
             }
             setLoading(false)
         }

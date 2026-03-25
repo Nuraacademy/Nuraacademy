@@ -41,7 +41,16 @@ export async function getClassAnalytics(classId: number) {
 
         if (!classData) return { success: false, error: "Class not found" };
 
-        const myEnrollment = classData.enrollments.find(e => e.userId === userId);
+        let myEnrollment = classData.enrollments.find(e => e.userId === userId);
+        
+        if (!myEnrollment && classData.enrollments.length > 0) {
+            // Check if user is Admin/Trainer and allow viewing a representative report
+            const user = await prisma.user.findUnique({ where: { id: userId }, include: { role: true } });
+            if (user?.role?.name !== 'Learner') {
+                myEnrollment = classData.enrollments[0];
+            }
+        }
+
         if (!myEnrollment) return { success: false, error: "Enrolled user not found" };
 
         // 1. Group Logic
@@ -331,6 +340,66 @@ export async function getTrainerAnalytics(classId: number, trainerUserId?: numbe
         return { success: true, data: analytics };
     } catch (error: any) {
         console.error("Get Trainer Analytics Error:", error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function getClassFeedbackAnalytics(classId: number) {
+    try {
+        await requirePermission('Analytics', 'ANALYTICS_REPORT_TRAINER');
+        const userId = await getSession();
+        if (!userId) return { success: false, error: "Unauthorized" };
+
+        const classData = await prisma.class.findUnique({
+            where: { id: classId },
+            include: {
+                classFeedbacks: {
+                    where: { deletedAt: null },
+                    include: {
+                        user: { select: { id: true, name: true, username: true } }
+                    }
+                }
+            }
+        });
+
+        if (!classData) return { success: false, error: "Class not found" };
+
+        const feedbacks = classData.classFeedbacks;
+        const count = feedbacks.length;
+
+        const avg = (key: string) => {
+            if (count === 0) return 0;
+            const sum = feedbacks.reduce((acc, f: any) => acc + (f[key] || 0), 0);
+            return Math.round(sum / count);
+        };
+
+        const feedbackMetrics = {
+            courseStructure: avg('courseStructure'),
+            learningEnvironment: avg('learningEnvironment'),
+            materialQuality: avg('materialQuality'),
+            practicalRelevance: avg('practicalRelevance'),
+            technicalSupport: avg('technicalSupport'),
+        };
+
+        const feedbackDetails = {
+            courseStructure: feedbacks.map(f => (f as any).courseStructureFeedback).filter(Boolean),
+            learningEnvironment: feedbacks.map(f => (f as any).learningEnvironmentFeedback).filter(Boolean),
+            materialQuality: feedbacks.map(f => (f as any).materialQualityFeedback).filter(Boolean),
+            practicalRelevance: feedbacks.map(f => (f as any).practicalRelevanceFeedback).filter(Boolean),
+            technicalSupport: feedbacks.map(f => (f as any).technicalSupportFeedback).filter(Boolean),
+        };
+
+        return {
+            success: true,
+            data: {
+                className: classData.title,
+                metrics: feedbackMetrics,
+                details: feedbackDetails,
+                totalFeedbacks: count
+            }
+        };
+    } catch (error: any) {
+        console.error("Get Class Feedback Analytics Error:", error);
         return { success: false, error: error.message };
     }
 }

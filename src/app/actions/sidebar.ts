@@ -131,7 +131,8 @@ export async function getSidebarData() {
             data: {
                 myClasses: myClasses.slice(0, 5),
                 assignments: formattedAssignments.slice(0, 6),
-                feedbacks: feedbackLinks
+                feedbacks: feedbackLinks,
+                isLearner
             }
         };
     } catch (error: any) {
