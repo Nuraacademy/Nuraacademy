@@ -7,9 +7,12 @@ import { AssignmentType, AssignmentStatus } from '@prisma/client';
 export async function getLearnerPlacementResults(classId: number) {
     const placementTest = await prisma.assignment.findFirst({
         where: { classId, type: AssignmentType.PLACEMENT, deletedAt: null },
+        include: { assignmentItems: { where: { deletedAt: null } } }
     });
 
     if (!placementTest) return [];
+
+    const maxScore = placementTest.assignmentItems.reduce((acc, item) => acc + (item.maxScore || 0), 0);
 
     const enrollments = await prisma.enrollment.findMany({
         where: {
@@ -48,6 +51,7 @@ export async function getLearnerPlacementResults(classId: number) {
             name: e.user.name || e.user.username,
             status: result ? (isGraded ? "Graded" : "To Grade") : "Not Started",
             totalScore: result?.totalScore || 0,
+            maxScore: maxScore,
             objectiveScore: objectiveScore,
             submittedAt: result?.finishedAt,
             assignmentId: placementTest.id,
@@ -78,22 +82,65 @@ export async function getGradingData(assignmentId: number, enrollmentId: number)
 
     if (!result) return null;
 
-    // Categorize items
+    // Ensure all items have a result record (for legacy data or skipped answers)
+    // We check for both ID match AND content match (question text + type)
+    const missingItems = result.assignment.assignmentItems.filter(item => {
+        return !result.assignmentItemResults.some(ir => {
+            const sameId = ir.assignmentItemId === item.id;
+            const sameContent = ir.assignmentItem?.question === item.question && ir.assignmentItem?.type === item.type;
+            return sameId || sameContent;
+        });
+    });
+
+    if (missingItems.length > 0) {
+        await prisma.assignmentItemResult.createMany({
+            data: missingItems.map(item => ({
+                assignmentResultId: result.id,
+                assignmentItemId: item.id,
+                answer: null,
+                score: item.type === 'OBJECTIVE' ? 0 : null
+            }))
+        });
+        
+        // Re-fetch with new items
+        return getGradingData(assignmentId, enrollmentId);
+    }
+
+    // Categorize items and de-duplicate by content
     const objective: any[] = [];
     const essay: any[] = [];
     const project: any[] = [];
 
-    result.assignment.assignmentItems.forEach(item => {
-        const itemResult = result.assignmentItemResults.find(ir => ir.assignmentItemId === item.id);
+    const uniqueResults = new Map<string, any>();
+    
+    result.assignmentItemResults.forEach((ir: any) => {
+        const item = ir.assignmentItem;
+        if (!item) return;
+
+        const contentKey = `${item.type}:${item.question}`;
+        const existing = uniqueResults.get(contentKey);
+                
+        const hasData = (ir.answer !== null && ir.answer !== undefined && ir.answer !== "") || (ir.score !== null && ir.score !== undefined);
+        const existingHasData = existing && ((existing.answer !== null && existing.answer !== undefined && existing.answer !== "") || (existing.score !== null && existing.score !== undefined));
+
+        const shouldReplace = !existing || (hasData && !existingHasData) || (hasData === existingHasData && ir.id > existing.id);
+
+        if (shouldReplace) {
+            uniqueResults.set(contentKey, ir);
+        }
+    });
+
+    uniqueResults.forEach((ir: any) => {
+        const item = ir.assignmentItem;
         const data = {
             id: item.id,
             question: item.question,
-            givenAnswer: itemResult?.answer || "",
+            givenAnswer: ir.answer || "",
             correctAnswer: item.correctAnswer,
-            score: itemResult?.score,
+            score: ir.score,
             maxScore: item.maxScore || 10,
-            answerFiles: itemResult?.answerFiles,
-            resultItemId: itemResult?.id,
+            answerFiles: ir.answerFiles,
+            resultItemId: ir.id,
         };
 
         if (item.type === 'OBJECTIVE') objective.push(data);
@@ -101,9 +148,15 @@ export async function getGradingData(assignmentId: number, enrollmentId: number)
         else if (item.type === 'PROJECT') project.push(data);
     });
 
+    // Sort by item ID
+    const sorter = (a: any, b: any) => a.id - b.id;
+    objective.sort(sorter);
+    essay.sort(sorter);
+    project.sort(sorter);
+
     return {
         id: result.id,
-        learnerName: "", // Will be filled by caller if needed or joined in query
+        learnerName: "", 
         objective,
         essay,
         project,

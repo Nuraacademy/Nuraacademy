@@ -4,9 +4,10 @@ import { useState } from "react";
 import { NuraButton } from "@/components/ui/button/button";
 import { NuraTextInput } from "@/components/ui/input/text_input";
 import { useRouter } from "next/navigation";
-import { handleLogin } from "@/app/actions/auth";
+import { handleLogin, handleGoogleLogin } from "@/app/actions/auth";
 import { toast } from "sonner";
 import Image from "next/image";
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
 export const dynamic = "force-dynamic";
 
@@ -40,11 +41,31 @@ export default function LoginPage() {
         }
     };
 
+    const handleGoogleSuccess = async (credentialResponse: any) => {
+        setIsLoading(true);
+        try {
+            if (credentialResponse.credential) {
+                const result = await handleGoogleLogin(credentialResponse.credential);
+                if (result.success) {
+                    toast.success("Login successful!");
+                    router.push("/classes");
+                } else {
+                    toast.error(result.error || "Google login failed");
+                }
+            }
+        } catch (error) {
+            toast.error("An unexpected error occurred during Google login");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
-        <main className="min-h-screen w-full bg-white flex items-stretch">
+        <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
+            <main className="min-h-screen w-full bg-white flex items-stretch">
             {/* Left form panel */}
             <section className="w-full md:w-1/2 flex items-center justify-center px-4 md:px-10 py-10">
-                <div className="w-full max-w-md bg-white rounded-none md:rounded-[32px] shadow-none px-4 md:px-10 py-8 md:py-12">
+                <div className="w-full max-w-md bg-white rounded-none md:rounded-xl shadow-none px-4 md:px-10 py-8 md:py-12">
                     {/* Logo */}
                     <div className="flex justify-center mb-8">
                         <Image
@@ -61,6 +82,26 @@ export default function LoginPage() {
                         Welcome to Nura
                     </h2>
 
+                    <div className="flex justify-center mb-6">
+                        <div className="w-full h-[40px] [&>div]:w-full [&>div>div]:w-full [&>div>div]:flex [&>div>div]:justify-center">
+                            <GoogleLogin
+                                onSuccess={handleGoogleSuccess}
+                                onError={() => {
+                                    toast.error("Google Login Failed");
+                                }}
+                                width="100%"
+                                shape="pill"
+                                text="signin_with"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="relative flex items-center py-2 mb-6">
+                        <div className="flex-grow border-t border-gray-300"></div>
+                        <span className="flex-shrink-0 mx-4 text-gray-400 text-sm">or</span>
+                        <div className="flex-grow border-t border-gray-300"></div>
+                    </div>
+
                     <form className="space-y-4" onSubmit={handleSubmit}>
                         <div>
                             <NuraTextInput
@@ -69,6 +110,7 @@ export default function LoginPage() {
                                 value={identifier}
                                 onChange={(e) => setIdentifier(e.target.value)}
                                 disabled={isLoading}
+                                id="username"
                             />
                         </div>
 
@@ -80,6 +122,7 @@ export default function LoginPage() {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 disabled={isLoading}
+                                id="password"
                             />
                         </div>
 
@@ -89,6 +132,7 @@ export default function LoginPage() {
                                 type="submit"
                                 isLoading={isLoading}
                                 className="w-full rounded-full bg-black text-white py-2 text-sm font-medium hover:bg-gray-900 transition-colors"
+                                id="login-btn"
                             />
                         </div>
 
@@ -113,12 +157,13 @@ export default function LoginPage() {
                 />
 
                 <div className="relative z-10 max-w-md px-10 text-white text-center">
-                    <h1 className="text-4xl font-semibold mb-4">Hello Learner!</h1>
+                    <h1 className="text-4xl font-semibold mb-4">Hello Everyone!</h1>
                     <p className="text-base leading-relaxed">
                         Let's grow together with Nura Academy<br />learning journey.
                     </p>
                 </div>
             </section>
-        </main>
+            </main>
+        </GoogleOAuthProvider>
     );
 }

@@ -40,13 +40,11 @@ This document tracks the implementation status of all the privileges seeded into
 | :--- | :--- | :--- | :--- |
 | Assignment | `CREATE_UPDATE_ASSIGNMENT` | Create/ update assignment | 🟢 Implemented |
 | Assignment | `PRE_POST_TEST` | Pre-post test | 🟢 Implemented |
-| Assignment | `COURSE_ASSIGNMENT` | Course assignment | 🔴 Not Implemented (Feature Missing) |
-| Assignment | `EXERCISES` | Exercises | 🔴 Not Implemented (Feature Missing) |
-| Assignment | `FINAL_PROJECT` | Final project | 🔴 Not Implemented (Feature Missing) |
-| Assignment | `SEARCH_VIEW_ASSIGNMENT` | Search & view assignment | 🔴 Not Implemented (Feature Missing) |
+| Assignment | `SEARCH_VIEW_ASSIGNMENT` | Search & view assignment | 🟢 Implemented |
 | Assignment | `DELETE_ASSIGNMENT` | Delete assignment | 🟢 Implemented |
-| Assignment | `START_ASSIGNMENT_INSTRUCTOR` | Start assignment (instructur/ trainer) | 🔴 Not Implemented (Feature Missing) |
+| Assignment | `START_ASSIGNMENT_INSTRUCTOR` | Start assignment (instructur/ trainer) | 🟢 Implemented |
 | Assignment | `START_ASSIGNMENT_LEARNER` | Start assignment (learner) | 🟢 Implemented |
+| Assignment | `GRADE_ASSIGNMENT` | Grade assignment | 🟢 Implemented |
 | Assignment | `VIEW_ASSIGNMENT_RESULT` | View assignment result | 🟢 Implemented |
 | Assignment | `CHECK_ASSIGNMENT_RESULT` | Check assignment result | 🟢 Implemented |
 | Assignment | `VIEW_ASSIGNMENT_SCORE` | View assignment score | 🟢 Implemented |
@@ -72,48 +70,52 @@ This document tracks the implementation status of all the privileges seeded into
 | Resource | Action | Description | Status |
 | :--- | :--- | :--- | :--- |
 | Forums | `CREATE_EDIT_TOPIC` | Create/ edit topic | 🟢 Implemented |
-| Forums | `DELETE_TOPIC` | Delete topic | 🔴 Not Implemented (Feature Missing) |
+| Forums | `DELETE_SELF_TOPIC` | Delete own topic | 🟢 Implemented |
 | Forums | `SEARCH_VIEW_TOPIC` | Search & view topic | 🟢 Implemented (Public View) |
-| Forums | `REPLY_TOPIC` | Reply topic | 🟢 Implemented |
-| Forums | `EDIT_REPLY` | Edit reply | 🔴 Not Implemented (Feature Missing) |
-| Forums | `DELETE_REPLY` | Delete reply | 🔴 Not Implemented (Feature Missing) |
+| Forums | `REPLY_SELF_TOPIC` | Reply to own topic | 🟢 Implemented |
+| Forums | `EDIT_SELF_REPLY` | Edit own reply | 🟢 Implemented |
+| Forums | `DELETE_SELF_REPLY` | Delete own reply | 🟢 Implemented |
+| Forums | `DELETE_OTHERS_TOPIC` | Delete others' topic | 🟢 Implemented |
+| Forums | `REPLY_OTHERS_TOPIC` | Reply to others' topic | 🟢 Implemented |
+| Forums | `EDIT_OTHERS_REPLY` | Edit others' reply | 🟢 Implemented |
+| Forums | `DELETE_OTHERS_REPLY` | Delete others' reply | 🟢 Implemented |
 
-## 6.0 Wikis
+## 6.0 Blogs
 | Resource | Action | Description | Status |
 | :--- | :--- | :--- | :--- |
-| Wikis | `POST_CREATE` | Post create | 🔴 Not Implemented (Feature Missing) |
-| Wikis | `POST_SEARCH_VIEW` | Post search & view | 🔴 Not Implemented (Feature Missing) |
-| Wikis | `POST_EDIT` | Post edit | 🔴 Not Implemented (Feature Missing) |
-| Wikis | `POST_DELETE` | Post delete | 🔴 Not Implemented (Feature Missing) |
+| Blogs | `POST_CREATE` | Post create | 🟢 Implemented |
+| Blogs | `POST_SEARCH_VIEW` | Post search & view | 🟢 Implemented |
+| Blogs | `POST_EDIT` | Post edit | 🟢 Implemented |
+| Blogs | `POST_DELETE` | Post delete | 🟢 Implemented |
 
 ## 7.0 Reflection & Evaluation
 | Resource | Action | Description | Status |
 | :--- | :--- | :--- | :--- |
-| Feedback | `CREATE_EDIT_REFLECTION` | Create/edit reflection | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `CREATE_EDIT_ASSIGNMENT_FEEDBACK` | Create/edit Assignment feedback | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `CREATE_EDIT_PEER_FEEDBACK` | Create/edit Peer feedback | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `CREATE_EDIT_CLASS_FEEDBACK` | Create/edit class feedback | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `CREATE_EDIT_TRAINER_FEEDBACK` | Create/edit Trainer feedback | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `DELETE_REFLECTION` | Delete reflection | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `VIEW_SEARCH_REFLECTION` | View & search reflection | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `VIEW_DETAIL_REFLECTION` | View detail reflection | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `DELETE_ASSIGNMENT_FEEDBACK` | Delete assignment feedback | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `VIEW_SEARCH_ASSIGNMENT_FEEDBACK` | View & search assignment feedback | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `VIEW_DETAIL_ASSIGNMENT_FEEDBACK` | View detail assignment feedback | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `DELETE_PEER_FEEDBACK` | delete peer feedback | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `VIEW_SEARCH_PEER_FEEDBACK` | View & search peer feedback | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `VIEW_DETAIL_PEER_FEEDBACK` | View detail peer feedback | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `DELETE_TRAINER_FEEDBACK` | delete trainer feedback | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `VIEW_SEARCH_TRAINER_FEEDBACK` | View & search trainer feedback | 🔴 Not Implemented (Feature Missing) |
-| Feedback | `VIEW_DETAIL_TRAINER_FEEDBACK` | View detail trainer feedback | 🔴 Not Implemented (Feature Missing) |
+| Feedback | `CREATE_EDIT_REFLECTION` | Create/edit reflection | 🟢 Implemented |
+| Feedback | `CREATE_EDIT_ASSIGNMENT_FEEDBACK` | Create/edit Assignment feedback | 🟢 Implemented |
+| Feedback | `CREATE_EDIT_PEER_FEEDBACK` | Create/edit Peer feedback | 🟢 Implemented |
+| Feedback | `CREATE_EDIT_CLASS_FEEDBACK` | Create/edit class feedback | 🟢 Implemented |
+| Feedback | `CREATE_EDIT_TRAINER_FEEDBACK` | Create/edit Trainer feedback | 🟢 Implemented |
+| Feedback | `DELETE_REFLECTION` | Delete reflection | 🟢 Implemented |
+| Feedback | `VIEW_SEARCH_REFLECTION` | View & search reflection | 🟢 Implemented |
+| Feedback | `VIEW_DETAIL_REFLECTION` | View detail reflection | 🟢 Implemented |
+| Feedback | `DELETE_ASSIGNMENT_FEEDBACK` | Delete assignment feedback | 🟢 Implemented |
+| Feedback | `VIEW_SEARCH_ASSIGNMENT_FEEDBACK` | View & search assignment feedback | 🟢 Implemented |
+| Feedback | `VIEW_DETAIL_ASSIGNMENT_FEEDBACK` | View detail assignment feedback | 🟢 Implemented |
+| Feedback | `DELETE_PEER_FEEDBACK` | delete peer feedback | 🟢 Implemented |
+| Feedback | `VIEW_SEARCH_PEER_FEEDBACK` | View & search peer feedback | 🟢 Implemented |
+| Feedback | `VIEW_DETAIL_PEER_FEEDBACK` | View detail peer feedback | 🟢 Implemented |
+| Feedback | `DELETE_TRAINER_FEEDBACK` | delete trainer feedback | 🟢 Implemented |
+| Feedback | `VIEW_SEARCH_TRAINER_FEEDBACK` | View & search trainer feedback | 🟢 Implemented (Session-based ownership check) |
+| Feedback | `VIEW_DETAIL_TRAINER_FEEDBACK` | View detail trainer feedback | 🟢 Implemented (Session-based ownership check) |
 
 ## 8.0 User management
 | Resource | Action | Description | Status |
 | :--- | :--- | :--- | :--- |
-| User | `CREATE_EDIT_USER` | Create/ edit user | 🟢 Implemented (via default registration) |
-| User | `VIEW_DETAIL_USER` | View detail user | 🔴 Not Implemented (Feature Missing) |
-| User | `DELETE_USER` | Delete user | 🔴 Not Implemented (Feature Missing) |
-| User | `VIEW_SEARCH_USER` | View & search user | 🟢 Implemented (Admin UI) |
+| User | `CREATE_EDIT_USER` | Create/ edit user | 🟢 Implemented |
+| User | `VIEW_DETAIL_USER` | View detail user | 🟢 Implemented |
+| User | `DELETE_USER` | Delete user | 🟢 Implemented |
+| User | `VIEW_SEARCH_USER` | View & search user | 🟢 Implemented |
 
 ## 9.0 File management
 | Resource | Action | Description | Status |
@@ -128,7 +130,7 @@ This document tracks the implementation status of all the privileges seeded into
 ## 10.0 Analytics & Report
 | Resource | Action | Description | Status |
 | :--- | :--- | :--- | :--- |
-| Analytics | `ANALYTICS_REPORT_LEARNER` | Analytics report learner | 🔴 Not Implemented (Feature Missing) |
-| Analytics | `LEARNER_REPORT` | Learner report | 🔴 Not Implemented (Feature Missing) |
-| Analytics | `ANALYTICS_REPORT_TRAINER` | Analytics report trainer | 🔴 Not Implemented (Feature Missing) |
-| Analytics | `TRAINER_REPORT` | Trainer report | 🔴 Not Implemented (Feature Missing) |
+| Analytics | `ANALYTICS_REPORT_LEARNER` | Analytics report learner | 🟢 Implemented |
+| Analytics | `LEARNER_REPORT` | Learner report | 🟢 Implemented |
+| Analytics | `ANALYTICS_REPORT_TRAINER` | Analytics report trainer | 🟢 Implemented |
+| Analytics | `TRAINER_REPORT` | Trainer report | 🟢 Implemented |

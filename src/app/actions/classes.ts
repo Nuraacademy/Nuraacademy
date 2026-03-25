@@ -112,3 +112,34 @@ export async function getClassesAction() {
         return { success: false, error: error.message || "Failed to fetch classes" };
     }
 }
+
+export async function uploadClassFile(formData: FormData) {
+    try {
+        await requirePermission('Class', 'CREATE_UPDATE_CLASS');
+        
+        const file = formData.get("file") as File;
+        if (!file) {
+            return { success: false, error: "No file uploaded" };
+        }
+
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+
+        // Required imports for this to work natively
+        const { writeFile, mkdir } = await import('fs/promises');
+        const { join } = await import('path');
+
+        const uploadDir = join(process.cwd(), 'public', 'uploads', 'classes');
+        await mkdir(uploadDir, { recursive: true });
+
+        const fileName = `${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
+        const path = join(uploadDir, fileName);
+        await writeFile(path, buffer);
+
+        const url = `/uploads/classes/${fileName}`;
+        return { success: true, url };
+    } catch (error: any) {
+        console.error("Upload error:", error);
+        return { success: false, error: error.message || "Failed to upload file" };
+    }
+}

@@ -1,11 +1,14 @@
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import { getClassById } from "@/controllers/classController";
-import { getPlacementTestByClassId, getAssignmentResult } from "@/controllers/assignmentController";
+import { getPlacementTestByClassId, getAssignmentResult, getProjectAssignmentsByClassId } from "@/controllers/assignmentController";
 import { getEnrollment } from "@/controllers/enrollmentController";
 import { getSession } from "@/app/actions/auth";
 import { hasPermission } from "@/lib/rbac";
-import { EnrollButton, AddTimelineButton, PlacementTestButton, AddCourseButton, CourseCard, SuccessHandler } from "./client_button";
+import { EnrollButton, AddTimelineButton, PlacementTestButton, AddAssignmentButton, AddCourseButton, CourseCard, ProjectCard, SuccessHandler, FeedbackButton, AnalyticsButton } from "./client_button";
 import { notFound } from "next/navigation";
+import { getFullSession } from "@/app/actions/auth";
+import Image from "next/image";
+import Link from "next/link";
 
 export default async function CourseOverviewPage({
     params
@@ -18,10 +21,16 @@ export default async function CourseOverviewPage({
     const canUpdateSchedule = await hasPermission('Class', 'UPDATE_SCHEDULE_CLASS');
     const canCreateCourse = await hasPermission('Course', 'CREATE_COURSE');
     const canUpdateCourse = await hasPermission('Course', 'UPDATE_COURSE');
-    const canCreatePlacement = await hasPermission('PlacementTest', 'CREATE');
+    const canCreatePlacement = await hasPermission('Class', 'PLACEMENT_TEST_CREATE');
+    const canViewFeedbackReport = await hasPermission('Feedback', 'VIEW_DETAIL_REFLECTION');
+    const canViewTrainerAnalytics = await hasPermission('Analytics', 'ANALYTICS_REPORT_TRAINER');
+    const canEditClass = await hasPermission('Class', 'CREATE_UPDATE_CLASS');
+
+    const session = await getFullSession();
+    const isLearner = session?.role === 'Learner';
 
     // Fetch live class data
-    const classData = await getClassById(parseInt(id));
+    const classData = await getClassById(parseInt(id)) as any;
     if (!classData) {
         return notFound();
     }
@@ -40,11 +49,14 @@ export default async function CourseOverviewPage({
         }
     }
 
+    // Fetch PROJECT assignments for this class
+    const projectAssignments = await getProjectAssignmentsByClassId(parseInt(id));
+
     // Fallback image if none provided
     const imageUrl = classData.imgUrl || "https://www.lackawanna.edu/wp-content/uploads/2024/08/male-tutor-teaching-university-students-in-classro-2023-11-27-05-16-59-utc.webp";
 
     return (
-        <main className="min-h-screen bg-[#F5F5EC] font-sans text-gray-800">
+        <main className="min-h-screen bg-[#F5F5EC]  text-gray-800">
             <SuccessHandler classId={id} timelines={classData.timelines || []} />
             <div className="max-w-7xl mx-auto px-6 md:px-10 py-8">
 
@@ -59,56 +71,59 @@ export default async function CourseOverviewPage({
                 </div>
 
                 {/* Hero Card */}
-                <section className="relative bg-gradient-to-r from-[#005954] to-[#94B546] rounded-[2rem] overflow-hidden mb-8 flex flex-col md:flex-row items-stretch gap-0">
+                <section className="relative bg-gradient-to-r from-[#005954] via-[#005954] to-[#94B546] rounded-4xl overflow-hidden mb-8 flex flex-col md:flex-row items-stretch gap-0">
                     {/* Image */}
-                    <div className="w-full md:w-[280px] shrink-0">
-                        <img
+                    <div className="relative w-full md:w-[382px] lg:w-[382px] shrink-0 aspect-[382/216] md:aspect-auto mx-4 my-4">
+                        <Image
                             src={imageUrl}
-                            alt="Course"
-                            className="w-full h-full object-cover"
-                            style={{ minHeight: "220px" }}
+                            alt={classData.title}
+                            className="rounded-4xl object-cover w-full h-full border border-white/10"
+                            width={382}
+                            height={216}
                         />
                     </div>
 
                     {/* Info */}
                     <div className="flex-grow p-8 text-white">
-                        <h1 className="text-2xl font-bold mb-3">{classData.title}</h1>
+                        <h1 className="text-lg font-medium mb-3">{classData.title}</h1>
 
                         {/* Hours & Modules */}
-                        <div className="flex items-center gap-5 text-sm mb-5">
+                        <div className="flex items-center gap-5 text-xs mb-5">
                             <div className="flex items-center gap-1.5">
-                                <img
+                                <Image
                                     src="/icons/ClockWhite.svg"
                                     alt="Clock"
-                                    className="w-4 h-4"
+                                    width={16}
+                                    height={16}
                                 />
                                 <span>{classData.hours} hours</span>
                             </div>
                             <div className="flex items-center gap-1.5">
-                                <img
-                                    src="/icons/Modules.svg"
+                                <Image
+                                    src="/icons/ModulesWhite.svg"
                                     alt="Modules"
-                                    className="w-4 h-4"
+                                    width={16}
+                                    height={16}
                                 />
                                 <span>{classData.timelines?.length || 0} modules</span>
                             </div>
                         </div>
 
                         {/* Methods & Schedules */}
-                        <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-sm mb-5">
+                        <div className="flex gap-x-16 gap-y-1 text-xs mb-5">
                             <div>
-                                <p className="font-semibold text-white/80 mb-0.5">Methods</p>
+                                <p className="text-sm mb-0.5">Methods</p>
                                 <div dangerouslySetInnerHTML={{ __html: classData.methods }} />
                             </div>
                             <div>
-                                <p className="font-semibold text-white/80 mb-0.5">Schedules</p>
+                                <p className="text-sm mb-0.5">Schedules</p>
                                 <p>{classData.startDate ? new Date(classData.startDate).toLocaleDateString() : 'TBA'} - {classData.endDate ? new Date(classData.endDate).toLocaleDateString() : 'TBA'}</p>
                             </div>
                         </div>
 
                         {/* Description */}
-                        <div className="text-sm leading-relaxed text-white/90">
-                            <p className="font-semibold text-white/80 mb-1">Description</p>
+                        <div className="text-xs leading-relaxed text-white/90">
+                            <p className="text-sm mb-1">Description</p>
                             <div dangerouslySetInnerHTML={{ __html: classData.description }} />
                         </div>
 
@@ -119,6 +134,15 @@ export default async function CourseOverviewPage({
                             </div>
                         )}
                     </div>
+
+                    {/* Action Buttons */}
+                    {canEditClass && (
+                        <div className="flex justify-center mt-6 mr-6 gap-4 top-0">
+                            <Link href={`/classes/${id}/edit`}>
+                                <Image src="/icons/Edit.svg" alt="Edit" width={16} height={16} />
+                            </Link>
+                        </div>
+                    )}
                 </section>
 
                 {/* Main Grid: Left + Right */}
@@ -127,27 +151,27 @@ export default async function CourseOverviewPage({
                     <aside className="lg:col-span-4 flex flex-col gap-6">
                         {/* What You Will Learn */}
                         {classData.learningObjective && (
-                            <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100">
-                                <h2 className="text-lg font-bold mb-4">What You Will Learn</h2>
-                                <div className="text-sm text-gray-700" dangerouslySetInnerHTML={{ __html: classData.learningObjective }} />
+                            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                                <h2 className="text-md mb-6">What You Will Learn</h2>
+                                <div className="text-xs" dangerouslySetInnerHTML={{ __html: classData.learningObjective }} />
                             </div>
                         )}
 
                         {/* Timeline Card */}
-                        <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100">
+                        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
                             <div className="flex items-center justify-between mb-6">
-                                <h2 className="text-lg font-bold">Timeline</h2>
+                                <h2 className="text-md">Timeline</h2>
                                 {canUpdateSchedule && (
                                     <AddTimelineButton classId={id} />
                                 )}
                             </div>
 
                             {/* Timeline Items */}
-                            <div className="relative pl-0">
+                            <div className="relative">
                                 {classData.timelines?.map((item, index) => (
                                     <div key={item.id} className="relative flex items-center mb-6 last:mb-0">
                                         {/* Date */}
-                                        <div className="w-24 text-xs text-gray-800 font-medium whitespace-pre-wrap">
+                                        <div className="w-24 text-xs whitespace-pre-wrap">
                                             {item.date ? new Date(item.date).toLocaleDateString() : 'TBA'}
                                         </div>
 
@@ -163,15 +187,86 @@ export default async function CourseOverviewPage({
                                         </div>
 
                                         {/* Label */}
-                                        <div className="text-sm text-gray-800 font-medium">
+                                        <div className="text-xs">
                                             {item.activity}
                                         </div>
                                     </div>
                                 ))}
                                 {(!classData.timelines || classData.timelines.length === 0) && (
-                                    <p className="text-sm text-gray-500 italic">No timeline available.</p>
+                                    <p className="text-xs italic">No timeline available.</p>
                                 )}
                             </div>
+                        </div>
+
+                        {/* Instructor & Trainer Section */}
+                        {(() => {
+                            const trainersMap = new Map();
+                            if (classData.trainer) {
+                                trainersMap.set(classData.trainer.id, { ...classData.trainer, isMain: true });
+                            }
+                            classData.courses?.forEach((course: any) => {
+                                if (course.user) {
+                                    trainersMap.set(course.user.id, course.user);
+                                }
+                                course.sessions?.forEach((session: any) => {
+                                    if (session.user) {
+                                        trainersMap.set(session.user.id, session.user);
+                                    }
+                                });
+                            });
+                            const trainers = Array.from(trainersMap.values());
+
+                            if (trainers.length === 0) return null;
+
+                            return (
+                                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                                    <h2 className="text-md mb-6">Instructor & Trainer</h2>
+                                    <div className="space-y-6">
+                                        {trainers.map((trainer, idx) => (
+                                            <div key={trainer.id}>
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 border border-gray-200 shrink-0">
+                                                        <Image
+                                                            src={trainer.profilePicture || `/example/human.png`}
+                                                            alt={trainer.name || trainer.username}
+                                                            className="w-full h-full object-cover"
+                                                            width={48}
+                                                            height={48}
+                                                        />
+                                                    </div>
+                                                    <div className="flex-grow">
+                                                        <div className="flex items-center gap-2">
+                                                            <h4 className="text-sm text-[#1C3A37]">{trainer.name || trainer.username}</h4>
+                                                            {trainer.isMain && (
+                                                                <span className="text-[10px] font-bold text-[#005954] bg-[#DAEE49]/40 px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">Batch Trainer</span>
+                                                            )}
+                                                        </div>
+                                                        <p className="text-xs text-gray-400">{trainer.role?.name || "Instructor"}</p>
+                                                    </div>
+                                                    {isLearner && isEnrolled && (
+                                                        <Link href={`/feedback/trainer/${trainer.id}?classId=${classData.id}`} className="bg-[#DAEE49] p-2 rounded-xl hover:bg-[#C9D942] transition-colors shadow-sm">
+                                                            <Image src="/icons/Information.svg" alt="Feedback" width={16} height={16} />
+                                                        </Link>
+                                                    )}
+                                                </div>
+                                                {idx < trainers.length - 1 && (
+                                                    <div className="h-[1px] bg-gray-50 w-full mt-6" />
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
+                        {/* Feedback & Analytics Buttons */}
+                        <div className="flex flex-col gap-3">
+                            {((isLearner && isEnrolled) || (!isLearner && canViewFeedbackReport)) && (
+                                <FeedbackButton classId={id} isLearner={isLearner} />
+                            )}
+                            {((isLearner && isEnrolled) || (!isLearner && canViewTrainerAnalytics)) && (
+                                <AnalyticsButton classId={id} isLearner={isLearner} />
+                            )}
                         </div>
                     </aside>
 
@@ -179,9 +274,9 @@ export default async function CourseOverviewPage({
                     <section className="lg:col-span-8 flex flex-col gap-6">
                         {/* Placement Test */}
                         {(isEnrolled || canCreatePlacement) && (
-                            <div className="bg-[#1C3A37] rounded-[2rem] px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+                            <div className="bg-[#1C3A37] rounded-xl px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
                                 <div>
-                                    <h2 className="text-lg text-white">Placement Test</h2>
+                                    <h2 className="text-md mb-4 text-white">Placement Test</h2>
                                     <p className="text-xs text-white">You must take the test first before starting this class. The test results are used to determine your group.</p>
                                 </div>
                                 <PlacementTestButton
@@ -194,11 +289,14 @@ export default async function CourseOverviewPage({
                         )}
 
                         {/* Courses */}
-                        <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 flex flex-col gap-4">
+                        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col gap-4">
                             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
-                                <h2 className="text-xl font-bold">Courses</h2>
+                                <h2 className="text-md">Courses</h2>
                                 {canCreateCourse && (
-                                    <AddCourseButton classId={id} />
+                                    <div className="flex items-center gap-2">
+                                        <AddCourseButton classId={id} />
+                                        <AddAssignmentButton classId={id} />
+                                    </div>
                                 )}
                             </div>
 
@@ -209,6 +307,16 @@ export default async function CourseOverviewPage({
                                         classId={id}
                                         course={course}
                                         isAdmin={canUpdateCourse}
+                                        isLearner={isLearner}
+                                    />
+                                ))}
+                                {projectAssignments.map((assignment) => (
+                                    <ProjectCard
+                                        key={assignment.id}
+                                        classId={id}
+                                        assignment={assignment}
+                                        isAdmin={canUpdateCourse}
+                                        isLearner={isLearner}
                                     />
                                 ))}
                                 {(!classData.courses || classData.courses.length === 0) && (

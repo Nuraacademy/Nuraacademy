@@ -3,6 +3,7 @@ import { getSessionById } from "@/controllers/sessionController";
 import { getCourseById } from "@/controllers/courseController";
 import { notFound } from "next/navigation";
 import EditSessionForm from "@/app/classes/[id]/course/[course_id]/session/[module_id]/edit/edit_form";
+import TitleCard from "@/components/ui/card/title_card";
 
 export default async function EditSessionPage({
     params
@@ -53,14 +54,14 @@ export default async function EditSessionPage({
     }
 
     const breadcrumbItems = [
-        { label: "Home", href: "/" },
+        { label: "Home", href: "/classes" },
         { label: classTitle, href: `/classes/${classId}/overview` },
         { label: courseTitle, href: `/classes/${classId}/course/${courseId}/overview` },
         { label: isNew ? "New Session" : sessionTitle, href: isNew ? "#" : `/classes/${classId}/course/${courseId}/session/${moduleId}` }
     ];
 
     return (
-        <main className="min-h-screen bg-[#FDFDF7] font-sans pb-16">
+        <main className="min-h-screen bg-[#FDFDF7]  pb-16">
             <div className="max-w-7xl mx-auto px-6 md:px-10 py-8">
                 {/* Breadcrumb */}
                 <div className="mb-6">
@@ -68,11 +69,7 @@ export default async function EditSessionPage({
                 </div>
 
                 {/* Hero Title */}
-                <section className="bg-[#005954] rounded-[1.5rem] p-6 mb-8">
-                    <h1 className="text-xl font-bold text-white">
-                        {isNew ? "Create New Session" : `Edit Session: ${sessionTitle}`}
-                    </h1>
-                </section>
+                <TitleCard title={isNew ? "Create New Session" : `Edit Session: ${sessionTitle}`} />
 
                 {/* Edit Form */}
                 <div className="bg-white rounded-[2rem] p-8 md:p-10 shadow-sm border border-gray-100">

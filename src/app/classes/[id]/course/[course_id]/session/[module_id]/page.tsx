@@ -1,10 +1,15 @@
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
+import { getAssignmentBySessionAndType } from "@/controllers/assignmentController";
 import { getSessionById } from "@/controllers/sessionController";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import SessionContent from "./session_content";
 import Link from "next/link";
-import { Pencil } from "lucide-react";
 import { hasPermission } from "@/lib/rbac";
+import TitleCard from "@/components/ui/card/title_card";
+import Image from "next/image";
+import { getSession } from "@/app/actions/auth";
+import { getEnrollment } from "@/controllers/enrollmentController";
+import { NotFoundState } from "@/components/ui/status/not_found_state";
 
 export default async function SessionPage({
     params
@@ -13,7 +18,26 @@ export default async function SessionPage({
 }) {
     const { id: classId, course_id: courseId, module_id: moduleId } = await params;
 
-    const session = await getSessionById(parseInt(moduleId));
+    const [session, preTest, postTest, currentUserId, canUpdateSession] = await Promise.all([
+        getSessionById(parseInt(moduleId)),
+        getAssignmentBySessionAndType(parseInt(moduleId), "PRETEST"),
+        getAssignmentBySessionAndType(parseInt(moduleId), "POSTTEST"),
+        getSession(),
+        hasPermission("Session", "UPDATE_SESSION")
+    ]);
+
+    // Check if user is enrolled or has admin permission
+    const enrollment = currentUserId ? await getEnrollment(currentUserId, parseInt(classId)) : null;
+    const isEnrolled = !!enrollment;
+
+    if (!isEnrolled && !canUpdateSession) {
+        return <NotFoundState
+            title="Not Enrolled"
+            message="You are not enrolled in this class. Please enroll to access this session."
+            href={`/classes/${classId}/enrollment`}
+        />
+    }
+
     if (!session) {
         return notFound();
     }
@@ -21,7 +45,6 @@ export default async function SessionPage({
     const classTitle = session.course?.class?.title || "Class";
     const courseTitle = session.course?.title || "Course";
     const isAsync = session.isSynchronous === false;
-    const canUpdateSession = await hasPermission("Session", "UPDATE_SESSION");
 
     // Parse JSON fields safely
     const parseJson = (val: any) => {
@@ -57,42 +80,41 @@ export default async function SessionPage({
     }
 
     const breadcrumbItems = [
-        { label: "Home", href: "/" },
+        { label: "Home", href: "/classes" },
         { label: classTitle, href: `/classes/${classId}/overview` },
         { label: courseTitle, href: `/classes/${classId}/course/${courseId}/overview` },
         { label: session.title, href: "#" },
     ];
 
     return (
-        <main className="min-h-screen bg-[#FDFDF7] font-sans pb-16">
+        <main className="min-h-screen bg-[#FDFDF7]  pb-16">
             <div className="max-w-7xl mx-auto px-6 md:px-10 py-8">
                 {/* Breadcrumb */}
                 <div className="mb-6">
                     <Breadcrumb items={breadcrumbItems} />
                 </div>
 
-                {/* Hero Title with Badge & Admin Edit */}
-                <section className="bg-[#005954] rounded-[1.5rem] p-6 mb-8 flex items-center justify-between gap-4">
-                    <h1 className="text-xl font-bold text-white">
-                        {session.title}
-                    </h1>
-                    {canUpdateSession && (
-                        <Link
-                            href={`/classes/${classId}/course/${courseId}/session/${moduleId}/edit`}
-                            className="flex items-center gap-2 bg-white text-[#005954] px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-                        >
-                            <Pencil size={18} />
-                            Edit Session
-                        </Link>
-                    )}
-                </section>
+                <TitleCard
+                    title={session.title}
+                    actions={
+                        canUpdateSession && (
+                            <Link
+                                href={`/classes/${classId}/course/${courseId}/session/${moduleId}/edit`}
+                                className="flex items-center gap-2 bg-white text-[#005954] px-4 py-2 rounded-xl font-medium hover:bg-gray-100 transition-colors"
+                            >
+                                <Image src="/icons/edit.svg" alt="Edit" width={20} height={20} />
+                                Edit Session
+                            </Link>
+                        )
+                    }
+                />
 
                 {/* Main Content Card */}
-                <div className="bg-white rounded-[2rem] p-10 shadow-sm border border-gray-100 flex flex-col gap-8">
+                <div className="bg-white rounded-xl p-10 shadow-sm border border-gray-100 flex flex-col gap-8">
                     {/* Time Section */}
                     <div>
                         <p className="text-sm">
-                            <span className="font-bold text-gray-900 mr-2">Time:</span>
+                            <span className="font-medium text-gray-900 mr-2">Time:</span>
                             <span className="text-gray-700">{timeString}</span>
                         </p>
                     </div>
@@ -108,6 +130,8 @@ export default async function SessionPage({
                         content={content}
                         referenceMaterials={referenceMaterials}
                         isAdmin={canUpdateSession}
+                        preTestId={preTest?.id}
+                        postTestId={postTest?.id}
                     />
                 </div>
             </div>

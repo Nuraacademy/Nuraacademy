@@ -38,21 +38,33 @@ export default async function ClassesPage() {
         }));
     }
 
+    // Only show started classes to learners (users without create permission)
+    if (!canCreate) {
+        classesWithStatus = classesWithStatus.filter((c: any) => c.startDate && new Date(c.startDate) <= new Date());
+    }
+
     return (
         <main className="relative min-h-screen w-full overflow-hidden py-4 px-4 md:py-8 md:pr-8 transition-all duration-300 md:pl-8">
             {/* Sidebar State Managed Separately to Avoid Client Wrapper */}
             <SidebarWrapper />
 
             {/* Background Image */}
-            <img
+            <Image
                 src="/background/PolygonBGTop.svg"
-                alt="Background"
-                className="absolute h-[40rem] object-cover top-0 left-0 pointer-events-none opacity-60"
+                alt=""
+                className="absolute top-0 left-0 -z-10 w-auto h-[30rem] pointer-events-none opacity-60"
+                width={500} // Increased to prevent distortion
+                height={500}
+                priority
             />
-            <img
+
+            {/* Bottom Right Background */}
+            <Image
                 src="/background/PolygonBGBot.svg"
-                alt="Background"
-                className="absolute h-[40rem] object-cover bottom-0 right-0 pointer-events-none opacity-60"
+                alt=""
+                className="absolute bottom-0 right-0 -z-10 w-auto h-[30rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
             />
 
             {/* Render the interactive grid using Client Component */}

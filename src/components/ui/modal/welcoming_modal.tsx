@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { NuraButton } from "../button/button";
 import { useRouter } from "next/navigation";
 
@@ -34,21 +35,23 @@ export default function WelcomingModal({
       />
 
       {/* Modal Card */}
-      <div className="relative bg-white w-full max-w-5xl rounded-[2.5rem] px-10 py-10 md:px-16 md:py-12 shadow-2xl flex flex-col items-center text-center">
+      <div className="relative bg-white w-full max-w-5xl rounded-xl px-10 py-10 md:px-16 md:py-12 shadow-2xl flex flex-col items-center text-center">
 
         {/* Icon */}
         <div className="mb-6 mt-2">
           <div className="w-24 h-24 flex items-center justify-center mx-auto">
-            <img
+            <Image
               src="/icons/Confetti.svg"
               alt="Congratulation"
               className="w-24 h-24 object-cover"
+              width={96}
+              height={96}
             />
           </div>
         </div>
 
         {/* Heading */}
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+        <h2 className="text-2xl md:text-3xl font-medium text-gray-900 mb-3">
           Welcome to the Journey!
         </h2>
         <p className="text-sm md:text-base text-gray-700 mb-10">

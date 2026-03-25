@@ -1,10 +1,11 @@
 "use server"
 
-import { submitAssignment, createAssignment as createAssignmentController } from "@/controllers/assignmentController"
+import { submitAssignment, createAssignment as createAssignmentController, submitManualScores } from "@/controllers/assignmentController"
 import { revalidatePath } from "next/cache"
 import { writeFile, mkdir } from "fs/promises"
 import { join } from "path"
 import { requirePermission } from "@/lib/rbac"
+import { prisma } from "@/lib/prisma"
 
 export async function submitTest(formData: FormData) {
     const assignmentId = parseInt(formData.get("assignmentId") as string)
@@ -14,6 +15,28 @@ export async function submitTest(formData: FormData) {
     const finishedAt = new Date()
 
     await requirePermission('Assignment', 'START_ASSIGNMENT_LEARNER')
+
+    const assignment = await prisma.assignment.findUnique({
+        where: { id: assignmentId },
+        select: { startDate: true, endDate: true, duration: true }
+    })
+
+    if (assignment) {
+        let deadline: Date | null = null;
+        if (assignment.endDate) {
+            deadline = new Date(assignment.endDate);
+        } else if (assignment.startDate && assignment.duration) {
+            deadline = new Date(assignment.startDate.getTime() + assignment.duration * 60000);
+        }
+
+        if (deadline) {
+            // Add a 1-minute grace period to account for network delays during auto-submit
+            const gracePeriod = new Date(deadline.getTime() + 60000);
+            if (finishedAt > gracePeriod) {
+                return { success: false, error: "Test window closed" }
+            }
+        }
+    }
 
     const objectiveAnswers: Record<number, string> = {}
     const essayAnswers: Record<number, string> = {}
@@ -91,10 +114,13 @@ export async function submitTest(formData: FormData) {
     }
 }
 
+import { getCurrentUserId } from "@/lib/auth"
+
 export async function addAssignment(payload: any, itemsPayload: any[], thresholdsPayload?: { courseId: number, threshold: number }[]) {
     try {
         await requirePermission('Assignment', 'CREATE_UPDATE_ASSIGNMENT')
-        const result = await createAssignmentController(payload, itemsPayload, thresholdsPayload);
+        const userId = await getCurrentUserId()
+        const result = await createAssignmentController({ ...payload, createdBy: userId }, itemsPayload, thresholdsPayload);
 
         // Revalidate based on what's created (course or class path)
         if (payload.classId) {
@@ -116,7 +142,8 @@ import { updateAssignment, deleteAssignment } from "@/controllers/assignmentCont
 export async function editAssignment(assignmentId: number, payload: any, itemsPayload: any[], thresholdsPayload?: { courseId: number, threshold: number }[]) {
     try {
         await requirePermission('Assignment', 'CREATE_UPDATE_ASSIGNMENT')
-        const result = await updateAssignment(assignmentId, payload, itemsPayload, thresholdsPayload);
+        const userId = await getCurrentUserId()
+        const result = await updateAssignment(assignmentId, { ...payload, createdBy: userId }, itemsPayload, thresholdsPayload);
 
         if (payload.classId) {
             revalidatePath(`/classes/${payload.classId}/overview`)
@@ -151,5 +178,64 @@ export async function removeAssignment(assignmentId: number, classId?: number, c
     } catch (error) {
         console.error("Error deleting assignment:", error);
         return { success: false, error: "Failed to delete assignment" };
+    }
+}
+
+export async function submitGradingAction(assignmentId: number, resultId: number, scores: Record<number, number>) {
+    try {
+        await requirePermission('Assignment', 'GRADE_ASSIGNMENT')
+        await submitManualScores(resultId, scores);
+        
+        revalidatePath(`/assignment/${assignmentId}/results`);
+        // Also revalidate generic paths if needed
+        revalidatePath(`/assignment`);
+        
+        return { success: true };
+    } catch (error: any) {
+        console.error("Grading error:", error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function saveAssignmentFeedback(
+    resultId: number, 
+    assignmentId: number, 
+    data: {
+        problemUnderstanding?: number;
+        problemUnderstandingFeedback?: string;
+        technicalAbility?: number;
+        technicalAbilityFeedback?: string;
+        solutionQuality?: number;
+        solutionQualityFeedback?: string;
+        feedback?: string;
+        feedbackFiles?: any;
+    }
+) {
+    try {
+        await requirePermission('Feedback', 'CREATE_EDIT_ASSIGNMENT_FEEDBACK');
+
+        await prisma.assignmentResult.update({
+            where: { id: resultId },
+            data: { 
+                problemUnderstanding: data.problemUnderstanding,
+                problemUnderstandingFeedback: data.problemUnderstandingFeedback,
+                technicalAbility: data.technicalAbility,
+                technicalAbilityFeedback: data.technicalAbilityFeedback,
+                solutionQuality: data.solutionQuality,
+                solutionQualityFeedback: data.solutionQualityFeedback,
+                feedback: data.feedback,
+                feedbackFiles: (data.feedbackFiles as any) || undefined
+            }
+        });
+
+        revalidatePath(`/assignment/${assignmentId}/results`);
+        // New feedback routes
+        revalidatePath(`/feedback/assignment/${assignmentId}`);
+        revalidatePath(`/feedback/assignment/${assignmentId}/learner/${resultId}`); // Need to decide on route pattern
+        
+        return { success: true };
+    } catch (error: any) {
+        console.error("Save feedback error:", error);
+        return { success: false, error: error.message };
     }
 }

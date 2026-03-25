@@ -2,8 +2,13 @@ import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import { getCourseById } from "@/controllers/courseController";
 import { notFound } from "next/navigation";
 import CourseSessionLink from "./course_session_links";
+import CourseAssignmentLink from "./course_assignment_link";
+import CourseReflectionLink from "./course_reflection_link";
 import AddSessionButton from "./add_session_button";
 import { hasPermission } from "@/lib/rbac";
+import { getFullSession } from "@/app/actions/auth";
+import TitleCard from "@/components/ui/card/title_card";
+import { AddAssignmentButton } from "@/app/classes/[id]/overview/client_button";
 
 interface SectionProps {
     icon: React.ReactNode;
@@ -17,22 +22,13 @@ const CourseSection = ({ icon, title, children }: SectionProps) => (
             <div className="text-gray-700">
                 {icon}
             </div>
-            <h2 className="text-base font-bold text-gray-900">{title}</h2>
+            <h2 className="text-md font-medium text-gray-900">{title}</h2>
         </div>
         <div className="pl-9">
             {children}
         </div>
     </div>
 );
-
-const SessionTag = ({ label }: { label: string }) => {
-    if (label === "None" || !label) return null;
-    return (
-        <span className="ml-3 px-3 py-0.5 text-[10px] font-medium border border-gray-300 rounded-full text-gray-500 bg-gray-50">
-            {label}
-        </span>
-    );
-};
 
 export default async function CourseOverviewPage({
     params
@@ -66,26 +62,30 @@ export default async function CourseOverviewPage({
     const tools = parseStringList(course.tools);
 
     const breadcrumbItems = [
-        { label: "Home", href: "/" },
+        { label: "Home", href: "/classes" },
         { label: classTitle, href: `/classes/${classId}/overview` },
         { label: course.title, href: `#` },
     ];
 
+    const session = await getFullSession();
+    const canViewFeedback = await hasPermission('Feedback', 'VIEW_SEARCH_ASSIGNMENT_FEEDBACK');
+    const isLearner = session?.role === 'Learner';
+    const reflectionLink = canViewFeedback && !isLearner
+        ? `/feedback/reflection/course/${courseId}`
+        : `/classes/${classId}/course/${courseId}/reflection`;
+
     return (
-        <main className="min-h-screen bg-[#FDFDF7] font-sans pb-16">
+        <main className="min-h-screen bg-[#FDFDF7] pb-16">
             <div className="max-w-7xl mx-auto px-6 md:px-10 py-8">
                 {/* Breadcrumb */}
                 <div className="mb-6">
                     <Breadcrumb items={breadcrumbItems} />
                 </div>
 
-                {/* Hero Title */}
-                <section className="bg-[#005954] rounded-[1.5rem] p-6 mb-8">
-                    <h1 className="text-xl font-bold text-white">{course.title}</h1>
-                </section>
+                <TitleCard title={course.title} />
 
                 {/* Main Content Card */}
-                <div className="bg-white rounded-[2rem] p-10 shadow-sm border border-gray-100 flex flex-col">
+                <div className="bg-white rounded-xl p-10 shadow-sm border border-gray-100 flex flex-col">
                     {/* Course Description */}
                     {course.description && (
                         <CourseSection icon={<img src="/icons/Information.svg" alt="Information" className="w-5 h-5" />} title="Course Description">
@@ -118,7 +118,7 @@ export default async function CourseOverviewPage({
                             <ol className="list-decimal pl-4 flex flex-col gap-3 text-sm text-gray-700">
                                 {entrySkills.map((skill, i) => (
                                     <li key={i}>
-                                        <div 
+                                        <div
                                             className="rich-text"
                                             dangerouslySetInnerHTML={{ __html: skill }}
                                         />
@@ -143,6 +143,7 @@ export default async function CourseOverviewPage({
 
                     {/* Sessions & Assignments */}
                     <div className="flex flex-col gap-6 pt-8">
+                        {/* Sessions */}
                         {course.sessions?.map((session) => (
                             <CourseSessionLink
                                 key={session.id}
@@ -156,13 +157,33 @@ export default async function CourseOverviewPage({
                                 isAdmin={canUpdateSession}
                             />
                         ))}
-                        {(!course.sessions || course.sessions.length === 0) && (
-                            <p className="text-sm text-gray-500 italic">No sessions added yet.</p>
+
+                        {/* Course-level assignments (ASSIGNMENT / EXERCISE) */}
+                        {(course as any).assignments?.map((assignment: any) => (
+                            <CourseAssignmentLink
+                                key={`a-${assignment.id}`}
+                                classId={classId}
+                                courseId={courseId}
+                                assignment={assignment}
+                                isAdmin={canUpdateSession}
+                                isLearner={isLearner}
+                            />
+                        ))}
+
+                        {(!course.sessions || course.sessions.length === 0) && (!(course as any).assignments || (course as any).assignments.length === 0) && (
+                            <p className="text-sm text-gray-500 italic">No sessions or assignments added yet.</p>
                         )}
 
+                        <CourseReflectionLink
+                            classId={classId}
+                            courseId={courseId}
+                            href={reflectionLink}
+                        />
+
                         {canCreateSession && (
-                            <div className="flex justify-center mt-6">
+                            <div className="flex justify-center mt-6 gap-4">
                                 <AddSessionButton classId={classId} courseId={courseId} />
+                                <AddAssignmentButton classId={classId} courseId={courseId} />
                             </div>
                         )}
                     </div>

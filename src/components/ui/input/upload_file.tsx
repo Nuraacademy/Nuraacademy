@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { X, Upload, FileText } from "lucide-react";
 import { NuraButton } from "../button/button";
+import { toast } from "sonner";
 
 interface SelectedFile {
     file: File
@@ -13,7 +14,7 @@ interface SelectedFile {
 
 interface UploadModalProps {
     onClose: () => void;
-    onUploadSuccess: (file: File) => void; 
+    onUploadSuccess: (file: File) => void;
 }
 
 export function UploadModal({ onClose, onUploadSuccess }: UploadModalProps) {
@@ -50,7 +51,7 @@ export function UploadModal({ onClose, onUploadSuccess }: UploadModalProps) {
         const interval = setInterval(() => {
             currentProgress += 10;
             setFile((prev) => (prev ? { ...prev, progress: currentProgress } : null));
-            
+
             if (currentProgress >= 100) {
                 clearInterval(interval);
             }
@@ -65,29 +66,29 @@ export function UploadModal({ onClose, onUploadSuccess }: UploadModalProps) {
     return (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
             <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-            
-            <div className="relative bg-white w-full max-w-3xl rounded-[2.5rem] p-10 shadow-2xl animate-in fade-in zoom-in-95">
+
+            <div className="relative bg-white w-full max-w-3xl rounded-xl p-10 shadow-2xl animate-in fade-in zoom-in-95">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-8">
-                    <h2 className="text-2xl font-bold text-gray-900">Attach File</h2>
+                    <h2 className="text-2xl font-medium text-gray-900">Attach File</h2>
                     <button onClick={onClose} className="p-1 border-2 border-black rounded-full hover:bg-gray-100 transition-colors">
                         <X size={20} strokeWidth={3} />
                     </button>
                 </div>
 
                 {/* Hidden Input */}
-                <input 
-                    type="file" 
-                    ref={fileInputRef} 
-                    onChange={handleFileChange} 
-                    accept=".pdf" 
-                    className="hidden" 
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept=".pdf"
+                    className="hidden"
                 />
 
                 {/* Dropzone Area */}
-                <div 
+                <div
                     onClick={() => fileInputRef.current?.click()}
-                    className="border-2 border-dashed border-gray-400 rounded-[2rem] bg-[#F9FBE7]/50 p-12 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#D9F55C] transition-colors"
+                    className="border-2 border-dashed border-gray-400 rounded-xl bg-[#F9FBE7]/50 p-12 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#D9F55C] transition-colors"
                 >
                     <div className="mb-4 p-4 bg-white rounded-xl border shadow-sm">
                         <Upload size={32} />
@@ -102,8 +103,8 @@ export function UploadModal({ onClose, onUploadSuccess }: UploadModalProps) {
 
                 {/* File Upload Progress Display */}
                 {file && (
-                    <div className="mt-6 border border-gray-300 rounded-2xl p-5 flex flex-col gap-3 relative animate-in slide-in-from-top-2">
-                        <button 
+                    <div className="mt-6 border border-gray-300 rounded-xl p-5 flex flex-col gap-3 relative animate-in slide-in-from-top-2">
+                        <button
                             onClick={removeFile}
                             className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors"
                         >
@@ -120,15 +121,15 @@ export function UploadModal({ onClose, onUploadSuccess }: UploadModalProps) {
                             </div>
                         </div>
 
-                        { file.progress < 100 &&
+                        {file.progress < 100 &&
                             <div className="flex items-center gap-4">
                                 <div className="flex-grow h-2 bg-gray-100 rounded-full overflow-hidden">
-                                    <div 
-                                        className="h-full bg-black transition-all duration-300" 
-                                        style={{ width: `${file.progress}%` }} 
+                                    <div
+                                        className="h-full bg-black transition-all duration-300"
+                                        style={{ width: `${file.progress}%` }}
                                     />
                                 </div>
-                                <span className="text-xs font-bold text-gray-600 w-8">{file.progress}%</span>
+                                <span className="text-xs font-medium text-gray-600 w-8">{file.progress}%</span>
                             </div>
                         }
                     </div>
@@ -136,16 +137,16 @@ export function UploadModal({ onClose, onUploadSuccess }: UploadModalProps) {
 
                 {/* Footer Action */}
                 <div className="mt-8 flex justify-end">
-                    <NuraButton 
-                        label="Attach File" 
-                        variant="primary" 
-                        className="min-w-[180px]" 
+                    <NuraButton
+                        label="Attach File"
+                        variant="primary"
+                        className="min-w-[180px]"
                         onClick={() => {
                             if (file && file.progress === 100) {
-                                onUploadSuccess(file.file); 
+                                onUploadSuccess(file.file);
                                 onClose();
                             } else {
-                                alert("Please select a file and wait for upload.");
+                                toast.error("Please select a file and wait for upload.");
                             }
                         }}
                     />

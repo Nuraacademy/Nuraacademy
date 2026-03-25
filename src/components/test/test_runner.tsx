@@ -6,6 +6,7 @@ import { NuraButton } from "@/components/ui/button/button"
 import { RichTextInput } from "@/components/ui/input/rich_text_input"
 import FileUploadModal from "@/components/ui/modal/file_upload_modal"
 import { ConfirmModal } from "@/components/ui/modal/confirmation_modal"
+import { toast } from "sonner"
 
 import { IntroCard } from "@/app/classes/[id]/test/components/intro_card"
 import { FinishedCard } from "@/app/classes/[id]/test/components/finished_card"
@@ -18,6 +19,7 @@ import {
   PageText
 } from "@/app/classes/[id]/test/types"
 import { submitTest } from "@/app/actions/assignment"
+import TitleCard from "../ui/card/title_card"
 
 type TestRunnerProps = {
   classId: string
@@ -33,6 +35,14 @@ type TestRunnerProps = {
   finished?: boolean
   initialScore?: number
   showBanner?: boolean
+  feedback?: string
+  problemUnderstanding?: number
+  technicalAbility?: number
+  solutionQuality?: number
+  problemUnderstandingFeedback?: string
+  technicalAbilityFeedback?: string
+  solutionQualityFeedback?: string
+  assignmentType?: string
 }
 
 export function TestRunner({
@@ -49,9 +59,19 @@ export function TestRunner({
   finished = false,
   initialScore,
   showBanner = true,
+  feedback,
+  problemUnderstanding,
+  technicalAbility,
+  solutionQuality,
+  problemUnderstandingFeedback,
+  technicalAbilityFeedback,
+  solutionQualityFeedback,
+  assignmentType,
 }: TestRunnerProps) {
+  const STORAGE_KEY = `test_progress_${assignmentId}_${enrollmentId}`
+
   const [hasStarted, setHasStarted] = useState(autoStart)
-  const [startTime, setStartTime] = useState<Date | null>(autoStart ? new Date() : null)
+  const [startTime, setStartTime] = useState<Date | null>(null)
   const [isFinished, setIsFinished] = useState(finished)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -76,13 +96,71 @@ export function TestRunner({
   const currentEssay = essayQuestions[essayIndex]
   const currentProject = projectQuestions[projectIndex]
 
+  // Load state from localStorage on mount
+  useEffect(() => {
+    if (typeof window === "undefined" || isFinished) return
+
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (saved) {
+      try {
+        const data = JSON.parse(saved)
+        setObjectiveAnswers(data.objectiveAnswers || {})
+        setEssayAnswers(data.essayAnswers || {})
+        setProjectAnswers(data.projectAnswers || {})
+
+        if (data.startTime) {
+          const savedStartTime = new Date(data.startTime)
+          setStartTime(savedStartTime)
+          setHasStarted(true)
+
+          // Calculate remaining time
+          const elapsedSeconds = Math.floor((new Date().getTime() - savedStartTime.getTime()) / 1000)
+          const remaining = Math.max(0, (testData.durationMinutes * 60) - elapsedSeconds)
+          setTimeLeft(remaining)
+        }
+      } catch (e) {
+        console.error("Failed to load saved progress:", e)
+      }
+    }
+  }, [isFinished, assignmentId, enrollmentId, testData.durationMinutes])
+
+  // Save state to localStorage on changes
+  useEffect(() => {
+    if (typeof window === "undefined" || isFinished || !hasStarted) return
+
+    const data = {
+      objectiveAnswers,
+      essayAnswers,
+      projectAnswers,
+      startTime: startTime?.toISOString(),
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+  }, [objectiveAnswers, essayAnswers, projectAnswers, startTime, hasStarted, isFinished])
+
   const handleStart = () => {
+    const now = new Date()
     setHasStarted(true)
-    setStartTime(new Date())
+    setStartTime(now)
+
+    // Also save immediately
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        objectiveAnswers: {},
+        essayAnswers: {},
+        projectAnswers: {},
+        startTime: now.toISOString()
+      }))
+    }
   }
 
   const handleSubmitClick = () => {
     setIsModalOpen(true)
+  }
+
+  const cleanupStorage = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(STORAGE_KEY)
+    }
   }
 
   const handleConfirmSubmit = async () => {
@@ -119,21 +197,26 @@ export function TestRunner({
       const response = await submitTest(formData)
 
       if (response.success) {
+        cleanupStorage()
         setIsModalOpen(false)
-        window.location.reload()
+        if (assignmentType === "PROJECT") {
+          window.location.href = `/classes/${classId}/feedback`
+        } else {
+          window.location.reload()
+        }
       } else {
-        alert(response.error || "Failed to submit. Please try again.")
+        toast.error(response.error || "Failed to submit. Please try again.")
       }
     } catch (error) {
       console.error("error submitting:", error)
-      alert("An unexpected error occurred.")
+      toast.error("An unexpected error occurred.")
     } finally {
       setIsSubmitting(false)
     }
   }
 
   useEffect(() => {
-    if (!hasStarted || isFinished) return
+    if (!hasStarted || isFinished || testData.durationMinutes === 0) return
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
@@ -147,7 +230,7 @@ export function TestRunner({
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [hasStarted, isFinished])
+  }, [hasStarted, isFinished, startTime, testData.durationMinutes])
 
   const getUnansweredCount = () => {
     let count = 0
@@ -222,26 +305,20 @@ export function TestRunner({
     }
   }
 
-  const renderBanner = () => (
-    <div className="px-6 mt-2">
-      <div className="w-full bg-[#075546] text-white py-4 px-8 rounded-[1.5rem] shadow-sm">
-        <h1 className="text-lg font-semibold">{pageText.bannerTitle}</h1>
-      </div>
-    </div>
-  )
-
   const renderSidebar = () => (
     <aside className="w-full md:w-64 mb-6 md:mb-0 md:mr-8">
-      <div className="mb-6">
-        <p className="text-xs font-semibold text-gray-700 mb-2">{pageText.sidebarTimeLeft}</p>
-        <div
-          className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs ${timeLeft < 300 ? "bg-red-100 text-red-700" : "bg-emerald-50 text-emerald-700"
-            }`}
-        >
-          <Clock size={14} className={timeLeft < 300 ? "text-red-600" : "text-emerald-600"} />
-          <span className="font-medium tracking-wide">{formatTime(timeLeft)}</span>
+      {testData.durationMinutes > 0 && (
+        <div className="mb-6">
+          <p className="text-xs font-semibold text-gray-700 mb-2">{pageText.sidebarTimeLeft}</p>
+          <div
+            className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs ${timeLeft < 300 ? "bg-red-100 text-red-700" : "bg-emerald-50 text-emerald-700"
+              }`}
+          >
+            <Clock size={14} className={timeLeft < 300 ? "text-red-600" : "text-emerald-600"} />
+            <span className="font-medium tracking-wide">{formatTime(timeLeft)}</span>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="mb-4">
         <p className="text-xs font-semibold text-gray-700 mb-2">{pageText.sidebarObjective}</p>
@@ -491,8 +568,8 @@ export function TestRunner({
   }
 
   const renderTestCard = () => (
-    <section className="mt-6 flex justify-center px-4">
-      <div className="w-full max-w-5xl bg-white rounded-[2.5rem] shadow-sm border border-gray-200 px-8 py-8 md:px-12 md:py-10">
+    <section className="mt-6 flex justify-center">
+      <div className="w-full bg-white rounded-2xl shadow-sm border border-gray-200 px-8 py-8 md:px-12 md:py-10">
         <div className="flex flex-col md:flex-row">
           {renderSidebar()}
           {currentType === "objective"
@@ -542,8 +619,8 @@ export function TestRunner({
   )
 
   return (
-    <div className="px-6 pb-10">
-      {showBanner && renderBanner()}
+    <div className="max-w-7xl mx-auto mt-4">
+      <TitleCard title={pageText.bannerTitle} />
 
       {isFinished ? (
         <FinishedCard
@@ -552,6 +629,13 @@ export function TestRunner({
           pageText={pageText}
           userName={userName}
           totalScore={totalScore ?? undefined}
+          feedback={feedback}
+          problemUnderstanding={problemUnderstanding}
+          technicalAbility={technicalAbility}
+          solutionQuality={solutionQuality}
+          problemUnderstandingFeedback={problemUnderstandingFeedback}
+          technicalAbilityFeedback={technicalAbilityFeedback}
+          solutionQualityFeedback={solutionQualityFeedback}
         />
       ) : hasStarted ? (
         renderTestCard()

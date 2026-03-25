@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { NuraSearchInput } from "@/components/ui/input/nura_search_input";
 import { NuraSelect } from "@/components/ui/input/nura_select";
 import { hasPermission } from "@/lib/rbac";
+import Image from "next/image";
 
 // Mapping backend types to frontend types format
 const parseDiscussionType = (type: string) => {
@@ -46,7 +47,7 @@ export default function DiscussionPage() {
                 author: d.authorName,
                 timeAgo: "12 hours ago", // Placeholder to match image exactly, or use real logic: new Date(d.createdAt).toLocaleDateString()
                 title: d.title,
-                preview: d.content,
+                preview: (d.content || "").replace(/<[^>]*>?/gm, ''),
                 likeCount: d.likeCount,
                 repliesCount: d.repliesCount,
                 type: parseDiscussionType(d.type),
@@ -101,20 +102,25 @@ export default function DiscussionPage() {
             <Sidebar onOpenChange={setIsSidebarOpen} />
 
             {/* Background Image */}
-            <img
+            <Image
                 src="/background/PolygonBGTop.svg"
-                alt="Background"
-                className="absolute h-[40rem] object-cover top-0 left-0 pointer-events-none opacity-60"
+                alt=""
+                className="absolute top-0 left-0 w-auto h-[40rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
+                priority
             />
-            <img
+            <Image
                 src="/background/PolygonBGBot.svg"
-                alt="Background"
-                className="absolute h-[40rem] object-cover bottom-0 right-0 pointer-events-none opacity-60"
+                alt=""
+                className="absolute bottom-0 right-0 w-auto h-[40rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
             />
 
             <div className="flex-grow z-1 mx-auto w-full max-w-7xl py-12 px-6 md:px-16">
                 <div className="flex flex-col gap-6 mb-12">
-                    <h1 className="text-5xl font-bold text-gray-950 tracking-tight">
+                    <h1 className="text-3xl font-medium text-black tracking-tight">
                         Forums
                     </h1>
 
@@ -149,14 +155,14 @@ export default function DiscussionPage() {
                 {isLoading ? (
                     <div className="flex flex-col items-center justify-center p-20 gap-4">
                         <div className="w-12 h-12 border-4 border-lime-200 border-t-lime-500 rounded-full animate-spin" />
-                        <p className="text-xl font-medium text-gray-400">Fetching forum data...</p>
+                        <p className="text-xl font-medium text-gray-400">Fetching thread data...</p>
                     </div>
                 ) : filteredDiscussions.length === 0 ? (
                     <div className="flex flex-col items-center justify-center p-16 text-center border-2 border-dashed border-gray-200 rounded-[3rem] bg-white/50 backdrop-blur-sm mt-8">
                         <div className="bg-blue-50 p-6 rounded-full mb-6 text-blue-500">
                             <img src="/icons/Reply.svg" alt="" className="w-12 h-12 opacity-50" />
                         </div>
-                        <h3 className="text-2xl font-bold text-gray-800 mb-3">No discussions found</h3>
+                        <h3 className="text-2xl font-medium text-gray-800 mb-3">No discussions found</h3>
                         <p className="text-gray-500 max-w-md mb-8 text-lg">
                             {searchQuery ? `No results for "${searchQuery}". Try a different search term.` : "Be the first to start a conversation!"}
                         </p>

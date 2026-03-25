@@ -58,27 +58,32 @@ export default function CurriculaPage() {
     return (
         <div className="w-full min-h-screen relative overflow-hidden bg-white">
             {/* Background Image */}
-            <img
+            <Image
                 src="/background/PolygonBGTop.svg"
-                alt="Background"
-                className="absolute h-[40rem] object-cover top-0 left-0 pointer-events-none opacity-60"
+                alt=""
+                className="absolute top-0 left-0 w-auto h-[40rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
+                priority
             />
-            <img
+            <Image
                 src="/background/PolygonBGBot.svg"
-                alt="Background"
-                className="absolute h-[40rem] object-cover bottom-0 right-0 pointer-events-none opacity-60"
+                alt=""
+                className="absolute bottom-0 right-0 w-auto h-[40rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
             />
             <div className="relative z-10 w-full max-w-7xl mx-auto px-4 py-8">
                 <div className="flex flex-col gap-8">
                     <Breadcrumb
                         items={[
-                            { label: "Home", href: "/" },
+                            { label: "Home", href: "/classes" },
                             { label: "Curricula", href: "/curricula" },
                         ]}
                     />
 
                     <div className="flex justify-between items-center">
-                        <h1 className="text-2xl font-bold text-gray-900">Curricula</h1>
+                        <h1 className="text-2xl font-medium text-gray-900">Curricula</h1>
                         <div className="flex gap-4 items-center">
                             <div className="w-40">
                                 <NuraSelect
@@ -96,7 +101,6 @@ export default function CurriculaPage() {
                                 label="Add Curricula"
                                 variant="primary"
                                 onClick={() => router.push('/curricula/add')}
-                                className="bg-[#cdff2b] hover:bg-[#bce627] text-gray-900 border-none px-10 h-10 rounded-full font-bold shadow-lg shadow-[#cdff2b33] transition-all"
                             />
                         </div>
                     </div>
@@ -117,7 +121,7 @@ export default function CurriculaPage() {
                             curricula.map((item) => (
                                 <div
                                     key={item.id}
-                                    className="group flex items-center justify-between bg-white p-4 px-6 rounded-2xl border border-gray-100 hover:border-[#cdff2b] hover:shadow-xl transition-all duration-300"
+                                    className="group flex items-center justify-between bg-white p-4 px-6 rounded-xl border border-gray-100 hover:border-[#cdff2b] hover:shadow-xl transition-all duration-300"
                                 >
                                     <div className="flex items-center gap-6">
                                         <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:bg-[#cdff2b11]">
@@ -130,18 +134,18 @@ export default function CurriculaPage() {
                                             />
                                         </div>
                                         <div className="flex flex-col">
-                                            <h3 className="text-base font-bold text-gray-900 group-hover:text-gray-950 transition-colors tracking-tight">{item.title}</h3>
+                                            <h3 className="text-base font-medium text-gray-900 group-hover:text-gray-950 transition-colors tracking-tight">{item.title}</h3>
                                             <div className="flex gap-3 items-center mt-0.5">
                                                 {item.classes.length > 0 ? (
-                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                                                    <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">
                                                         {item.classes.length} {item.classes.length === 1 ? 'CLASS' : 'CLASSES'} LINKED
                                                     </p>
                                                 ) : (
-                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider italic">UNLINKED</p>
+                                                    <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider italic">UNLINKED</p>
                                                 )}
                                                 <div className="flex items-center gap-1.5">
                                                     <span className={`w-1.5 h-1.5 rounded-full ${item.status === 'Active' ? 'bg-[#cdff2b]' : 'bg-gray-300'}`} />
-                                                    <span className="text-[10px] uppercase tracking-wider font-bold text-gray-400 group-hover:text-gray-500">{item.status}</span>
+                                                    <span className="text-[10px] uppercase tracking-wider font-medium text-gray-400 group-hover:text-gray-500">{item.status}</span>
                                                 </div>
                                             </div>
                                         </div>

@@ -32,7 +32,7 @@ interface ReferenceMaterialsProps {
 export default function ReferenceMaterials({ materials }: ReferenceMaterialsProps) {
     return (
         <div className="flex flex-col gap-4">
-            <h2 className="text-sm font-bold text-gray-900">Reference Materials</h2>
+            <h2 className="text-sm font-medium text-gray-900">Reference Materials</h2>
             <div className="flex flex-col gap-4">
                 {materials.map((mat, i) => {
                     const icon = getIcon(mat.name);

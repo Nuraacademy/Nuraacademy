@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { getCurriculaDetail, updateCurriculaAction, uploadCurriculaFile } from "@/app/actions/curricula"
 import { getClassesAction } from "@/app/actions/classes"
 import { NuraButton } from "@/components/ui/button/button"
@@ -120,27 +121,32 @@ export default function EditCurriculaPage({ params }: { params: Promise<{ id: st
     if (loading) {
         return (
             <div className="w-full h-screen flex items-center justify-center">
-                <p className="text-gray-400 animate-pulse font-bold tracking-widest uppercase">Loading Curricula Data...</p>
+                <p className="text-gray-400 animate-pulse font-medium tracking-widest uppercase">Loading Curricula Data...</p>
             </div>
         );
     }
 
     return (
-        <div className="relative min-h-screen w-full overflow-hidden font-sans pb-16">
-            <img
+        <div className="relative min-h-screen w-full overflow-hidden  pb-16">
+            {/* Background */}
+            <Image
                 src="/background/OvalBGLeft.svg"
-                alt="Background"
-                className="absolute h-[40rem] object-cover top-0 left-0"
+                alt=""
+                className="absolute top-0 left-0 z-10 w-auto h-[30rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
             />
-            <img
+            <Image
                 src="/background/OvalBGRight.svg"
-                alt="Background"
-                className="absolute h-[40rem] object-cover bottom-0 right-0"
+                alt=""
+                className="absolute bottom-0 right-0 z-10 w-auto h-[30rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
             />
             <div className="relative z-10 w-full max-w-7xl mx-auto px-4 py-8">
                 <Breadcrumb
                     items={[
-                        { label: "Home", href: "/" },
+                        { label: "Home", href: "/classes" },
                         { label: "Curricula", href: "/curricula" },
                         { label: title, href: `/curricula/${id}/edit` },
                         { label: "Edit Curricula", href: `/curricula/${id}/edit` },
@@ -148,7 +154,7 @@ export default function EditCurriculaPage({ params }: { params: Promise<{ id: st
                 />
 
                 <div className="max-w-7xl mt-8 space-y-8">
-                    <h1 className="text-2xl font-bold text-gray-900">Edit Curricula</h1>
+                    <h1 className="text-2xl font-medium text-gray-900">Edit Curricula</h1>
 
                     <div className="flex flex-col gap-2">
                         <label className="text-sm font-semibold text-gray-900">Curricula Title</label>
@@ -168,7 +174,7 @@ export default function EditCurriculaPage({ params }: { params: Promise<{ id: st
                                     <div className="p-1.5 bg-green-50 rounded-lg group-hover:bg-green-100 transition-colors">
                                         <FileText size={14} className="text-green-600" />
                                     </div>
-                                    <span className="text-xs font-bold text-green-700">Existing: {fileUrl.split('/').pop()}</span>
+                                    <span className="text-xs font-medium text-green-700">Existing: {fileUrl.split('/').pop()}</span>
                                 </div>
                             )}
                             <FileUpload
@@ -191,7 +197,7 @@ export default function EditCurriculaPage({ params }: { params: Promise<{ id: st
                                 className="bg-white"
                             />
                             {filteredClasses.length > 0 && (
-                                <div className="absolute top-full left-0 w-full bg-white border border-gray-100 rounded-2xl mt-1 shadow-lg z-30 max-h-48 overflow-y-auto">
+                                <div className="absolute top-full left-0 w-full bg-white border border-gray-100 rounded-xl mt-1 shadow-lg z-30 max-h-48 overflow-y-auto">
                                     {filteredClasses.map(c => (
                                         <button
                                             key={c.id}
@@ -199,7 +205,7 @@ export default function EditCurriculaPage({ params }: { params: Promise<{ id: st
                                                 toggleClassSelection(c.id);
                                                 setClassSearch("");
                                             }}
-                                            className="w-full text-left p-3 hover:bg-gray-50 text-xs font-bold transition-colors border-b border-gray-100 last:border-0"
+                                            className="w-full text-left p-3 hover:bg-gray-50 text-xs font-medium transition-colors border-b border-gray-100 last:border-0"
                                         >
                                             {c.title}
                                         </button>
@@ -211,7 +217,7 @@ export default function EditCurriculaPage({ params }: { params: Promise<{ id: st
                             {selectedClassIds.map(id => {
                                 const c = allClasses.find(item => item.id === id);
                                 return (
-                                    <div key={id} className="flex items-center gap-2 px-4 py-1.5 border border-gray-100 rounded-full bg-white shadow-sm text-xs font-bold text-gray-900">
+                                    <div key={id} className="flex items-center gap-2 px-4 py-1.5 border border-gray-100 rounded-full bg-white shadow-sm text-xs font-medium text-gray-900">
                                         {c?.title || `Class ID: ${id}`}
                                         <button
                                             onClick={() => toggleClassSelection(id)}
@@ -228,7 +234,7 @@ export default function EditCurriculaPage({ params }: { params: Promise<{ id: st
                     <div className="flex justify-between items-center pt-8">
                         <button
                             onClick={() => setStatus(status === 'Active' ? 'Deactivated' : 'Active')}
-                            className={`px-8 h-10 rounded-full border text-sm font-bold transition-all ${status === 'Active'
+                            className={`px-8 h-10 rounded-full border text-sm font-medium transition-all ${status === 'Active'
                                 ? 'bg-white border-[#cdff2b] text-gray-900'
                                 : 'bg-gray-50 border-gray-200 text-gray-300'
                                 }`}

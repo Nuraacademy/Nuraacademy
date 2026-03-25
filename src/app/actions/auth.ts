@@ -4,6 +4,12 @@ import { loginUser, registerUser } from "@/controllers/userController";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { OAuth2Client } from "google-auth-library";
+import bcrypt from "bcryptjs";
+
+const googleClient = new OAuth2Client(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
+
+const loginAttempts = new Map<string, { count: number, lockUntil: number }>();
 
 export async function handleLogin(formData: FormData) {
     const identifier = formData.get("identifier") as string;
@@ -13,8 +19,18 @@ export async function handleLogin(formData: FormData) {
         return { success: false, error: "Please provide both identifier and password" };
     }
 
+    const now = Date.now();
+    const attempt = loginAttempts.get(identifier);
+
+    if (attempt && attempt.lockUntil > now) {
+        return { success: false, error: "Account locked. Try again in 15 mins." };
+    }
+
     try {
         const user = await loginUser(identifier, password);
+
+        // Reset attempts on successful login
+        loginAttempts.delete(identifier);
 
         // Simple session implementation using cookies
         // In a production app, use a proper session token/JWT
@@ -29,6 +45,15 @@ export async function handleLogin(formData: FormData) {
 
         return { success: true };
     } catch (error: any) {
+        // Record failed attempt
+        const count = (attempt?.count || 0) + 1;
+        if (count >= 5) {
+            loginAttempts.set(identifier, { count, lockUntil: now + 15 * 60 * 1000 });
+            return { success: false, error: "Account locked. Try again in 15 mins." };
+        } else {
+            loginAttempts.set(identifier, { count, lockUntil: 0 });
+        }
+
         return { success: false, error: error.message || "Failed to login" };
     }
 }
@@ -42,6 +67,15 @@ export async function handleRegister(formData: FormData) {
 
     if (!fullName || !username || !email || !password) {
         return { success: false, error: "Please fill in all required fields" };
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return { success: false, error: "Invalid email format" };
+    }
+
+    if (password.length < 8) {
+        return { success: false, error: "Password must be at least 8 characters long" };
     }
 
     try {
@@ -75,6 +109,59 @@ export async function handleLogout() {
     const cookieStore = await cookies();
     cookieStore.delete("user_id");
     redirect("/login");
+}
+
+export async function handleGoogleLogin(idToken: string) {
+    try {
+        const ticket = await googleClient.verifyIdToken({
+            idToken,
+            audience: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+        });
+
+        const payload = ticket.getPayload();
+        if (!payload || !payload.email) {
+            return { success: false, error: "Invalid Google token" };
+        }
+
+        const email = payload.email;
+        let user = await prisma.user.findUnique({ where: { email } });
+
+        if (!user) {
+            const baseUsername = payload.name ? payload.name.replace(/\s+/g, '').toLowerCase() : email.split('@')[0];
+            const randomSuffix = Math.floor(Math.random() * 10000).toString();
+            const username = `${baseUsername}${randomSuffix}`;
+            const randomPassword = Math.random().toString(36).slice(-10) + Math.random().toString(36).slice(-10);
+            
+            // Hash the random password properly.
+            const hashedPassword = bcrypt.hashSync(randomPassword, 10);
+
+            const defaultRole = await prisma.role.findUnique({ where: { name: 'Learner' } });
+
+            user = await prisma.user.create({
+                data: {
+                    email,
+                    username,
+                    name: payload.name || "Google User",
+                    password: hashedPassword,
+                    roleId: defaultRole?.id || null,
+                }
+            });
+        }
+
+        const cookieStore = await cookies();
+        cookieStore.set("user_id", user.id.toString(), {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 60 * 60 * 24 * 7, // 1 week
+            path: "/",
+        });
+
+        return { success: true };
+    } catch (error: any) {
+        console.error("Google Auth Error:", error);
+        return { success: false, error: error.message || "Failed to authenticate with Google" };
+    }
 }
 
 export async function getSession() {

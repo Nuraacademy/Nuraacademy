@@ -66,17 +66,21 @@ const privileges = [
 
     // 5.0 Forums
     { resource: 'Forums', action: 'CREATE_EDIT_TOPIC', description: 'Create/ edit topic', roles: ['Admin', 'Learner', 'Instructur', 'Trainer', 'Learning Designer'] },
-    { resource: 'Forums', action: 'DELETE_TOPIC', description: 'Delete topic', roles: ['Admin', 'Learner', 'Instructur', 'Trainer', 'Learning Designer'] },
+    { resource: 'Forums', action: 'DELETE_SELF_TOPIC', description: 'Delete own topic', roles: ['Admin', 'Learner', 'Instructur', 'Trainer', 'Learning Designer'] },
+    { resource: 'Forums', action: 'DELETE_OTHERS_TOPIC', description: 'Delete other users topic', roles: ['Admin'] },
     { resource: 'Forums', action: 'SEARCH_VIEW_TOPIC', description: 'Search & view topic', roles: ['Admin', 'Learner', 'Instructur', 'Trainer', 'Learning Designer'] },
-    { resource: 'Forums', action: 'REPLY_TOPIC', description: 'Reply topic', roles: ['Admin', 'Learner', 'Instructur', 'Trainer', 'Learning Designer'] },
-    { resource: 'Forums', action: 'EDIT_REPLY', description: 'Edit reply', roles: ['Admin', 'Learner', 'Instructur', 'Trainer', 'Learning Designer'] },
-    { resource: 'Forums', action: 'DELETE_REPLY', description: 'Delete reply', roles: ['Admin', 'Learner', 'Instructur', 'Trainer', 'Learning Designer'] },
+    { resource: 'Forums', action: 'REPLY_SELF_TOPIC', description: 'Reply to own topic', roles: ['Admin', 'Learner', 'Instructur', 'Trainer', 'Learning Designer'] },
+    { resource: 'Forums', action: 'REPLY_OTHERS_TOPIC', description: 'Reply to other users topic', roles: ['Admin', 'Learner', 'Instructur', 'Trainer', 'Learning Designer'] },
+    { resource: 'Forums', action: 'EDIT_SELF_REPLY', description: 'Edit own reply', roles: ['Admin', 'Learner', 'Instructur', 'Trainer', 'Learning Designer'] },
+    { resource: 'Forums', action: 'EDIT_OTHERS_REPLY', description: 'Edit other users reply', roles: ['Admin'] },
+    { resource: 'Forums', action: 'DELETE_SELF_REPLY', description: 'Delete own reply', roles: ['Admin', 'Learner', 'Instructur', 'Trainer', 'Learning Designer'] },
+    { resource: 'Forums', action: 'DELETE_OTHERS_REPLY', description: 'Delete other users reply', roles: ['Admin'] },
 
-    // 6.0 Wikis
-    { resource: 'Wikis', action: 'POST_CREATE', description: 'Post create', roles: ['Admin', 'Learner', 'Instructur', 'Trainer', 'Learning Designer'] },
-    { resource: 'Wikis', action: 'POST_SEARCH_VIEW', description: 'Post search & view', roles: ['Admin', 'Learner', 'Instructur', 'Trainer', 'Learning Designer'] },
-    { resource: 'Wikis', action: 'POST_EDIT', description: 'Post edit', roles: ['Admin', 'Learner', 'Instructur', 'Trainer', 'Learning Designer'] },
-    { resource: 'Wikis', action: 'POST_DELETE', description: 'Post delete', roles: ['Admin', 'Learner', 'Instructur', 'Trainer', 'Learning Designer'] },
+    // 6.0 Blogs
+    { resource: 'Blogs', action: 'POST_CREATE', description: 'Post create', roles: ['Admin', 'Learning Designer'] },
+    { resource: 'Blogs', action: 'POST_SEARCH_VIEW', description: 'Post search & view', roles: ['Admin', 'Learner', 'Instructur', 'Trainer', 'Learning Designer'] },
+    { resource: 'Blogs', action: 'POST_EDIT', description: 'Post edit', roles: ['Admin', 'Learning Designer'] },
+    { resource: 'Blogs', action: 'POST_DELETE', description: 'Post delete', roles: ['Admin', 'Learning Designer'] },
 
     // 7.0 Reflection & Evaluation
     { resource: 'Feedback', action: 'CREATE_EDIT_REFLECTION', description: 'Create/edit reflection', roles: ['Admin', 'Learner'] },

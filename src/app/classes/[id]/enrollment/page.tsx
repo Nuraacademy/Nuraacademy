@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { NuraTextInput } from "@/components/ui/input/text_input"
 import Chip from "@/components/ui/chip/chip"
@@ -12,6 +13,8 @@ import WelcomingModal from "@/components/ui/modal/welcoming_modal"
 import { checkEnrollment } from "@/app/actions/enrollment"
 import { getClassDetails } from "@/app/actions/classes"
 import { hasPermission } from "@/lib/rbac"
+import { uploadFileAction } from "@/app/actions/common"
+import { toast } from "sonner"
 
 export default function EnrollmentPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter()
@@ -26,7 +29,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
             // Check permissions
             hasPermission("Enrollment", "CHECKOUT_CLASS").then(canCheckout => {
                 if (!canCheckout) {
-                    alert("You do not have permission to checkout this class.");
+                    toast.error("You do not have permission to checkout this class.");
                     router.replace(`/classes/${id}/overview`);
                     return;
                 }
@@ -35,7 +38,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
             // Check if user is already enrolled
             checkEnrollment(classIdInt).then(isEnrolled => {
                 if (isEnrolled) {
-                    alert("You are already enrolled in this class.");
+                    toast.error("You are already enrolled in this class.");
                     router.replace(`/classes/${id}/overview`);
                 }
             }).catch(() => { });
@@ -115,6 +118,19 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
         setIsLoading(true)
 
         try {
+            let uploadedCvUrl = "";
+            if (cvFile) {
+                const uploadFormData = new FormData();
+                uploadFormData.append("file", cvFile);
+                const uploadResult = await uploadFileAction(uploadFormData);
+                if (!uploadResult.success) {
+                    setError(uploadResult.error || "Failed to upload CV");
+                    setIsLoading(false);
+                    return;
+                }
+                uploadedCvUrl = uploadResult.url || "";
+            }
+
             const params = new URLSearchParams({
                 profession: formData.profession,
                 yoe: formData.yoe,
@@ -123,6 +139,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
                 jobIndustry: formData.jobIndustry,
                 finalExpectations: formData.finalExpectations,
                 objectives: JSON.stringify(selectedObjectives),
+                cvUrl: uploadedCvUrl,
             });
 
             router.push(`/classes/${classId}/payment?${params.toString()}`);
@@ -145,16 +162,20 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
 
     return (
         <main className="relative min-h-screen w-full overflow-hidden bg-white">
-            {/* Background Images */}
-            <img
+            {/* Background */}
+            <Image
                 src="/background/OvalBGLeft.svg"
-                alt="Background"
-                className="absolute h-[40rem] object-cover top-0 left-0"
+                alt=""
+                className="absolute top-0 left-0 z-10 w-auto h-[30rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
             />
-            <img
+            <Image
                 src="/background/OvalBGRight.svg"
-                alt="Background"
-                className="absolute h-[40rem] object-cover bottom-0 right-0"
+                alt=""
+                className="absolute bottom-0 right-0 z-10 w-auto h-[30rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
             />
 
             {/* Content */}
@@ -162,7 +183,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
                 <div className="px-8 md:px-12">
                     <Breadcrumb
                         items={[
-                            { label: "Home", href: "/" },
+                            { label: "Home", href: "/classes" },
                             { label: className, href: `/classes/${classId}/overview` },
                             { label: "Enroll Class", href: `/classes/${classId}/enrollment` },
                         ]}
@@ -179,7 +200,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
                     <form onSubmit={handleSubmit} className="space-y-8">
                         {/* Personal Information Section */}
                         <div className="space-y-6">
-                            <h2 className="text-xl font-bold text-gray-900 mb-6">Personal Information</h2>
+                            <h2 className="text-xl font-medium text-gray-900 mb-6">Personal Information</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <NuraTextInput
                                     label="Profession"
@@ -219,7 +240,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
 
                         {/* Learning Objectives Section */}
                         <div>
-                            <h2 className="text-xl font-bold text-gray-900 mb-4">Learning Objectives</h2>
+                            <h2 className="text-xl font-medium text-gray-900 mb-4">Learning Objectives</h2>
                             <div className="flex flex-wrap gap-3">
                                 {learningObjectives.map((objective) => (
                                     <Chip
@@ -235,7 +256,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
 
                         {/* Final Expectations Section */}
                         <div>
-                            <h2 className="text-xl font-bold text-gray-900 mb-4">Final Expectations</h2>
+                            <h2 className="text-xl font-medium text-gray-900 mb-4">Final Expectations</h2>
                             <div className="relative">
                                 <NuraTextArea
                                     label="Final Expectations"
@@ -248,7 +269,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
 
                         {/* Upload CV Section */}
                         <div>
-                            <h2 className="text-xl font-bold text-gray-900 mb-4">Upload CV</h2>
+                            <h2 className="text-xl font-medium text-gray-900 mb-4">Upload CV</h2>
                             <CVUpload
                                 onFileSelect={(file) => setCvFile(file)}
                                 maxSizeMB={5}

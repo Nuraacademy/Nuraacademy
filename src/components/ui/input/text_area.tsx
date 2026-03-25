@@ -20,7 +20,7 @@ export const NuraTextArea = ({
             placeholder={placeholder}
             value={value}
             onChange={onChange}
-            className={`w-full bg-white rounded-[0.5rem] border border-gray-300 px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-black min-h-[120px] resize-y ${className}`}
+            className={`w-full bg-white rounded-xl border border-gray-300 px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-black min-h-[120px] resize-y ${className}`}
         />
     )
 }

@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react"
 import { Upload, FileText, X } from "lucide-react"
+import { toast } from "sonner"
 
 interface CVUploadProps {
     onFileSelect?: (file: File) => void
@@ -26,7 +27,7 @@ export default function CVUpload({ onFileSelect, maxSizeMB = 5 }: CVUploadProps)
         if (selectedFile) {
             const maxSizeBytes = maxSizeMB * 1024 * 1024
             if (selectedFile.size > maxSizeBytes) {
-                alert(`File size exceeds ${maxSizeMB} MB limit`)
+                toast.error(`File size exceeds ${maxSizeMB} MB limit`)
                 return
             }
             setFile(selectedFile)
@@ -40,7 +41,7 @@ export default function CVUpload({ onFileSelect, maxSizeMB = 5 }: CVUploadProps)
         if (droppedFile) {
             const maxSizeBytes = maxSizeMB * 1024 * 1024
             if (droppedFile.size > maxSizeBytes) {
-                alert(`File size exceeds ${maxSizeMB} MB limit`)
+                toast.error(`File size exceeds ${maxSizeMB} MB limit`)
                 return
             }
             setFile(droppedFile)
@@ -86,7 +87,7 @@ export default function CVUpload({ onFileSelect, maxSizeMB = 5 }: CVUploadProps)
             ) : (
                 <div className="border-2 border-gray-300 rounded-xl bg-white p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-gray-100 rounded-lg">
+                        <div className="p-2 bg-gray-100 rounded-xl">
                             <FileText size={20} className="text-gray-600" />
                         </div>
                         <div>
@@ -96,7 +97,7 @@ export default function CVUpload({ onFileSelect, maxSizeMB = 5 }: CVUploadProps)
                     </div>
                     <button
                         onClick={removeFile}
-                        className="p-1 hover:bg-gray-100 rounded transition-colors"
+                        className="p-1 hover:bg-gray-100 rounded-xl transition-colors"
                     >
                         <X size={18} className="text-gray-500" />
                     </button>

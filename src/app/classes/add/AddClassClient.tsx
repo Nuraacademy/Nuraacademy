@@ -5,12 +5,15 @@ import { useRouter } from "next/navigation"
 import { NuraTextInput } from "@/components/ui/input/text_input"
 import { RichTextInput } from "@/components/ui/input/rich_text_input"
 import { NuraButton } from "@/components/ui/button/button"
-import { X, Plus, Upload, Image as ImageIcon, Video, Search } from "lucide-react"
-import { createClassAction, updateClassAction } from "@/app/actions/classes"
-import Image from "next/image"
+import { X, Upload, Search } from "lucide-react"
+import { createClassAction, updateClassAction, uploadClassFile } from "@/app/actions/classes"
 import { getCurriculaList } from "@/app/actions/curricula"
+import { getTrainersAction } from "@/app/actions/user"
 import { useEffect } from "react"
 import { NuraSelect } from "@/components/ui/input/nura_select"
+import M3DateTimePicker from "@/components/ui/input/datetime_picker"
+import FileUpload from "@/components/ui/upload/file_upload"
+import { toast } from "sonner"
 
 interface AddClassClientProps {
     classData?: any;
@@ -24,12 +27,15 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
     // Form state
     const [title, setTitle] = useState(classData?.title || "");
     const [hours, setHours] = useState(classData?.hours || "");
-    const [modules, setModules] = useState(classData?.modules || "");
+    const [startDate, setStartDate] = useState<Date | null>(classData?.startDate ? new Date(classData.startDate) : null);
+    const [endDate, setEndDate] = useState<Date | null>(classData?.endDate ? new Date(classData.endDate) : null);
     const [description, setDescription] = useState(classData?.description || "");
     const [learningObjectives, setLearningObjectives] = useState(classData?.learningObjective || "");
     const [methods, setMethods] = useState(classData?.methods || "");
     const [imgUrl, setImgUrl] = useState(classData?.imgUrl || "");
     const [previewVideoUrl, setPreviewVideoUrl] = useState(classData?.previewVideoUrl || "");
+    const [trainerId, setTrainerId] = useState<string>(classData?.trainerId ? String(classData.trainerId) : "");
+    const [trainers, setTrainers] = useState<any[]>([]);
 
     // Tags state
     const [keywordInput, setKeywordInput] = useState("");
@@ -47,6 +53,14 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
             }
         };
         fetchCurricula();
+
+        const fetchTrainers = async () => {
+            const res = await getTrainersAction();
+            if (res.success && res.data) {
+                setTrainers(res.data);
+            }
+        };
+        fetchTrainers();
     }, []);
 
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -86,7 +100,8 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
         const data = {
             title,
             hours: hours ? Number(hours) : undefined,
-            modules: modules ? Number(modules) : undefined,
+            startDate: startDate || undefined,
+            endDate: endDate || undefined,
             description,
             learningObjective: learningObjectives,
             methods,
@@ -94,6 +109,7 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
             previewVideoUrl,
             keywords,
             curriculaIds: selectedCurriculaIds,
+            trainerId: trainerId ? Number(trainerId) : undefined,
         };
 
         const res = isEditing
@@ -104,14 +120,14 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
         if (res.success) {
             router.push('/classes');
         } else {
-            alert(res.error || "Failed to save class");
+            toast.error(res.error || "Failed to save class");
             setLoading(false);
         }
     };
 
     return (
         <div className="w-full mt-4">
-            <h1 className="text-2xl font-bold mb-4">{isEditing ? "Edit Class" : "Add Class"}</h1>
+            <h1 className="text-2xl font-medium mb-4">{isEditing ? "Edit Class" : "Add Class"}</h1>
 
             <div className="space-y-8">
                 {/* Title and Stats */}
@@ -135,13 +151,19 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                             onChange={(e) => setHours(e.target.value)}
                         />
                     </div>
-                    <div className="w-full md:w-48">
-                        <label className="block text-sm font-semibold mb-2">Total Modules</label>
-                        <NuraTextInput
-                            variant="number"
-                            placeholder="Total modules"
-                            value={String(modules)}
-                            onChange={(e) => setModules(e.target.value)}
+                    <div className="w-full md:w-64">
+                        <M3DateTimePicker
+                            label="Start Date"
+                            value={startDate}
+                            onChange={setStartDate}
+                        />
+                    </div>
+                    <div className="w-full md:w-64">
+                        <M3DateTimePicker
+                            label="End Date"
+                            value={endDate}
+                            onChange={setEndDate}
+                            minDate={startDate}
                         />
                     </div>
                 </div>
@@ -162,14 +184,25 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                 {/* Picture Banner */}
                 <div>
                     <label className="block text-sm font-semibold mb-2">Picture Banner</label>
-                    <div className="border-2 border-dashed border-[#D9F55C] rounded-2xl p-10 flex flex-col items-center justify-center bg-[#FEFFF5] text-center">
-                        <Upload size={32} className="text-gray-700 mb-2" />
-                        <p className="text-sm">
-                            <span className="text-gray-600 font-medium underline cursor-pointer">Click to upload</span> or drag and drop
-                        </p>
-                        <p className="text-xs text-gray-400 mt-2">Maximum file size 5 MB</p>
-                    </div>
-                    <p className="text-[10px] text-gray-400 mt-2">File supported: .jpg, .png, .jpeg</p>
+                    <FileUpload 
+                        accept=".jpg,.jpeg,.png"
+                        supportedFileType=".jpg, .png, .jpeg"
+                        maxSizeMB={5}
+                        onFileSelect={async (file) => {
+                            if (!file) {
+                                setImgUrl("");
+                                return;
+                            }
+                            const formData = new FormData();
+                            formData.append("file", file);
+                            const res = await uploadClassFile(formData);
+                            if (res.success) {
+                                setImgUrl(res.url);
+                            } else {
+                                toast.error(res.error || "Failed to upload image");
+                            }
+                        }}
+                    />
                     <div className="relative flex items-center mt-6">
                         <div className="flex-grow border-t border-gray-200"></div>
                         <span className="flex-shrink mx-4 text-xs text-gray-400 font-medium italic">or submit via link</span>
@@ -192,14 +225,25 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                 {/* Preview Video */}
                 <div>
                     <label className="block text-sm font-semibold mb-2">Preview Class (Video)</label>
-                    <div className="border-2 border-dashed border-[#D9F55C] rounded-2xl p-10 flex flex-col items-center justify-center bg-[#FEFFF5] text-center">
-                        <Upload size={32} className="text-gray-700 mb-2" />
-                        <p className="text-sm">
-                            <span className="text-gray-600 font-medium underline cursor-pointer">Click to upload</span> or drag and drop
-                        </p>
-                        <p className="text-xs text-gray-400 mt-2">Maximum file size 100 MB</p>
-                    </div>
-                    <p className="text-[10px] text-gray-400 mt-2">File supported: .mp4</p>
+                    <FileUpload 
+                        accept=".mp4"
+                        supportedFileType=".mp4"
+                        maxSizeMB={100}
+                        onFileSelect={async (file) => {
+                            if (!file) {
+                                setPreviewVideoUrl("");
+                                return;
+                            }
+                            const formData = new FormData();
+                            formData.append("file", file);
+                            const res = await uploadClassFile(formData);
+                            if (res.success) {
+                                setPreviewVideoUrl(res.url);
+                            } else {
+                                toast.error(res.error || "Failed to upload video");
+                            }
+                        }}
+                    />
                     <div className="relative flex items-center mt-6">
                         <div className="flex-grow border-t border-gray-200"></div>
                         <span className="flex-shrink mx-4 text-xs text-gray-400 font-medium italic">or submit via link</span>
@@ -237,6 +281,17 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                     </div>
                 </div>
 
+                {/* Trainer Selection */}
+                <div>
+                    <label className="block text-sm font-semibold mb-2">Assign Trainer</label>
+                    <NuraSelect
+                        placeholder="Select Trainer"
+                        options={trainers.map(t => ({ label: t.name || t.username, value: String(t.id) }))}
+                        value={trainerId}
+                        onChange={setTrainerId}
+                    />
+                </div>
+
                 {/* Curricula */}
                 <div>
                     <label className="block text-sm font-semibold mb-2 font-medium">Curricula</label>
@@ -246,7 +301,7 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                         value=""
                         onChange={(val) => handleCurriculaChange(Number(val))}
                     />
-                    <div className="flex flex-wrap gap-3 mt-4 text-sm">
+                    <div className="flex flex-wrap gap-3 mt-2 text-sm">
                         {selectedCurriculaIds.map(id => {
                             const cur = allCurricula.find(c => c.id === id);
                             return (
@@ -259,6 +314,13 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                             );
                         })}
                     </div>
+
+                    <NuraButton
+                        label="Add Curricula"
+                        variant="primary"
+                        onClick={() => { router.push('/curricula/add') }}
+                        className="mt-4"
+                    />
                 </div>
 
                 {/* Actions */}

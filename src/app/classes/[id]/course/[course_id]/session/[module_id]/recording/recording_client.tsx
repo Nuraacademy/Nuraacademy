@@ -20,7 +20,7 @@ export default function RecordingClient({
         <NuraButton
             label="Back to Session"
             variant="primary"
-            className="min-w-[160px] h-10 text-sm font-bold"
+            className="min-w-[160px] h-10 text-sm font-medium"
             onClick={() => router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}`)}
         />
     );

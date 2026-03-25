@@ -7,7 +7,13 @@ mock.module('@/lib/prisma', () => ({
         class: {
             findMany: mock(),
             findUnique: mock(),
+            findFirst: mock(),
+            create: mock(),
+            update: mock(),
         },
+        curricula: {
+            findMany: mock(),
+        }
     },
 }));
 
@@ -32,6 +38,7 @@ describe('classController', () => {
             orderBy: { createdAt: 'desc' },
             include: {
                 timelines: { where: { deletedAt: null } },
+                courses: { where: { deletedAt: null } },
             },
         });
         expect(result).toEqual(mockClasses as any);
@@ -39,11 +46,11 @@ describe('classController', () => {
 
     test('getClassById should fetch a specific class by ID including relations', async () => {
         const mockClass = { id: 1, title: 'Test Class 1' };
-        (prisma.class.findUnique as any).mockResolvedValue(mockClass);
+        (prisma.class.findFirst as any).mockResolvedValue(mockClass);
 
         const result = await getClassById(1);
 
-        expect(prisma.class.findUnique).toHaveBeenCalledWith({
+        expect(prisma.class.findFirst).toHaveBeenCalledWith({
             where: { id: 1, deletedAt: null },
             include: {
                 timelines: {
@@ -53,9 +60,70 @@ describe('classController', () => {
                 courses: {
                     where: { deletedAt: null },
                     orderBy: { createdAt: 'asc' },
+                    include: {
+                        user: {
+                            select: { id: true, name: true, username: true, role: { select: { name: true } } }
+                        },
+                        sessions: {
+                            where: { deletedAt: null },
+                            include: {
+                                user: {
+                                    select: { id: true, name: true, username: true, role: { select: { name: true } } }
+                                }
+                            }
+                        }
+                    }
                 },
             },
         });
         expect(result).toEqual(mockClass as any);
+    });
+
+    test('createClass should create a class with dates', async () => {
+        const date = new Date();
+        const inputData = {
+            title: 'New Class',
+            startDate: date,
+            endDate: date,
+        };
+        const mockClass = { id: 1, ...inputData };
+        (prisma.class.create as any).mockResolvedValue(mockClass);
+
+        const { createClass } = await import('../classController');
+        const result = await createClass(inputData);
+
+        expect(prisma.class.create).toHaveBeenCalledWith({
+            data: {
+                title: 'New Class',
+                startDate: date,
+                endDate: date,
+                curricula: undefined
+            },
+        });
+        expect(result).toEqual(mockClass as any);
+    });
+
+    test('updateClass should update a class with dates', async () => {
+        const date = new Date();
+        const inputData = {
+            title: 'Updated Class',
+            startDate: date,
+            endDate: date,
+        };
+        const mockClass = { id: 1, ...inputData };
+        (prisma.class.update as any).mockResolvedValue(mockClass);
+
+        const { updateClass } = await import('../classController');
+        await updateClass(1, inputData);
+
+        expect(prisma.class.update).toHaveBeenCalledWith({
+            where: { id: 1 },
+            data: {
+                title: 'Updated Class',
+                startDate: date,
+                endDate: date,
+                curricula: undefined
+            },
+        });
     });
 });

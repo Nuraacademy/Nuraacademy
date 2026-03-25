@@ -6,6 +6,7 @@ import { NuraButton } from "@/components/ui/button/button"
 import { Search } from "lucide-react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { NuraSearchInput } from "@/components/ui/input/nura_search_input"
 
 export default function ClassesGrid({ initialClasses, canCreate, canDelete }: { initialClasses: any[], canCreate?: boolean, canDelete?: boolean }) {
     const [searchValue, setSearchValue] = useState("");
@@ -18,17 +19,16 @@ export default function ClassesGrid({ initialClasses, canCreate, canDelete }: { 
     return (
         <>
             {/* Search Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-black mb-10 w-full max-w-screen-2xl mx-auto md:pl-16 relative z-10">
-                <h1 className="text-4xl font-bold">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-black mb-4 w-full max-w-screen-2xl mx-auto md:px-16 relative z-10">
+                <h1 className="text-4xl font-medium">
                     Explore Our Classes
                 </h1>
                 <div className="flex items-center gap-4 w-full md:w-auto">
                     <div className="relative w-full md:w-64">
-                        <NuraTextInput
+                        <NuraSearchInput
                             placeholder="Search class"
                             value={searchValue}
                             onChange={(e) => setSearchValue(e.target.value)}
-                            icon={<Search strokeWidth={1.5} />}
                         />
                     </div>
                     {canCreate && (
@@ -43,7 +43,7 @@ export default function ClassesGrid({ initialClasses, canCreate, canDelete }: { 
             </div>
 
             {/* Classes Container */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-screen-2xl mx-auto md:pl-16 relative z-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-screen-2xl mx-auto md:px-16 relative z-10">
                 {
                     filteredClasses.map((item) => (
                         <ClassCard
@@ -66,7 +66,7 @@ export default function ClassesGrid({ initialClasses, canCreate, canDelete }: { 
                 }
 
                 {filteredClasses.length === 0 && (
-                    <div className="col-span-1 border border-dashed rounded-lg flex items-center justify-center p-8 bg-white/50 w-full min-h-32">
+                    <div className="col-span-1 border border-dashed rounded-xl flex items-center justify-center p-8 bg-white/50 w-full min-h-32">
                         <p className="text-black/50">No classes found.</p>
                     </div>
                 )}

@@ -1,14 +1,16 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import { NuraButton } from "@/components/ui/button/button";
 import { RichTextInput } from "@/components/ui/input/rich_text_input";
-import { M3DateTimePicker, M3TimePicker } from "@/components/ui/input/datetime_picker";
 import { FeedbackModal } from "@/components/ui/modal/feedback_modal";
 import { X, Plus, CheckCircle } from "lucide-react";
+import M3DateTimePicker from "@/components/ui/input/datetime_picker";
 import { useRouter } from "next/navigation";
 import { addAssignment, editAssignment, removeAssignment } from "@/app/actions/assignment";
+import { NuraTextInput } from "@/components/ui/input/text_input";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -104,7 +106,7 @@ function ObjectiveBlock({
     return (
         <div className={`bg-[#F0F5D8] rounded-2xl p-5 mb-4 border-2 transition-colors ${hasError ? "border-orange-200" : "border-transparent"}`}>
             <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-semibold text-gray-700">Question {index + 1}</span>
+                <span className="text-sm font-medium text-gray-700">Question {index + 1}</span>
                 <button onClick={onRemove} className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-lg hover:bg-white">
                     <X size={15} />
                 </button>
@@ -138,7 +140,7 @@ function ObjectiveBlock({
                             <button
                                 type="button"
                                 onClick={() => setCorrect(ans.id)}
-                                className={`px-3 py-2 rounded-lg text-xs font-semibold border transition-all shrink-0 ${ans.isCorrect
+                                className={`px-3 py-2 rounded-lg text-xs font-medium border transition-all shrink-0 ${ans.isCorrect
                                     ? "bg-[#D9F55C] border-[#D9F55C] text-black shadow-sm"
                                     : "bg-white border-gray-300 text-gray-400 hover:border-gray-400"
                                     }`}
@@ -174,6 +176,7 @@ function ObjectiveBlock({
                     value={question.score || ""}
                     placeholder="e.g. 10"
                     onChange={(e) => onChange((prev) => ({ ...prev, score: Math.max(0, Number(e.target.value)) }))}
+                    onWheel={(e) => e.currentTarget.blur()}
                     className={`w-28 rounded-lg border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#D9F55C] bg-white ${question.score <= 0 ? "border-orange-200" : "border-gray-300"}`}
                 />
                 {question.score <= 0 && <span className="text-orange-500 text-xs">Required</span>}
@@ -198,7 +201,7 @@ function OpenEndedBlock({
     return (
         <div className={`bg-[#F0F5D8] rounded-2xl p-5 mb-4 border-2 transition-colors ${hasError ? "border-orange-200" : "border-transparent"}`}>
             <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-semibold text-gray-700">{label} {index + 1}</span>
+                <span className="text-sm font-medium text-gray-700">{label} {index + 1}</span>
                 <button onClick={onRemove} className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-lg hover:bg-white">
                     <X size={15} />
                 </button>
@@ -212,6 +215,7 @@ function OpenEndedBlock({
                     value={question.score || ""}
                     placeholder="e.g. 20"
                     onChange={(e) => onChange((prev) => ({ ...prev, score: Math.max(0, Number(e.target.value)) }))}
+                    onWheel={(e) => e.currentTarget.blur()}
                     className={`w-28 rounded-lg border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#D9F55C] bg-white ${question.score <= 0 ? "border-orange-200" : "border-gray-300"}`}
                 />
                 {question.score <= 0 && <span className="text-orange-500 text-xs">Required</span>}
@@ -232,8 +236,9 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
 
     // Overview form
     const [startDate, setStartDate] = useState<Date | null>(null);
-    const [endTime, setEndTime] = useState("");
-    const [overviewErrors, setOverviewErrors] = useState<{ startDate?: string; endTime?: string }>({});
+    const [endTime, setEndTime] = useState<Date | null>(null);
+    const [durationMinutes, setDurationMinutes] = useState(120);
+    const [overviewErrors, setOverviewErrors] = useState<{ startDate?: string; endTime?: string; durationMinutes?: string }>({});
 
     // Per-course saved questions
     const [courseData, setCourseData] = useState<Record<string, CourseQuestions>>({});
@@ -265,12 +270,14 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
 
     useEffect(() => {
         if (existingTest) {
+            if (existingTest.duration) {
+                setDurationMinutes(existingTest.duration);
+            }
             if (existingTest.startDate) {
-                const start = new Date(existingTest.startDate);
-                setStartDate(start);
-                const hrs = start.getHours().toString().padStart(2, "0");
-                const mins = start.getMinutes().toString().padStart(2, "0");
-                setEndTime(`${hrs}:${mins}`);
+                setStartDate(new Date(existingTest.startDate));
+            }
+            if (existingTest.endDate) {
+                setEndTime(new Date(existingTest.endDate));
             }
 
             const initialCourseData: Record<string, CourseQuestions> = {};
@@ -432,13 +439,16 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
         setIsSubmitting(true);
 
         const start = new Date(startDate!);
-        const [hours, minutes] = endTime.split(":");
-        start.setHours(parseInt(hours, 10), parseInt(minutes, 10));
+        if (endTime) {
+            start.setHours(endTime.getHours(), endTime.getMinutes());
+        }
 
         const payload = {
             classId: classData.id,
-            type: "PLACEMENT", // Map appropriately or hardcode if test
+            type: "PLACEMENT",
             startDate: start,
+            endDate: endTime || undefined,
+            duration: durationMinutes,
         };
 
         const itemsPayload: any[] = [];
@@ -518,9 +528,10 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
 
     // ── Breadcrumbs ──────────────────────────────────────────────────────────
     const breadcrumbBase = [
-        { label: "Home", href: "/" },
+        { label: "Home", href: "/classes" },
         { label: classData.title || "Class Overview", href: `/classes/${classData.id}/overview` },
-        { label: existingTest ? "Edit Placement Test" : "Create Placement Test", href: "#" },
+        { label: "Placement Test", href: `/classes/${classData.id}/test` },
+        { label: existingTest ? "Edit" : "Create", href: `/classes/${classData.id}/test/create` },
     ];
 
     const savedCount = Object.values(courseData).filter((d) => d.saved).length;
@@ -529,8 +540,20 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
     return (
         <main className="relative min-h-screen bg-white flex flex-col text-gray-800 overflow-hidden">
             {/* Background */}
-            <img src="/background/OvalBGLeft.svg" alt="" className="absolute h-[40rem] object-cover top-0 left-0 pointer-events-none select-none" />
-            <img src="/background/OvalBGRight.svg" alt="" className="absolute h-[40rem] object-cover bottom-0 right-0 pointer-events-none select-none" />
+            <Image
+                src="/background/OvalBGLeft.svg"
+                alt=""
+                className="absolute top-0 left-0 z-10 w-auto h-[30rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
+            />
+            <Image
+                src="/background/OvalBGRight.svg"
+                alt=""
+                className="absolute bottom-0 right-0 z-10 w-auto h-[30rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
+            />
 
             {/* Feedback Modal */}
             <FeedbackModal
@@ -545,25 +568,39 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                 closeText={modal.closeText}
             />
 
-            <div className="relative z-10 max-w-5xl mx-auto w-full px-6 md:px-10 py-8">
+            <div className="relative z-10 max-w-7xl mx-auto w-full px-6 md:px-10 py-8">
 
                 {/* ══ OVERVIEW VIEW ══════════════════════════════════════════ */}
                 {view === "overview" && (
                     <>
                         <Breadcrumb items={breadcrumbBase} />
-                        <h1 className="text-2xl font-bold mt-6 mb-6">{existingTest ? "Edit Test" : "Create Test"}</h1>
+                        <h1 className="text-2xl font-medium mt-6 mb-6">{existingTest ? "Edit Test" : "Create Test"}</h1>
 
                         {/* ── Form Row ── */}
-                        <div className="grid grid-cols-1 md:grid-cols-[1fr_240px_180px] gap-4 items-start mb-8">
+                        <div className="grid grid-cols-1 md:grid-cols-[1fr_120px_240px_240px] gap-4 items-start mb-8">
 
                             {/* Class Title — Read Only */}
                             <div className="relative">
-                                <label className="block text-sm font-semibold mb-1">
+                                <label className="block text-sm font-medium mb-1">
                                     Class Title
                                 </label>
-                                <div className="w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-700">
-                                    {classData.title}
-                                </div>
+                                <NuraTextInput
+                                    value={classData.title}
+                                    disabled
+                                />
+                            </div>
+
+                            {/* Duration — Number */}
+                            <div className="relative">
+                                <label className="block text-sm font-medium mb-1">
+                                    Duration <span className="text-gray-400 font-normal">(minutes)</span>
+                                </label>
+                                <NuraTextInput
+                                    variant="number"
+                                    value={durationMinutes}
+                                    onChange={(e) => setDurationMinutes(Math.max(1, parseInt(e.target.value) || 1))}
+                                    placeholder="120"
+                                />
                             </div>
 
                             {/* Start Date — M3 DateTime Picker */}
@@ -576,10 +613,11 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                 }}
                                 error={overviewErrors.startDate}
                                 required
+                                id="start-date-picker"
                             />
 
                             {/* End Time — M3 Time Picker */}
-                            <M3TimePicker
+                            <M3DateTimePicker
                                 label="End Time"
                                 value={endTime}
                                 onChange={(v) => {
@@ -588,12 +626,13 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                 }}
                                 error={overviewErrors.endTime}
                                 required
+                                id="end-time-picker"
                             />
                         </div>
 
                         {/* ── Course Questions ── */}
                         <div className="flex items-center justify-between mb-3">
-                            <h2 className="text-sm font-semibold">Course Questions</h2>
+                            <h2 className="text-sm font-medium">Course Questions</h2>
                             {savedCount > 0 && (
                                 <span className="text-xs text-gray-500 bg-[#F0F5D8] px-3 py-1 rounded-full">
                                     {savedCount} / {TOTAL_COURSES} courses configured
@@ -604,11 +643,6 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                         <div className="bg-[#F2F5DC] rounded-[2rem] p-5 space-y-3 mb-10">
                             {classData.courses?.map((course: any) => {
                                 const saved = courseData[course.id]?.saved;
-                                const courseMax = saved
-                                    ? courseData[course.id].objective.reduce((a, b) => a + b.score, 0) +
-                                    courseData[course.id].essay.reduce((a, b) => a + b.score, 0) +
-                                    courseData[course.id].project.reduce((a, b) => a + b.score, 0)
-                                    : 0;
                                 const totalQ = saved
                                     ? courseData[course.id].objective.length +
                                     courseData[course.id].essay.length +
@@ -620,7 +654,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                         <div className="flex items-center gap-3">
                                             {saved && <CheckCircle size={16} className="text-green-500 shrink-0" />}
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-semibold text-gray-800">{course.title}</span>
+                                                <span className="text-xs font-medium text-gray-800">{course.title}</span>
                                                 {saved && (
                                                     <p className="text-[10px] text-gray-400 mt-0.5">
                                                         {totalQ} question{totalQ !== 1 ? "s" : ""} added
@@ -635,6 +669,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                                 variant={saved ? "secondary" : "primary"}
                                                 className={saved ? "!h-10 !min-w-[80px] !text-sm" : "!h-10 !min-w-[120px] !text-sm"}
                                                 onClick={() => handleAddItem(course)}
+                                                id={`add-item-course-${course.id}`}
                                             />
                                         </div>
                                     </div>
@@ -645,7 +680,13 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                         {/* Footer */}
                         <div className="flex justify-end items-center gap-4">
                             <NuraButton label="Cancel" variant="secondary" onClick={() => router.back()} disabled={isSubmitting} />
-                            <NuraButton label={isSubmitting ? "Saving..." : (existingTest ? "Save Changes" : "Create")} variant="primary" onClick={handleCreate} disabled={isSubmitting} />
+                            <NuraButton
+                                label={isSubmitting ? "Saving..." : (existingTest ? "Save Changes" : "Create")}
+                                variant="primary"
+                                onClick={handleCreate}
+                                disabled={isSubmitting}
+                                id="create-test-submit-btn"
+                            />
                         </div>
                     </>
                 )}
@@ -654,12 +695,12 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                 {view === "editor" && selectedCourse && (
                     <>
                         <Breadcrumb items={[...breadcrumbBase, { label: selectedCourse.title, href: "#" }]} />
-                        <h1 className="text-2xl font-bold mt-6 mb-6">{existingTest ? "Edit Test" : "Create Test"}</h1>
+                        <h1 className="text-2xl font-medium mt-6 mb-6">{existingTest ? "Edit Test" : "Create Test"}</h1>
 
                         {/* Course Title & Passing Grade */}
                         <div className="grid grid-cols-1 md:grid-cols-[1fr_240px] gap-6 mb-8">
                             <div>
-                                <label className="block text-sm font-semibold mb-1">Course Title</label>
+                                <label className="block text-sm font-medium mb-1">Course Title</label>
                                 <div className="w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-700">
                                     {selectedCourse.title}
                                 </div>
@@ -674,7 +715,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
 
                                 return (
                                     <div className="flex flex-col">
-                                        <label className="block text-sm font-semibold mb-1">Passing Grade</label>
+                                        <label className="block text-sm font-medium mb-1">Passing Grade</label>
                                         <div className={`flex items-center gap-2 border-b-2 transition-colors pb-1.5 ${isError ? "border-red-500" : "border-gray-200 focus-within:border-[#D9F55C]"}`}>
                                             <input
                                                 type="number"
@@ -683,16 +724,17 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                                     const val = parseFloat(e.target.value);
                                                     setThresholds(prev => ({ ...prev, [selectedCourse.id]: isNaN(val) ? 0 : val }));
                                                 }}
-                                                className="flex-1 text-right text-base font-bold text-black outline-none bg-transparent"
+                                                onWheel={(e) => e.currentTarget.blur()}
+                                                className="flex-1 text-right text-base font-medium text-black outline-none bg-transparent"
                                                 placeholder="e.g. 80"
                                             />
                                             <span className="text-gray-400 text-sm font-medium shrink-0">/ {currentMax}</span>
                                         </div>
                                         {threshold > currentMax && (
-                                            <span className="text-[10px] text-red-500 font-bold mt-1 italic">Cannot exceed max score ({currentMax})</span>
+                                            <span className="text-[10px] text-red-500 font-medium mt-1 italic">Cannot exceed max score ({currentMax})</span>
                                         )}
                                         {threshold < 0 && (
-                                            <span className="text-[10px] text-red-500 font-bold mt-1 italic">Cannot be negative</span>
+                                            <span className="text-[10px] text-red-500 font-medium mt-1 italic">Cannot be negative</span>
                                         )}
                                     </div>
                                 );
@@ -701,7 +743,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
 
                         {/* ── Objective Questions ── */}
                         <section className="mb-6">
-                            <h2 className="text-sm font-semibold mb-3">Objective Questions</h2>
+                            <h2 className="text-sm font-medium mb-3">Objective Questions</h2>
                             {objectiveQuestions.length === 0 && (
                                 <p className="text-xs text-gray-400 italic mb-3">No objective questions yet.</p>
                             )}
@@ -729,7 +771,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
 
                         {/* ── Essay Questions ── */}
                         <section className="mb-6">
-                            <h2 className="text-sm font-semibold mb-3">Essay Questions</h2>
+                            <h2 className="text-sm font-medium mb-3">Essay Questions</h2>
                             {essayQuestions.length === 0 && (
                                 <p className="text-xs text-gray-400 italic mb-3">No essay questions yet.</p>
                             )}
@@ -757,7 +799,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
 
                         {/* ── Project Questions ── */}
                         <section className="mb-8">
-                            <h2 className="text-sm font-semibold mb-3">Project Questions</h2>
+                            <h2 className="text-sm font-medium mb-3">Project Questions</h2>
                             {projectQuestions.length === 0 && (
                                 <p className="text-xs text-gray-400 italic mb-3">No project questions yet.</p>
                             )}
@@ -786,7 +828,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                         {/* Footer */}
                         <div className="flex justify-end items-center gap-4">
                             <NuraButton label="Cancel" variant="secondary" onClick={() => { setView("overview"); }} />
-                            <NuraButton label="Save" variant="primary" onClick={handleSave} />
+                            <NuraButton label="Save" variant="primary" onClick={handleSave} id="save-course-questions-btn" />
                         </div>
                     </>
                 )}

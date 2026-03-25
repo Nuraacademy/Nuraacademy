@@ -1,333 +1,890 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, X } from "lucide-react";
-import { addAssignment } from "@/app/actions/assignment";
-import { NuraSearchInput } from "@/components/ui/input/nura_search_input";
-import { M3DateTimePicker, M3TimePicker } from "@/components/ui/input/datetime_picker";
+import { Plus, CheckCircle } from "lucide-react";
+import { addAssignment, editAssignment } from "@/app/actions/assignment";
+import {
+    fetchCoursesByClassIdAction,
+    fetchSessionsByCourseIdAction,
+    fetchPlacementTestByClassIdAction,
+    fetchExistingAssignmentAction
+} from "@/app/actions/assignmentActions";
+import M3DateTimePicker from "@/components/ui/input/datetime_picker";
 import { NuraButton } from "@/components/ui/button/button";
 import { NuraTextInput } from "@/components/ui/input/text_input";
 import { NuraSelect } from "@/components/ui/input/nura_select";
-import { NuraTextArea } from "@/components/ui/input/text_area";
+import { FeedbackModal } from "@/components/ui/modal/feedback_modal";
+import Image from "next/image";
+import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
+import {
+    TestEditor,
+    ObjectiveBlock,
+    OpenEndedBlock,
+    makeObjectiveQuestion,
+    makeEssayQuestion,
+    makeProjectQuestion,
+    validateQuestions,
+    type ObjectiveQuestion,
+    type EssayQuestion,
+    type ProjectQuestion,
+} from "@/components/assignment/test_editor";
 
-export function AddAssignmentClient({ classes }: { classes: any[] }) {
+import { ConfirmModal } from "@/components/ui/modal/confirmation_modal";
+
+// -- Types --
+
+interface CourseQuestions {
+    objective: ObjectiveQuestion[];
+    essay: EssayQuestion[];
+    project: ProjectQuestion[];
+    saved: boolean;
+}
+
+// -- Main Client --
+
+export function AddAssignmentClient({
+    classes,
+    initialAssignment,
+    prefillData
+}: {
+    classes: any[],
+    initialAssignment?: any,
+    prefillData?: { classId?: number, courseId?: number, sessionId?: number, type?: string }
+}) {
     const router = useRouter();
+    const idRef = useRef(1);
 
-    // Step 1 State: Test Config
-    const [classTitleSearch, setClassTitleSearch] = useState("");
-    const [startDate, setStartDate] = useState<Date | null>(null);
-    const [endTime, setEndTime] = useState<string>("");
+    // View: "overview" | "editor" (PLACEMENT per-course) | "simple-editor" (other types)
+    const [view, setView] = useState<"overview" | "editor" | "simple-editor">("overview");
+    const [selectedCourseForEditor, setSelectedCourseForEditor] = useState<{ id: number; title: string } | null>(null);
 
-    // Step 1: Courses
+    // Overview fields
+    const [title, setTitle] = useState("");
+    const [assignmentType, setAssignmentType] = useState("");
+    const [submissionType, setSubmissionType] = useState<"INDIVIDUAL" | "GROUP">("INDIVIDUAL");
     const [selectedClassId, setSelectedClassId] = useState<number | null>(null);
-    const [courseQuestions, setCourseQuestions] = useState<any[]>([]);
+    const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
+    const [selectedSessionId, setSelectedSessionId] = useState<number | null>(null);
+    const [startDate, setStartDate] = useState<Date | null>(null);
+    const [endDate, setEndDate] = useState<Date | null>(null);
+    const [duration, setDuration] = useState("");
+    const [overviewErrors, setOverviewErrors] = useState<Record<string, string>>({});
 
-    const handleClassSelect = (classIdStr: string) => {
-        const id = parseInt(classIdStr);
+    // Dynamic options
+    const [courses, setCourses] = useState<any[]>([]);
+    const [sessions, setSessions] = useState<any[]>([]);
+
+    // Existing test ID (if editing)
+    const [existingTestId, setExistingTestId] = useState<number | null>(null);
+
+    // PLACEMENT grouped data
+    const [courseData, setCourseData] = useState<Record<string, CourseQuestions>>({});
+    const [thresholds, setThresholds] = useState<Record<string, number>>({});
+
+    // Editor state (PLACEMENT per-course)
+    const [objectiveQuestions, setObjectiveQuestions] = useState<ObjectiveQuestion[]>([]);
+    const [essayQuestions, setEssayQuestions] = useState<EssayQuestion[]>([]);
+    const [projectQuestions, setProjectQuestions] = useState<ProjectQuestion[]>([]);
+
+    // Simple questions (non-placement types)
+    const [simpleObjective, setSimpleObjective] = useState<ObjectiveQuestion[]>([]);
+    const [simpleEssay, setSimpleEssay] = useState<EssayQuestion[]>([]);
+    const [simpleProject, setSimpleProject] = useState<ProjectQuestion[]>([]);
+
+    // Modal & submitting
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showDurationConfirm, setShowDurationConfirm] = useState(false);
+    const [modal, setModal] = useState<{
+        open: boolean;
+        type: "success" | "error";
+        title: string;
+        message: string;
+        errors?: string[];
+        onConfirm?: () => void;
+        confirmText?: string;
+        closeText?: string;
+    }>({ open: false, type: "success", title: "", message: "" });
+
+    const showModal = (opts: typeof modal) => setModal({ ...opts, open: true });
+    const closeModal = () => setModal((m) => ({ ...m, open: false }));
+
+    // ── Pre-fill from initialAssignment (when navigating from ProjectCard edit) ─
+    useEffect(() => {
+        if (initialAssignment) {
+            const a = initialAssignment;
+
+            // Set the dropdowns first
+            setAssignmentType(a.type || "");
+            if (a.classId) setSelectedClassId(a.classId);
+            if (a.courseId) setSelectedCourseId(a.courseId);
+            if (a.sessionId) setSelectedSessionId(a.sessionId);
+
+            // Fetch courses for that class so session dropdowns work
+            if (a.classId) {
+                fetchCoursesByClassIdAction(a.classId).then(res => {
+                    if (res.success && res.courses) setCourses(res.courses);
+                });
+            }
+
+            // Load the question data and metadata (title, dates, submissionType, etc.)
+            loadExistingTest(a, []);
+
+            // Also fetch sessions if courseId is present
+            if (a.courseId) {
+                fetchSessionsByCourseIdAction(a.courseId).then(res => {
+                    if (res.success && res.sessions) setSessions(res.sessions);
+                });
+            }
+        } else if (prefillData) {
+            if (prefillData.type) {
+                setAssignmentType(prefillData.type);
+                if (prefillData.type === "PRETEST") setTitle("Pre-Test");
+                if (prefillData.type === "POSTTEST") setTitle("Post-Test");
+                if (prefillData.type === "PRETEST" || prefillData.type === "POSTTEST") {
+                    setSimpleObjective([makeObjectiveQuestion(idRef)]);
+                }
+            }
+            if (prefillData.classId) setSelectedClassId(prefillData.classId);
+            if (prefillData.courseId) setSelectedCourseId(prefillData.courseId);
+            if (prefillData.sessionId) setSelectedSessionId(prefillData.sessionId);
+
+            if (prefillData.classId) {
+                fetchCoursesByClassIdAction(prefillData.classId).then(res => {
+                    if (res.success && res.courses) setCourses(res.courses);
+                });
+            }
+            if (prefillData.courseId) {
+                fetchSessionsByCourseIdAction(prefillData.courseId).then(res => {
+                    if (res.success && res.sessions) setSessions(res.sessions);
+                });
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // Type rules
+    const isPlacement = assignmentType === "PLACEMENT";
+    const currentClass = classes.find(c => c.id === selectedClassId);
+    const isClassLevel = isPlacement || assignmentType === "PROJECT";
+    const isCourseLevel = assignmentType === "EXERCISE" || assignmentType === "ASSIGNMENT";
+    const isSessionLevel = assignmentType === "PRETEST" || assignmentType === "POSTTEST";
+    const courseEnabled = isCourseLevel || isSessionLevel;
+    const sessionEnabled = isSessionLevel;
+    // ASSIGNMENT, EXERCISE and PROJECT support group/individual submission
+    const hasSubmissionType = assignmentType === "ASSIGNMENT" || assignmentType === "PROJECT" || assignmentType === "EXERCISE";
+
+    // ── Hierarchical handlers ────────────────────────────────────────────────
+
+    const handleClassChange = async (val: string) => {
+        const id = parseInt(val);
+        if (id === selectedClassId) return;
         setSelectedClassId(id);
+        setSelectedCourseId(null);
+        setSelectedSessionId(null);
+        setCourses([]);
+        setSessions([]);
+        setCourseData({});
+        setThresholds({});
+        setExistingTestId(null);
+        setSimpleObjective([]);
+        setSimpleEssay([]);
+        setSimpleProject([]);
+        setOverviewErrors(p => ({ ...p, classId: "" }));
+        if (id) {
+            const res = await fetchCoursesByClassIdAction(id);
+            if (res.success) setCourses(res.courses);
 
-        const selectedClass = classes.find((c: any) => c.id === id);
-        if (selectedClass && selectedClass.courses) {
-            setCourseQuestions(selectedClass.courses);
-        } else {
-            setCourseQuestions([]);
+            // Check for existing based on type
+            triggerExistingCheck(assignmentType, id, null, null);
         }
     };
 
-    // UI Step Control
-    // 1 = Test Config Overview
-    // 2 = Question Config (Detail view for a specific course)
-    const [currentStep, setCurrentStep] = useState<1 | 2>(1);
-    const [activeCourseId, setActiveCourseId] = useState<number | null>(null);
+    const handleCourseChange = async (val: string) => {
+        const id = parseInt(val);
+        if (id === selectedCourseId) return;
+        setSelectedCourseId(id);
+        setSelectedSessionId(null);
+        setSessions([]);
+        setOverviewErrors(p => ({ ...p, courseId: "" }));
+        if (id) {
+            const res = await fetchSessionsByCourseIdAction(id);
+            if (res.success) setSessions(res.sessions);
 
-    // Step 2 State: Questions
-    const [objectiveQuestions, setObjectiveQuestions] = useState<any[]>([{ id: 1 }]);
-    const [essayQuestions, setEssayQuestions] = useState<any[]>([{ id: 1 }, { id: 2 }]);
-    const [projectQuestions, setProjectQuestions] = useState<any[]>([]);
+            triggerExistingCheck(assignmentType, selectedClassId, id, null);
+        }
+    };
 
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const handleTypeChange = async (val: string) => {
+        if (val === assignmentType) return;
+        setAssignmentType(val);
+        setCourseData({});
+        setThresholds({});
+        setExistingTestId(null);
+        setSimpleObjective([]);
+        setSimpleEssay([]);
+        setSimpleProject([]);
+        setOverviewErrors({});
 
-    const handleCreateClick = async () => {
-        if (!selectedClassId || !startDate || !endTime) {
-            alert("Please complete the Test Configuration (Class, Start Date, End Time).");
+        // Reset submission type on type change
+        setSubmissionType("INDIVIDUAL");
+
+        if (selectedClassId) {
+            triggerExistingCheck(val, selectedClassId, selectedCourseId, selectedSessionId);
+        }
+    };
+
+    const triggerExistingCheck = async (t: string, cid: number | null, coid: number | null, sid: number | null) => {
+        if (!cid || !t) return;
+
+        let shouldFetch = false;
+        if (t === "PLACEMENT" || t === "PROJECT") shouldFetch = true;
+        else if ((t === "ASSIGNMENT" || t === "EXERCISE") && coid) shouldFetch = true;
+        else if ((t === "PRETEST" || t === "POSTTEST") && sid) shouldFetch = true;
+
+        if (shouldFetch) {
+            const res = await fetchExistingAssignmentAction({
+                classId: cid,
+                courseId: (t === "PLACEMENT" || t === "PROJECT") ? null : coid,
+                sessionId: (t === "PRETEST" || t === "POSTTEST") ? sid : null,
+                type: t as any
+            });
+            if (res.success && res.test) {
+                loadExistingTest(res.test, courses);
+            }
+        }
+    };
+
+    const loadExistingTest = (test: any, classCourses: any[]) => {
+        setExistingTestId(test.id);
+        setTitle(test.title || "");
+        setSubmissionType(test.submissionType === "GROUP" ? "GROUP" : "INDIVIDUAL");
+        setStartDate(test.startDate ? new Date(test.startDate) : null);
+        setEndDate(test.endDate ? new Date(test.endDate) : null);
+        setDuration(test.duration?.toString() || "");
+
+        if (test.type === "PLACEMENT") {
+            const newData: Record<string, CourseQuestions> = {};
+            const newThresholds: Record<string, number> = {};
+
+            test.assignmentItems.forEach((item: any) => {
+                if (!item.courseId) return;
+                if (!newData[item.courseId]) {
+                    newData[item.courseId] = { objective: [], essay: [], project: [], saved: true };
+                }
+                const q = {
+                    id: item.id,
+                    content: item.question,
+                    score: item.maxScore || 10,
+                    answers: (item.options || []).map((text: string) => ({
+                        id: idRef.current++,
+                        text: text,
+                        isCorrect: text === item.correctAnswer
+                    }))
+                };
+                if (item.type === "OBJECTIVE") newData[item.courseId].objective.push(q);
+                else if (item.type === "ESSAY") newData[item.courseId].essay.push(q);
+                else if (item.type === "PROJECT") newData[item.courseId].project.push(q);
+            });
+
+            classCourses.forEach(c => {
+                if (c.threshold !== null) newThresholds[c.id] = c.threshold;
+            });
+
+            setCourseData(newData);
+            setThresholds(newThresholds);
+        } else {
+            // Simple editor types
+            const obj: ObjectiveQuestion[] = [];
+            const ess: EssayQuestion[] = [];
+            const pro: ProjectQuestion[] = [];
+
+            test.assignmentItems.forEach((item: any) => {
+                const q = {
+                    id: item.id,
+                    content: item.question,
+                    score: item.maxScore || 10,
+                };
+                if (item.type === "OBJECTIVE") {
+                    (q as any).answers = (item.options || []).map((text: string) => ({
+                        id: idRef.current++,
+                        text: text,
+                        isCorrect: text === item.correctAnswer
+                    }));
+                    obj.push(q as any);
+                } else if (item.type === "ESSAY") ess.push(q as any);
+                else if (item.type === "PROJECT") pro.push(q as any);
+            });
+
+            setSimpleObjective(obj);
+            setSimpleEssay(ess);
+            setSimpleProject(pro);
+            if (test.passingGrade !== null) {
+                setThresholds({ "-1": test.passingGrade });
+            }
+        }
+    };
+
+    // ── PLACEMENT editor handlers ────────────────────────────────────────────
+
+    const handleAddItem = (course: any) => {
+        setSelectedCourseForEditor({ id: course.id, title: course.title });
+        const existing = courseData[course.id];
+        if (existing && (existing.objective.length > 0 || existing.essay.length > 0 || existing.project.length > 0)) {
+            // Clone arrays to ensure React detects a fresh reference for state update
+            setObjectiveQuestions([...existing.objective]);
+            setEssayQuestions([...existing.essay]);
+            setProjectQuestions([...existing.project]);
+        } else {
+            setObjectiveQuestions([makeObjectiveQuestion(idRef)]);
+            setEssayQuestions([makeEssayQuestion(idRef)]);
+            setProjectQuestions([]);
+        }
+        setView("editor");
+    };
+
+    const handleEditorSave = (
+        objective: ObjectiveQuestion[],
+        essay: EssayQuestion[],
+        project: ProjectQuestion[]
+    ) => {
+        const max =
+            objective.reduce((a, b) => a + b.score, 0) +
+            essay.reduce((a, b) => a + b.score, 0) +
+            project.reduce((a, b) => a + b.score, 0);
+
+        setCourseData(prev => ({
+            ...prev,
+            [selectedCourseForEditor!.id]: { objective, essay, project, saved: true },
+        }));
+
+        setThresholds(prev => {
+            const existing = prev[selectedCourseForEditor!.id];
+            if (existing === undefined || existing === 0) {
+                return { ...prev, [selectedCourseForEditor!.id]: Math.round(max * 0.8) };
+            }
+            return prev;
+        });
+
+        showModal({
+            open: true,
+            type: "success",
+            title: "Questions Saved!",
+            message: `Questions for "${selectedCourseForEditor!.title}" have been saved successfully.`,
+            closeText: "Continue",
+            onConfirm: () => { closeModal(); setView("overview"); },
+            confirmText: "Back to Overview",
+        });
+    };
+
+    // ── Simple editor (non-placement) handlers ───────────────────────────────
+
+    const handleOpenSimpleEditor = () => {
+        // Find the title for the editor (either the selected session/course or the assignment type)
+        let editorTitle = assignmentType.replace(/_/g, " ");
+        if (sessionEnabled && selectedSessionId) {
+            editorTitle = sessions.find(s => s.id === selectedSessionId)?.title || editorTitle;
+        } else if (courseEnabled && selectedCourseId) {
+            editorTitle = courses.find(c => c.id === selectedCourseId)?.title || editorTitle;
+        }
+        setSelectedCourseForEditor({ id: -1, title: editorTitle });
+
+        // Initialize with default blocks if empty to match PLACEMENT journey
+        if (simpleObjective.length === 0 && simpleEssay.length === 0 && simpleProject.length === 0) {
+            setSimpleObjective([makeObjectiveQuestion(idRef)]);
+            setSimpleEssay([makeEssayQuestion(idRef)]);
+        }
+        setView("simple-editor");
+    };
+
+    const handleSimpleEditorSave = (
+        objective: ObjectiveQuestion[],
+        essay: EssayQuestion[],
+        project: ProjectQuestion[]
+    ) => {
+        setSimpleObjective(objective);
+        setSimpleEssay(essay);
+        setSimpleProject(project);
+
+        const total = objective.length + essay.length + project.length;
+        // The thresholds state is already updated inside TestEditor for both placement and simple types
+
+        showModal({
+            open: true,
+            type: "success",
+            title: "Questions Saved!",
+            message: `${total} question${total !== 1 ? "s" : ""} saved successfully.`,
+            closeText: "Continue",
+            onConfirm: () => { closeModal(); setView("overview"); },
+            confirmText: "Back to Overview",
+        });
+    };
+
+    // Fake course for the simple editor (no per-course threshold needed)
+    const simpleFakeCourse = { id: -1, title: assignmentType.replace("_", " ") };
+    const [simpleThresholds, setSimpleThresholds] = useState<Record<string, number>>({});
+
+    // ── Create handler ───────────────────────────────────────────────────────
+
+    const handleCreate = async () => {
+        const errs: Record<string, string> = {};
+        if (!title) errs.title = "Title is required.";
+        if (!assignmentType) errs.type = "Type is required.";
+        if (!selectedClassId) errs.classId = "Class is required.";
+        if (courseEnabled && !selectedCourseId) errs.courseId = "Course is required.";
+        if (sessionEnabled && !selectedSessionId) errs.sessionId = "Session is required.";
+        if (!startDate) errs.startDate = "Start date is required.";
+        if (!endDate) errs.endDate = "End date is required.";
+        if (startDate && endDate && endDate <= startDate) errs.endDate = "End date must be after start date.";
+
+        const questionErrs: string[] = [];
+        if (isPlacement) {
+            if (Object.values(courseData).filter(d => d.saved).length === 0)
+                questionErrs.push("Configure at least one course's questions.");
+        } else if (assignmentType) {
+            const total = simpleObjective.length + simpleEssay.length + simpleProject.length;
+            if (total === 0) questionErrs.push("At least one question is required.");
+            questionErrs.push(...validateQuestions(simpleObjective, simpleEssay, simpleProject));
+        }
+
+        setOverviewErrors(errs);
+
+        const allErrs = [...Object.values(errs).filter(Boolean), ...questionErrs];
+
+        if (allErrs.length > 0) {
+            showModal({
+                open: true,
+                type: "error",
+                title: "Incomplete Form",
+                message: "Please fix the issues before creating.",
+                errors: allErrs,
+                closeText: "Back to Edit",
+            });
             return;
         }
 
+        // If duration is empty, show confirmation
+        if (!duration) {
+            setShowDurationConfirm(true);
+            return;
+        }
+
+        executeCreate();
+    };
+
+    const executeCreate = async () => {
         setIsSubmitting(true);
+        setShowDurationConfirm(false);
 
-        // Combine startDate and endTime into a proper UTC date object
-        const start = new Date(startDate);
-        const [hours, minutes] = endTime.split(":");
-        start.setHours(parseInt(hours, 10), parseInt(minutes, 10));
-
-        // Create the base assignment payload
         const payload = {
+            title,
             classId: selectedClassId,
-            type: "PLACEMENT", // Default based on page title
-            startDate: start,
+            courseId: isClassLevel ? null : selectedCourseId,
+            sessionId: sessionEnabled ? selectedSessionId : null,
+            type: assignmentType,
+            submissionType: hasSubmissionType ? submissionType : null,
+            startDate: startDate,
+            endDate: endDate,
+            duration: duration ? parseInt(duration) : 0,
+            passingGrade: thresholds["-1"] || 0,
         };
 
-        const itemsPayload: any[] = [];
+        const items: any[] = [];
+        if (isPlacement) {
+            Object.entries(courseData).forEach(([cid, data]) => {
+                const cId = parseInt(cid);
+                data.objective.forEach(q => items.push({ courseId: cId, type: "OBJECTIVE", question: q.content, maxScore: q.score, options: q.answers.map(a => a.text), correctAnswer: q.answers.find(a => a.isCorrect)?.text || "" }));
+                data.essay.forEach(q => items.push({ courseId: cId, type: "ESSAY", question: q.content, maxScore: q.score }));
+                data.project.forEach(q => items.push({ courseId: cId, type: "PROJECT", question: q.content, maxScore: q.score }));
+            });
+        } else {
+            const baseCId = isClassLevel ? null : selectedCourseId;
+            simpleObjective.forEach(q => items.push({ courseId: baseCId, type: "OBJECTIVE", question: q.content, maxScore: q.score, options: q.answers.map(a => a.text), correctAnswer: q.answers.find(a => a.isCorrect)?.text || "" }));
+            simpleEssay.forEach(q => items.push({ courseId: baseCId, type: "ESSAY", question: q.content, maxScore: q.score }));
+            simpleProject.forEach(q => items.push({ courseId: baseCId, type: "PROJECT", question: q.content, maxScore: q.score }));
+        }
 
-        // In a complete implementation, these states would be tracked *per course*. 
-        // For the sake of the wizard, we dump the current global tracking into the placement test items.
-        objectiveQuestions.forEach((q) => {
-            if (q.question) {
-                itemsPayload.push({
-                    type: "OBJECTIVE",
-                    question: q.question,
-                    options: q.options || [],
-                    correctAnswer: q.correctAnswer || "",
-                    maxScore: parseFloat(q.score || "20")
-                });
-            }
-        });
+        const thresholdsPayload = isPlacement
+            ? Object.entries(thresholds).map(([cid, val]) => ({ courseId: parseInt(cid), threshold: val }))
+            : [];
 
-        essayQuestions.forEach((q) => {
-            if (q.question) {
-                itemsPayload.push({
-                    type: "ESSAY",
-                    question: q.question,
-                    maxScore: parseFloat(q.score || "20")
-                });
-            }
-        });
+        const res = existingTestId
+            ? await editAssignment(existingTestId, payload, items, thresholdsPayload)
+            : await addAssignment(payload, items, thresholdsPayload);
 
-        projectQuestions.forEach((q) => {
-            if (q.question) {
-                itemsPayload.push({
-                    type: "PROJECT",
-                    question: q.question,
-                    maxScore: parseFloat(q.score || "20")
-                });
-            }
-        });
-
-        const res = await addAssignment(payload, itemsPayload);
         setIsSubmitting(false);
 
         if (res.success) {
-            router.push(`/classes/${selectedClassId}/overview`);
+            setExistingTestId(res.assignmentId); // Immediately switch to Edit mode
+            showModal({
+                open: true,
+                type: "success",
+                title: existingTestId ? "Assignment Updated! 🎉" : "Assignment Created! 🎉",
+                message: existingTestId ? "Your assignment has been updated successfully." : "Your assignment has been created successfully.",
+                closeText: "Stay Here",
+                onConfirm: () => { closeModal(); router.push("/assignment"); },
+                confirmText: "Go to Assignments",
+            });
         } else {
-            alert(res.error || "Failed to create test");
+            showModal({
+                open: true,
+                type: "error",
+                title: existingTestId ? "Update Failed" : "Creation Failed",
+                message: res.error || `Failed to ${existingTestId ? 'update' : 'create'} assignment. Please try again.`,
+                closeText: "Close",
+            });
         }
     };
 
-    const handleSaveCourseQuestions = () => {
-        // Validation could go here
-        setCurrentStep(1);
-    }
+    // ── Breadcrumbs ──────────────────────────────────────────────────────────
 
-    if (currentStep === 2) {
-        const activeCourse = courseQuestions.find(c => c.id === activeCourseId);
+    const breadcrumbBase = [
+        { label: "Home", href: "/classes" },
+        { label: "Assignment", href: "/assignment" },
+        { label: "Add Assignment", href: "#" },
+    ];
 
-        return (
-            <div className="flex flex-col gap-8 w-full mt-4">
-                <div className="flex flex-col gap-4">
-                    <h2 className="text-sm font-bold text-gray-900 mb-1">Objective Questions</h2>
+    const savedCount = Object.values(courseData).filter(d => d.saved).length;
+    const TOTAL_COURSES = currentClass?.courses?.length || 0;
+    const simpleTotal = simpleObjective.length + simpleEssay.length + simpleProject.length;
 
-                    {objectiveQuestions.map((oq, index) => (
-                        <div key={oq.id} className="bg-[#FCFCF2] rounded-[1.5rem] p-6 border border-[#EBF2D5] flex flex-col gap-4 relative">
-                            <div className="flex justify-between items-center bg-transparent border-b border-[#EBF2D5] pb-3 mb-2">
-                                <span className="text-sm font-semibold text-gray-800">Question {index + 1}</span>
-                                <button className="text-gray-500 hover:text-red-500 transition-colors">
-                                    <X size={16} />
-                                </button>
-                            </div>
-
-                            <NuraTextArea
-                                label=""
-                                value=""
-                                placeholder="Objective questions"
-                                className="w-full bg-white min-h-[100px]"
-                            />
-
-                            <span className="text-sm font-semibold text-gray-800 mt-2">Answer</span>
-                            <div className="flex flex-col gap-3">
-                                {[1, 2, 3, 4].map((ansIndex) => (
-                                    <div key={ansIndex} className="grid grid-cols-[1fr_140px] gap-4">
-                                        <NuraTextInput placeholder="Answer" className="w-full h-10 border-gray-200" />
-                                        <div className="relative">
-                                            <NuraSelect
-                                                options={[{ label: "True", value: "true" }, { label: "False", value: "false" }]}
-                                                placeholder="True / False"
-                                            />
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <span className="text-sm font-semibold text-gray-800 mt-2">Score</span>
-                            <NuraTextInput placeholder="20" className="w-full h-10 border-gray-200" />
-                        </div>
-                    ))}
-
-                    <button
-                        className="w-full py-3 bg-white border border-dashed border-gray-300 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-2"
-                        onClick={() => setObjectiveQuestions([...objectiveQuestions, { id: Date.now() }])}
-                    >
-                        <Plus size={16} /> Add Question Block
-                    </button>
-                </div>
-
-                <div className="flex flex-col gap-4">
-                    <h2 className="text-sm font-bold text-gray-900 mb-1">Essay Questions</h2>
-
-                    {essayQuestions.map((eq, index) => (
-                        <div key={eq.id} className="bg-[#FCFCF2] rounded-[1.5rem] p-6 border border-[#EBF2D5] flex flex-col gap-4 relative">
-                            <div className="flex justify-between items-center bg-transparent border-b border-[#EBF2D5] pb-3 mb-2">
-                                <span className="text-sm font-semibold text-gray-800">Question {index + 1}</span>
-                                <button className="text-gray-500 hover:text-red-500 transition-colors">
-                                    <X size={16} />
-                                </button>
-                            </div>
-
-                            <NuraTextArea
-                                label=""
-                                value=""
-                                placeholder="Essay questions"
-                                className="w-full bg-white min-h-[100px]"
-                            />
-
-                            <span className="text-sm font-semibold text-gray-800 mt-2">Score</span>
-                            <NuraTextInput placeholder="20" className="w-full h-10 border-gray-200" />
-                        </div>
-                    ))}
-
-                    <button
-                        className="w-full py-3 bg-white border border-dashed border-gray-300 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-2"
-                        onClick={() => setEssayQuestions([...essayQuestions, { id: Date.now() }])}
-                    >
-                        <Plus size={16} /> Add Question Block
-                    </button>
-                </div>
-
-                <div className="flex flex-col gap-4">
-                    <h2 className="text-sm font-bold text-gray-900 mb-1">Project Questions</h2>
-
-                    {projectQuestions.map((pq, index) => (
-                        <div key={pq.id} className="bg-[#FCFCF2] rounded-[1.5rem] p-6 border border-[#EBF2D5] flex flex-col gap-4 relative">
-                            <div className="flex justify-between items-center bg-transparent border-b border-[#EBF2D5] pb-3 mb-2">
-                                <span className="text-sm font-semibold text-gray-800">Question {index + 1}</span>
-                                <button className="text-gray-500 hover:text-red-500 transition-colors">
-                                    <X size={16} />
-                                </button>
-                            </div>
-
-                            <NuraTextArea
-                                label=""
-                                value=""
-                                placeholder="Project questions/requirements"
-                                className="w-full bg-white min-h-[100px]"
-                            />
-
-                            <span className="text-sm font-semibold text-gray-800 mt-2">Score</span>
-                            <NuraTextInput placeholder="20" className="w-full h-10 border-gray-200" />
-                        </div>
-                    ))}
-
-                    <button
-                        className="w-full py-3 bg-white border border-dashed border-gray-300 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-2"
-                        onClick={() => setProjectQuestions([...projectQuestions, { id: Date.now() }])}
-                    >
-                        <Plus size={16} /> Add Question Block
-                    </button>
-                </div>
-
-                {/* Final Action Buttons for Step 2 */}
-                <div className="flex justify-end gap-4 mt-8">
-                    <button
-                        onClick={() => setCurrentStep(1)}
-                        className="px-6 py-2.5 text-sm font-semibold text-gray-800 hover:bg-gray-100 rounded-full transition-colors"
-                    >
-                        Cancel
-                    </button>
-                    <NuraButton
-                        label="Save"
-                        variant="primary"
-                        className="min-w-[140px]"
-                        onClick={handleSaveCourseQuestions}
-                    />
-                </div>
-            </div>
-        );
-    }
+    // ── Render ───────────────────────────────────────────────────────────────
 
     return (
-        <div className="flex flex-col gap-8 w-full">
-            {/* Top Config Row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold text-gray-900">Class Title</label>
-                    <div className="relative isolate flex items-center">
-                        <select
-                            className="w-full rounded-xl border border-gray-200 bg-white py-2 pl-4 pr-10 text-sm font-medium shadow-sm transition-all focus:border-black focus:outline-none focus:ring-1 focus:ring-black appearance-none"
-                            value={selectedClassId?.toString() || ""}
-                            onChange={(e) => handleClassSelect(e.target.value)}
-                        >
-                            <option value="" disabled>Select a class</option>
-                            {classes.map((c: any) => (
-                                <option key={c.id} value={c.id.toString()}>{c.title}</option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
-                <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold text-gray-900">Start Date</label>
-                    <M3DateTimePicker
-                        value={startDate}
-                        onChange={(d) => setStartDate(d)}
-                        error=""
-                    />
-                </div>
-                <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold text-gray-900">End Time</label>
-                    <M3TimePicker
-                        value={endTime}
-                        onChange={(val) => setEndTime(val)}
-                        error=""
-                    />
-                </div>
-            </div>
+        <main className="relative min-h-screen bg-white flex flex-col text-gray-800 overflow-hidden">
+            {/* Background */}
+            <Image
+                src="/background/OvalBGLeft.svg"
+                alt=""
+                className="absolute top-0 left-0 z-10 w-auto h-[30rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
+            />
+            <Image
+                src="/background/OvalBGRight.svg"
+                alt=""
+                className="absolute bottom-0 right-0 z-10 w-auto h-[30rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
+            />
 
-            {/* Course Questions List */}
-            <div className="flex flex-col gap-4">
-                <h2 className="text-lg font-bold text-gray-900 mt-4">Course Questions</h2>
+            {/* Feedback Modal */}
+            <FeedbackModal
+                isOpen={modal.open}
+                type={modal.type}
+                title={modal.title}
+                message={modal.message}
+                errors={modal.errors}
+                onClose={closeModal}
+                onConfirm={modal.onConfirm}
+                confirmText={modal.confirmText}
+                closeText={modal.closeText}
+            />
 
-                <div className="bg-[#FCFCF2] rounded-[2rem] p-6 border border-[#EBF2D5] flex flex-col gap-4">
-                    {courseQuestions.map((cq) => (
-                        <div key={cq.id} className="bg-white border text-sm font-medium border-gray-200 rounded-full py-3 px-6 flex justify-between items-center shadow-sm hover:shadow transition-shadow">
-                            <span className="text-gray-900">{cq.title}</span>
+            {/* Duration Confirmation Modal */}
+            <ConfirmModal
+                isOpen={showDurationConfirm}
+                title="Unlimited Duration"
+                message="Duration is empty, want to continue? Learners can do the assignment with unlimited time."
+                onConfirm={executeCreate}
+                onCancel={() => setShowDurationConfirm(false)}
+                confirmText="Yes, Continue"
+                cancelText="No, Go Back"
+                isLoading={isSubmitting}
+            />
+
+            <div className="relative z-10 max-w-5xl mx-auto w-full px-6 md:px-10 py-8">
+
+                {/* ══ OVERVIEW VIEW ══════════════════════════════════════════ */}
+                {view === "overview" && (
+                    <>
+                        <Breadcrumb items={breadcrumbBase} />
+                        <h1 className="text-2xl font-medium mt-6 mb-6">Add Assignment</h1>
+
+                        {/* ── Row 1: Title ── */}
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mb-4">
+                            <div className="md:col-span-1">
+                                <label className="block text-sm font-semibold mb-1">Assignment Title</label>
+                                <NuraTextInput
+                                    value={title}
+                                    onChange={e => { setTitle(e.target.value); setOverviewErrors(p => ({ ...p, title: "" })); }}
+                                    placeholder="e.g. Week 1 Assignment"
+                                    className={`rounded-full border-gray-200 ${overviewErrors.title ? "border-orange-400 ring-1 ring-orange-400" : ""}`}
+                                />
+                                {overviewErrors.title && <p className="text-orange-500 text-xs mt-1">{overviewErrors.title}</p>}
+                            </div>
+
+                            {/* Start Date */}
+                            <M3DateTimePicker
+                                label="Start Date"
+                                value={startDate}
+                                onChange={(d) => { setStartDate(d); setOverviewErrors(p => ({ ...p, startDate: "" })); }}
+                                error={overviewErrors.startDate}
+                                required
+                            />
+
+                            {/* End Date */}
+                            <M3DateTimePicker
+                                label="End Date"
+                                value={endDate}
+                                onChange={(d) => { setEndDate(d); setOverviewErrors(p => ({ ...p, endDate: "" })); }}
+                                error={overviewErrors.endDate}
+                                required
+                            />
+
+                            {/* Duration */}
+                            <div className="md:col-span-1">
+                                <label className="block text-sm font-semibold mb-1">Duration (min)</label>
+                                <NuraTextInput
+                                    value={duration}
+                                    onChange={e => { setDuration(e.target.value); setOverviewErrors(p => ({ ...p, duration: "" })); }}
+                                    placeholder="60"
+                                    variant="number"
+                                    className={`rounded-full border-gray-200 ${overviewErrors.duration ? "border-orange-400 ring-1 ring-orange-400" : ""}`}
+                                />
+                                {overviewErrors.duration && <p className="text-orange-500 text-xs mt-1">{overviewErrors.duration}</p>}
+                            </div>
+                        </div>
+
+                        {/* ── Row 2: Type + Submission + Class + Course + Session ── */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end mb-8">
+                            <div>
+                                <label className="block text-sm font-semibold mb-1">Type</label>
+                                <NuraSelect
+                                    value={assignmentType}
+                                    onChange={handleTypeChange}
+                                    placeholder="Select type..."
+                                    options={[
+                                        { label: "Placement Test", value: "PLACEMENT" },
+                                        { label: "Pre Test", value: "PRETEST" },
+                                        { label: "Post Test", value: "POSTTEST" },
+                                        { label: "Assignment", value: "ASSIGNMENT" },
+                                        { label: "Exercise", value: "EXERCISE" },
+                                        { label: "Final Project", value: "PROJECT" },
+                                    ]}
+                                />
+                                {overviewErrors.type && <p className="text-orange-500 text-xs mt-1">{overviewErrors.type}</p>}
+                            </div>
+
+                            {/* Submission Type — only for ASSIGNMENT / PROJECT */}
+                            <div>
+                                <label className={`block text-sm font-semibold mb-1 ${!hasSubmissionType ? "text-gray-300" : ""}`}>
+                                    Submission
+                                </label>
+                                <div className={`flex rounded-full border overflow-hidden h-[42px] text-sm font-medium transition-opacity ${!hasSubmissionType ? "opacity-30 pointer-events-none border-gray-200" : "border-gray-300"}`}>
+                                    <button
+                                        type="button"
+                                        onClick={() => setSubmissionType("INDIVIDUAL")}
+                                        className={`flex-1 px-4 transition-colors ${submissionType === "INDIVIDUAL" ? "bg-black text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}
+                                    >
+                                        Individual
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setSubmissionType("GROUP")}
+                                        className={`flex-1 px-4 transition-colors border-l ${submissionType === "GROUP" ? "bg-black text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}
+                                    >
+                                        Group
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end mb-8">
+                            {/* Class */}
+                            <div>
+                                <label className="block text-sm font-semibold mb-1">Class</label>
+                                <NuraSelect
+                                    value={selectedClassId?.toString() || ""}
+                                    onChange={handleClassChange}
+                                    placeholder="Select class..."
+                                    options={classes.map(c => ({ label: c.title, value: c.id.toString() }))}
+                                    disabled={!assignmentType}
+                                />
+                                {overviewErrors.classId && <p className="text-orange-500 text-xs mt-1">{overviewErrors.classId}</p>}
+                            </div>
+
+                            {/* Course — always visible, disabled when not needed */}
+                            <div>
+                                <label className={`block text-sm font-semibold mb-1 ${!courseEnabled ? "text-gray-300" : ""}`}>Course</label>
+                                <NuraSelect
+                                    value={selectedCourseId?.toString() || ""}
+                                    onChange={handleCourseChange}
+                                    placeholder="Select course..."
+                                    options={courses.map(c => ({ label: c.title, value: c.id.toString() }))}
+                                    disabled={!courseEnabled || !selectedClassId}
+                                />
+                                {courseEnabled && overviewErrors.courseId && <p className="text-orange-500 text-xs mt-1">{overviewErrors.courseId}</p>}
+                            </div>
+
+                            {/* Session — always visible, disabled when not needed */}
+                            <div>
+                                <label className={`block text-sm font-semibold mb-1 ${!sessionEnabled ? "text-gray-300" : ""}`}>Session</label>
+                                <NuraSelect
+                                    value={selectedSessionId?.toString() || ""}
+                                    onChange={v => {
+                                        const sid = parseInt(v);
+                                        setSelectedSessionId(sid);
+                                        setOverviewErrors(p => ({ ...p, sessionId: "" }));
+                                        triggerExistingCheck(assignmentType, selectedClassId, selectedCourseId, sid);
+                                    }}
+                                    placeholder="Select session..."
+                                    options={sessions.map(s => ({ label: s.title, value: s.id.toString() }))}
+                                    disabled={!sessionEnabled || !selectedCourseId}
+                                />
+                                {sessionEnabled && overviewErrors.sessionId && <p className="text-orange-500 text-xs mt-1">{overviewErrors.sessionId}</p>}
+                            </div>
+                        </div>
+
+                        {/* ── Question Section ── */}
+                        {selectedClassId && assignmentType && (
+                            <>
+                                {isPlacement ? (
+                                    /* ── PLACEMENT: per-course question cards ── */
+                                    <>
+                                        <div className="flex items-center justify-between mb-3">
+                                            <h2 className="text-sm font-semibold">Course Questions</h2>
+                                            {savedCount > 0 && (
+                                                <span className="text-xs text-gray-500 bg-[#F0F5D8] px-3 py-1 rounded-full">
+                                                    {savedCount} / {TOTAL_COURSES} courses configured
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="bg-[#F2F5DC] rounded-xl p-5 space-y-3 mb-10">
+                                            {(currentClass?.courses || []).map((course: any) => {
+                                                const saved = courseData[course.id]?.saved;
+                                                const totalQ = saved
+                                                    ? courseData[course.id].objective.length +
+                                                    courseData[course.id].essay.length +
+                                                    courseData[course.id].project.length
+                                                    : 0;
+                                                return (
+                                                    <div key={course.id} className={`bg-white rounded-xl px-5 py-3.5 flex items-center justify-between shadow-sm transition-all ${saved ? "ring-2 ring-[#D9F55C]/60" : ""}`}>
+                                                        <div className="flex items-center gap-3">
+                                                            {saved && <CheckCircle size={16} className="text-green-500 shrink-0" />}
+                                                            <div className="flex flex-col">
+                                                                <span className="text-sm font-semibold text-gray-800">{course.title}</span>
+                                                                {saved && (
+                                                                    <p className="text-[10px] text-gray-400 mt-0.5">
+                                                                        {totalQ} question{totalQ !== 1 ? "s" : ""} added
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <NuraButton
+                                                            label={saved ? "Edit" : "Add Item"}
+                                                            variant={saved ? "secondary" : "primary"}
+                                                            className={saved ? "!h-10 !min-w-[80px] !text-sm" : "!h-10 !min-w-[120px] !text-sm"}
+                                                            onClick={() => handleAddItem(course)}
+                                                        />
+                                                    </div>
+                                                );
+                                            })}
+                                            {(!currentClass?.courses || currentClass.courses.length === 0) && (
+                                                <p className="text-sm text-gray-400 text-center py-4">No courses found for this class.</p>
+                                            )}
+                                        </div>
+                                    </>
+                                ) : (
+                                    /* ── Non-PLACEMENT: single question set card ── */
+                                    <>
+                                        <div className="flex items-center justify-between mb-3">
+                                            <h2 className="text-sm font-semibold">Questions</h2>
+                                            {simpleTotal > 0 && (
+                                                <span className="text-xs text-gray-500 bg-[#F0F5D8] px-3 py-1 rounded-full">
+                                                    {simpleTotal} question{simpleTotal !== 1 ? "s" : ""} added
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="bg-[#F2F5DC] rounded-xl p-5 mb-10">
+                                            <div className={`bg-white rounded-xl px-5 py-3.5 flex items-center justify-between shadow-sm transition-all ${simpleTotal > 0 ? "ring-2 ring-[#D9F55C]/60" : ""}`}>
+                                                <div className="flex items-center gap-3">
+                                                    {simpleTotal > 0 && <CheckCircle size={16} className="text-green-500 shrink-0" />}
+                                                    <div className="flex flex-col">
+                                                        <span className="text-sm font-semibold text-gray-800">
+                                                            {assignmentType.replace(/_/g, " ")}
+                                                        </span>
+                                                        {simpleTotal > 0 && (
+                                                            <p className="text-[10px] text-gray-400 mt-0.5">
+                                                                {simpleTotal} question{simpleTotal !== 1 ? "s" : ""} added
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <NuraButton
+                                                    label={simpleTotal > 0 ? "Edit" : "Add Questions"}
+                                                    variant={simpleTotal > 0 ? "secondary" : "primary"}
+                                                    className={simpleTotal > 0 ? "!h-10 !min-w-[80px] !text-sm" : "!h-10 !min-w-[160px] !text-sm"}
+                                                    onClick={handleOpenSimpleEditor}
+                                                />
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </>
+                        )}
+
+                        {/* Footer */}
+                        <div className="flex justify-end items-center gap-4">
+                            <NuraButton label="Cancel" variant="secondary" onClick={() => router.back()} disabled={isSubmitting} />
                             <NuraButton
-                                label="Add Item"
+                                label={isSubmitting ? "Saving..." : (existingTestId ? "Update Assignment" : "Create Assignment")}
                                 variant="primary"
-                                className="h-8 text-xs px-6"
-                                onClick={() => {
-                                    setActiveCourseId(cq.id);
-                                    setCurrentStep(2);
-                                }}
+                                onClick={handleCreate}
+                                disabled={isSubmitting}
+                                isLoading={isSubmitting}
                             />
                         </div>
-                    ))}
-                </div>
-            </div>
+                    </>
+                )}
 
-            {/* Final Action Buttons */}
-            <div className="flex justify-end gap-4 mt-8">
-                <button
-                    onClick={() => router.back()}
-                    className="px-6 py-2.5 text-sm font-semibold text-gray-800 hover:bg-gray-100 rounded-full transition-colors"
-                >
-                    Cancel
-                </button>
-                <NuraButton
-                    label="Create"
-                    variant="primary"
-                    className="min-w-[140px]"
-                    onClick={handleCreateClick}
-                />
+                {/* ══ PLACEMENT EDITOR VIEW ══════════════════════════════════ */}
+                {view === "editor" && selectedCourseForEditor && (
+                    <>
+                        <Breadcrumb items={[...breadcrumbBase, { label: selectedCourseForEditor.title, href: "#" }]} />
+                        <h1 className="text-2xl font-medium mt-6 mb-6">Add Assignment</h1>
+
+                        <TestEditor
+                            selectedCourse={selectedCourseForEditor}
+                            objectiveQuestions={objectiveQuestions}
+                            setObjectiveQuestions={setObjectiveQuestions}
+                            essayQuestions={essayQuestions}
+                            setEssayQuestions={setEssayQuestions}
+                            projectQuestions={projectQuestions}
+                            setProjectQuestions={setProjectQuestions}
+                            thresholds={thresholds}
+                            setThresholds={setThresholds}
+                            idRef={idRef}
+                            onSave={handleEditorSave}
+                            onCancel={() => setView("overview")}
+                            showModal={showModal}
+                        />
+                    </>
+                )}
+
+                {/* ══ SIMPLE EDITOR VIEW (non-placement) ═════════════════════ */}
+                {view === "simple-editor" && selectedCourseForEditor && (
+                    <>
+                        <Breadcrumb items={[...breadcrumbBase, { label: selectedCourseForEditor.title, href: "#" }]} />
+                        <h1 className="text-2xl font-medium mt-6 mb-6">Add Assignment</h1>
+
+                        <TestEditor
+                            selectedCourse={selectedCourseForEditor}
+                            objectiveQuestions={simpleObjective}
+                            setObjectiveQuestions={setSimpleObjective}
+                            essayQuestions={simpleEssay}
+                            setEssayQuestions={setSimpleEssay}
+                            projectQuestions={simpleProject}
+                            setProjectQuestions={setSimpleProject}
+                            thresholds={simpleThresholds}
+                            setThresholds={setSimpleThresholds}
+                            idRef={idRef}
+                            onSave={handleSimpleEditorSave}
+                            onCancel={() => setView("overview")}
+                            showModal={showModal}
+                        />
+                    </>
+                )}
             </div>
-        </div>
+        </main>
     );
 }

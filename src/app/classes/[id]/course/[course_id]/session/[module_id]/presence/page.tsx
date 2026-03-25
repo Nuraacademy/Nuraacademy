@@ -3,6 +3,7 @@ import { getSessionById, getSessionPresence } from "@/controllers/sessionControl
 import { notFound } from "next/navigation";
 import PresenceClient from "./presence_client";
 import { hasPermission } from "@/lib/rbac";
+import TitleCard from "@/components/ui/card/title_card";
 
 export default async function PresenceAndSESPage({
     params
@@ -43,7 +44,7 @@ export default async function PresenceAndSESPage({
     });
 
     const breadcrumbItems = [
-        { label: "Home", href: "/" },
+        { label: "Home", href: "/classes" },
         { label: classTitle, href: `/classes/${classId}/overview` },
         { label: courseTitle, href: `/classes/${classId}/course/${courseId}/overview` },
         { label: session.title, href: `/classes/${classId}/course/${courseId}/session/${moduleId}` },
@@ -51,28 +52,25 @@ export default async function PresenceAndSESPage({
     ];
 
     return (
-        <main className="min-h-screen bg-[#F5F5EC] font-sans text-gray-800 pb-12">
+        <main className="min-h-screen bg-[#F5F5EC]  text-gray-800 pb-12">
             <div className="max-w-7xl mx-auto px-6 md:px-10 py-8">
                 {/* Breadcrumb */}
                 <div className="mb-6">
                     <Breadcrumb items={breadcrumbItems} />
                 </div>
 
-                {/* Banner */}
-                <div className="bg-[#005954] rounded-2xl p-6 mb-8">
-                    <h1 className="text-xl md:text-2xl font-bold text-white">Presence & SES</h1>
-                </div>
+                <TitleCard title="Presence & SES" />
 
                 {/* Content Card */}
                 <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-sm border border-gray-100">
                     <div className="mb-8">
-                        <h2 className="text-xl font-bold text-black">{session.title}</h2>
+                        <h2 className="text-xl font-medium text-black">{session.title}</h2>
                         <p className="text-sm text-gray-600 mt-1">{classTitle}</p>
                     </div>
 
                     <hr className="border-gray-200 mb-8" />
 
-                    <h3 className="text-lg font-bold text-black mb-6">Student Presence List</h3>
+                    <h3 className="text-lg font-medium text-black mb-6">Student Presence List</h3>
 
                     {/* Interactive Table via Client Component */}
                     <PresenceClient

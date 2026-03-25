@@ -14,14 +14,25 @@ export async function saveClassTimelines(classId: number, timelines: { activity:
             where: { classId }
         });
 
+        // Ensure unique dates within the batch to prevent "Unique constraint failed on the fields: (`classId`, `date`)"
+        const usedDates = new Set<number>();
+        const safeTimelines = timelines.map(t => {
+            let time = new Date(t.date).getTime();
+            while (usedDates.has(time)) {
+                time += 1000; // Offset by 1 second to ensure uniqueness
+            }
+            usedDates.add(time);
+            return {
+                classId,
+                activity: t.activity,
+                date: new Date(time),
+            };
+        });
+
         // If there are new timelines to create
-        if (timelines.length > 0) {
+        if (safeTimelines.length > 0) {
             await tx.timeline.createMany({
-                data: timelines.map(t => ({
-                    classId,
-                    activity: t.activity,
-                    date: t.date,
-                }))
+                data: safeTimelines
             });
         }
 

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { NuraButton } from "@/components/ui/button/button";
 import { updatePresence } from "@/app/actions/session";
+import { toast } from "sonner";
 
 interface StudentPresence {
     enrollmentId: number;
@@ -57,14 +58,14 @@ export default function PresenceClient({
 
             const result = await updatePresence(parseInt(moduleId), classId, courseId, updates);
             if (result.success) {
-                alert("Presence and SES scores updated successfully!");
+                toast.success("Presence and SES scores updated successfully!");
                 router.refresh();
             } else {
-                alert("Failed to update: " + result.error);
+                toast.error("Failed to update: " + result.error);
             }
         } catch (error) {
             console.error(error);
-            alert("An error occurred while saving.");
+            toast.error("An error occurred while saving.");
         } finally {
             setLoading(false);
         }
@@ -73,7 +74,7 @@ export default function PresenceClient({
     return (
         <div className="flex flex-col items-center">
             {/* Table */}
-            <div className="w-full border border-black rounded-[1.5rem] overflow-hidden mb-12">
+            <div className="w-full border border-black rounded-xl overflow-hidden mb-12">
                 {/* Table Header */}
                 <div className="grid grid-cols-12 border-b border-black bg-white px-8 py-5">
                     <div className="col-span-4 text-sm font-semibold text-black text-left">Name</div>

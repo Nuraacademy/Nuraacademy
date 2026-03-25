@@ -46,15 +46,21 @@ export default async function PlacementTestPage({
     initialScore = testResult.totalScore ?? undefined;
 
     // Group by course and calculate pass/not pass
-    const courseMap = new Map<number, { title: string, scored: number, total: number }>();
+    const courseMap = new Map<number, { title: string, scored: number, total: number, requiresGrading: boolean }>();
 
     testResult.assignmentItemResults.forEach((ir: any) => {
       const item = ir.assignmentItem;
       const course = item.course;
       if (course) {
-        const stats = courseMap.get(course.id) || { title: course.title, scored: 0, total: 0 };
+        const stats = courseMap.get(course.id) || { title: course.title, scored: 0, total: 0, requiresGrading: false };
         stats.scored += ir.score || 0;
         stats.total += item.maxScore || 10;
+        
+        // If it's an essay or project question and score is null, it requires manual grading
+        if ((item.type === "ESSAY" || item.type === "PROJECT") && ir.score === null) {
+          stats.requiresGrading = true;
+        }
+
         courseMap.set(course.id, stats);
       }
     });
@@ -62,10 +68,16 @@ export default async function PlacementTestPage({
     courseResults = Array.from(courseMap.entries()).map(([id, stats]) => {
       const ir = testResult.assignmentItemResults.find((r: any) => r.assignmentItem.courseId === id);
       const threshold = ir?.assignmentItem?.course?.threshold ?? 0;
+      
+      let status: "Pass" | "Not Pass" | "Grading" = stats.scored >= threshold ? "Pass" : "Not Pass";
+      if (stats.requiresGrading) {
+        status = "Grading";
+      }
+
       return {
         courseId: id,
         courseTitle: stats.title,
-        status: stats.scored >= threshold ? "Pass" : "Not Pass"
+        status: status
       };
     });
   }
@@ -80,10 +92,10 @@ export default async function PlacementTestPage({
 
   return (
     <main className="min-h-screen w-full bg-[#F9F9F0]">
-      <div className="px-6 pt-6">
+      <div className="py-6 max-w-7xl mx-auto">
         <Breadcrumb
           items={[
-            { label: pageText.breadcrumbHome, href: "/" },
+            { label: pageText.breadcrumbHome, href: "/classes" },
             { label: testData.courseName, href: `/classes/${classId}/overview` },
             { label: pageText.breadcrumbTest, href: `/classes/${classId}/test` },
           ]}

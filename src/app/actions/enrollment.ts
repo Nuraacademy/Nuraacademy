@@ -15,7 +15,26 @@ export async function handleEnrollment(classId: number, formData: any) {
     // RBAC check
     await requirePermission('Enrollment', 'LEARNER_ENROLLMENT');
 
+    // Field validation for mandatory fields (UT-1.3.2)
+    if (!formData.profession || !formData.yoe || !formData.workField || !formData.educationField || !formData.jobIndustry) {
+        return { success: false, error: "Please fill in all mandatory fields" };
+    }
+
+    // CV Validation (UT-1.3.3)
+    if (!formData.cvUrl) {
+        return { success: false, error: "CV is required for enrollment" };
+    }
+
     try {
+        // Capacity check (UT-1.3.4)
+        const classData = await prisma.class.findUnique({
+            where: { id: classId },
+            include: { _count: { select: { enrollments: true } } }
+        });
+
+        if (classData && classData.capacity !== null && classData._count.enrollments >= classData.capacity) {
+            return { success: false, error: "Class Full" };
+        }
         const enrollment = await prisma.enrollment.create({
             data: {
                 userId,
@@ -27,7 +46,7 @@ export async function handleEnrollment(classId: number, formData: any) {
                 jobIndustry: formData.jobIndustry,
                 finalExpectations: formData.finalExpectations,
                 objectives: formData.selectedObjectives,
-                // cvUrl: formData.cvUrl, // Handle file upload separately or later
+                cvUrl: formData.cvUrl,
                 status: "ACTIVE",
             }
         });

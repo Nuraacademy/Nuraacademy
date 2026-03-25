@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { NuraButton } from '../button/button';
 import { NuraTextInput } from '../input/text_input';
-import { NuraTextArea } from '../input/text_area';
+import { RichTextInput } from '../input/rich_text_input';
 import { NuraSelect } from '../input/nura_select';
 
 interface DiscussionTopicDialogProp {
@@ -11,6 +11,7 @@ interface DiscussionTopicDialogProp {
   onConfirm: (data: { title: string; description: string; type?: string }) => void;
   onCancel: () => void;
   isReply?: boolean;
+  initialData?: { title?: string; content?: string; type?: string };
 }
 
 export const DiscussionTopicDialog = ({
@@ -18,10 +19,19 @@ export const DiscussionTopicDialog = ({
   onConfirm,
   onCancel,
   isReply,
+  initialData,
 }: DiscussionTopicDialogProp) => {
-  const [topicTitle, setTopicTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [topicType, setTopicType] = useState("TECHNICAL_HELP");
+  const [topicTitle, setTopicTitle] = React.useState("");
+  const [description, setDescription] = React.useState("");
+  const [topicType, setTopicType] = React.useState("TECHNICAL_HELP");
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setTopicTitle(initialData?.title || "");
+      setDescription(initialData?.content || "");
+      setTopicType(initialData?.type || "TECHNICAL_HELP");
+    }
+  }, [isOpen, initialData]);
 
   if (!isOpen) return null;
 
@@ -42,7 +52,7 @@ export const DiscussionTopicDialog = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-[10002] flex items-center justify-center p-4 font-sans">
+    <div className="fixed inset-0 z-[10002] flex items-center justify-center p-4 ">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
@@ -50,8 +60,8 @@ export const DiscussionTopicDialog = ({
       />
 
       {/* Modal Card */}
-      <div className="relative bg-white w-full max-w-2xl rounded-[2rem] p-8 shadow-2xl animate-in zoom-in-95 duration-200">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-6 px-2">
+      <div className="relative bg-white w-full max-w-2xl rounded-xl p-8 shadow-2xl animate-in zoom-in-95 duration-200">
+        <h2 className="text-xl font-medium text-gray-950 mb-6">
           {isReply ? "Add New Reply" : "Add New Topic"}
         </h2>
 
@@ -75,15 +85,15 @@ export const DiscussionTopicDialog = ({
             />
           )}
 
-          {/* Description Textarea */}
+          {/* Description RichText */}
           <div className="flex flex-col">
             <label className="block text-sm font-medium mb-1 px-1">Description</label>
-            <NuraTextArea
-              label="Description"
-              placeholder={isReply ? "Write your reply here..." : "As a new student to software engineering..."}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
+            <div className="border border-gray-200 rounded-xl overflow-hidden bg-white">
+                <RichTextInput
+                  value={description}
+                  onChange={(val) => setDescription(val)}
+                />
+            </div>
           </div>
         </div>
 
@@ -98,7 +108,7 @@ export const DiscussionTopicDialog = ({
 
           <NuraButton
             onClick={handlePost}
-            label={isReply ? "Post Reply" : "Post to Forum"}
+            label={isReply ? "Post Reply" : "Post to Thread"}
             variant="primary"
             className="!w-auto px-8"
           />

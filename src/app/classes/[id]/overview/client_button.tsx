@@ -7,6 +7,8 @@ import WelcomingModal from "@/components/ui/modal/welcoming_modal"
 import { ConfirmModal } from "@/components/ui/modal/confirmation_modal"
 import { toast } from "sonner"
 import { deleteCourseAction } from "@/app/actions/course"
+import { removeAssignment } from "@/app/actions/assignment"
+import Image from "next/image"
 
 export function SuccessHandler({ classId, timelines }: { classId: string, timelines: any[] }) {
     const searchParams = useSearchParams()
@@ -15,6 +17,9 @@ export function SuccessHandler({ classId, timelines }: { classId: string, timeli
     useEffect(() => {
         if (searchParams.get("enrolled") === "true") {
             setIsOpen(true)
+        }
+        if (searchParams.get("error") === "not_enrolled") {
+            toast.error("You are not enrolled in this class")
         }
     }, [searchParams])
 
@@ -84,12 +89,12 @@ export function PlacementTestButton({
                 label={isAdmin ? (courseCount > 0 ? "Edit Test" : "Create Test") : (isFinished ? "See Result" : "Start Test")}
                 variant="primary"
                 onClick={handleClick}
+                id="create-placement-test-btn"
             />
             {isAdmin && (
                 <NuraButton
                     label="Mapping"
-                    variant="secondary"
-                    className="!bg-transparent !text-white !border-white/50 !border !font-semibold"
+                    variant="primary"
                     onClick={() => router.push(`/classes/${classId}/placement/results`)}
                 />
             )}
@@ -109,12 +114,22 @@ export function PlacementTestButton({
     )
 }
 
+export function AddAssignmentButton({ classId, courseId }: { classId: string, courseId?: string }) {
+    const router = useRouter()
+    return <NuraButton
+        label="Add Assignment"
+        variant="primary"
+        onClick={() => router.push(`/assignment/add?classId=${classId}${courseId ? `&courseId=${courseId}` : ""}`)}
+    />
+}
+
+
 export function AddCourseButton({ classId }: { classId: string }) {
     const router = useRouter()
     return <NuraButton label="Add Course" variant="primary" onClick={() => router.push(`/classes/${classId}/course/add`)} />
 }
 
-export function CourseCard({ classId, course, isAdmin }: { classId: string, course: any, isAdmin: boolean }) {
+export function CourseCard({ classId, course, isAdmin, isLearner }: { classId: string, course: any, isAdmin: boolean, isLearner: boolean }) {
     const router = useRouter()
     const [isDeleting, setIsDeleting] = useState(false)
     const [isConfirmOpen, setIsConfirmOpen] = useState(false)
@@ -135,13 +150,13 @@ export function CourseCard({ classId, course, isAdmin }: { classId: string, cour
     return (
         <>
             <div
-                className="border border-gray-200 rounded-[1.5rem] p-5 hover:border-gray-400 hover:shadow-sm transition-all duration-200 cursor-pointer group relative"
+                className="border border-gray-200 rounded-xl p-5 hover:border-gray-400 hover:shadow-sm transition-all duration-200 cursor-pointer group relative"
                 onClick={() => router.push(`/classes/${classId}/course/${course.id}/overview`)}
             >
                 <div className="flex justify-between items-start">
                 <div>
-                    <h3 className="text-black text-medium mb-1">{course.title}</h3>
-                    <div className="text-sm text-gray-600 line-clamp-2" dangerouslySetInnerHTML={{ __html: course.description }} />
+                    <h3 className="text-sm mb-1">{course.title}</h3>
+                    <div className="text-xs line-clamp-2" dangerouslySetInnerHTML={{ __html: course.description }} />
                     </div>
                     {isAdmin && (
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -182,13 +197,142 @@ export function CourseCard({ classId, course, isAdmin }: { classId: string, cour
     )
 }
 
+export function ProjectCard({ classId, assignment, isAdmin, isLearner }: { classId: string, assignment: any, isAdmin: boolean, isLearner: boolean }) {
+    const router = useRouter()
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+
+    const submissionLabel = assignment.submissionType === "GROUP" ? "Group" : "Individual"
+    const submissionColor = assignment.submissionType === "GROUP"
+        ? "bg-purple-50 text-purple-700 border border-purple-200"
+        : "bg-blue-50 text-blue-700 border border-blue-200"
+
+    const handleDelete = async () => {
+        setIsDeleting(true);
+        const result = await removeAssignment(assignment.id, parseInt(classId), assignment.courseId);
+        setIsDeleting(false);
+        setIsConfirmOpen(false);
+
+        if (result.success) {
+            toast.success("Assignment deleted successfully");
+        } else {
+            toast.error(result.error || "Failed to delete assignment");
+        }
+    };
+
+    return (
+        <>
+        <div
+            className="border border-gray-200 rounded-xl p-5 hover:border-gray-400 hover:shadow-sm transition-all duration-200 cursor-pointer group relative"
+            onClick={() => {
+                if (isLearner) {
+                    router.push(`/assignment/${assignment.id}`)
+                } else {
+                    router.push(`/assignment/${assignment.id}/results`)
+                }
+            }}
+        >
+            <div className="flex justify-between items-start">
+                <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-sm">{assignment.title}</h3>
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${submissionColor}`}>
+                            {submissionLabel}
+                        </span>
+                    </div>
+                    {assignment.course && (
+                        <p className="text-sm">{assignment.course.title}</p>
+                    )}
+                    {assignment.startDate && (
+                        <p className="text-xs mt-0.5">
+                            Due: {new Date(assignment.startDate).toLocaleDateString()}
+                        </p>
+                    )}
+                </div>
+                {isAdmin && (
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                            className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-red-500"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIsConfirmOpen(true);
+                            }}
+                            disabled={isDeleting}
+                        >
+                            <img src="/icons/Delete.svg" alt="Delete" className="w-5 h-5" />
+                        </button>
+                        <button
+                            className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-gray-900"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/assignment/add?id=${assignment.id}`);
+                            }}
+                        >
+                            <img src="/icons/Edit.svg" alt="Edit" className="w-5 h-5" />
+                        </button>
+                    </div>
+                )}
+            </div>
+        </div>
+
+        <ConfirmModal
+            isOpen={isConfirmOpen}
+            title="Delete Assignment"
+            message={`Are you sure you want to delete "${assignment.title}"? This action cannot be undone.`}
+            confirmText="Delete"
+            onConfirm={handleDelete}
+            onCancel={() => setIsConfirmOpen(false)}
+            isLoading={isDeleting}
+        />
+        </>
+    )
+}
+
+export function FeedbackButton({ classId, isLearner }: { classId: string, isLearner: boolean }) {
+    const router = useRouter()
+    
+    const handleClick = () => {
+        if (isLearner) {
+            router.push(`/classes/${classId}/feedback`)
+        } else {
+            router.push(`/feedback/class/${classId}`)
+        }
+    }
+
+    return (
+        <NuraButton
+            label="Feedback"
+            variant="primary"
+            leftIcon={<Image src="/icons/Feedback.svg" alt="Feedback" width={20} height={20} />}
+            onClick={handleClick}
+        />
+    )
+}
+
+export function AnalyticsButton({ classId, isLearner }: { classId: string, isLearner: boolean }) {
+    const router = useRouter()
+    return (
+        <NuraButton
+            label="Analytics and Report"
+            variant="primary"
+            leftIcon={<Image src="/icons/Analytics.svg" alt="Analytics" width={20} height={20} />}
+            onClick={() => {
+                router.push(`/classes/${classId}/analytics`)
+            }}
+        />
+    )
+}
+
 const ClientButton = {
     SuccessHandler,
     EnrollButton,
     AddTimelineButton,
     PlacementTestButton,
     AddCourseButton,
-    CourseCard
+    CourseCard,
+    ProjectCard,
+    FeedbackButton,
+    AnalyticsButton
 }
 
 export default ClientButton

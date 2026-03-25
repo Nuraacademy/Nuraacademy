@@ -1,10 +1,7 @@
-import { getCurrentUserId } from "@/lib/auth";
 import { getAssignmentBySessionAndType } from "@/controllers/assignmentController";
-import { getEnrollment } from "@/controllers/enrollmentController";
-import { mapAssignmentToTestRunner } from "@/utils/test_mapper";
 import { NotFoundState } from "@/components/ui/status/not_found_state";
-import TestPageClient from "../components/test_page_client";
 import { redirect } from "next/navigation";
+import { hasPermission } from "@/lib/rbac";
 
 export default async function PreTestPage({
     params
@@ -13,46 +10,22 @@ export default async function PreTestPage({
 }) {
     const { id: classId, course_id: courseId, module_id: moduleId } = await params;
 
-    const userId = await getCurrentUserId();
-    if (!userId) {
-        redirect("/login");
-    }
-
     const assignment = await getAssignmentBySessionAndType(parseInt(moduleId), 'PRETEST');
 
-    const enrollment = await getEnrollment(userId, parseInt(classId));
-
-    if (!assignment || !enrollment) {
-        return (
-            <main className="min-h-screen bg-[#FDFDF7] flex items-center justify-center">
-                <NotFoundState
-                    title={!assignment ? "Pre-Test Not Available" : "Enrollment Not Found"}
-                    message={!assignment
-                        ? "The pre-test for this session is not available at the moment. Please check back later."
-                        : "You must be enrolled in this class to take the pre-test."
-                    }
-                />
-            </main>
-        )
+    if (assignment) {
+        redirect(`/assignment/${assignment.id}`);
     }
 
-    const assignmentData = mapAssignmentToTestRunner(assignment);
-    const sessionTitle = assignment.session?.title || "Session";
-    const classTitle = assignment.session?.course?.class?.title || "Class";
-    const courseTitle = assignment.session?.course?.title || "Course";
+    const canManage = await hasPermission("Assignment", "CREATE_UPDATE_ASSIGNMENT");
 
     return (
-        <TestPageClient
-            classId={classId}
-            courseId={courseId}
-            moduleId={moduleId}
-            assignmentId={assignment.id}
-            enrollmentId={enrollment.id}
-            sessionTitle={sessionTitle}
-            classTitle={classTitle}
-            courseTitle={courseTitle}
-            testTitle="Pre-Test"
-            assignmentData={assignmentData}
-        />
+        <main className="min-h-screen bg-[#FDFDF7] flex items-center justify-center">
+            <NotFoundState
+                title="Pre-Test Not Available"
+                message="The pre-test for this session is not available at the moment. Please check back later."
+                buttonLabel={canManage ? "Create Pre-test" : "Back to Overview"}
+                href={canManage ? `/assignment/add?classId=${classId}&courseId=${courseId}&sessionId=${moduleId}&type=PRETEST` : undefined}
+            />
+        </main>
     );
 }

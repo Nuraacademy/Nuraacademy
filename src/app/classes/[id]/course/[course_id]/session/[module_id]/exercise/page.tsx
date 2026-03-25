@@ -26,7 +26,7 @@ export default async function ExercisePage({
     const sessionTitle = session.title;
 
     const breadcrumbItems = [
-        { label: "Home", href: "/" },
+        { label: "Home", href: "/classes" },
         { label: classTitle, href: `/classes/${classId}/overview` },
         { label: courseTitle, href: `/classes/${classId}/course/${courseId}/overview` },
         { label: sessionTitle, href: `/classes/${classId}/course/${courseId}/session/${moduleId}` },
@@ -45,7 +45,7 @@ export default async function ExercisePage({
                 <div className="flex-none flex-col items-end justify-between space-y-4">
                     <div>
                         <Breadcrumb items={breadcrumbItems} />
-                        <h1 className="text-4xl font-bold mt-6 text-black">
+                        <h1 className="text-4xl font-medium mt-6 text-black">
                             {exerciseTitle}
                         </h1>
                     </div>
@@ -54,7 +54,7 @@ export default async function ExercisePage({
                         {/* Dates */}
                         <div className="flex flex-col gap-2 text-sm">
                             <div className="flex flex-col gap-1">
-                                <h1 className="text-2xl font-bold text-black">
+                                <h1 className="text-2xl font-medium text-black">
                                     {sessionTitle}
                                 </h1>
                             </div>
@@ -69,7 +69,7 @@ export default async function ExercisePage({
 
                         {/* Detail Tugas */}
                         <div className="flex flex-col gap-2 text-sm">
-                            <span className="font-bold text-gray-900">Detail Tugas</span>
+                            <span className="font-medium text-gray-900">Detail Tugas</span>
                             <p className="text-gray-700 leading-relaxed">
                                 {assignment?.instruction || "Kunjungi link di bawah ini untuk mengerjakan exercise."}
                             </p>

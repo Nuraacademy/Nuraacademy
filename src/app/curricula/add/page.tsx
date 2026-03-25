@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { createCurriculaAction, uploadCurriculaFile, getCurriculaList } from "@/app/actions/curricula"
 import { NuraButton } from "@/components/ui/button/button"
 import { NuraTextInput } from "@/components/ui/input/text_input"
@@ -74,29 +75,34 @@ export default function AddCurriculaPage() {
     };
 
     return (
-        <div className="relative min-h-screen w-full overflow-hidden font-sans pb-16">
-            <img
+        <div className="relative min-h-screen w-full overflow-hidden  pb-16">
+            {/* Background */}
+            <Image
                 src="/background/OvalBGLeft.svg"
-                alt="Background"
-                className="absolute h-[40rem] object-cover top-0 left-0"
+                alt=""
+                className="absolute top-0 left-0 z-10 w-auto h-[30rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
             />
-            <img
+            <Image
                 src="/background/OvalBGRight.svg"
-                alt="Background"
-                className="absolute h-[40rem] object-cover bottom-0 right-0"
+                alt=""
+                className="absolute bottom-0 right-0 z-10 w-auto h-[30rem] pointer-events-none opacity-60"
+                width={500}
+                height={500}
             />
 
             <div className="relative z-10 w-full max-w-7xl mx-auto px-4 py-8">
                 <Breadcrumb
                     items={[
-                        { label: "Home", href: "/" },
+                        { label: "Home", href: "/classes" },
                         { label: "Curricula", href: "/curricula" },
                         { label: "Add Curricula", href: "/curricula/add" },
                     ]}
                 />
 
                 <div className="max-w-7xl mt-8 space-y-8">
-                    <h1 className="text-2xl font-bold text-gray-900">Add Curricula</h1>
+                    <h1 className="text-2xl font-medium text-gray-900">Add Curricula</h1>
 
                     <div className="flex flex-col gap-2">
                         <label className="text-sm font-semibold text-gray-900">Curricula Title</label>

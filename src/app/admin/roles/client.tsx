@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { NuraButton } from "@/components/ui/button/button";
 import { setRolePermissionsAction, createRoleAction, deleteRoleAction } from "@/app/actions/role";
+import { ConfirmModal } from "@/components/ui/modal/confirmation_modal";
+import { toast } from "sonner";
 
 type RoleWithCounts = {
     id: number;
@@ -38,6 +40,9 @@ export default function RolesClient({
     const [newRoleName, setNewRoleName] = useState("");
     const [newRoleDesc, setNewRoleDesc] = useState("");
 
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [roleToDelete, setRoleToDelete] = useState<number | null>(null);
+
     const handleSelectRole = (role: RoleWithCounts) => {
         setSelectedRole(role);
         setTempPermissions(new Set(role.permissions.map(p => p.permissionId)));
@@ -60,8 +65,9 @@ export default function RolesClient({
         if (res.success && res.data) {
             setRoles(roles.map(r => r.id === selectedRole.id ? { ...r, permissions: res.data.permissions } : r));
             setIsEditing(false);
+            toast.success("Permissions saved successfully");
         } else {
-            alert("Failed to save permissions: " + res.error);
+            toast.error("Failed to save permissions: " + res.error);
         }
         setIsSaving(false);
     };
@@ -75,23 +81,32 @@ export default function RolesClient({
             setIsCreating(false);
             setNewRoleName("");
             setNewRoleDesc("");
+            toast.success("Role created successfully");
         } else {
-            alert("Failed to create role: " + res.error);
+            toast.error("Failed to create role: " + res.error);
         }
         setIsSaving(false);
     };
 
-    const handleDeleteRole = async (roleId: number) => {
-        if (!confirm("Are you sure you want to delete this role?")) return;
+    const handleDeleteClick = (roleId: number) => {
+        setRoleToDelete(roleId);
+        setIsDeleteModalOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (roleToDelete === null) return;
         setIsSaving(true);
-        const res = await deleteRoleAction(roleId);
+        const res = await deleteRoleAction(roleToDelete);
         if (res.success) {
-            setRoles(roles.filter(r => r.id !== roleId));
-            if (selectedRole?.id === roleId) setSelectedRole(null);
+            setRoles(roles.filter(r => r.id !== roleToDelete));
+            if (selectedRole?.id === roleToDelete) setSelectedRole(null);
+            toast.success("Role deleted successfully");
         } else {
-            alert("Failed to delete role: " + res.error);
+            toast.error("Failed to delete role: " + res.error);
         }
         setIsSaving(false);
+        setIsDeleteModalOpen(false);
+        setRoleToDelete(null);
     };
 
     // Group permissions by resource for easier rendering
@@ -142,7 +157,7 @@ export default function RolesClient({
                                     <td className="py-4 px-4" onClick={(e) => e.stopPropagation()}>
                                         {!role.isSystem && (
                                             <button
-                                                onClick={() => handleDeleteRole(role.id)}
+                                                onClick={() => handleDeleteClick(role.id)}
                                                 className="text-red-500 hover:text-red-700 text-sm p-2"
                                                 disabled={isSaving}
                                             >
@@ -176,7 +191,7 @@ export default function RolesClient({
                                     required
                                     value={newRoleName}
                                     onChange={e => setNewRoleName(e.target.value)}
-                                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-[#D9F55C] focus:border-transparent outline-none"
+                                    className="w-full p-2 border rounded-xl focus:ring-2 focus:ring-[#D9F55C] focus:border-transparent outline-none"
                                     placeholder="e.g. Guest Instructor"
                                 />
                             </div>
@@ -185,7 +200,7 @@ export default function RolesClient({
                                 <textarea
                                     value={newRoleDesc}
                                     onChange={e => setNewRoleDesc(e.target.value)}
-                                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-[#D9F55C] focus:border-transparent outline-none m-0 resize-none h-24"
+                                    className="w-full p-2 border rounded-xl focus:ring-2 focus:ring-[#D9F55C] focus:border-transparent outline-none m-0 resize-none h-24"
                                     placeholder="Brief description of this role"
                                 />
                             </div>
@@ -263,6 +278,17 @@ export default function RolesClient({
                     </div>
                 )}
             </div>
+
+            <ConfirmModal
+                isOpen={isDeleteModalOpen}
+                title="Delete Role"
+                message="Are you sure you want to delete this role? This action cannot be undone."
+                onConfirm={handleConfirmDelete}
+                onCancel={() => { setIsDeleteModalOpen(false); setRoleToDelete(null); }}
+                isLoading={isSaving}
+                confirmText="Delete"
+                cancelText="Cancel"
+            />
         </div>
     );
 }

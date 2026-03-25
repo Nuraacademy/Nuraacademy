@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation"
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb"
 import { NuraButton } from "@/components/ui/button/button"
 import { updateClassSchedule } from "@/app/actions/classes"
-import WelcomingModal from "@/components/ui/modal/welcoming_modal"
 import { FeedbackModal } from "@/components/ui/modal/feedback_modal"
-import { M3DateTimePicker } from "@/components/ui/input/datetime_picker"
+import M3DateTimePicker from "@/components/ui/input/datetime_picker"
+import Image from "next/image"
 
 type Props = {
     classData: any
@@ -47,6 +47,42 @@ export function CreateTimelineClient({ classData }: Props) {
     }
 
     const handleSubmit = async () => {
+        // Validation: End date >= Start date, and sequential starts
+        let isValid = true;
+        let errorMessage = "";
+
+        for (let i = 0; i < EVENTS.length; i++) {
+            const startKey = `${EVENTS[i].prefix} Starts`;
+            const endKey = `${EVENTS[i].prefix} Ends`;
+            const startVal = dates[startKey];
+            const endVal = dates[endKey];
+
+            if (startVal && endVal && endVal < startVal) {
+                isValid = false;
+                errorMessage = `${EVENTS[i].label} End Date cannot be before its Start Date.`;
+                break;
+            }
+
+            if (i > 0 && startVal) {
+                const prevStart = dates[`${EVENTS[i - 1].prefix} Starts`];
+                if (prevStart && startVal < prevStart) {
+                    isValid = false;
+                    errorMessage = `${EVENTS[i].label} Start Date cannot be before ${EVENTS[i - 1].label} Start Date.`;
+                    break;
+                }
+            }
+        }
+
+        if (!isValid) {
+            setModal({
+                open: true,
+                type: "error",
+                title: "Validation Error",
+                message: errorMessage,
+            });
+            return;
+        }
+
         setIsSubmitting(true)
 
         const timelines: { activity: string, date: Date }[] = [];
@@ -105,37 +141,66 @@ export function CreateTimelineClient({ classData }: Props) {
     ];
 
     return (
-        <main className="relative min-h-screen bg-white flex flex-col text-gray-800 overflow-hidden">
+        <main className="relative min-h-screen bg-white flex flex-col text-gray-800">
             {/* Background */}
-            <img src="/background/OvalBGLeft.svg" alt="" className="absolute h-[40rem] object-cover top-0 left-0 pointer-events-none select-none" />
-            <img src="/background/OvalBGRight.svg" alt="" className="absolute h-[40rem] object-cover bottom-0 right-0 pointer-events-none select-none z-0" />
+            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                <Image
+                    src="/background/OvalBGLeft.svg"
+                    alt=""
+                    className="absolute top-0 left-0 w-auto h-[30rem] opacity-60"
+                    width={500}
+                    height={500}
+                />
+                <Image
+                    src="/background/OvalBGRight.svg"
+                    alt=""
+                    className="absolute bottom-0 right-0 w-auto h-[30rem] opacity-60"
+                    width={500}
+                    height={500}
+                />
+            </div>
 
             <div className="flex-1 w-full max-w-7xl mx-auto px-6 py-8 relative z-10 flex flex-col">
                 <Breadcrumb items={breadcrumbBase} />
-                <h1 className="text-2xl font-bold mt-6 mb-8">Add Class Schedule</h1>
+                <h1 className="text-xl font-medium mt-6 mb-8">Add Class Schedule</h1>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 w-full mx-auto">
-                    {EVENTS.map((event, index) => (
-                        <div key={index} className="space-y-6 contents">
-                            {/* Start Date */}
-                            <div >
-                                <M3DateTimePicker
-                                    label={`${event.label} Start Date`}
-                                    value={(dates[`${event.prefix} Starts`] as Date | null | undefined) ?? null}
-                                    onChange={(d) => handleDateChange(`${event.prefix} Starts`, d)}
-                                />
-                            </div>
+                    {EVENTS.map((event, index) => {
+                        // Calculate minDate for Start Date
+                        let startMinDate: Date | null = classData.startDate ? new Date(classData.startDate) : null;
+                        if (index > 0) {
+                            // Enforce sequential starts, but allow overlap with previous ends
+                            const prevStart = dates[`${EVENTS[index - 1].prefix} Starts`];
+                            if (prevStart) startMinDate = prevStart;
+                        }
 
-                            {/* End Date */}
-                            <div >
-                                <M3DateTimePicker
-                                    label={`${event.label} End Date`}
-                                    value={(dates[`${event.prefix} Ends`] as Date | null | undefined) ?? null}
-                                    onChange={(d) => handleDateChange(`${event.prefix} Ends`, d)}
-                                />
+                        // Calculate minDate for End Date
+                        const endMinDate = dates[`${event.prefix} Starts`] || startMinDate;
+
+                        return (
+                            <div key={index} className="space-y-6 contents">
+                                {/* Start Date */}
+                                <div >
+                                    <M3DateTimePicker
+                                        label={`${event.label} Start Date`}
+                                        value={(dates[`${event.prefix} Starts`] as Date | null | undefined) ?? null}
+                                        onChange={(d) => handleDateChange(`${event.prefix} Starts`, d)}
+                                        minDate={startMinDate}
+                                    />
+                                </div>
+
+                                {/* End Date */}
+                                <div >
+                                    <M3DateTimePicker
+                                        label={`${event.label} End Date`}
+                                        value={(dates[`${event.prefix} Ends`] as Date | null | undefined) ?? null}
+                                        onChange={(d) => handleDateChange(`${event.prefix} Ends`, d)}
+                                        minDate={endMinDate}
+                                    />
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        )
+                    })}
                 </div>
 
                 <div className="mt-12 flex justify-end gap-4 mx-auto border-t border-gray-100 pt-6 w-full">

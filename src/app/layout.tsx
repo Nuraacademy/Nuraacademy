@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${outfit.variable} antialiased`}
+        className={`${outfit.variable} antialiased min-h-screen`}
       >
         <Header initialIsLoggedIn={false} />
         {children}

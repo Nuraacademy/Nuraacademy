@@ -44,10 +44,19 @@ export function mapAssignmentToTestRunner(assignment: any) {
         courseName = assignment.session.course.class.title;
     }
 
+    const defaultIntro: Record<string, string> = {
+        PLACEMENT:  "Selamat datang di tahap awal perjalanan belajarmu. Hasil test ini membantu kami menentukan progress belajarmu.",
+        PRETEST:    "Sebelum memulai sesi ini, jawab beberapa pertanyaan singkat untuk mengukur pemahamanmu saat ini. Hasil pre-test membantu kami menyesuaikan materi belajar untukmu.",
+        POSTTEST:   "Kamu hampir selesai! Ikuti post-test ini untuk menunjukkan seberapa jauh perkembanganmu setelah mempelajari materi sesi ini.",
+        ASSIGNMENT: "Kerjakan tugas berikut sesuai instruksi yang diberikan. Pastikan jawabanmu lengkap dan dikumpulkan sebelum batas waktu.",
+        EXERCISE:   "Latihan ini dirancang untuk memperkuat pemahamanmu terhadap materi yang telah dipelajari. Kerjakan dengan sungguh-sungguh!",
+        PROJECT:    "Ini adalah proyek akhir yang mencerminkan seluruh perjalanan belajarmu. Tunjukkan kemampuan terbaikmu dan selesaikan sebelum deadline.",
+    };
+
     const testData = {
         courseName: courseName,
-        introDescription: assignment.description || "Selamat datang di tahap awal perjalanan belajarmu. Hasil test ini membantu kami menentukan progress belajarmu.",
-        durationMinutes: assignment.duration || 120,
+        introDescription: assignment.description || defaultIntro[assignment.type] || "Selesaikan assignment ini sesuai instruksi yang diberikan.",
+        durationMinutes: (assignment.duration !== null && assignment.duration !== undefined) ? assignment.duration : 120,
         sectionsCount: (objectiveQuestions.length > 0 ? 1 : 0) + (essayQuestions.length > 0 ? 1 : 0) + (projectQuestions.length > 0 ? 1 : 0),
         deadlineValue: assignment.endDate ? new Date(assignment.endDate).toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' }) : "TBA",
         testDescription: assignment.description || "",
@@ -57,6 +66,7 @@ export function mapAssignmentToTestRunner(assignment: any) {
             "Dilarang menggunakan alat bantu AI atau mencari jawaban di luar platform selama tes berlangsung."
         ],
     };
+
 
     // Base UI labels
     const pageText: PageText = {
