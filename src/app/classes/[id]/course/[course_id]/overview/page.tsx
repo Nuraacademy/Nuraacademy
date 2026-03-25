@@ -166,6 +166,7 @@ export default async function CourseOverviewPage({
                                 courseId={courseId}
                                 assignment={assignment}
                                 isAdmin={canUpdateSession}
+                                isLearner={isLearner}
                             />
                         ))}
 

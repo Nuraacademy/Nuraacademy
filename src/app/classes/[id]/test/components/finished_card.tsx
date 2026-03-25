@@ -8,9 +8,28 @@ interface FinishedCardProps {
     userName?: string;
     totalScore?: number;
     feedback?: string;
+    problemUnderstanding?: number;
+    technicalAbility?: number;
+    solutionQuality?: number;
+    problemUnderstandingFeedback?: string;
+    technicalAbilityFeedback?: string;
+    solutionQualityFeedback?: string;
 }
 
-export function FinishedCard({ classId, testData, pageText, userName, totalScore, feedback }: FinishedCardProps) {
+export function FinishedCard({ 
+    classId, 
+    testData, 
+    pageText, 
+    userName, 
+    totalScore, 
+    feedback,
+    problemUnderstanding = 0,
+    technicalAbility = 0,
+    solutionQuality = 0,
+    problemUnderstandingFeedback = '',
+    technicalAbilityFeedback = '',
+    solutionQualityFeedback = ''
+}: FinishedCardProps) {
     return (
         <section className="mt-6 flex flex-col items-center pb-20">
             <div className="w-full bg-white rounded-[1.5rem] shadow-sm border border-gray-200 px-8 py-10 md:px-12 md:py-12 mb-8">
@@ -25,11 +44,40 @@ export function FinishedCard({ classId, testData, pageText, userName, totalScore
                             <span className="w-2 h-2 rounded-full bg-[#DAEE49]"></span>
                             Trainer Feedback
                         </h3>
-                        <div className="bg-[#FDFDF7] border border-[#005954]/10 rounded-2xl p-6 md:p-8 shadow-sm">
-                            <div
-                                className="prose prose-sm max-w-none text-gray-800 leading-relaxed font-medium"
+                        <div className="bg-[#FDFDF7] border border-[#005954]/10 rounded-2xl p-6 md:p-8 shadow-sm space-y-8">
+                            {/* General Feedback */}
+                            {/* <div
+                                className="prose prose-sm max-w-none text-gray-800 leading-relaxed font-medium pb-8 border-b border-[#005954]/5 last:border-0 last:pb-0"
                                 dangerouslySetInnerHTML={{ __html: feedback }}
-                            />
+                            /> */}
+
+                            {/* Scoring Metrics */}
+                            {(problemUnderstanding > 0 || technicalAbility > 0 || solutionQuality > 0) && (
+                                <div className="space-y-8 pt-4">
+                                    {[
+                                        { label: 'Problem Understanding', value: problemUnderstanding, feedback: problemUnderstandingFeedback, color: "#1C3A37" },
+                                        { label: 'Technical Ability', value: technicalAbility, feedback: technicalAbilityFeedback, color: "#8BB730" },
+                                        { label: 'Solution Quality', value: solutionQuality, feedback: solutionQualityFeedback, color: "#DAEE49" },
+                                    ].map((item) => (
+                                        <div key={item.label} className="space-y-4">
+                                            <div className="grid grid-cols-[160px_1fr_40px] items-center gap-6">
+                                                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">{item.label}</span>
+                                                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full rounded-full transition-all duration-1000"
+                                                        style={{ width: `${item.value * 10}%`, backgroundColor: item.color }}
+                                                    />
+                                                </div>
+                                                <span className="text-xs font-bold text-[#1C3A37] text-right">{item.value}/10</span>
+                                            </div>
+                                            {item.feedback && (
+                                                <p className="text-xs text-gray-600 pl-4" dangerouslySetInnerHTML={{ __html: item.feedback }}> 
+                                                </p>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}

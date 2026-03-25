@@ -6,6 +6,7 @@ import { saveTrainerFeedback, clearTrainerFeedback } from '@/app/actions/trainer
 import { toast } from 'sonner';
 import Breadcrumb from '@/components/ui/breadcrumb/breadcrumb';
 import { FeedbackCriteriaField } from '@/components/ui/feedback/FeedbackCriteriaField';
+import { History, Trash2 } from 'lucide-react';
 import { ConfirmModal } from '@/components/ui/modal/confirmation_modal';
 
 interface TrainerFeedbackFormClientProps {
@@ -28,14 +29,16 @@ export default function TrainerFeedbackFormClient({ trainer, evaluatorEnrollment
     };
 
     const [formData, setFormData] = useState({
-        knowledge: formatScore(initialFeedback?.knowledge, 8),
-        knowledgeFeedback: initialFeedback?.knowledgeFeedback || "",
-        pedagogy: formatScore(initialFeedback?.pedagogy, 8),
-        pedagogyFeedback: initialFeedback?.pedagogyFeedback || "",
-        engagement: formatScore(initialFeedback?.engagement, 8),
+        mastery: formatScore(initialFeedback?.mastery, 10),
+        masteryFeedback: initialFeedback?.masteryFeedback || "",
+        communication: formatScore(initialFeedback?.communication, 10),
+        communicationFeedback: initialFeedback?.communicationFeedback || "",
+        engagement: formatScore(initialFeedback?.engagement, 10),
         engagementFeedback: initialFeedback?.engagementFeedback || "",
-        punctuality: formatScore(initialFeedback?.punctuality, 8),
-        punctualityFeedback: initialFeedback?.punctualityFeedback || "",
+        responsiveness: formatScore(initialFeedback?.responsiveness, 10),
+        responsivenessFeedback: initialFeedback?.responsivenessFeedback || "",
+        motivation: formatScore(initialFeedback?.motivation, 10),
+        motivationFeedback: initialFeedback?.motivationFeedback || "",
     });
 
     const handleSave = async () => {
@@ -67,14 +70,16 @@ export default function TrainerFeedbackFormClient({ trainer, evaluatorEnrollment
         if (res.success) {
             toast.success("Feedback cleared successfully!");
             setFormData({
-                knowledge: 0,
-                knowledgeFeedback: "",
-                pedagogy: 0,
-                pedagogyFeedback: "",
+                mastery: 0,
+                masteryFeedback: "",
+                communication: 0,
+                communicationFeedback: "",
                 engagement: 0,
                 engagementFeedback: "",
-                punctuality: 0,
-                punctualityFeedback: "",
+                responsiveness: 0,
+                responsivenessFeedback: "",
+                motivation: 0,
+                motivationFeedback: "",
             });
         } else {
             toast.error("Failed to clear feedback: " + res.error);
@@ -84,10 +89,11 @@ export default function TrainerFeedbackFormClient({ trainer, evaluatorEnrollment
     };
 
     const sections = [
-        { key: 'knowledge', label: 'Knowledge & Expertise', description: 'Demonstrates deep understanding of the subject matter.' },
-        { key: 'pedagogy', label: 'Teaching Methods & Clarity', description: 'Explains concepts clearly and uses effective teaching methods.' },
-        { key: 'engagement', label: 'Engagement & Support', description: 'Encourages participation and provides helpful support to learners.' },
-        { key: 'punctuality', label: 'Punctuality & Professionalism', description: 'Consistently punctual and maintains a professional demeanor.' },
+        { key: 'mastery', label: 'Penguasaan materi (Mastery)', description: 'Demonstrates deep understanding of the subject matter.' },
+        { key: 'communication', label: 'Komunikasi (Communication)', description: 'Explains concepts clearly and uses effective teaching methods.' },
+        { key: 'engagement', label: 'Keterlibatan (Engagement)', description: 'Encourages participation and provides helpful support to learners.' },
+        { key: 'responsiveness', label: 'Responsivitas (Responsiveness)', description: 'Consistently responsive and maintains a professional demeanor.' },
+        { key: 'motivation', label: 'Motivasi & inspirasi (Motivation & inspiration)', description: 'Provides motivation and inspiration to learn.' },
     ];
 
     return (

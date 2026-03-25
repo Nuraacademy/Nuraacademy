@@ -30,14 +30,16 @@ export async function saveTrainerFeedback(data: {
     evaluatorId: number;
     trainerId: number;
     classId: number;
-    knowledge?: number;
-    knowledgeFeedback?: string;
-    pedagogy?: number;
-    pedagogyFeedback?: string;
+    mastery?: number;
+    masteryFeedback?: string;
+    communication?: number;
+    communicationFeedback?: string;
     engagement?: number;
     engagementFeedback?: string;
-    punctuality?: number;
-    punctualityFeedback?: string;
+    responsiveness?: number;
+    responsivenessFeedback?: string;
+    motivation?: number;
+    motivationFeedback?: string;
 }) {
     const userId = await getSession();
     if (!userId) return { success: false, error: "Unauthorized" };
@@ -77,28 +79,32 @@ export async function saveTrainerFeedback(data: {
                 }
             },
             update: {
-                knowledge: data.knowledge,
-                knowledgeFeedback: data.knowledgeFeedback,
-                pedagogy: data.pedagogy,
-                pedagogyFeedback: data.pedagogyFeedback,
+                mastery: data.mastery,
+                masteryFeedback: data.masteryFeedback,
+                communication: data.communication,
+                communicationFeedback: data.communicationFeedback,
                 engagement: data.engagement,
                 engagementFeedback: data.engagementFeedback,
-                punctuality: data.punctuality,
-                punctualityFeedback: data.punctualityFeedback,
+                responsiveness: data.responsiveness,
+                responsivenessFeedback: data.responsivenessFeedback,
+                motivation: data.motivation,
+                motivationFeedback: data.motivationFeedback,
                 isEdited: isEdited
             },
             create: {
                 evaluatorId,
                 trainerId,
                 classId,
-                knowledge: data.knowledge,
-                knowledgeFeedback: data.knowledgeFeedback,
-                pedagogy: data.pedagogy,
-                pedagogyFeedback: data.pedagogyFeedback,
+                mastery: data.mastery,
+                masteryFeedback: data.masteryFeedback,
+                communication: data.communication,
+                communicationFeedback: data.communicationFeedback,
                 engagement: data.engagement,
                 engagementFeedback: data.engagementFeedback,
-                punctuality: data.punctuality,
-                punctualityFeedback: data.punctualityFeedback,
+                responsiveness: data.responsiveness,
+                responsivenessFeedback: data.responsivenessFeedback,
+                motivation: data.motivation,
+                motivationFeedback: data.motivationFeedback,
                 isEdited: false
             }
         });
@@ -134,14 +140,16 @@ export async function clearTrainerFeedback(evaluatorId: number, trainerId: numbe
                 }
             },
             data: {
-                knowledge: 0,
-                knowledgeFeedback: "",
-                pedagogy: 0,
-                pedagogyFeedback: "",
+                mastery: 0,
+                masteryFeedback: "",
+                communication: 0,
+                communicationFeedback: "",
                 engagement: 0,
                 engagementFeedback: "",
-                punctuality: 0,
-                punctualityFeedback: "",
+                responsiveness: 0,
+                responsivenessFeedback: "",
+                motivation: 0,
+                motivationFeedback: "",
                 isEdited: true
             }
         });

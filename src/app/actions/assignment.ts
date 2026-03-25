@@ -197,16 +197,35 @@ export async function submitGradingAction(assignmentId: number, resultId: number
     }
 }
 
-export async function saveAssignmentFeedback(resultId: number, feedback: string, assignmentId: number, feedbackFiles?: any) {
+export async function saveAssignmentFeedback(
+    resultId: number, 
+    assignmentId: number, 
+    data: {
+        problemUnderstanding?: number;
+        problemUnderstandingFeedback?: string;
+        technicalAbility?: number;
+        technicalAbilityFeedback?: string;
+        solutionQuality?: number;
+        solutionQualityFeedback?: string;
+        feedback?: string;
+        feedbackFiles?: any;
+    }
+) {
     try {
         await requirePermission('Feedback', 'CREATE_EDIT_ASSIGNMENT_FEEDBACK');
 
         await prisma.assignmentResult.update({
             where: { id: resultId },
             data: { 
-                feedback,
-                feedbackFiles: (feedbackFiles as any) || undefined
-            } as any
+                problemUnderstanding: data.problemUnderstanding,
+                problemUnderstandingFeedback: data.problemUnderstandingFeedback,
+                technicalAbility: data.technicalAbility,
+                technicalAbilityFeedback: data.technicalAbilityFeedback,
+                solutionQuality: data.solutionQuality,
+                solutionQualityFeedback: data.solutionQualityFeedback,
+                feedback: data.feedback,
+                feedbackFiles: (data.feedbackFiles as any) || undefined
+            }
         });
 
         revalidatePath(`/assignment/${assignmentId}/results`);

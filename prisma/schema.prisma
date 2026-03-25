@@ -310,10 +310,16 @@ model AssignmentResult {
   finishedAt            DateTime?
   status                AssignmentStatus       @default(NOT_PASS)
   totalScore            Float?
+  problemUnderstanding  Int?                   @default(0)
+  problemUnderstandingFeedback String?         @db.Text
+  technicalAbility      Int?                   @default(0)
+  technicalAbilityFeedback String?            @db.Text
+  solutionQuality      Int?                   @default(0)
+  solutionQualityFeedback String?             @db.Text
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
   deletedAt             DateTime?
-  feedback              String?
+  feedback              String?                @db.Text
   feedbackFiles         Json?
   assignmentItemResults AssignmentItemResult[]
   assignment            Assignment             @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
@@ -580,14 +586,16 @@ model TrainerFeedback {
   evaluatorId         Int // Enrollment ID of the learner
   trainerId           Int // User ID of the trainer
   classId             Int
-  knowledge           Int?       @default(0)
-  knowledgeFeedback   String?    @db.Text
-  pedagogy            Int?       @default(0)
-  pedagogyFeedback    String?    @db.Text
+  mastery             Int?       @default(0)
+  masteryFeedback     String?    @db.Text
+  communication       Int?       @default(0)
+  communicationFeedback String?    @db.Text
   engagement          Int?       @default(0)
   engagementFeedback  String?    @db.Text
-  punctuality         Int?       @default(0)
-  punctualityFeedback String?    @db.Text
+  responsiveness      Int?       @default(0)
+  responsivenessFeedback String?    @db.Text
+  motivation          Int?       @default(0)
+  motivationFeedback  String?    @db.Text
   isEdited            Boolean    @default(false)
   createdAt           DateTime   @default(now())
   updatedAt           DateTime   @updatedAt
@@ -601,17 +609,27 @@ model TrainerFeedback {
 }
 
 model ClassFeedback {
-  id           Int        @id @default(autoincrement())
-  classId      Int
-  enrollmentId Int
-  userId       Int
-  content      String
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  deletedAt    DateTime?
-  class        Class      @relation(fields: [classId], references: [id], onDelete: Cascade)
-  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
-  user         User       @relation(fields: [userId], references: [id])
+  id                      Int        @id @default(autoincrement())
+  classId                 Int
+  enrollmentId            Int
+  userId                  Int
+  courseStructure         Int?       @default(0)
+  courseStructureFeedback String?    @db.Text
+  materialQuality         Int?       @default(0)
+  materialQualityFeedback String?    @db.Text
+  practicalRelevance      Int?       @default(0)
+  practicalRelevanceFeedback String?    @db.Text
+  learningEnvironment     Int?       @default(0)
+  learningEnvironmentFeedback String?    @db.Text
+  technicalSupport        Int?       @default(0)
+  technicalSupportFeedback String?    @db.Text
+  content                 String?    @db.Text // Keeping for legacy or general comments
+  createdAt               DateTime   @default(now())
+  updatedAt               DateTime   @updatedAt
+  deletedAt               DateTime?
+  class                   Class      @relation(fields: [classId], references: [id], onDelete: Cascade)
+  enrollment              Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  user                    User       @relation(fields: [userId], references: [id])
 
   @@unique([userId, classId])
   @@map("class_feedbacks")

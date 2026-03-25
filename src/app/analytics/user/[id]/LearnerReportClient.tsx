@@ -60,6 +60,40 @@ export default function LearnerReportClient({ data }: LearnerReportClientProps) 
                     </div>
                 </div>
 
+                {/* Final Project Feedback */}
+                {(analytics?.problemUnderstandingScore > 0 || analytics?.methodsScore > 0 || analytics?.solutionQualityScore > 0) && (
+                    <div className="space-y-8 pt-8 border-t border-gray-100">
+                        <h2 className="text-xl md:text-2xl font-medium text-[#1C3A37]">Final Project Feedback</h2>
+                        <div className="space-y-6">
+                            {[
+                                { label: 'Problem Understanding', score: analytics.problemUnderstandingScore, feedback: analytics.problemUnderstandingFeedback, color: 'bg-[#1C3A37]' },
+                                { label: 'Data Reasoning', score: analytics.dataReasoningScore, feedback: analytics.dataReasoningFeedback, color: 'bg-[#005954]' },
+                                { label: 'Technical Ability', score: analytics.methodsScore, feedback: analytics.methodsFeedback, color: 'bg-[#8BB730]' },
+                                { label: 'Insight Quality', score: analytics.insightQualityScore, feedback: analytics.insightQualityFeedback, color: 'bg-[#DAEE49]' },
+                                { label: 'Solution Quality', score: analytics.solutionQualityScore, feedback: analytics.solutionQualityFeedback, color: 'bg-[#C9D942]' },
+                            ].filter(m => m.score > 0).map((metric) => (
+                                <div key={metric.label} className="space-y-4">
+                                    <div className="flex items-center gap-6">
+                                        <span className="w-32 md:w-40 text-sm md:text-base font-medium text-gray-500">{metric.label}</span>
+                                        <div className="flex-grow h-3 bg-gray-50 rounded-full overflow-hidden relative">
+                                            <div
+                                                className={`absolute inset-y-0 left-0 rounded-full transition-all duration-1000 ease-out ${metric.color}`}
+                                                style={{ width: `${metric.score}%` }}
+                                            />
+                                        </div>
+                                        <span className="w-10 text-right text-sm md:text-base font-medium text-[#1C3A37]">{metric.score}%</span>
+                                    </div>
+                                    {metric.feedback && (
+                                        <p className="text-sm text-gray-600 leading-relaxed italic pl-4 border-l-2 border-gray-100">
+                                            "{metric.feedback}"
+                                        </p>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {/* Feedback Details */}
                 <div className="space-y-8 pt-8 border-t border-gray-100">
                     <h2 className="text-xl md:text-2xl font-medium text-[#1C3A37]">Feedback Details</h2>

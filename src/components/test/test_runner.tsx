@@ -36,6 +36,12 @@ type TestRunnerProps = {
   initialScore?: number
   showBanner?: boolean
   feedback?: string
+  problemUnderstanding?: number
+  technicalAbility?: number
+  solutionQuality?: number
+  problemUnderstandingFeedback?: string
+  technicalAbilityFeedback?: string
+  solutionQualityFeedback?: string
   assignmentType?: string
 }
 
@@ -54,6 +60,12 @@ export function TestRunner({
   initialScore,
   showBanner = true,
   feedback,
+  problemUnderstanding,
+  technicalAbility,
+  solutionQuality,
+  problemUnderstandingFeedback,
+  technicalAbilityFeedback,
+  solutionQualityFeedback,
   assignmentType,
 }: TestRunnerProps) {
   const STORAGE_KEY = `test_progress_${assignmentId}_${enrollmentId}`
@@ -618,6 +630,12 @@ export function TestRunner({
           userName={userName}
           totalScore={totalScore ?? undefined}
           feedback={feedback}
+          problemUnderstanding={problemUnderstanding}
+          technicalAbility={technicalAbility}
+          solutionQuality={solutionQuality}
+          problemUnderstandingFeedback={problemUnderstandingFeedback}
+          technicalAbilityFeedback={technicalAbilityFeedback}
+          solutionQualityFeedback={solutionQualityFeedback}
         />
       ) : hasStarted ? (
         renderTestCard()

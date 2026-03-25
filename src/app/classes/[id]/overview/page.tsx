@@ -296,6 +296,7 @@ export default async function CourseOverviewPage({
                                         classId={id}
                                         course={course}
                                         isAdmin={canUpdateCourse}
+                                        isLearner={isLearner}
                                     />
                                 ))}
                                 {projectAssignments.map((assignment) => (
@@ -304,6 +305,7 @@ export default async function CourseOverviewPage({
                                         classId={id}
                                         assignment={assignment}
                                         isAdmin={canUpdateCourse}
+                                        isLearner={isLearner}
                                     />
                                 ))}
                                 {(!classData.courses || classData.courses.length === 0) && (

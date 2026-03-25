@@ -52,8 +52,8 @@ export async function getClassAnalytics(classId: number) {
         let myExperienceMembers: any[] = [];
         if (myGroup) {
             const groupMembers = await prisma.group.findMany({
-                where: { 
-                    name: myGroup.name, 
+                where: {
+                    name: myGroup.name,
                     deletedAt: null,
                     enrollment: { classId: classId }
                 },
@@ -105,21 +105,29 @@ export async function getClassAnalytics(classId: number) {
 
         // Teamwork (Formula: (score / 10) * 100%, averaged over all potential group records)
         const peerFeedbacks = myEnrollment.peerFeedbackReceiver || [];
-        const potentialPeerCount = Math.max(1, myExperienceMembers.length - 1); 
-        
+        const potentialPeerCount = Math.max(1, myExperienceMembers.length - 1);
+
         const avgPeer = (key: string) => {
             const sum = peerFeedbacks.reduce((acc, f: any) => acc + (f[key] || 0), 0);
             return (sum / potentialPeerCount) * 10; // Convert 0-10 to 0-100%
         };
 
         const teamwork = myEnrollment.learnerAnalytics;
-        
-        const finalProject = myEnrollment.learnerAnalytics || {
-            problemUnderstandingScore: 0,
-            dataReasoningScore: 0,
-            methodsScore: 0,
-            insightQualityScore: 0,
-            solutionQualityScore: 0
+
+        // Final Project (Priority: PROJECT type assignment result > learnerAnalytics)
+        const projectResult = myEnrollment.assignmentResults.find(ar => ar.assignment.type === 'PROJECT');
+        const finalProjectData = projectResult ? {
+            problemUnderstanding: ((projectResult as any).problemUnderstanding || 0) * 10, // Scale to 0-100% for the progress bars
+            dataReasoning: (myEnrollment.learnerAnalytics?.dataReasoningScore || 0),
+            methods: ((projectResult as any).technicalAbility || 0) * 10,
+            insightQuality: (myEnrollment.learnerAnalytics?.insightQualityScore || 0),
+            solutionQuality: ((projectResult as any).solutionQuality || 0) * 10
+        } : {
+            problemUnderstanding: (myEnrollment.learnerAnalytics?.problemUnderstandingScore || 0),
+            dataReasoning: (myEnrollment.learnerAnalytics?.dataReasoningScore || 0),
+            methods: (myEnrollment.learnerAnalytics?.methodsScore || 0),
+            insightQuality: (myEnrollment.learnerAnalytics?.insightQualityScore || 0),
+            solutionQuality: (myEnrollment.learnerAnalytics?.solutionQualityScore || 0)
         };
 
         const analytics = {
@@ -141,18 +149,12 @@ export async function getClassAnalytics(classId: number) {
                 initiatives: Math.round(avgPeer('initiatives') || (teamwork?.initiativesScore ? teamwork.initiativesScore * 10 : 0)),
                 communication: Math.round(avgPeer('communication') || (teamwork?.communicationScore ? teamwork.communicationScore * 10 : 0))
             },
-            finalProject: {
-                problemUnderstanding: finalProject.problemUnderstandingScore || 0,
-                dataReasoning: finalProject.dataReasoningScore || 0,
-                methods: finalProject.methodsScore || 0,
-                insightQuality: finalProject.insightQualityScore || 0,
-                solutionQuality: finalProject.solutionQualityScore || 0
-            }
+            finalProject: finalProjectData
         };
 
-        return { 
-            success: true, 
-            data: analytics, 
+        return {
+            success: true,
+            data: analytics,
             raw: classData,
             myEnrollment,
             groupMembers: myExperienceMembers,
@@ -271,27 +273,27 @@ export async function getTrainerAnalytics(classId: number, trainerUserId?: numbe
         const feedbacks = classData.trainerFeedbacks.filter(f => f.trainerId === targetTrainerId);
         const count = feedbacks.length;
 
-        const avg = (key: keyof typeof feedbacks[0]) => {
+        const avg = (key: string) => {
             if (count === 0) return 0;
             const sum = feedbacks.reduce((acc, f: any) => acc + (f[key] || 0), 0);
             return Math.round(sum / count);
         };
 
         const feedbackMetrics = {
-            mastery: avg('knowledge'),
-            communication: avg('pedagogy'),
+            mastery: avg('mastery'),
+            communication: avg('communication'),
             engagement: avg('engagement'),
-            responsiveness: avg('punctuality'),
-            motivation: avg('pedagogy'), // Motivation & Inspiration placeholder
+            responsiveness: avg('responsiveness'),
+            motivation: avg('motivation'),
         };
 
         // 2. Aggregate feedback details (comments)
         const feedbackDetails = {
-            mastery: feedbacks.map(f => f.knowledgeFeedback).filter(Boolean),
-            communication: feedbacks.map(f => f.pedagogyFeedback).filter(Boolean),
-            engagement: feedbacks.map(f => f.engagementFeedback).filter(Boolean),
-            responsiveness: feedbacks.map(f => f.punctualityFeedback).filter(Boolean),
-            motivation: [], // Placeholder
+            mastery: feedbacks.map(f => (f as any).masteryFeedback).filter(Boolean),
+            communication: feedbacks.map(f => (f as any).communicationFeedback).filter(Boolean),
+            engagement: feedbacks.map(f => (f as any).engagementFeedback).filter(Boolean),
+            responsiveness: feedbacks.map(f => (f as any).responsivenessFeedback).filter(Boolean),
+            motivation: feedbacks.map(f => (f as any).motivationFeedback).filter(Boolean),
         };
 
         // 3. Forum Stats
@@ -308,7 +310,7 @@ export async function getTrainerAnalytics(classId: number, trainerUserId?: numbe
         const totalPost = discussions.length;
         const totalLikes = discussions.reduce((acc, d) => acc + d.likes.length, 0);
         const totalReply = discussions.reduce((acc, d) => acc + d.replies.length, 0);
-        
+
         const avgLikes = totalPost > 0 ? (totalLikes / totalPost) : 0;
         const avgReply = totalPost > 0 ? (totalReply / totalPost) : 0;
 

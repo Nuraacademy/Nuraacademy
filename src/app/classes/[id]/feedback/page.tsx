@@ -60,8 +60,7 @@ export default async function ClassFeedbackPage({
     // for what to show. But the user specifically asked for "learner can give feedback".
     // So for staff, we might want to redirect them to a viewing page.
     if (!isLearner && canViewAll) {
-        // Redirect to staff view (to be implemented)
-        // return redirect(`/feedback/class/${classId}`);
+        return redirect(`/feedback/class/${classId}`);
     }
 
     if (!enrollment) return notFound();

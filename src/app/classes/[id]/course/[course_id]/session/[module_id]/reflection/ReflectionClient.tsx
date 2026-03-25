@@ -89,7 +89,7 @@ export default function ReflectionClient({ classId, courseId, moduleId, data, in
                         <div className="space-y-1">
                             <h3 className="text-[10px] font-medium uppercase tracking-widest text-gray-900">Question</h3>
                             <p className="text-xs text-gray-700 leading-relaxed font-medium">
-                                Please share with us what you feel about your learning progress, what your difficulties are, how you would improve it. You also can share anything else related this training.
+                                Please share with us what you feel about your learning progress, your difficulties, and your plan for self-improvement (rencana perbaikan diri). You also can share anything else related to this training.
                             </p>
                         </div>
 
@@ -152,7 +152,7 @@ export default function ReflectionClient({ classId, courseId, moduleId, data, in
             {/* Editor View */}
             <div className="bg-white rounded-xl p-10 shadow-sm border border-gray-100 flex flex-col gap-10">
                 <p className="text-gray-700 text-sm leading-relaxed">
-                    Please share with us what you feel about your learning progress, what your difficulties are, how you would improve it. You also can share anything else related this training
+                    Please share with us what you feel about your learning progress, your difficulties, and your plan for self-improvement (rencana perbaikan diri). You also can share anything else related to this training.
                 </p>
 
                 <div className="space-y-4">

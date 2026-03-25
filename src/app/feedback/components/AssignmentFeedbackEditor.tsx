@@ -6,12 +6,12 @@ import Breadcrumb from '@/components/ui/breadcrumb/breadcrumb';
 import { saveAssignmentFeedback } from '@/app/actions/assignment';
 import { uploadFileAction } from '@/app/actions/common';
 import { toast } from 'sonner';
-import { RichTextInput } from '@/components/ui/input/rich_text_input';
 import { NuraButton } from '@/components/ui/button/button';
-import { X, Paperclip, FileText } from 'lucide-react';
+import { X, FileText } from 'lucide-react';
 import Sidebar from '@/components/ui/sidebar/sidebar';
 import Image from 'next/image';
 import TitleCard from '@/components/ui/card/title_card';
+import { FeedbackCriteriaField } from '@/components/ui/feedback/FeedbackCriteriaField';
 
 interface AttachedFile {
     name: string;
@@ -29,6 +29,12 @@ interface AssignmentFeedbackEditorProps {
     courseName: string;
     initialFeedback: string;
     initialFiles: AttachedFile[];
+    initialProblemUnderstanding?: number;
+    initialProblemUnderstandingFeedback?: string;
+    initialTechnicalAbility?: number;
+    initialTechnicalAbilityFeedback?: string;
+    initialSolutionQuality?: number;
+    initialSolutionQualityFeedback?: string;
 }
 
 export default function AssignmentFeedbackEditor({
@@ -40,18 +46,39 @@ export default function AssignmentFeedbackEditor({
     className,
     courseName,
     initialFeedback,
-    initialFiles = []
+    initialFiles = [],
+    initialProblemUnderstanding = 0,
+    initialProblemUnderstandingFeedback = '',
+    initialTechnicalAbility = 0,
+    initialTechnicalAbilityFeedback = '',
+    initialSolutionQuality = 0,
+    initialSolutionQualityFeedback = ''
 }: AssignmentFeedbackEditorProps) {
     const router = useRouter();
     const [feedback, setFeedback] = useState(initialFeedback || '');
     const [files, setFiles] = useState<AttachedFile[]>(initialFiles || []);
+    const [problemUnderstanding, setProblemUnderstanding] = useState(initialProblemUnderstanding);
+    const [problemUnderstandingFeedback, setProblemUnderstandingFeedback] = useState(initialProblemUnderstandingFeedback || '');
+    const [technicalAbility, setTechnicalAbility] = useState(initialTechnicalAbility);
+    const [technicalAbilityFeedback, setTechnicalAbilityFeedback] = useState(initialTechnicalAbilityFeedback || '');
+    const [solutionQuality, setSolutionQuality] = useState(initialSolutionQuality);
+    const [solutionQualityFeedback, setSolutionQualityFeedback] = useState(initialSolutionQualityFeedback || '');
     const [isSaving, setIsSaving] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleSave = async () => {
         setIsSaving(true);
-        const res = await saveAssignmentFeedback(resultId, feedback, assignmentId, files);
+        const res = await saveAssignmentFeedback(resultId, assignmentId, {
+            problemUnderstanding,
+            problemUnderstandingFeedback,
+            technicalAbility,
+            technicalAbilityFeedback,
+            solutionQuality,
+            solutionQualityFeedback,
+            feedback,
+            feedbackFiles: files
+        });
 
         if (res.success) {
             toast.success("Feedback submitted successfully!");
@@ -65,6 +92,12 @@ export default function AssignmentFeedbackEditor({
     const handleClear = () => {
         setFeedback('');
         setFiles([]);
+        setProblemUnderstanding(0);
+        setProblemUnderstandingFeedback('');
+        setTechnicalAbility(0);
+        setTechnicalAbilityFeedback('');
+        setSolutionQuality(0);
+        setSolutionQualityFeedback('');
     };
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -139,15 +172,32 @@ export default function AssignmentFeedbackEditor({
                 />
 
                 {/* Feedback Card */}
-                <div className="bg-white rounded-xl p-8 md:p-12 shadow-sm border border-gray-100 flex flex-col gap-8">
-                    <div className="space-y-4">
-                        <h2 className="text-sm font-medium text-gray-900 tracking-tight">Feedback Answer</h2>
-                        <div className="border border-gray-200 rounded-xl overflow-hidden bg-white">
-                            <RichTextInput
-                                value={feedback}
-                                onChange={(val) => setFeedback(val)}
-                            />
-                        </div>
+                <div className="bg-white rounded-xl p-8 md:p-12 shadow-sm border border-gray-100 flex flex-col gap-12">
+                    <div className="space-y-12">
+                        <FeedbackCriteriaField
+                            label="Pemahaman masalah (Problem understanding)"
+                            description="Ability to grasp and define the core problem/requirements."
+                            score={problemUnderstanding}
+                            onScoreChange={setProblemUnderstanding} 
+                            feedback={problemUnderstandingFeedback} 
+                            onFeedbackChange={setProblemUnderstandingFeedback} 
+                        />
+                        <FeedbackCriteriaField
+                            label="Kemampuan teknis (Technical ability)"
+                            description="Efficiency and correctness of the technical implementation."
+                            score={technicalAbility}
+                            onScoreChange={setTechnicalAbility} 
+                            feedback={technicalAbilityFeedback} 
+                            onFeedbackChange={setTechnicalAbilityFeedback} 
+                        />
+                        <FeedbackCriteriaField
+                            label="Kualitas solusi (Solution quality)"
+                            description="Overall effectiveness, completeness, and elegance of the solution."
+                            score={solutionQuality}
+                            onScoreChange={setSolutionQuality} 
+                            feedback={solutionQualityFeedback} 
+                            onFeedbackChange={setSolutionQualityFeedback} 
+                        />
                     </div>
 
                     {/* File Attachment List */}

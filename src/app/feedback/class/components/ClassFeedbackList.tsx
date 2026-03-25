@@ -1,6 +1,7 @@
 "use client"
 
 import React from 'react';
+import Link from 'next/link';
 import Breadcrumb from '@/components/ui/breadcrumb/breadcrumb';
 import TitleCard from '@/components/ui/card/title_card';
 
@@ -49,10 +50,14 @@ export default function ClassFeedbackList({ classId, data, feedbacks }: ClassFee
                                         </div>
                                     </td>
                                     <td className="px-8 py-6">
-                                        <div
-                                            className="text-xs text-gray-600 leading-relaxed max-w-2xl rich-text"
-                                            dangerouslySetInnerHTML={{ __html: fb.content }}
-                                        />
+                                        <Link
+                                            href={`/feedback/class/${classId}/${fb.id}`}
+                                            className="block group"
+                                        >
+                                            <div className="text-xs font-medium flex items-center gap-1">
+                                                Feedback
+                                            </div>
+                                        </Link>
                                     </td>
                                     <td className="px-8 py-6 text-right align-top">
                                         <span className="text-[10px] text-gray-400">

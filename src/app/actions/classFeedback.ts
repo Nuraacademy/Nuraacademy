@@ -28,10 +28,20 @@ export async function getClassFeedback(classId: number, enrollmentId: number) {
 export async function saveClassFeedback(data: {
     classId: number;
     enrollmentId: number;
-    content: string;
+    courseStructure?: number;
+    courseStructureFeedback?: string;
+    materialQuality?: number;
+    materialQualityFeedback?: string;
+    practicalRelevance?: number;
+    practicalRelevanceFeedback?: string;
+    learningEnvironment?: number;
+    learningEnvironmentFeedback?: string;
+    technicalSupport?: number;
+    technicalSupportFeedback?: string;
+    content?: string;
 }) {
     try {
-        await requirePermission('Feedback', 'CREATE_EDIT_CLASS_FEEDBACK'); // Updated from reflection
+        await requirePermission('Feedback', 'CREATE_EDIT_CLASS_FEEDBACK');
         const userId = await getCurrentUserId();
         if (!userId) return { success: false, error: "Unauthorized" };
 
@@ -43,6 +53,16 @@ export async function saveClassFeedback(data: {
                 }
             },
             update: {
+                courseStructure: data.courseStructure,
+                courseStructureFeedback: data.courseStructureFeedback,
+                materialQuality: data.materialQuality,
+                materialQualityFeedback: data.materialQualityFeedback,
+                practicalRelevance: data.practicalRelevance,
+                practicalRelevanceFeedback: data.practicalRelevanceFeedback,
+                learningEnvironment: data.learningEnvironment,
+                learningEnvironmentFeedback: data.learningEnvironmentFeedback,
+                technicalSupport: data.technicalSupport,
+                technicalSupportFeedback: data.technicalSupportFeedback,
                 content: data.content,
                 enrollmentId: data.enrollmentId
             },
@@ -50,6 +70,16 @@ export async function saveClassFeedback(data: {
                 userId: userId,
                 classId: data.classId,
                 enrollmentId: data.enrollmentId,
+                courseStructure: data.courseStructure,
+                courseStructureFeedback: data.courseStructureFeedback,
+                materialQuality: data.materialQuality,
+                materialQualityFeedback: data.materialQualityFeedback,
+                practicalRelevance: data.practicalRelevance,
+                practicalRelevanceFeedback: data.practicalRelevanceFeedback,
+                learningEnvironment: data.learningEnvironment,
+                learningEnvironmentFeedback: data.learningEnvironmentFeedback,
+                technicalSupport: data.technicalSupport,
+                technicalSupportFeedback: data.technicalSupportFeedback,
                 content: data.content
             }
         });

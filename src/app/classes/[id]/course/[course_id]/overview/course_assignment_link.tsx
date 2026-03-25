@@ -19,9 +19,10 @@ interface CourseAssignmentLinkProps {
     classId: string;
     courseId: string;
     isAdmin?: boolean;
+    isLearner?: boolean;
 }
 
-export default function CourseAssignmentLink({ assignment, classId, courseId, isAdmin }: CourseAssignmentLinkProps) {
+export default function CourseAssignmentLink({ assignment, classId, courseId, isAdmin, isLearner }: CourseAssignmentLinkProps) {
     const router = useRouter();
     const [isDeleting, setIsDeleting] = useState(false);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -45,7 +46,13 @@ export default function CourseAssignmentLink({ assignment, classId, courseId, is
         <>
         <div
             className="flex items-center justify-between group cursor-pointer border-b border-gray-100 last:border-0 pb-6 last:pb-0"
-            onClick={() => router.push(`/assignment/${assignment.id}`)}
+            onClick={() => {
+                if (isLearner) {
+                    router.push(`/assignment/${assignment.id}`)
+                } else {
+                    router.push(`/assignment/${assignment.id}/results`)
+                }
+            }}
         >
             <div className="flex items-center gap-3">
                 <div className="text-gray-700">

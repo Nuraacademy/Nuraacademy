@@ -35,6 +35,12 @@ export default async function AssignmentFeedbackEditorPage({
             courseName={assignment.course?.title || ""}
             initialFeedback={result.feedback || ""}
             initialFiles={((result as any).feedbackFiles as any) || []}
+            initialProblemUnderstanding={(result as any).problemUnderstanding || 0}
+            initialProblemUnderstandingFeedback={(result as any).problemUnderstandingFeedback || ''}
+            initialTechnicalAbility={(result as any).technicalAbility || 0}
+            initialTechnicalAbilityFeedback={(result as any).technicalAbilityFeedback || ''}
+            initialSolutionQuality={(result as any).solutionQuality || 0}
+            initialSolutionQualityFeedback={(result as any).solutionQualityFeedback || ''}
         />
     );
 }

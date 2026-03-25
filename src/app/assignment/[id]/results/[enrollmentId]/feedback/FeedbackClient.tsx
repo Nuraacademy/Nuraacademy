@@ -6,8 +6,9 @@ import Image from "next/image";
 import Breadcrumb from '@/components/ui/breadcrumb/breadcrumb';
 import { saveAssignmentFeedback } from '@/app/actions/assignment';
 import { toast } from 'sonner';
-import { RichTextInput } from '@/components/ui/input/rich_text_input';
 import { NuraButton } from '@/components/ui/button/button';
+import { FeedbackCriteriaField } from '@/components/ui/feedback/FeedbackCriteriaField';
+import { RichTextInput } from '@/components/ui/input/rich_text_input';
 
 interface FeedbackClientProps {
     assignmentId: number;
@@ -17,7 +18,7 @@ interface FeedbackClientProps {
     assignmentTitle: string;
     className: string;
     courseName: string;
-    initialFeedback: string;
+    initialData: any; // assignment result data
     breadcrumbItems: { label: string; href: string }[];
 }
 
@@ -29,21 +30,33 @@ export default function FeedbackClient({
     assignmentTitle,
     className,
     courseName,
-    initialFeedback,
+    initialData,
     breadcrumbItems
 }: FeedbackClientProps) {
     const router = useRouter();
-    const [feedback, setFeedback] = useState(initialFeedback || '');
     const [isSaving, setIsSaving] = useState(false);
+
+    const formatScore = (val: number | undefined | null) => {
+        return val === undefined || val === null ? 10 : val;
+    };
+
+    const [formData, setFormData] = useState({
+        problemUnderstanding: formatScore(initialData?.problemUnderstanding),
+        problemUnderstandingFeedback: initialData?.problemUnderstandingFeedback || "",
+        technicalAbility: formatScore(initialData?.technicalAbility),
+        technicalAbilityFeedback: initialData?.technicalAbilityFeedback || "",
+        solutionQuality: formatScore(initialData?.solutionQuality),
+        solutionQualityFeedback: initialData?.solutionQualityFeedback || "",
+        feedback: initialData?.feedback || "",
+    });
 
     const handleSave = async () => {
         setIsSaving(true);
-        const res = await saveAssignmentFeedback(resultId, feedback, assignmentId);
+        const res = await saveAssignmentFeedback(resultId, assignmentId, formData);
 
         if (res.success) {
             toast.success("Feedback saved successfully!");
             router.refresh();
-            // Optional: redirect back to results
             router.push(`/assignment/${assignmentId}/results`);
         } else {
             toast.error("Failed to save feedback: " + res.error);
@@ -51,13 +64,14 @@ export default function FeedbackClient({
         setIsSaving(false);
     };
 
-    const handleClear = () => {
-        setFeedback('');
-    };
+    const sections = [
+        { key: 'problemUnderstanding', label: 'Pemahaman masalah (Problem understanding)', description: 'Understanding of the requirements and constraints.' },
+        { key: 'technicalAbility', label: 'Kemampuan teknis (Technical ability)', description: 'Correct usage of technologies and coding standards.' },
+        { key: 'solutionQuality', label: 'Kualitas solusi (Solution quality)', description: 'Overall effectiveness and efficiency of the proposed solution.' },
+    ];
 
     return (
         <main className="min-h-screen bg-[#FDFDF7]  text-gray-800 pb-20">
-            {/* Background Orbs */}
             {/* Background */}
             <Image
                 src="/background/OvalBGLeft.svg"
@@ -85,24 +99,34 @@ export default function FeedbackClient({
                     </p>
                 </div>
 
-                {/* Feedback Card */}
-                <div className="bg-white rounded-xl p-10 shadow-sm border border-gray-100 flex flex-col gap-8">
-                    <div className="space-y-4">
-                        <h2 className="text-sm font-medium text-gray-900">Feedback Answer</h2>
-                        <div className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm p-4">
-                            <RichTextInput
-                                value={feedback}
-                                onChange={(val) => setFeedback(val)}
-                            />
-                        </div>
+                {/* Feedback Sections */}
+                <div className="bg-white rounded-xl p-6 md:p-12 shadow-sm border border-gray-100 space-y-12">
+                    {sections.map((section) => (
+                        <FeedbackCriteriaField
+                            key={section.key}
+                            label={section.label}
+                            description={section.description}
+                            score={formData[section.key as keyof typeof formData] as number}
+                            feedback={formData[`${section.key}Feedback` as keyof typeof formData] as string}
+                            onScoreChange={(val) => setFormData({ ...formData, [section.key]: val })}
+                            onFeedbackChange={(val) => setFormData({ ...formData, [`${section.key}Feedback`]: val })}
+                        />
+                    ))}
+
+                    <div className="space-y-4 pt-8 border-t border-gray-100">
+                        <h2 className="text-lg font-medium text-[#1C3A37]">Additional Comments</h2>
+                        <RichTextInput
+                            value={formData.feedback}
+                            onChange={(val) => setFormData({ ...formData, feedback: val })}
+                        />
                     </div>
 
                     <div className="flex justify-center items-center gap-6 pt-4">
                         <button
-                            onClick={handleClear}
+                            onClick={() => router.back()}
                             className="text-sm font-medium text-gray-400 hover:text-gray-900 transition-colors uppercase tracking-widest"
                         >
-                            Clear
+                            Cancel
                         </button>
                         <NuraButton
                             label={isSaving ? "Submitting..." : "Submit"}

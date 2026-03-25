@@ -5,7 +5,7 @@ import { getEnrollment } from "@/controllers/enrollmentController";
 import { mapAssignmentToTestRunner } from "@/utils/test_mapper";
 import { NotFoundState } from "@/components/ui/status/not_found_state";
 import { AssignmentIntroCard } from "./components/assignment_intro";
-import { getSession } from "@/app/actions/auth";
+import { getSession, getFullSession } from "@/app/actions/auth";
 import { notFound } from "next/navigation";
 
 export default async function AssignmentRunnerPage({
@@ -29,6 +29,14 @@ export default async function AssignmentRunnerPage({
     const classId = assignment.classId
         ? String(assignment.classId)
         : null;
+
+    const session = await getFullSession();
+    const isLearner = session?.role === "Learner";
+
+    if (!isLearner && session) {
+        const { redirect } = await import("next/navigation");
+        redirect(`/assignment/${assignmentId}/results`);
+    }
 
     const enrollment = currentUserId && classId
         ? await getEnrollment(currentUserId, parseInt(classId))
@@ -129,6 +137,12 @@ export default async function AssignmentRunnerPage({
                     finished={isFinished}
                     initialScore={initialScore}
                     feedback={testResult?.feedback}
+                    problemUnderstanding={testResult?.problemUnderstanding}
+                    technicalAbility={testResult?.technicalAbility}
+                    solutionQuality={testResult?.solutionQuality}
+                    problemUnderstandingFeedback={testResult?.problemUnderstandingFeedback}
+                    technicalAbilityFeedback={testResult?.technicalAbilityFeedback}
+                    solutionQualityFeedback={testResult?.solutionQualityFeedback}
                     assignmentType={assignment.type}
                 />
             )}

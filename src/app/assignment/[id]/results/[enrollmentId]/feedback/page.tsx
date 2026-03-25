@@ -33,7 +33,7 @@ export default async function AssignmentFeedbackPage({
             assignmentTitle={assignment.title || "Assignment"}
             className={assignment.class?.title || "Class"}
             courseName={assignment.course?.title || ""}
-            initialFeedback={(result as any).feedback || ""}
+            initialData={result}
             breadcrumbItems={[
                 { label: "Home", href: "/classes" },
                 { label: "Assignments", href: "/assignment" },

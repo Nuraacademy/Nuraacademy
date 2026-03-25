@@ -92,11 +92,11 @@ export default function PeerFeedbackFormClient({ data, evaluatorEnrollmentId, cl
     };
 
     const sections = [
-        { key: 'cooperation', label: 'Cooperation', description: 'Works well with team members and supports group collaboration.' },
-        { key: 'attendance', label: 'Attendance', description: 'Consistently attends and participates in team meetings or activities.' },
-        { key: 'taskCompletion', label: 'Task Completion', description: 'Completes assigned tasks according to expectations.' },
-        { key: 'initiatives', label: 'Initiatives', description: 'Shows initiative by proactively starting or helping with tasks.' },
-        { key: 'communication', label: 'Communication', description: 'Communicates task progress, ideas, and information clearly with the team.' },
+        { key: 'cooperation', label: 'Kerjasama (Cooperation)', description: 'Works well with team members and supports group collaboration.' },
+        { key: 'attendance', label: 'Kehadiran (Attendance)', description: 'Consistently attends and participates in team meetings or activities.' },
+        { key: 'taskCompletion', label: 'Penyelesaian tugas (Task completion)', description: 'Completes assigned tasks according to expectations.' },
+        { key: 'initiatives', label: 'Inisiatif (Initiatives)', description: 'Shows initiative by proactively starting or helping with tasks.' },
+        { key: 'communication', label: 'Komunikasi (Communication)', description: 'Communicates task progress, ideas, and information clearly with the team.' },
     ];
 
     return (

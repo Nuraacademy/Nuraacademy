@@ -129,7 +129,7 @@ export function AddCourseButton({ classId }: { classId: string }) {
     return <NuraButton label="Add Course" variant="primary" onClick={() => router.push(`/classes/${classId}/course/add`)} />
 }
 
-export function CourseCard({ classId, course, isAdmin }: { classId: string, course: any, isAdmin: boolean }) {
+export function CourseCard({ classId, course, isAdmin, isLearner }: { classId: string, course: any, isAdmin: boolean, isLearner: boolean }) {
     const router = useRouter()
     const [isDeleting, setIsDeleting] = useState(false)
     const [isConfirmOpen, setIsConfirmOpen] = useState(false)
@@ -197,7 +197,7 @@ export function CourseCard({ classId, course, isAdmin }: { classId: string, cour
     )
 }
 
-export function ProjectCard({ classId, assignment, isAdmin }: { classId: string, assignment: any, isAdmin: boolean }) {
+export function ProjectCard({ classId, assignment, isAdmin, isLearner }: { classId: string, assignment: any, isAdmin: boolean, isLearner: boolean }) {
     const router = useRouter()
     const [isDeleting, setIsDeleting] = useState(false);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -224,7 +224,13 @@ export function ProjectCard({ classId, assignment, isAdmin }: { classId: string,
         <>
         <div
             className="border border-gray-200 rounded-xl p-5 hover:border-gray-400 hover:shadow-sm transition-all duration-200 cursor-pointer group relative"
-            onClick={() => router.push(`/assignment/${assignment.id}`)}
+            onClick={() => {
+                if (isLearner) {
+                    router.push(`/assignment/${assignment.id}`)
+                } else {
+                    router.push(`/assignment/${assignment.id}/results`)
+                }
+            }}
         >
             <div className="flex justify-between items-start">
                 <div className="flex-1">
