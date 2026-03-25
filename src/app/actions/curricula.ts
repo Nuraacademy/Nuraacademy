@@ -10,8 +10,6 @@ import {
 import { getSession } from "./auth"
 import { revalidatePath } from "next/cache"
 import { requirePermission } from "@/lib/rbac"
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
 
 export async function getCurriculaList(search?: string, status?: string) {
     try {
@@ -72,28 +70,34 @@ export async function deleteCurriculaAction(id: number) {
     }
 }
 
-export async function uploadCurriculaFile(formData: FormData) {
+import { uploadToSupabase, UploadResult } from "@/lib/storage";
+
+export async function uploadCurriculaFile(formData: FormData): Promise<UploadResult> {
     try {
         await requirePermission('Curricula', 'UPLOAD_CURRICULA');
         const file = formData.get("file") as File;
         if (!file) {
-            return { success: false, error: "No file uploaded" };
+            return { 
+                success: false, 
+                error: "No file provided",
+                url: null,
+                path: null,
+                name: null,
+                size: null
+            }
         }
 
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-
-        const uploadDir = join(process.cwd(), 'public', 'uploads', 'curricula');
-        await mkdir(uploadDir, { recursive: true });
-
-        const fileName = `${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
-        const path = join(uploadDir, fileName);
-        await writeFile(path, buffer);
-
-        const url = `/uploads/curricula/${fileName}`;
-        return { success: true, url };
+        const result = await uploadToSupabase(file, 'curricula');
+        return result;
     } catch (error: any) {
         console.error("Upload error:", error);
-        return { success: false, error: error.message || "Failed to upload file" };
+        return { 
+            success: false, 
+            error: error.message || "Failed to upload file",
+            url: null,
+            path: null,
+            name: null,
+            size: null
+        };
     }
 }

@@ -113,33 +113,35 @@ export async function getClassesAction() {
     }
 }
 
-export async function uploadClassFile(formData: FormData) {
+import { uploadToSupabase, UploadResult } from "@/lib/storage";
+
+export async function uploadClassFile(formData: FormData): Promise<UploadResult> {
     try {
         await requirePermission('Class', 'CREATE_UPDATE_CLASS');
         
         const file = formData.get("file") as File;
         if (!file) {
-            return { success: false, error: "No file uploaded" };
+            return { 
+                success: false, 
+                error: "No file provided",
+                url: null,
+                path: null,
+                name: null,
+                size: null
+            }
         }
 
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-
-        // Required imports for this to work natively
-        const { writeFile, mkdir } = await import('fs/promises');
-        const { join } = await import('path');
-
-        const uploadDir = join(process.cwd(), 'public', 'uploads', 'classes');
-        await mkdir(uploadDir, { recursive: true });
-
-        const fileName = `${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
-        const path = join(uploadDir, fileName);
-        await writeFile(path, buffer);
-
-        const url = `/uploads/classes/${fileName}`;
-        return { success: true, url };
+        const result = await uploadToSupabase(file, 'classes');
+        return result;
     } catch (error: any) {
         console.error("Upload error:", error);
-        return { success: false, error: error.message || "Failed to upload file" };
+        return { 
+            success: false, 
+            error: error.message || "Failed to upload file",
+            url: null,
+            path: null,
+            name: null,
+            size: null
+        };
     }
 }
