@@ -278,7 +278,6 @@ export default function RolesClient({
                     </div>
                 )}
             </div>
-            </div>
 
             <ConfirmModal
                 isOpen={isDeleteModalOpen}
