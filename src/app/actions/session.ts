@@ -3,32 +3,37 @@
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache";
 import { requirePermission } from "@/lib/rbac";
-import { writeFile, mkdir } from "fs/promises"
-import { join } from "path"
 
-export async function uploadSessionFile(formData: FormData) {
+import { uploadToSupabase, UploadResult } from "@/lib/storage";
+
+export async function uploadSessionFile(formData: FormData): Promise<UploadResult> {
     try {
         await requirePermission('File', 'UPLOAD_FILE');
 
         const file = formData.get("file") as File
         if (!file) {
-            return { success: false, error: "No file provided" }
+            return { 
+                success: false, 
+                error: "No file provided",
+                url: null,
+                path: null,
+                name: null,
+                size: null
+            }
         }
 
-        const bytes = await file.arrayBuffer()
-        const buffer = Buffer.from(bytes)
-
-        const uploadDir = join(process.cwd(), "public", "uploads")
-        await mkdir(uploadDir, { recursive: true })
-
-        const filename = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`
-        const path = join(uploadDir, filename)
-        await writeFile(path, buffer)
-
-        return { success: true, url: `/uploads/${filename}` }
-    } catch (error) {
+        const result = await uploadToSupabase(file, 'sessions');
+        return result;
+    } catch (error: any) {
         console.error("Failed to upload file:", error);
-        return { success: false, error: "Failed to upload file" };
+        return { 
+            success: false, 
+            error: error.message || "Failed to upload file",
+            url: null,
+            path: null,
+            name: null,
+            size: null
+        };
     }
 }
 

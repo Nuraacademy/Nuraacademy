@@ -2,10 +2,9 @@
 
 import { submitAssignment, createAssignment as createAssignmentController, submitManualScores } from "@/controllers/assignmentController"
 import { revalidatePath } from "next/cache"
-import { writeFile, mkdir } from "fs/promises"
-import { join } from "path"
 import { requirePermission } from "@/lib/rbac"
 import { prisma } from "@/lib/prisma"
+import { uploadToSupabase } from "@/lib/storage"
 
 export async function submitTest(formData: FormData) {
     const assignmentId = parseInt(formData.get("assignmentId") as string)
@@ -42,8 +41,8 @@ export async function submitTest(formData: FormData) {
     const essayAnswers: Record<number, string> = {}
     // We expect essayFiles and projectFiles to store URLs
     const essayFiles: Record<number, string> = {}
-    const projectAnswers: Record<number, string> = {}
     const projectFiles: Record<number, string> = {}
+    const projectAnswers: Record<number, string> = {}
 
     // Parse entries
     for (const [key, value] of formData.entries()) {
@@ -59,37 +58,25 @@ export async function submitTest(formData: FormData) {
         }
     }
 
-    // Handle Files (simulated upload)
-    const uploadDir = join(process.cwd(), "public", "uploads")
-
-    // Ensure the upload directory exists
-    try {
-        await mkdir(uploadDir, { recursive: true })
-    } catch (e) {
-        console.error("Failed to create upload directory:", e)
-    }
+    // Handle Files (Supabase upload)
 
     // Essay Files
     for (const [key, value] of formData.entries()) {
-        const isFile = value && typeof value !== 'string';
-        if (key.startsWith("essay_file_") && isFile && (value as any).size > 0) {
+        const isFile = value && typeof value !== 'string' && (value as any).size > 0;
+        if (key.startsWith("essay_file_") && isFile) {
             const id = parseInt(key.replace("essay_file_", ""))
-            const file = value as unknown as { name: string, arrayBuffer: () => Promise<ArrayBuffer> }
-            const filename = `${Date.now()}_${file.name}`
-            const bytes = await file.arrayBuffer()
-            const buffer = Buffer.from(bytes)
-            const path = join(uploadDir, filename)
-            await writeFile(path, buffer)
-            essayFiles[id] = `/uploads/${filename}`
-        } else if (key.startsWith("project_file_") && isFile && (value as any).size > 0) {
+            const file = value as File
+            const result = await uploadToSupabase(file, 'assignments')
+            if (result.success) {
+                essayFiles[id] = result.url
+            }
+        } else if (key.startsWith("project_file_") && isFile) {
             const id = parseInt(key.replace("project_file_", ""))
-            const file = value as unknown as { name: string, arrayBuffer: () => Promise<ArrayBuffer> }
-            const filename = `${Date.now()}_${file.name}`
-            const bytes = await file.arrayBuffer()
-            const buffer = Buffer.from(bytes)
-            const path = join(uploadDir, filename)
-            await writeFile(path, buffer)
-            projectFiles[id] = `/uploads/${filename}`
+            const file = value as File
+            const result = await uploadToSupabase(file, 'assignments')
+            if (result.success) {
+                projectFiles[id] = result.url
+            }
         }
     }
 
