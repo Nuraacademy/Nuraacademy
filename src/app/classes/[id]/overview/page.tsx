@@ -24,12 +24,13 @@ export default async function CourseOverviewPage({
     const canCreatePlacement = await hasPermission('Class', 'PLACEMENT_TEST_CREATE');
     const canViewFeedbackReport = await hasPermission('Feedback', 'VIEW_DETAIL_REFLECTION');
     const canViewTrainerAnalytics = await hasPermission('Analytics', 'ANALYTICS_REPORT_TRAINER');
+    const canEditClass = await hasPermission('Class', 'CREATE_UPDATE_CLASS');
 
     const session = await getFullSession();
     const isLearner = session?.role === 'Learner';
 
     // Fetch live class data
-    const classData = await getClassById(parseInt(id));
+    const classData = await getClassById(parseInt(id)) as any;
     if (!classData) {
         return notFound();
     }
@@ -135,11 +136,13 @@ export default async function CourseOverviewPage({
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex justify-center mt-6 mr-6 gap-4 top-0">
-                        <Link href={`/classes/${id}/edit`}>
-                            <Image src="/icons/Edit.svg" alt="Edit" width={16} height={16} />
-                        </Link>
-                    </div>
+                    {canEditClass && (
+                        <div className="flex justify-center mt-6 mr-6 gap-4 top-0">
+                            <Link href={`/classes/${id}/edit`}>
+                                <Image src="/icons/Edit.svg" alt="Edit" width={16} height={16} />
+                            </Link>
+                        </div>
+                    )}
                 </section>
 
                 {/* Main Grid: Left + Right */}
@@ -196,8 +199,11 @@ export default async function CourseOverviewPage({
                         </div>
 
                         {/* Instructor & Trainer Section */}
-                        {/* {(() => {
+                        {(() => {
                             const trainersMap = new Map();
+                            if (classData.trainer) {
+                                trainersMap.set(classData.trainer.id, { ...classData.trainer, isMain: true });
+                            }
                             classData.courses?.forEach((course: any) => {
                                 if (course.user) {
                                     trainersMap.set(course.user.id, course.user);
@@ -229,12 +235,17 @@ export default async function CourseOverviewPage({
                                                         />
                                                     </div>
                                                     <div className="flex-grow">
-                                                        <h4 className="text-sm text-[#1C3A37]">{trainer.name || trainer.username}</h4>
+                                                        <div className="flex items-center gap-2">
+                                                            <h4 className="text-sm text-[#1C3A37]">{trainer.name || trainer.username}</h4>
+                                                            {trainer.isMain && (
+                                                                <span className="text-[10px] font-bold text-[#005954] bg-[#DAEE49]/40 px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">Batch Trainer</span>
+                                                            )}
+                                                        </div>
                                                         <p className="text-xs text-gray-400">{trainer.role?.name || "Instructor"}</p>
                                                     </div>
                                                     {isLearner && isEnrolled && (
-                                                            className="bg-[#DAEE49] p-2 rounded-xl hover:bg-[#C9D942] transition-colors shadow-sm"
-                                                            <img src="/icons/Information.svg" alt="Feedback" className="w-4 h-4 invert opacity-70" />
+                                                        <Link href={`/feedback/trainer/${trainer.id}?classId=${classData.id}`} className="bg-[#DAEE49] p-2 rounded-xl hover:bg-[#C9D942] transition-colors shadow-sm">
+                                                            <Image src="/icons/Information.svg" alt="Feedback" width={16} height={16} />
                                                         </Link>
                                                     )}
                                                 </div>
@@ -246,7 +257,7 @@ export default async function CourseOverviewPage({
                                     </div>
                                 </div>
                             );
-                        })()} */}
+                        })()}
 
                         {/* Feedback & Analytics Buttons */}
                         <div className="flex flex-col gap-3">

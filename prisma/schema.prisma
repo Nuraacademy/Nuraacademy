@@ -21,17 +21,18 @@ model User {
   blogLikes            BlogLike[]
   blogs                Blog[]
   classFeedbacks       ClassFeedback[]
+  trainedClasses       Class[]               @relation("ClassTrainer")
+  createdCourses       Course[]              @relation("CourseCreator")
   discussionLikes      DiscussionLike[]
   discussionReplies    DiscussionReply[]
   discussionReplyLikes DiscussionReplyLike[]
   discussions          Discussion[]
   enrollments          Enrollment[]
   feedbacks            Feedback[]
-  reflections           Reflection[]
-  role                 Role?                 @relation(fields: [roleId], references: [id])
-  trainerFeedbacks     TrainerFeedback[]     @relation("TrainerFeedbackReceiver")
-  createdCourses       Course[]              @relation("CourseCreator")
+  reflections          Reflection[]
   createdSessions      Session[]             @relation("SessionCreator")
+  trainerFeedbacks     TrainerFeedback[]     @relation("TrainerFeedbackReceiver")
+  role                 Role?                 @relation(fields: [roleId], references: [id])
 
   @@map("users")
 }
@@ -45,7 +46,6 @@ model Session {
   schedule      Json?
   reference     Json?
   createdBy     Int?
-  user          User?        @relation("SessionCreator", fields: [createdBy], references: [id])
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   deletedAt     DateTime?
@@ -54,6 +54,7 @@ model Session {
   reflections   Reflection[]
   ses           SES[]
   course        Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user          User?        @relation("SessionCreator", fields: [createdBy], references: [id])
 
   @@index([courseId])
   @@index([createdBy])
@@ -61,7 +62,7 @@ model Session {
 }
 
 model Class {
-  id                Int             @id @default(autoincrement())
+  id                Int               @id @default(autoincrement())
   title             String
   imgUrl            String?
   hours             Int?
@@ -70,23 +71,25 @@ model Class {
   endDate           DateTime?
   description       String?
   learningObjective String?
-  isDraft           Boolean         @default(false)
-  capacity          Int?            @default(100)
+  isDraft           Boolean           @default(false)
   createdBy         Int?
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
   deletedAt         DateTime?
+  capacity          Int?              @default(100)
   keywords          String[]
   modules           Int?
   previewVideoUrl   String?
+  trainerId         Int?
   assignments       Assignment[]
   classFeedbacks    ClassFeedback[]
+  trainer           User?             @relation("ClassTrainer", fields: [trainerId], references: [id])
   courses           Course[]
   enrollments       Enrollment[]
   peerFeedbacks     PeerFeedback[]
-  trainerFeedbacks  TrainerFeedback[]
   timelines         Timeline[]
-  curricula         Curricula[]     @relation("ClassCurricula")
+  trainerFeedbacks  TrainerFeedback[]
+  curricula         Curricula[]       @relation("ClassCurricula")
 
   @@index([createdBy])
   @@index([isDraft])
@@ -133,7 +136,6 @@ model Course {
   entrySkills        String?
   tools              String?
   createdBy          Int?
-  user               User?            @relation("CourseCreator", fields: [createdBy], references: [id])
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
   deletedAt          DateTime?
@@ -143,6 +145,7 @@ model Course {
   assignments        Assignment[]
   courseMappings     CourseMapping[]
   class              Class            @relation(fields: [classId], references: [id], onDelete: Cascade)
+  user               User?            @relation("CourseCreator", fields: [createdBy], references: [id])
   reflections        Reflection[]
   sessions           Session[]
 
@@ -152,34 +155,34 @@ model Course {
 }
 
 model Enrollment {
-  id                   Int                @id @default(autoincrement())
-  userId               Int
-  classId              Int
-  status               EnrollmentStatus   @default(ACTIVE)
-  enrolledAt           DateTime           @default(now())
-  createdAt            DateTime           @default(now())
-  updatedAt            DateTime           @updatedAt
-  deletedAt            DateTime?
-  cvUrl                String?
-  educationField       String?
-  finalExpectations    String?
-  jobIndustry          String?
-  objectives           String[]
-  profession           String?
-  workField            String?
-  yoe                  String?
-  assignmentResults    AssignmentResult[]
-  classFeedbacks       ClassFeedback[]
-  courseMappings       CourseMapping[]
-  class                Class              @relation(fields: [classId], references: [id])
-  user                 User               @relation(fields: [userId], references: [id])
-  groups               Group[]
-  learnerAnalytics     LearnerAnalytics?
-  peerFeedbackReceiver PeerFeedback[]     @relation("PeerFeedbackReceiver")
-  peerFeedbackGiver    PeerFeedback[]     @relation("PeerFeedbackGiver")
-  reflections          Reflection[]
-  ses                  SES[]
-  trainerFeedbacksGiver TrainerFeedback[]     @relation("TrainerFeedbackGiver")
+  id                    Int                @id @default(autoincrement())
+  userId                Int
+  classId               Int
+  status                EnrollmentStatus   @default(ACTIVE)
+  enrolledAt            DateTime           @default(now())
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  deletedAt             DateTime?
+  cvUrl                 String?
+  educationField        String?
+  finalExpectations     String?
+  jobIndustry           String?
+  objectives            String[]
+  profession            String?
+  workField             String?
+  yoe                   String?
+  assignmentResults     AssignmentResult[]
+  classFeedbacks        ClassFeedback[]
+  courseMappings        CourseMapping[]
+  class                 Class              @relation(fields: [classId], references: [id])
+  user                  User               @relation(fields: [userId], references: [id])
+  groups                Group[]
+  learnerAnalytics      LearnerAnalytics?
+  peerFeedbackReceiver  PeerFeedback[]     @relation("PeerFeedbackReceiver")
+  peerFeedbackGiver     PeerFeedback[]     @relation("PeerFeedbackGiver")
+  reflections           Reflection[]
+  ses                   SES[]
+  trainerFeedbacksGiver TrainerFeedback[]  @relation("TrainerFeedbackGiver")
 
   @@unique([userId, classId])
   @@index([userId])
@@ -303,27 +306,27 @@ model AssignmentItem {
 }
 
 model AssignmentResult {
-  id                    Int                    @id @default(autoincrement())
-  assignmentId          Int
-  enrollmentId          Int
-  startedAt             DateTime?
-  finishedAt            DateTime?
-  status                AssignmentStatus       @default(NOT_PASS)
-  totalScore            Float?
-  problemUnderstanding  Int?                   @default(0)
-  problemUnderstandingFeedback String?         @db.Text
-  technicalAbility      Int?                   @default(0)
-  technicalAbilityFeedback String?            @db.Text
-  solutionQuality      Int?                   @default(0)
-  solutionQualityFeedback String?             @db.Text
-  createdAt             DateTime               @default(now())
-  updatedAt             DateTime               @updatedAt
-  deletedAt             DateTime?
-  feedback              String?                @db.Text
-  feedbackFiles         Json?
-  assignmentItemResults AssignmentItemResult[]
-  assignment            Assignment             @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  enrollment            Enrollment             @relation(fields: [enrollmentId], references: [id])
+  id                           Int                    @id @default(autoincrement())
+  assignmentId                 Int
+  enrollmentId                 Int
+  startedAt                    DateTime?
+  finishedAt                   DateTime?
+  status                       AssignmentStatus       @default(NOT_PASS)
+  totalScore                   Float?
+  createdAt                    DateTime               @default(now())
+  updatedAt                    DateTime               @updatedAt
+  deletedAt                    DateTime?
+  feedback                     String?
+  feedbackFiles                Json?
+  problemUnderstanding         Int?                   @default(0)
+  problemUnderstandingFeedback String?
+  solutionQuality              Int?                   @default(0)
+  solutionQualityFeedback      String?
+  technicalAbility             Int?                   @default(0)
+  technicalAbilityFeedback     String?
+  assignmentItemResults        AssignmentItemResult[]
+  assignment                   Assignment             @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  enrollment                   Enrollment             @relation(fields: [enrollmentId], references: [id])
 
   @@unique([assignmentId, enrollmentId])
   @@index([assignmentId])
@@ -582,54 +585,53 @@ model PeerFeedback {
 }
 
 model TrainerFeedback {
-  id                  Int        @id @default(autoincrement())
-  evaluatorId         Int // Enrollment ID of the learner
-  trainerId           Int // User ID of the trainer
-  classId             Int
-  mastery             Int?       @default(0)
-  masteryFeedback     String?    @db.Text
-  communication       Int?       @default(0)
-  communicationFeedback String?    @db.Text
-  engagement          Int?       @default(0)
-  engagementFeedback  String?    @db.Text
-  responsiveness      Int?       @default(0)
-  responsivenessFeedback String?    @db.Text
-  motivation          Int?       @default(0)
-  motivationFeedback  String?    @db.Text
-  isEdited            Boolean    @default(false)
-  createdAt           DateTime   @default(now())
-  updatedAt           DateTime   @updatedAt
-
-  evaluator Enrollment @relation("TrainerFeedbackGiver", fields: [evaluatorId], references: [id], onDelete: Cascade)
-  trainer   User       @relation("TrainerFeedbackReceiver", fields: [trainerId], references: [id], onDelete: Cascade)
-  class     Class      @relation(fields: [classId], references: [id], onDelete: Cascade)
+  id                     Int        @id @default(autoincrement())
+  evaluatorId            Int
+  trainerId              Int
+  classId                Int
+  engagement             Int?       @default(0)
+  engagementFeedback     String?
+  isEdited               Boolean    @default(false)
+  createdAt              DateTime   @default(now())
+  updatedAt              DateTime   @updatedAt
+  communication          Int?       @default(0)
+  communicationFeedback  String?
+  mastery                Int?       @default(0)
+  masteryFeedback        String?
+  motivation             Int?       @default(0)
+  motivationFeedback     String?
+  responsiveness         Int?       @default(0)
+  responsivenessFeedback String?
+  class                  Class      @relation(fields: [classId], references: [id], onDelete: Cascade)
+  evaluator              Enrollment @relation("TrainerFeedbackGiver", fields: [evaluatorId], references: [id], onDelete: Cascade)
+  trainer                User       @relation("TrainerFeedbackReceiver", fields: [trainerId], references: [id], onDelete: Cascade)
 
   @@unique([evaluatorId, trainerId, classId])
   @@map("trainer_feedback")
 }
 
 model ClassFeedback {
-  id                      Int        @id @default(autoincrement())
-  classId                 Int
-  enrollmentId            Int
-  userId                  Int
-  courseStructure         Int?       @default(0)
-  courseStructureFeedback String?    @db.Text
-  materialQuality         Int?       @default(0)
-  materialQualityFeedback String?    @db.Text
-  practicalRelevance      Int?       @default(0)
-  practicalRelevanceFeedback String?    @db.Text
-  learningEnvironment     Int?       @default(0)
-  learningEnvironmentFeedback String?    @db.Text
-  technicalSupport        Int?       @default(0)
-  technicalSupportFeedback String?    @db.Text
-  content                 String?    @db.Text // Keeping for legacy or general comments
-  createdAt               DateTime   @default(now())
-  updatedAt               DateTime   @updatedAt
-  deletedAt               DateTime?
-  class                   Class      @relation(fields: [classId], references: [id], onDelete: Cascade)
-  enrollment              Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
-  user                    User       @relation(fields: [userId], references: [id])
+  id                          Int        @id @default(autoincrement())
+  classId                     Int
+  enrollmentId                Int
+  userId                      Int
+  content                     String?
+  createdAt                   DateTime   @default(now())
+  updatedAt                   DateTime   @updatedAt
+  deletedAt                   DateTime?
+  courseStructure             Int?       @default(0)
+  courseStructureFeedback     String?
+  learningEnvironment         Int?       @default(0)
+  learningEnvironmentFeedback String?
+  materialQuality             Int?       @default(0)
+  materialQualityFeedback     String?
+  practicalRelevance          Int?       @default(0)
+  practicalRelevanceFeedback  String?
+  technicalSupport            Int?       @default(0)
+  technicalSupportFeedback    String?
+  class                       Class      @relation(fields: [classId], references: [id], onDelete: Cascade)
+  enrollment                  Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  user                        User       @relation(fields: [userId], references: [id])
 
   @@unique([userId, classId])
   @@map("class_feedbacks")

@@ -43,11 +43,11 @@ export default function TrainerAnalyticsClient({ data, classId }: TrainerAnalyti
     const { feedback, details, forum, className, trainer } = data;
 
     const metricsData = [
-        { label: 'Mastery', value: feedback.mastery },
-        { label: 'Communication', value: feedback.communication },
-        { label: 'Engagement', value: feedback.engagement },
-        { label: 'Responsiveness', value: feedback.responsiveness },
-        { label: 'Motivation & Inspiration', value: feedback.motivation },
+        { label: 'Mastery', value: feedback.mastery * 10 },
+        { label: 'Communication', value: feedback.communication * 10 },
+        { label: 'Engagement', value: feedback.engagement * 10 },
+        { label: 'Responsiveness', value: feedback.responsiveness * 10 },
+        { label: 'Motivation & Inspiration', value: feedback.motivation * 10 },
     ];
 
     return (

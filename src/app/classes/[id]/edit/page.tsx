@@ -2,11 +2,18 @@ import SidebarWrapper from "@/app/classes/sidebar_wrapper"
 import Image from "next/image"
 import AddClassClient from "../../add/AddClassClient"
 import { getClassById } from "@/controllers/classController"
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb"
+import { hasPermission } from "@/lib/rbac"
 
 export default async function EditClassPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
+    
+    const canEdit = await hasPermission('Class', 'CREATE_UPDATE_CLASS');
+    if (!canEdit) {
+        return redirect(`/classes/${id}/overview`);
+    }
+
     const classData = await getClassById(Number(id));
 
     if (!classData) {

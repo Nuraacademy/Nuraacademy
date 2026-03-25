@@ -8,6 +8,7 @@ import { NuraButton } from "@/components/ui/button/button"
 import { X, Upload, Search } from "lucide-react"
 import { createClassAction, updateClassAction, uploadClassFile } from "@/app/actions/classes"
 import { getCurriculaList } from "@/app/actions/curricula"
+import { getTrainersAction } from "@/app/actions/user"
 import { useEffect } from "react"
 import { NuraSelect } from "@/components/ui/input/nura_select"
 import M3DateTimePicker from "@/components/ui/input/datetime_picker"
@@ -33,6 +34,8 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
     const [methods, setMethods] = useState(classData?.methods || "");
     const [imgUrl, setImgUrl] = useState(classData?.imgUrl || "");
     const [previewVideoUrl, setPreviewVideoUrl] = useState(classData?.previewVideoUrl || "");
+    const [trainerId, setTrainerId] = useState<string>(classData?.trainerId ? String(classData.trainerId) : "");
+    const [trainers, setTrainers] = useState<any[]>([]);
 
     // Tags state
     const [keywordInput, setKeywordInput] = useState("");
@@ -50,6 +53,14 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
             }
         };
         fetchCurricula();
+
+        const fetchTrainers = async () => {
+            const res = await getTrainersAction();
+            if (res.success && res.data) {
+                setTrainers(res.data);
+            }
+        };
+        fetchTrainers();
     }, []);
 
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -98,6 +109,7 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
             previewVideoUrl,
             keywords,
             curriculaIds: selectedCurriculaIds,
+            trainerId: trainerId ? Number(trainerId) : undefined,
         };
 
         const res = isEditing
@@ -267,6 +279,17 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                             </span>
                         ))}
                     </div>
+                </div>
+
+                {/* Trainer Selection */}
+                <div>
+                    <label className="block text-sm font-semibold mb-2">Assign Trainer</label>
+                    <NuraSelect
+                        placeholder="Select Trainer"
+                        options={trainers.map(t => ({ label: t.name || t.username, value: String(t.id) }))}
+                        value={trainerId}
+                        onChange={setTrainerId}
+                    />
                 </div>
 
                 {/* Curricula */}

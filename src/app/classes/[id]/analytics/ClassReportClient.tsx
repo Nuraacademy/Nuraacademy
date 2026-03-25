@@ -203,9 +203,7 @@ export default function ClassReportClient({ data }: ClassReportClientProps) {
                         <div className="px-4 space-y-4 max-w-4xl">
                             {[
                                 { label: 'Problem Understanding', value: analytics.finalProject.problemUnderstanding, color: "#1C3A37" },
-                                { label: 'Data Reasoning', value: analytics.finalProject.dataReasoning, color: "#005954" },
                                 { label: 'Technical Ability', value: analytics.finalProject.methods, color: "#8BB730" },
-                                { label: 'Insight Quality', value: analytics.finalProject.insightQuality, color: "#DAEE49" },
                                 { label: 'Solution Quality', value: analytics.finalProject.solutionQuality, color: "#C9D942" },
                             ].map((item) => (
                                 <div key={item.label} className="grid grid-cols-[180px_1fr_40px] items-center gap-6">

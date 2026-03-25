@@ -38,6 +38,9 @@ export async function getClassById(id: number) {
                 where: { deletedAt: null },
                 orderBy: { date: 'asc' },
             },
+            trainer: {
+                select: { id: true, name: true, username: true, role: { select: { name: true } } }
+            },
             courses: {
                 where: { deletedAt: null },
                 orderBy: { createdAt: 'asc' },
@@ -72,6 +75,7 @@ export async function createClass(data: {
     curriculaIds?: number[];
     isDraft?: boolean;
     createdBy?: number;
+    trainerId?: number;
 }) {
     const { curriculaIds, ...rest } = data;
     return await prisma.class.create({
@@ -100,6 +104,7 @@ export async function updateClass(id: number, data: {
     keywords?: string[];
     curriculaIds?: number[];
     isDraft?: boolean;
+    trainerId?: number;
 }) {
     const { curriculaIds, ...rest } = data;
     return await prisma.class.update({

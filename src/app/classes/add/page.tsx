@@ -2,8 +2,15 @@ import SidebarWrapper from "../sidebar_wrapper"
 import Image from "next/image"
 import AddClassClient from "./AddClassClient"
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb"
+import { redirect } from "next/navigation"
+import { hasPermission } from "@/lib/rbac"
 
-export default function AddClassPage() {
+export default async function AddClassPage() {
+    const canCreate = await hasPermission('Class', 'CREATE_UPDATE_CLASS');
+    if (!canCreate) {
+        return redirect("/classes");
+    }
+
     return (
         <main className="relative min-h-screen w-full bg-white pb-16">
             <SidebarWrapper />

@@ -1,5 +1,6 @@
 "use server"
 
+import { prisma } from "@/lib/prisma";
 import { createUser, updateUser, deleteUser, getUserById } from "@/controllers/userController";
 import { revalidatePath } from "next/cache";
 import { requirePermission } from "@/lib/rbac";
@@ -43,6 +44,34 @@ export async function adminGetUserByIdAction(id: number) {
         await requirePermission('User', 'VIEW_DETAIL_USER');
         const user = await getUserById(id);
         return { success: true, data: user };
+    } catch (error: any) {
+        return { success: false, error: error.message };
+    }
+}
+export async function getTrainersAction() {
+    try {
+        await requirePermission('User', 'VIEW_LIST_USER');
+        const trainers = await prisma.user.findMany({
+            where: {
+                role: {
+                    name: {
+                        in: ['Trainer', 'Instructur', 'Instructor']
+                    }
+                },
+                deletedAt: null
+            },
+            select: {
+                id: true,
+                name: true,
+                username: true,
+                role: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
+        });
+        return { success: true, data: trainers };
     } catch (error: any) {
         return { success: false, error: error.message };
     }
