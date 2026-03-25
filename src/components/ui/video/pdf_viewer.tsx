@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
+import { useNuraRouter } from "@/components/providers/navigation-provider"
 import {
     FileText,
     ChevronLeft,
@@ -31,7 +32,7 @@ export default function PDFViewer({ url, title, editUrl, isAdmin }: PDFViewerPro
     const [containerWidth, setContainerWidth] = useState<number>(0)
     const [fileStatus, setFileStatus] = useState<"loading" | "found" | "not_found" | "error">("loading")
     const containerRef = useRef<HTMLDivElement>(null)
-    const router = useRouter()
+    const router = useNuraRouter()
 
     useEffect(() => {
         const checkFile = async () => {

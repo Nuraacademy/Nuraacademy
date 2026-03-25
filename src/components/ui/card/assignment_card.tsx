@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useNuraRouter } from "@/components/providers/navigation-provider";
 import { getAssignmentIcon, getAssignmentEndpoint, AssignmentType } from "@/utils/assignment";
 import { ConfirmModal } from "@/components/ui/modal/confirmation_modal";
 import { toast } from "sonner";
@@ -38,7 +39,7 @@ export const AssignmentCard = ({
     canGrade = false,
     syntheticType
 }: AssignmentCardProps) => {
-    const router = useRouter();
+    const router = useNuraRouter();
     const [isDeleting, setIsDeleting] = useState(false);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 

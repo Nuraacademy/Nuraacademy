@@ -6,11 +6,13 @@ import { NuraButton } from "@/components/ui/button/button"
 import { Search } from "lucide-react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useNavigation } from "@/components/providers/navigation-provider"
 import { NuraSearchInput } from "@/components/ui/input/nura_search_input"
 
 export default function ClassesGrid({ initialClasses, canCreate, canDelete }: { initialClasses: any[], canCreate?: boolean, canDelete?: boolean }) {
     const [searchValue, setSearchValue] = useState("");
     const router = useRouter();
+    const { startRedirect } = useNavigation();
 
     const filteredClasses = initialClasses.filter(c =>
         c.title.toLowerCase().includes(searchValue.toLowerCase())
@@ -35,7 +37,7 @@ export default function ClassesGrid({ initialClasses, canCreate, canDelete }: { 
                         <NuraButton
                             label="Add Class"
                             variant="primary"
-                            onClick={() => router.push('/classes/add')}
+                            onClick={() => startRedirect('/classes/add')}
                             className="shrink-0"
                         />
                     )}
@@ -60,7 +62,7 @@ export default function ClassesGrid({ initialClasses, canCreate, canDelete }: { 
                             isEnrolled={item.isEnrolled}
                             canEdit={canCreate}
                             canDelete={canDelete}
-                            onClick={() => router.push(`/classes/${item.id}/overview`)}
+                            onClick={() => startRedirect(`/classes/${item.id}/overview`)}
                         />
                     ))
                 }

@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import { useNuraRouter } from "@/components/providers/navigation-provider"
 import { NuraButton } from "@/components/ui/button/button"
 import { FileQuestion } from "lucide-react"
 
@@ -19,7 +20,7 @@ export function NotFoundState({
     onBack,
     href,
 }: NotFoundStateProps) {
-    const router = useRouter()
+    const router = useNuraRouter()
 
     const handleBack = () => {
         if (onBack) {

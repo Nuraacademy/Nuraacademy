@@ -6,6 +6,8 @@ import Header from "@/components/ui/header/header";
 import Footer from "@/components/ui/footer/footer";
 
 
+import { NavigationProvider } from "@/components/providers/navigation-provider";
+
 const outfit = Outfit({
   variable: "--font-outfit",
   subsets: ["latin"]
@@ -30,12 +32,14 @@ export default function RootLayout({
       <body
         className={`${outfit.variable} antialiased min-h-screen`}
       >
-        <Header initialIsLoggedIn={false} />
+        <NavigationProvider>
+          <Header initialIsLoggedIn={false} />
 
-        {children}
-        <Toaster position="bottom-right" richColors />
+          {children}
+          <Toaster position="bottom-right" richColors />
 
-        <Footer instagram="www.google.com" youtube="www.youtube.com" x="www.x.com" />
+          <Footer instagram="www.google.com" youtube="www.youtube.com" x="www.x.com" />
+        </NavigationProvider>
       </body>
     </html>
   );

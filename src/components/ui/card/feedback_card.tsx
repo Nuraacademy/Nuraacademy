@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation";
+import { useNuraRouter } from "@/components/providers/navigation-provider";
 
 export type FeedbackType = 'Reflection' | 'Assignment' | 'Peer' | 'Class' | 'Trainer';
 
@@ -21,7 +22,7 @@ export const FeedbackCard = ({
     classTitle,
     href
 }: FeedbackCardProps) => {
-    const router = useRouter();
+    const router = useNuraRouter();
 
     const getIcon = (type: FeedbackType) => {
         switch (type) {

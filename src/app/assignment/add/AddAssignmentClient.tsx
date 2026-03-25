@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useNuraRouter as useRouter } from "@/components/providers/navigation-provider";
 import { Plus, CheckCircle } from "lucide-react";
 import { addAssignment, editAssignment } from "@/app/actions/assignment";
 import {

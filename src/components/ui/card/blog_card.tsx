@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation";
+import { useNuraRouter } from "@/components/providers/navigation-provider";
 import { User, Calendar, Clock } from "lucide-react";
 import Image from "next/image";
 
@@ -23,7 +24,7 @@ export const BlogCard = ({
     date,
     readTime = "5 minutes"
 }: BlogCardProps) => {
-    const router = useRouter();
+    const router = useNuraRouter();
 
     return (
         <div

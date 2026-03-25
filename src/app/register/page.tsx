@@ -4,6 +4,7 @@ import { useState } from "react";
 import { NuraButton } from "@/components/ui/button/button";
 import { NuraTextInput } from "@/components/ui/input/text_input";
 import { useRouter } from "next/navigation";
+import { useNavigation } from "@/components/providers/navigation-provider";
 import { handleRegister, handleGoogleLogin } from "@/app/actions/auth";
 import { toast } from "sonner";
 import Image from "next/image";
@@ -13,6 +14,7 @@ export const dynamic = "force-dynamic";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { startRedirect } = useNavigation();
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -43,7 +45,7 @@ export default function RegisterPage() {
 
       if (result.success) {
         toast.success("Account created successfully!");
-        router.push("/classes");
+        startRedirect("/classes");
       } else {
         toast.error(result.error || "Registration failed");
       }
@@ -61,7 +63,7 @@ export default function RegisterPage() {
               const result = await handleGoogleLogin(credentialResponse.credential);
               if (result.success) {
                   toast.success("Account created successfully!");
-                  router.push("/classes");
+                  startRedirect("/classes");
               } else {
                   toast.error(result.error || "Google registration failed");
               }
@@ -105,7 +107,7 @@ export default function RegisterPage() {
               width={120}
               height={40}
               className="h-10 cursor-pointer object-contain"
-              onClick={() => router.push('/')}
+              onClick={() => startRedirect('/')}
             />
           </div>
 

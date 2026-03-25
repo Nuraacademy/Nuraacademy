@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Clock, BookText, BarChart3 } from 'lucide-react';
+import { useNuraRouter } from '@/components/providers/navigation-provider';
+import { BarChart3 } from 'lucide-react';
 import { NuraButton } from '../button/button';
 import Chip from '../chip/chip';
 import Image from 'next/image';
-import { Pencil, Trash2 } from 'lucide-react';
 import { deleteClassAction } from '@/app/actions/classes';
 import { ConfirmModal } from '../modal/confirmation_modal';
 import { toast } from 'sonner';
@@ -29,7 +28,7 @@ interface ClassCardProp {
 export default function ClassCard({
     id, imageUrl, title, method, scheduleStart, scheduleEnd, description, duration, courses, isEnrolled, canEdit, canDelete, canViewAnalytics, onClick
 }: ClassCardProp) {
-    const router = useRouter();
+    const router = useNuraRouter();
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
@@ -179,9 +178,9 @@ export default function ClassCard({
                             label={isEnrolled ? "View Class" : "Enroll Now"}
                             variant="navigate"
                             className="min-w-[100px]"
+                            href={isEnrolled ? `/classes/${id}/overview` : `/classes/${id}/enrollment`}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                router.push(isEnrolled ? `/classes/${id}/overview` : `/classes/${id}/enrollment`);
                             }}
                         />
                     )}

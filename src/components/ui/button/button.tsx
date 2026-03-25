@@ -15,7 +15,10 @@ interface NuraButtonProps {
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   id?: string;
+  href?: string;
 }
+
+import { useNuraRouter } from "@/components/providers/navigation-provider";
 
 export const NuraButton = ({
   label,
@@ -28,7 +31,18 @@ export const NuraButton = ({
   leftIcon,
   rightIcon,
   id,
+  href,
 }: NuraButtonProps) => {
+  const router = useNuraRouter();
+
+  const handleOnClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (href) {
+      router.push(href);
+    }
+    if (onClick) {
+      onClick(e);
+    }
+  };
 
   // Base styles: Removed hardcoded max-width to allow parent to control layout
   const baseStyles = "inline-flex min-w-[120px] items-center justify-center gap-2 rounded-xl transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 shadow-sm";
@@ -45,7 +59,7 @@ export const NuraButton = ({
     <button
       id={id}
       type={type}
-      onClick={onClick}
+      onClick={handleOnClick}
       disabled={disabled || isLoading}
       // Note: 'w-full' is moved to className or handled by the caller for better reusability
       className={cn(baseStyles, variants[variant], className)}

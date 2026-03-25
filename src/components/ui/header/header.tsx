@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter, usePathname } from 'next/navigation';
+import { useNavigation } from '@/components/providers/navigation-provider';
 import Link from 'next/link';
 
 import { NuraButton } from '../button/button';
@@ -12,6 +13,7 @@ import { NotificationDropdown } from './notification_dropdown';
 export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedIn?: boolean }) {
     const router = useRouter();
     const pathname = usePathname();
+    const { setIsRedirecting, startRedirect } = useNavigation();
     const [isLoggedIn, setIsLoggedIn] = useState(initialIsLoggedIn);
     const [isLoading, setIsLoading] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
@@ -69,13 +71,12 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
     }, [showDropdown]);
 
     const onLogout = async () => {
+        setIsRedirecting(true);
         await handleLogout();
-        setIsLoggedIn(false);
-        router.refresh();
     };
 
     const onLogin = async () => {
-        router.push('/login');
+        startRedirect('/login');
     };
 
     return (
