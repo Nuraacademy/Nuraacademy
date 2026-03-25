@@ -1,6 +1,8 @@
 "use client"
 
 import { useRouter, usePathname } from 'next/navigation';
+import Link from 'next/link';
+
 import { NuraButton } from '../button/button';
 import { getSession, getFullSession, handleLogout } from '@/app/actions/auth';
 import { useEffect, useState, useRef } from 'react';
@@ -78,19 +80,21 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
 
     return (
         <main className="sticky top-0 h-16 flex justify-between text-center items-center bg-white px-4 md:px-16 py-2 z-50 shadow-sm">
-            <Image
-                src="/logo/logo_nura.png"
-                alt="Nura Academy"
-                width={80}
-                height={40}
-                className="cursor-pointer object-contain"
-                onClick={() => router.push('/')}
-            />
+            <Link href="/">
+                <Image
+                    src="/logo/logo_nura.png"
+                    alt="Nura Academy"
+                    width={80}
+                    height={40}
+                    className="cursor-pointer object-contain"
+                />
+            </Link>
+
             <div className="flex justify-between items-center gap-8">
                 <div className="flex justify-center items-center gap-4 bg-white">
-                    <button
+                    <Link
+                        href="/classes"
                         className="flex justify-center items-center gap-2 w-32 h-12 rounded-xl hover:bg-gray-100 transition-colors px-4 text-s text-black bg-white"
-                        onClick={() => router.push('/classes')}
                     >
                         <Image
                             src="/icons/Home.svg"
@@ -99,10 +103,11 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
                             height={24}
                         />
                         Home
-                    </button>
-                    <button
+                    </Link>
+
+                    <Link
+                        href="/discussions"
                         className="flex justify-center items-center gap-2 w-32 h-12 rounded-xl hover:bg-gray-100 transition-colors px-4 text-s text-black bg-white"
-                        onClick={() => router.push('/discussions')}
                     >
                         <Image
                             src="/icons/Forums.svg"
@@ -111,10 +116,11 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
                             height={24}
                         />
                         Forums
-                    </button>
-                    <button
+                    </Link>
+
+                    <Link
+                        href="/blogs"
                         className="flex justify-center items-center gap-2 w-32 h-12 rounded-xl hover:bg-gray-100 transition-colors px-4 text-s text-black bg-white"
-                        onClick={() => router.push('/blogs')}
                     >
                         <Image
                             src="/icons/Blogs.svg"
@@ -123,7 +129,8 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
                             height={24}
                         />
                         Posts
-                    </button>
+                    </Link>
+
                 </div>
 
                 {!isLoading && (
@@ -161,29 +168,27 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
                                                 </div>
                                             </div>
                                             <div className="px-2 pb-2 mb-2 border-b border-gray-50">
-                                                <button
+                                                <Link
+                                                    href="/users/me"
                                                     className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-colors flex items-center gap-2"
-                                                    onClick={() => {
-                                                        router.push('/users/me');
-                                                        setShowDropdown(false);
-                                                    }}
+                                                    onClick={() => setShowDropdown(false)}
                                                 >
                                                     <Image src="/icons/Profile.svg" alt="Profile" width={16} height={16} className="opacity-70" />
                                                     My Profile
-                                                </button>
+                                                </Link>
+
                                             </div>
-                                            {userData?.role !== 'Learner' && <div className="px-2 pb-2 mb-2 border-b border-gray-50">
-                                                <button
+                                             {userData?.role !== 'Learner' && <div className="px-2 pb-2 mb-2 border-b border-gray-50">
+                                                <Link
+                                                    href="/admin"
                                                     className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-colors flex items-center gap-2"
-                                                    onClick={() => {
-                                                        router.push('/admin');
-                                                        setShowDropdown(false);
-                                                    }}
+                                                    onClick={() => setShowDropdown(false)}
                                                 >
                                                     <Image src="/icons/People.svg" alt="Admin" width={16} height={16} className="opacity-70" />
                                                     Admin
-                                                </button>
+                                                </Link>
                                             </div>}
+
                                             <div className="px-2">
                                                 <button
                                                     className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-colors flex items-center gap-2"
