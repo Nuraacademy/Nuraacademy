@@ -36,31 +36,28 @@ export default function LandingPage() {
           className="object-cover -z-0"
         />
         <div className="relative z-10 text-center text-white px-8 py-2 mb-4">
-          <h1 className="text-4xl font-semibold mb-4">
-            Kuasai Skill Digital, Raih Karier
-            <br />Impian di Industri Global
+          <h1 className="text-4xl font-semibold max-w-2xl mx-auto mb-4">
+            Temukan Learning Path Anda! Bangun Kompetensi yang Dibutuhkan Industri
           </h1>
-          <p className="text-base leading-relaxed max-w-2xl mx-auto">
-            Nura Academy adalah platform bootcamp online yang acuan kurikulumnya disusun berdasarkan
-            kebutuhan industri terkini. Dari pemula hingga profesional, kamu dapat meningkatkan skill
-            melalui materi yang aplikatif, praktik nyata, dan pengalaman belajar fleksibel.
+          <p className="text-base leading-relaxed max-w-3xl mx-auto">
+            Nura Academy adalah platform bootcamp online yang acuan kurikulumnya disusun berdasarkan kebutuhan industri terkini. Dari pemula hingga profesional, kamu dapat meningkatkan skill melalui materi yang aplikatif, praktik nyata, dan pengalaman belajar fleksibel.
           </p>
         </div>
 
         {/* Stats */}
         <div className="relative z-10 flex justify-between items-center text-center text-white px-16 py-2 mb-4">
           <div className="flex flex-col items-center w-full">
-            <span className="text-xl font-semibold">10.000</span>
+            <span className="text-xl font-semibold">0</span>
             <p className="text-sm">Pengguna Aktif</p>
           </div>
           <div className="text-white/40">|</div>
           <div className="flex flex-col items-center w-full">
-            <span className="text-xl font-semibold">99%</span>
+            <span className="text-xl font-semibold">0</span>
             <p className="text-sm">Kurikulum Berstandar Industri</p>
           </div>
           <div className="text-white/40">|</div>
           <div className="flex flex-col items-center w-full">
-            <span className="text-xl font-semibold">3.400</span>
+            <span className="text-xl font-semibold">0</span>
             <p className="text-sm">Submission Dinilai Ahlinya</p>
           </div>
         </div>
@@ -163,9 +160,8 @@ export default function LandingPage() {
             <h2 className="text-4xl font-semibold">
               Siap Melangkah Lebih Lanjut?
             </h2>
-            <p className="text-base md:text-2xl max-w-3xl">
-              Ambil langkah pertama menuju karier impian Anda. Belajar, berkembang,
-              dan sukses bersama Nura Academy.
+            <p className="text-base md:text-xl max-w-3xl">
+              Temukan cara baru untuk belajar dan mengembangkan keterampilan bersama Nura Academy!
             </p>
             <NuraButton
               label="Join Now"
