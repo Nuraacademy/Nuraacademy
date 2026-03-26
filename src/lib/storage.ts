@@ -71,23 +71,3 @@ export async function uploadToSupabase(file: File | Blob, bucket: StorageBucket,
         };
     }
 }
-
-import { GetObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-
-export async function getPresignedUrl(key: string, expiresInHours = 1): Promise<string> {
-    try {
-        const command = new GetObjectCommand({
-            Bucket: 'nura-bucket',
-            Key: key,
-        });
-        
-        // expiresIn is in seconds (e.g., 3600 = 1 hour)
-        const url = await getSignedUrl(s3Client, command, { expiresIn: expiresInHours * 3600 });
-        return url;
-    } catch (error) {
-        console.error('[S3 Presigned URL] Error:', error);
-        throw error;
-    }
-}
-
