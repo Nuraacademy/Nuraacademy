@@ -5,7 +5,7 @@ import { createUser, updateUser, deleteUser, getUserById } from "@/controllers/u
 import { revalidatePath } from "next/cache";
 import { requirePermission } from "@/lib/rbac";
 
-export async function adminCreateUserAction(data: { email: string; name?: string; username: string; password?: string; whatsapp?: string }) {
+export async function adminCreateUserAction(data: { email: string; name?: string; username: string; password?: string; whatsapp?: string; roleId?: number }) {
     try {
         await requirePermission('User', 'CREATE_EDIT_USER');
         const user = await createUser(data);

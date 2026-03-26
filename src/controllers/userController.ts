@@ -7,11 +7,15 @@ export async function getAllUsers() {
   });
 }
 
-export async function createUser(data: { email: string; name?: string; username: string; password?: string; whatsapp?: string }) {
+export async function createUser(data: { email: string; name?: string; username: string; password?: string; whatsapp?: string; roleId?: number }) {
   if (data.password) {
     data.password = await bcrypt.hash(data.password, 10);
   }
-  const defaultRole = await prisma.role.findUnique({ where: { name: 'Learner' } });
+  let finalRoleId = data.roleId;
+  if (!finalRoleId) {
+    const defaultRole = await prisma.role.findUnique({ where: { name: 'Learner' } });
+    finalRoleId = defaultRole?.id;
+  }
   return prisma.user.create({
     data: {
       email: data.email,
@@ -19,8 +23,9 @@ export async function createUser(data: { email: string; name?: string; username:
       username: data.username,
       password: data.password || '',
       whatsapp: data.whatsapp,
-      roleId: defaultRole?.id || null,
+      roleId: finalRoleId || null,
     },
+    include: { role: true }
   });
 }
 

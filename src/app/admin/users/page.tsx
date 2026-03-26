@@ -4,6 +4,8 @@ import UsersClient from "./client";
 import { RoleController } from "@/controllers/roleController";
 import Image from "next/image";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
     title: "User Management - Admin",
 };
@@ -11,6 +13,7 @@ export const metadata = {
 export default async function UsersPage() {
     const [users, roles] = await Promise.all([
         prisma.user.findMany({
+            where: { deletedAt: null },
             include: {
                 role: true,
             },
