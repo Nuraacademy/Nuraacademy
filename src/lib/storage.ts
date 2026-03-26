@@ -26,24 +26,25 @@ export async function uploadToSupabase(file: File | Blob, bucket: StorageBucket,
         const name = fileName || `${Date.now()}-${(file as File).name?.replace(/\s+/g, '-') || 'uploaded-file'}`;
         const key = `${bucket}/${name}`;
         
-        console.log(`[S3 Upload] Starting: Bucket=NuraBucket, Key=${key}, Endpoint=${process.env.NEXT_S3_ENDPOINT}`);
+        console.log(`[S3 Upload] Starting: Bucket=nura-bucket, Key=${key}, Endpoint=${process.env.NEXT_S3_ENDPOINT}`);
 
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
 
         const command = new PutObjectCommand({
-            Bucket: 'NuraBucket',
+            Bucket: 'nura-bucket',
             Key: key,
             Body: buffer,
             ContentType: (file as File).type || 'application/octet-stream',
+            ACL: 'public-read',
         });
 
         const response = await s3Client.send(command);
         console.log(`[S3 Upload] Success:`, response);
 
         // Construct public URL
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ybiveiilxsvhzxrcpsle.supabase.co';
-        const publicUrl = `${supabaseUrl}/storage/v1/object/public/NuraBucket/${key}`;
+        const endpoint = process.env.NEXT_S3_ENDPOINT || 'https://is3.cloudhost.id';
+        const publicUrl = `${endpoint}/nura-bucket/${key}`;
 
         return { 
             success: true, 
@@ -70,3 +71,23 @@ export async function uploadToSupabase(file: File | Blob, bucket: StorageBucket,
         };
     }
 }
+
+import { GetObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+
+export async function getPresignedUrl(key: string, expiresInHours = 1): Promise<string> {
+    try {
+        const command = new GetObjectCommand({
+            Bucket: 'nura-bucket',
+            Key: key,
+        });
+        
+        // expiresIn is in seconds (e.g., 3600 = 1 hour)
+        const url = await getSignedUrl(s3Client, command, { expiresIn: expiresInHours * 3600 });
+        return url;
+    } catch (error) {
+        console.error('[S3 Presigned URL] Error:', error);
+        throw error;
+    }
+}
+
