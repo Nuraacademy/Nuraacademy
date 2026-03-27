@@ -1,0 +1,38 @@
+name: Deploy Nura Academy
+
+on:
+  push:
+    branches: [ main ] # Change to your default branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: |
+            cd /var/www/my-app
+            
+            # Pull latest changes
+            git pull origin main
+            
+            # Install dependencies with Bun
+            /home/nura/.bun/bin/bun install
+            
+            # Sync Prisma Schema (Optional but recommended)
+            /home/nura/.bun/bin/bun x prisma generate
+            
+            # Build the project 
+            # (Note: Ensure your 2GB Swap is active or this might fail)
+            /home/nura/.bun/bin/bun run build
+            
+            # Restart the Systemd service
+            sudo systemctl restart nura
