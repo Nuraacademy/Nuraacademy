@@ -16,6 +16,7 @@ import { ConfirmModal } from '@/components/ui/modal/confirmation_modal';
 import Image from 'next/image';
 import Sidebar from '@/components/ui/sidebar/sidebar';
 import { ShareModal } from '@/components/ui/modal/share_modal';
+import { formatDistanceToNow } from "date-fns";
 
 // Mapping backend types to frontend types format
 const parseDiscussionType = (type: string) => {
@@ -129,7 +130,7 @@ export default function DiscussionTopicPage({
                 id: res.data.id,
                 userId: res.data.userId,
                 author: res.data.authorName,
-                timeAgo: "12 hours ago", // Placeholder for visual consistency with image
+                timeAgo: res.data.createdAt ? formatDistanceToNow(new Date(res.data.createdAt)) + " ago" : "Just now",
                 title: res.data.title,
                 type: parseDiscussionType(res.data.type) as any,
                 content: res.data.content,
@@ -140,7 +141,7 @@ export default function DiscussionTopicPage({
                     id: r.id,
                     userId: r.userId,
                     author: r.authorName,
-                    timeAgo: "8 hours ago", // Placeholder
+                    timeAgo: r.createdAt ? formatDistanceToNow(new Date(r.createdAt)) + " ago" : "Just now",
                     text: r.text,
                     likeCount: r.likeCount,
                     isLikedByCurrentUser: r.isLikedByCurrentUser,
@@ -345,7 +346,7 @@ export default function DiscussionTopicPage({
                                             className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
                                             title="Edit Topic"
                                         >
-                                            <Edit size={20} />
+                                            <Image src="/icons/edit.svg" alt="Edit" width={20} height={20} />
                                         </button>
                                     )}
                                     {(perms.deleteOthersTopic || (perms.deleteSelfTopic && currentUserId === discussion_data.userId)) && (
@@ -354,7 +355,7 @@ export default function DiscussionTopicPage({
                                             className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors flex-shrink-0"
                                             title="Delete Topic"
                                         >
-                                            <Trash2 size={20} />
+                                            <Image src="/icons/delete.svg" alt="Delete" width={20} height={20} />
                                         </button>
                                     )}
                                 </div>
@@ -433,7 +434,7 @@ export default function DiscussionTopicPage({
                                                         className="p-1.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
                                                         title="Edit Reply"
                                                     >
-                                                        <Edit size={16} />
+                                                        <Image src="/icons/edit.svg" alt="Edit" width={16} height={16} />
                                                     </button>
                                                 )}
                                                 {(perms.deleteOthersReply || (perms.deleteSelfReply && currentUserId === reply.userId)) && (
@@ -445,7 +446,7 @@ export default function DiscussionTopicPage({
                                                         className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
                                                         title="Delete Reply"
                                                     >
-                                                        <Trash2 size={16} />
+                                                        <Image src="/icons/delete.svg" alt="Delete" width={16} height={16} />
                                                     </button>
                                                 )}
                                             </div>

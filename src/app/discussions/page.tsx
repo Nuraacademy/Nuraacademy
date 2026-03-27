@@ -12,6 +12,7 @@ import { NuraSearchInput } from "@/components/ui/input/nura_search_input";
 import { NuraSelect } from "@/components/ui/input/nura_select";
 import { hasPermission } from "@/lib/rbac";
 import Image from "next/image";
+import { formatDistanceToNow } from "date-fns";
 
 // Mapping backend types to frontend types format
 const parseDiscussionType = (type: string) => {
@@ -45,7 +46,7 @@ export default function DiscussionPage() {
             setDiscussions(res.data.map((d: any) => ({
                 id: d.id.toString(),
                 author: d.authorName,
-                timeAgo: "12 hours ago", // Placeholder to match image exactly, or use real logic: new Date(d.createdAt).toLocaleDateString()
+                timeAgo: d.createdAt ? formatDistanceToNow(new Date(d.createdAt)) + " ago" : "Just now",
                 title: d.title,
                 preview: (d.content || "").replace(/<[^>]*>?/gm, ''),
                 likeCount: d.likeCount,

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, use } from "react";
-import { getBlogByIdAction, toggleLikeBlogAction, trackBlogViewAction } from "@/app/actions/blog";
+import { getBlogByIdAction, toggleLikeBlogAction, trackBlogViewAction, deleteBlogAction } from "@/app/actions/blog";
 import { CommentSection } from "@/components/ui/blog/comment_section";
 import { getSession } from "@/app/actions/auth";
 import { hasPermission } from "@/lib/rbac";
@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import SidebarWrapper from "@/app/classes/sidebar_wrapper";
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import { ShareModal } from "@/components/ui/modal/share_modal";
+import { ConfirmModal } from "@/components/ui/modal/confirmation_modal";
 import Image from "next/image";
 
 export default function BlogDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -21,6 +22,8 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
     const [currentUserId, setCurrentUserId] = useState<number | undefined>();
     const [isAdmin, setIsAdmin] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -56,6 +59,20 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
             });
         } else if (!result.success) {
             toast.error(result.error || "Failed to like post");
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!blog) return;
+        setIsDeleting(true);
+        const res = await deleteBlogAction(blog.id);
+        if (res.success) {
+            toast.success("Blog post deleted successfully");
+            router.push('/blogs');
+        } else {
+            toast.error(res.error || "Failed to delete post");
+            setIsDeleting(false);
+            setIsDeleteModalOpen(false);
         }
     };
 
@@ -126,7 +143,11 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
                                 >
                                     <Edit2 size={18} />
                                 </button>
-                                <button className="p-2 text-gray-400 hover:text-red-500 transition-all">
+                                <button 
+                                    className="p-2 text-gray-400 hover:text-red-500 transition-all bg-transparent"
+                                    onClick={() => setIsDeleteModalOpen(true)}
+                                    disabled={isDeleting}
+                                >
                                     <Trash2 size={18} />
                                 </button>
                             </div>
@@ -196,6 +217,16 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
                     onClose={() => setIsShareModalOpen(false)}
                     shareUrl={typeof window !== 'undefined' ? window.location.href : ""}
                     title="Share Post"
+                />
+
+                {/* Delete Confirmation Modal */}
+                <ConfirmModal
+                    isOpen={isDeleteModalOpen}
+                    title="Delete Post"
+                    message="Are you sure you want to delete this blog post? This action cannot be undone."
+                    onConfirm={handleDelete}
+                    onCancel={() => setIsDeleteModalOpen(false)}
+                    confirmText="Delete"
                 />
 
                 {/* Comments Section */}
