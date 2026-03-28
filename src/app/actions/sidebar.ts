@@ -63,6 +63,10 @@ export async function getSidebarData() {
                 where: {
                     classId: { in: classIds },
                     deletedAt: null,
+                    OR: [
+                        { startDate: null },
+                        { startDate: { lte: new Date() } }
+                    ],
                     NOT: {
                         assignmentResults: {
                             some: {
@@ -77,7 +81,13 @@ export async function getSidebarData() {
             });
         } else {
             assignments = await prisma.assignment.findMany({
-                where: { deletedAt: null },
+                where: { 
+                    deletedAt: null,
+                    OR: [
+                        { startDate: null },
+                        { startDate: { lte: new Date() } }
+                    ]
+                },
                 orderBy: { endDate: 'asc' }, // nearest due date order
                 take: 6
             });
@@ -98,7 +108,9 @@ export async function getSidebarData() {
                 id: a.id.toString(),
                 name: a.title || "Untitled Assignment",
                 type: a.type,
-                href: isLearner ? defaultHref : `/assignment/${a.id}/results`
+                href: isLearner 
+                    ? (typeLabel === "Placement" ? defaultHref : `/assignment/${a.id}`)
+                    : `/assignment/${a.id}/results`
             };
         });
 

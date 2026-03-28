@@ -7,6 +7,10 @@ export async function getAssignmentsBySessionId(sessionId: number, type?: Assign
             sessionId,
             ...(type && { type }),
             deletedAt: null,
+            OR: [
+                { startDate: null },
+                { startDate: { lte: new Date() } }
+            ]
         },
         orderBy: {
             createdAt: 'asc',
@@ -28,6 +32,10 @@ export async function getAssignments(userId?: number) {
             where: {
                 classId: { in: enrolledClassIds },
                 deletedAt: null,
+                OR: [
+                    { startDate: null },
+                    { startDate: { lte: new Date() } }
+                ],
                 // Check for results where this user hasn't finished
                 NOT: {
                     assignmentResults: {
@@ -50,6 +58,10 @@ export async function getAssignments(userId?: number) {
     return await prisma.assignment.findMany({
         where: {
             deletedAt: null,
+            OR: [
+                { startDate: null },
+                { startDate: { lte: new Date() } }
+            ]
         },
         include: {
             class: {
@@ -75,6 +87,10 @@ export async function getProjectAssignmentsByClassId(classId: number) {
             classId,
             type: "PROJECT",
             deletedAt: null,
+            OR: [
+                { startDate: null },
+                { startDate: { lte: new Date() } }
+            ]
         },
         include: {
             course: { select: { title: true } },
@@ -108,6 +124,10 @@ export async function getPlacementTestByClassId(classId: number) {
             classId,
             type: 'PLACEMENT',
             deletedAt: null,
+            OR: [
+                { startDate: null },
+                { startDate: { lte: new Date() } }
+            ]
         },
         include: {
             class: true,
