@@ -108,7 +108,9 @@ export async function getSidebarData() {
                 id: a.id.toString(),
                 name: a.title || "Untitled Assignment",
                 type: a.type,
-                href: isLearner ? defaultHref : `/assignment/${a.id}/results`
+                href: isLearner 
+                    ? (typeLabel === "Placement" ? defaultHref : `/assignment/${a.id}`)
+                    : `/assignment/${a.id}/results`
             };
         });
 
