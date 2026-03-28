@@ -424,3 +424,88 @@ export async function getAllLearners() {
         return { success: false, error: error.message };
     }
 }
+
+export async function getAllTrainers() {
+    try {
+        await requirePermission('Analytics', 'ANALYTICS_REPORT_TRAINER');
+        const userId = await getSession();
+        if (!userId) return { success: false, error: "Unauthorized" };
+
+        const trainers = await prisma.user.findMany({
+            where: {
+                deletedAt: null,
+                OR: [
+                    { role: { name: { in: ['Trainer', 'Instructor', 'trainer', 'instructor'] } } },
+                    { trainedClasses: { some: {} } },
+                    { createdCourses: { some: {} } },
+                    { createdSessions: { some: {} } },
+                ]
+            },
+            select: { 
+                id: true, 
+                name: true, 
+                username: true, 
+                email: true,
+                role: { select: { name: true } },
+                trainedClasses: { select: { id: true, title: true } },
+                createdCourses: { select: { class: { select: { id: true, title: true } } } },
+                createdSessions: { select: { course: { select: { class: { select: { id: true, title: true } } } } } }
+            }
+        });
+
+        // Post-process to get unique related classes for each trainer
+        const processedTrainers = trainers.map(trainer => {
+            const classMap = new Map<number, string>();
+            
+            // From direct assignment
+            trainer.trainedClasses.forEach(c => classMap.set(c.id, c.title));
+            
+            // From created courses
+            trainer.createdCourses.forEach(c => {
+                if (c.class) classMap.set(c.class.id, c.class.title);
+            });
+            
+            // From created sessions
+            trainer.createdSessions.forEach(s => {
+                if (s.course && s.course.class) classMap.set(s.course.class.id, s.course.class.title);
+            });
+
+            return {
+                id: trainer.id,
+                name: trainer.name,
+                username: trainer.username,
+                email: trainer.email,
+                role: trainer.role,
+                trainedClasses: Array.from(classMap.entries()).map(([id, title]) => ({ id, title }))
+            };
+        });
+
+        return { success: true, data: processedTrainers };
+    } catch (error: any) {
+        console.error("Get All Trainers Analytics Error:", error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function getAllClassesAnalytics() {
+    try {
+        await requirePermission('Analytics', 'ANALYTICS_REPORT_LEARNER');
+        const userId = await getSession();
+        if (!userId) return { success: false, error: "Unauthorized" };
+
+        const classes = await prisma.class.findMany({
+            where: { deletedAt: null },
+            include: {
+                _count: {
+                    select: { enrollments: true }
+                }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        return { success: true, data: classes };
+    } catch (error: any) {
+        console.error("Get All Classes Analytics Error:", error);
+        return { success: false, error: error.message };
+    }
+}
