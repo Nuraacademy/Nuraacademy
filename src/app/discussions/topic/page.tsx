@@ -434,7 +434,7 @@ export default function DiscussionTopicPage({
                                                         className="p-1.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
                                                         title="Edit Reply"
                                                     >
-                                                        <Image src="/icons/edit.svg" alt="Edit" width={16} height={16} />
+                                                        <Image src="/icons/Edit.svg" alt="Edit" width={16} height={16} />
                                                     </button>
                                                 )}
                                                 {(perms.deleteOthersReply || (perms.deleteSelfReply && currentUserId === reply.userId)) && (
@@ -446,7 +446,7 @@ export default function DiscussionTopicPage({
                                                         className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
                                                         title="Delete Reply"
                                                     >
-                                                        <Image src="/icons/delete.svg" alt="Delete" width={16} height={16} />
+                                                        <Image src="/icons/Delete.svg" alt="Delete" width={16} height={16} />
                                                     </button>
                                                 )}
                                             </div>
