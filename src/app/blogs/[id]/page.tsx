@@ -168,7 +168,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
                         {typeof blog.content === "string" ? (
                             <div
                                 className="prose prose-p:text-gray-700 prose-p:leading-[1.7] prose-p:text-base max-w-none"
-                                dangerouslySetInnerHTML={{ __html: blog.content }}
+                                dangerouslySetInnerHTML={{ __html: blog.content.replace(/<p><\/p>/g, '<br />') }}
                             />
                         ) : (
                             (blog.content as any[]).map((section: any, idx: number) => (
@@ -176,7 +176,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
                                     {section.type === "text" ? (
                                         <div
                                             className="prose prose-p:text-gray-700 prose-p:leading-[1.7] prose-p:text-base max-w-none"
-                                            dangerouslySetInnerHTML={{ __html: section.content }}
+                                            dangerouslySetInnerHTML={{ __html: section.content.replace(/<p><\/p>/g, '<br />') }}
                                         />
                                     ) : (
                                         <div className="rounded-[32px] overflow-hidden my-8">
@@ -199,7 +199,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
                         </button>
                         <div className="flex items-center gap-2 text-gray-500">
                             <MessageCircle size={20} strokeWidth={1.5} />
-                            <span className="text-xs font-medium">{blog._count.comments} comment</span>
+                            <span className="text-xs font-medium">{blog.comments?.length || 0} comments</span>
                         </div>
                         <button
                             onClick={() => setIsShareModalOpen(true)}

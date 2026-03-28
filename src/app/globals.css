@@ -44,16 +44,16 @@ body {
   margin-bottom: 0.5rem;
 }
 
-.rich-text strong, .rich-text b {
+.rich-text strong,
+.rich-text b {
   font-weight: bold;
 }
 
-.rich-text em, .rich-text i {
+.rich-text em,
+.rich-text i {
   font-style: italic;
 }
 
 .rich-text p {
   margin-bottom: 0.5rem;
 }
-
-
