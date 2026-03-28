@@ -138,19 +138,13 @@ export default function PeerFeedbackFormClient({ data, evaluatorEnrollmentId, cl
                 ))}
 
                 <div className="flex justify-between items-center pt-8 border-t border-gray-100">
-                    <button
+                    <NuraButton
+                        label="Clear All Data"
+                        variant="secondary"
                         onClick={handleClearClick}
                         disabled={isClearing || !initialFeedback}
-                        className="text-sm font-medium text-red-400 hover:text-red-600 transition-colors flex items-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed"
-                    >
-                        <Image
-                            src="/icons/delete.svg"
-                            alt="Clear"
-                            width={16}
-                            height={16}
-                        />
-                        Clear All Data
-                    </button>
+                        className="text-red-400 hover:text-red-600 border-red-400 hover:border-red-600"
+                    />
 
                     <div className="flex justify-end items-center gap-10">
                         <NuraButton

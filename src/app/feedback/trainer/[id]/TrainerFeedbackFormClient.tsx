@@ -111,7 +111,7 @@ export default function TrainerFeedbackFormClient({ trainer, evaluatorEnrollment
                 title={`Trainer Feedback: ${trainer.name || trainer.username}`}
                 description={classTitle}
                 actions={
-                    <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/20">
+                    initialFeedback && <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/20">
                         <span className="text-xs font-medium text-white">Edited</span>
                     </div>
                 }
