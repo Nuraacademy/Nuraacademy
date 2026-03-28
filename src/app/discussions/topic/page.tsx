@@ -346,7 +346,7 @@ export default function DiscussionTopicPage({
                                             className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
                                             title="Edit Topic"
                                         >
-                                            <Image src="/icons/edit.svg" alt="Edit" width={20} height={20} />
+                                            <Image src="/icons/Edit.svg" alt="Edit" width={20} height={20} />
                                         </button>
                                     )}
                                     {(perms.deleteOthersTopic || (perms.deleteSelfTopic && currentUserId === discussion_data.userId)) && (
@@ -355,7 +355,7 @@ export default function DiscussionTopicPage({
                                             className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors flex-shrink-0"
                                             title="Delete Topic"
                                         >
-                                            <Image src="/icons/delete.svg" alt="Delete" width={20} height={20} />
+                                            <Image src="/icons/Delete.svg" alt="Delete" width={20} height={20} />
                                         </button>
                                     )}
                                 </div>
