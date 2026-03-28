@@ -6,8 +6,9 @@ import { saveTrainerFeedback, clearTrainerFeedback } from '@/app/actions/trainer
 import { toast } from 'sonner';
 import Breadcrumb from '@/components/ui/breadcrumb/breadcrumb';
 import { FeedbackCriteriaField } from '@/components/ui/feedback/FeedbackCriteriaField';
-import { History, Trash2 } from 'lucide-react';
 import { ConfirmModal } from '@/components/ui/modal/confirmation_modal';
+import TitleCard from '@/components/ui/card/title_card';
+import { NuraButton } from '@/components/ui/button/button';
 
 interface TrainerFeedbackFormClientProps {
     trainer: any; // trainer user data
@@ -106,20 +107,15 @@ export default function TrainerFeedbackFormClient({ trainer, evaluatorEnrollment
                 ]}
             />
 
-            <div className="bg-[#1C3A37] rounded-xl p-8 md:p-10 text-white flex justify-between items-center shadow-lg">
-                <div className="space-y-1">
-                    <h1 className="text-2xl md:text-3xl font-medium font-merriweather">{trainer.name || trainer.username}</h1>
-                    <p className="text-gray-300 font-medium opacity-80">
-                        {classTitle} <span className="mx-2">|</span> Instructor
-                    </p>
-                </div>
-                {initialFeedback?.isEdited && (
+            <TitleCard
+                title={`Trainer Feedback: ${trainer.name || trainer.username}`}
+                description={classTitle}
+                actions={
                     <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/20">
-                        <History size={16} className="text-[#DAEE49]" />
-                        <span className="text-xs font-medium uppercase tracking-widest text-[#DAEE49]">Edited</span>
+                        <span className="text-xs font-medium text-white">Edited</span>
                     </div>
-                )}
-            </div>
+                }
+            />
 
             <div className="bg-white rounded-xl p-6 md:p-12 shadow-sm border border-white/50 space-y-12">
                 {sections.map((section) => (
@@ -135,29 +131,25 @@ export default function TrainerFeedbackFormClient({ trainer, evaluatorEnrollment
                 ))}
 
                 <div className="flex justify-between items-center pt-8 border-t border-gray-100">
-                    <button
+                    <NuraButton
+                        label="Clear All Data"
+                        variant="secondary"
                         onClick={handleClearClick}
                         disabled={isClearing || !initialFeedback}
-                        className="text-sm font-medium text-red-400 hover:text-red-600 transition-colors flex items-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed"
-                    >
-                        <Trash2 size={16} />
-                        Clear All Data
-                    </button>
+                        className="text-red-400 hover:text-red-600 border-red-400 hover:border-red-600"
+                    />
 
                     <div className="flex justify-end items-center gap-10">
-                        <button
+                        <NuraButton
+                            label="Cancel"
+                            variant="secondary"
                             onClick={() => router.back()}
-                            className="text-sm font-medium text-gray-500 hover:text-[#1C3A37] transition-colors"
-                        >
-                            Cancel
-                        </button>
-                        <button
+                        />
+                        <NuraButton
+                            label="Submit"
                             onClick={handleSave}
                             disabled={isSaving}
-                            className="bg-[#DAEE49] hover:bg-[#C9D942] disabled:opacity-50 text-[#1C3A37] font-black py-4 px-16 rounded-full transition-all shadow-md hover:shadow-lg uppercase tracking-widest text-xs min-w-[180px]"
-                        >
-                            {isSaving ? "Saving..." : "Submit"}
-                        </button>
+                        />
                     </div>
                 </div>
             </div>
