@@ -105,7 +105,7 @@ export default async function CourseOverviewPage({
                                     width={16}
                                     height={16}
                                 />
-                                <span>{classData.timelines?.length || 0} modules</span>
+                                <span>{classData.courses?.length || 0} modules</span>
                             </div>
                         </div>
 
@@ -243,9 +243,17 @@ export default async function CourseOverviewPage({
                                                         </div>
                                                         <p className="text-xs text-gray-400">{trainer.role?.name || "Instructor"}</p>
                                                     </div>
+                                                    {/* Learner: Give Feedback */}
                                                     {isLearner && isEnrolled && (
-                                                        <Link href={`/feedback/trainer/${trainer.id}?classId=${classData.id}`} className="bg-[#DAEE49] p-2 rounded-xl hover:bg-[#C9D942] transition-colors shadow-sm">
+                                                        <Link href={`/feedback/trainer/${trainer.id}?classId=${classData.id}`} className="bg-[#DAEE49] p-2 rounded-xl hover:bg-[#C9D942] transition-colors shadow-sm" title="Give Feedback">
                                                             <Image src="/icons/Information.svg" alt="Feedback" width={16} height={16} />
+                                                        </Link>
+                                                    )}
+
+                                                    {/* Trainer/Admin: View Analytics */}
+                                                    {!isLearner && (canViewTrainerAnalytics || currentUserId === trainer.id) && (
+                                                        <Link href={`/classes/${id}/analytics/trainer?trainerId=${trainer.id}`} className="bg-[#DAEE49]/20 p-2 rounded-xl hover:bg-[#DAEE49]/40 border border-[#DAEE49]/50 transition-colors shadow-sm" title="View Report">
+                                                            <Image src="/icons/Information.svg" alt="Analytics" width={16} height={16} />
                                                         </Link>
                                                     )}
                                                 </div>

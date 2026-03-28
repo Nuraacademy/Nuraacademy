@@ -3,18 +3,22 @@ import TrainerAnalyticsClient from "./TrainerAnalyticsClient";
 import { notFound } from "next/navigation";
 
 export default async function TrainerAnalyticsPage({
-    params
+    params,
+    searchParams
 }: {
-    params: Promise<{ id: string }>
+    params: Promise<{ id: string }>,
+    searchParams: Promise<{ trainerId?: string }>
 }) {
     const { id } = await params;
+    const { trainerId: trainerIdStr } = await searchParams;
     const classId = parseInt(id);
+    const trainerId = trainerIdStr ? parseInt(trainerIdStr) : undefined;
 
     if (isNaN(classId)) {
         notFound();
     }
 
-    const response = await getTrainerAnalytics(classId);
+    const response = await getTrainerAnalytics(classId, trainerId);
 
     if (!response.success || !response.data) {
         // We could also show a friendly "No data yet" page, 
