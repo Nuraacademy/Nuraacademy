@@ -62,7 +62,10 @@ export const DiscussionTopicDialog = ({
       {/* Modal Card */}
       <div className="relative bg-white w-full max-w-2xl rounded-xl p-8 shadow-2xl animate-in zoom-in-95 duration-200">
         <h2 className="text-xl font-medium text-gray-950 mb-6">
-          {isReply ? "Add New Reply" : "Add New Topic"}
+          {initialData?.content || initialData?.title 
+            ? (isReply ? "Edit Reply" : "Edit Topic")
+            : (isReply ? "Add New Reply" : "Add New Topic")
+          }
         </h2>
 
         <div className="space-y-6">
