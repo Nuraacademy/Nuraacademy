@@ -54,6 +54,45 @@ export async function getHomeClasses() {
     }
 }
 
+export async function getGroupedClasses() {
+    try {
+        const classes = await prisma.class.findMany({
+            where: {
+                deletedAt: null,
+                isDraft: false,
+            },
+            select: {
+                id: true,
+                title: true,
+                keywords: true
+            }
+        });
+
+        const groups: Record<string, { id: number, title: string }[]> = {
+            "Data": [],
+            "Software Engineer": [],
+            "UI/UX": []
+        };
+
+        classes.forEach(cls => {
+            const titleLower = cls.title.toLowerCase();
+            const keywords = cls.keywords.map(k => k.toLowerCase());
+
+            if (keywords.includes('data') || titleLower.includes('data') || titleLower.includes('analytics')) {
+                groups["Data"].push({ id: cls.id, title: cls.title });
+            } else if (keywords.includes('software engineer') || keywords.includes('software') || keywords.includes('development') || titleLower.includes('software') || titleLower.includes('engineer') || titleLower.includes('web')) {
+                groups["Software Engineer"].push({ id: cls.id, title: cls.title });
+            } else if (keywords.includes('ui/ux') || keywords.includes('ui') || keywords.includes('ux') || keywords.includes('design') || titleLower.includes('ui') || titleLower.includes('ux') || titleLower.includes('design')) {
+                groups["UI/UX"].push({ id: cls.id, title: cls.title });
+            }
+        });
+
+        return { success: true, groups };
+    } catch (error: any) {
+        return { success: false, error: error.message || "Failed to fetch grouped classes" };
+    }
+}
+
 export async function updateClassSchedule(classId: number, timelineData: { activity: string, date: Date }[]) {
     try {
         await requirePermission('Class', 'UPDATE_SCHEDULE_CLASS');

@@ -1,5 +1,9 @@
 'use client';
 
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { getGroupedClasses } from "@/app/actions/classes";
+
 interface FooterProps {
     variant?: "default" | "minimal";
     instagram?: string;
@@ -8,6 +12,22 @@ interface FooterProps {
 }
 
 export default function Footer({ variant = "default", instagram, youtube, x }: FooterProps) {
+    const [groupedClasses, setGroupedClasses] = useState<Record<string, { id: number, title: string }[]>>({
+        "Data": [],
+        "Software Engineer": [],
+        "UI/UX": []
+    });
+
+    useEffect(() => {
+        if (variant === "default") {
+            getGroupedClasses().then(res => {
+                if (res.success && res.groups) {
+                    setGroupedClasses(res.groups);
+                }
+            });
+        }
+    }, [variant]);
+
     return (
         <main className={`bg-[#042940] text-white ${variant === "minimal" ? "py-4" : "py-12"} px-4 md:px-8 z-10`}>
             {variant === "default" ? (
@@ -75,10 +95,17 @@ export default function Footer({ variant = "default", instagram, youtube, x }: F
                         <div>
                             <h4 className="font-semibold mb-4">Data</h4>
                             <ul className="space-y-2 text-sm">
-                                <li><a href="/classes" className="text-white hover:text-blue-300 transition-colors">Class One</a></li>
-                                <li><a href="/classes" className="text-white hover:text-blue-300 transition-colors">Class Two</a></li>
-                                <li><a href="/classes" className="text-white hover:text-blue-300 transition-colors">Class Three</a></li>
-                                <li><a href="/classes" className="text-white hover:text-blue-300 transition-colors">Class Four</a></li>
+                                {groupedClasses["Data"].length > 0 ? (
+                                    groupedClasses["Data"].map(cls => (
+                                        <li key={cls.id}>
+                                            <a href={`/classes/${cls.id}/overview`} className="text-white hover:text-blue-300 transition-colors">
+                                                {cls.title}
+                                            </a>
+                                        </li>
+                                    ))
+                                ) : (
+                                    <li><span className="text-gray-400">No classes yet</span></li>
+                                )}
                             </ul>
                         </div>
 
@@ -86,10 +113,17 @@ export default function Footer({ variant = "default", instagram, youtube, x }: F
                         <div>
                             <h4 className="font-semibold mb-4">Software Engineer</h4>
                             <ul className="space-y-2 text-sm">
-                                <li><a href="/classes" className="text-white hover:text-blue-300 transition-colors">Class Five</a></li>
-                                <li><a href="/classes" className="text-white hover:text-blue-300 transition-colors">Class Six</a></li>
-                                <li><a href="/classes" className="text-white hover:text-blue-300 transition-colors">Class Seven</a></li>
-                                <li><a href="/classes" className="text-white hover:text-blue-300 transition-colors">Class Eight</a></li>
+                                {groupedClasses["Software Engineer"].length > 0 ? (
+                                    groupedClasses["Software Engineer"].map(cls => (
+                                        <li key={cls.id}>
+                                            <a href={`/classes/${cls.id}/overview`} className="text-white hover:text-blue-300 transition-colors">
+                                                {cls.title}
+                                            </a>
+                                        </li>
+                                    ))
+                                ) : (
+                                    <li><span className="text-gray-400">No classes yet</span></li>
+                                )}
                             </ul>
                         </div>
 
@@ -97,10 +131,17 @@ export default function Footer({ variant = "default", instagram, youtube, x }: F
                         <div>
                             <h4 className="font-semibold mb-4">UI/UX</h4>
                             <ul className="space-y-2 text-sm">
-                                <li><a href="/classes" className="text-white hover:text-blue-300 transition-colors">Class Nine</a></li>
-                                <li><a href="/classes" className="text-white hover:text-blue-300 transition-colors">Class Ten</a></li>
-                                <li><a href="/classes" className="text-white hover:text-blue-300 transition-colors">Class Eleven</a></li>
-                                <li><a href="/classes" className="text-white hover:text-blue-300 transition-colors">Class Twelve</a></li>
+                                {groupedClasses["UI/UX"].length > 0 ? (
+                                    groupedClasses["UI/UX"].map(cls => (
+                                        <li key={cls.id}>
+                                            <a href={`/classes/${cls.id}/overview`} className="text-white hover:text-blue-300 transition-colors">
+                                                {cls.title}
+                                            </a>
+                                        </li>
+                                    ))
+                                ) : (
+                                    <li><span className="text-gray-400">No classes yet</span></li>
+                                )}
                             </ul>
                         </div>
                     </div>
@@ -128,10 +169,11 @@ export default function Footer({ variant = "default", instagram, youtube, x }: F
                                         target="_blank"
                                         rel="noopener noreferrer"
                                     >
-                                        <img
+                                        <Image
                                             src="/icons/Instagram.svg"
                                             alt="Instagram"
-                                            className="w-7 h-7 rounded-xl hover:bg-white transition-colors p-1.5"
+                                            width={24}
+                                            height={24}
                                         />
                                     </a>
                                 )
@@ -143,10 +185,11 @@ export default function Footer({ variant = "default", instagram, youtube, x }: F
                                         target="_blank"
                                         rel="noopener noreferrer"
                                     >
-                                        <img
+                                        <Image
                                             src="/icons/YouTube.svg"
                                             alt="Youtube"
-                                            className="w-7 h-7 rounded-xl hover:bg-white transition-colors p-1.5"
+                                            width={24}
+                                            height={24}
                                         />
                                     </a>
                                 )
@@ -158,10 +201,11 @@ export default function Footer({ variant = "default", instagram, youtube, x }: F
                                         target="_blank"
                                         rel="noopener noreferrer"
                                     >
-                                        <img
+                                        <Image
                                             src="/icons/X.svg"
                                             alt="X"
-                                            className="w-7 h-7 rounded-xl hover:bg-white transition-colors p-1.5"
+                                            width={24}
+                                            height={24}
                                         />
                                     </a>
                                 )
