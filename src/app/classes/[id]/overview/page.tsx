@@ -228,7 +228,7 @@ export default async function CourseOverviewPage({
                                                 <div className="flex items-center gap-4">
                                                     <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 border border-gray-200 shrink-0">
                                                         <Image
-                                                            src={trainer.profilePicture || `/example/human.png`}
+                                                            src={`/example/human.png`}
                                                             alt={trainer.name || trainer.username}
                                                             className="w-full h-full object-cover"
                                                             width={48}

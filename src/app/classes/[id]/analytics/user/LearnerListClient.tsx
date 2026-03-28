@@ -15,7 +15,6 @@ interface LearnerListClientProps {
         name: string;
         username: string;
         email?: string;
-        profilePicture?: string;
     }[];
 }
 
@@ -73,15 +72,6 @@ export default function LearnerListClient({ classId, classTitle, learners }: Lea
                                     <tr key={learner.id} className="hover:bg-gray-50/50 transition-colors">
                                         <td className="px-6 py-5">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden shrink-0">
-                                                    <Image
-                                                        src={learner.profilePicture || `/example/human.png`}
-                                                        alt={learner.name}
-                                                        width={40}
-                                                        height={40}
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                </div>
                                                 <div>
                                                     <p className="text-sm font-bold text-[#1C3A37]">{learner.name}</p>
                                                     <p className="text-[10px] text-gray-400">@{learner.username}</p>

@@ -412,7 +412,7 @@ export async function getAllLearners() {
         const enrollments = await prisma.enrollment.findMany({
             where: { deletedAt: null },
             include: {
-                user: { select: { id: true, name: true, username: true, email: true, profilePicture: true } },
+                user: { select: { id: true, name: true, username: true, email: true } },
                 class: { select: { id: true, title: true } }
             },
             orderBy: { enrolledAt: 'desc' }
