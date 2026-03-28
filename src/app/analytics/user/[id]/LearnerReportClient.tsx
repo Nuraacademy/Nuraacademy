@@ -1,6 +1,7 @@
 "use client"
 
 import Breadcrumb from '@/components/ui/breadcrumb/breadcrumb';
+import TitleCard from '@/components/ui/card/title_card';
 import { useRouter } from 'next/navigation';
 
 interface LearnerReportClientProps {
@@ -33,12 +34,10 @@ export default function LearnerReportClient({ data }: LearnerReportClientProps) 
             />
 
             {/* Header */}
-            <div className="bg-[#1C3A37] rounded-xl p-8 md:p-10 text-white space-y-2 shadow-lg">
-                <h1 className="text-2xl md:text-3xl font-medium">{user.name || user.username}</h1>
-                <p className="text-gray-300 font-medium opacity-80">
-                    {classTitle} <span className="mx-2">|</span> Batch Number
-                </p>
-            </div>
+            <TitleCard
+                title={`${user.name || user.username}`}
+                description={`${classTitle}`}
+            />
 
             {/* Peer Feedback Summary */}
             <div className="bg-white rounded-xl p-8 md:p-12 shadow-sm border border-white/50 space-y-12">

@@ -9,6 +9,7 @@ import { toast } from "sonner"
 import { deleteCourseAction } from "@/app/actions/course"
 import { removeAssignment } from "@/app/actions/assignment"
 import Image from "next/image"
+import { ChevronDown } from "lucide-react"
 
 export function SuccessHandler({ classId, timelines }: { classId: string, timelines: any[] }) {
     const searchParams = useSearchParams()
@@ -309,17 +310,79 @@ export function FeedbackButton({ classId, isLearner }: { classId: string, isLear
     )
 }
 
-export function AnalyticsButton({ classId, isLearner }: { classId: string, isLearner: boolean }) {
+export function AnalyticsButton({
+    classId,
+    isLearner,
+    canViewClassAnalytics = false,
+    canViewLearnerAnalytics = false
+}: {
+    classId: string,
+    isLearner: boolean,
+    canViewClassAnalytics?: boolean,
+    canViewLearnerAnalytics?: boolean
+}) {
     const router = useRouter()
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+
+    // If it's a learner, it's just a direct link, no dropdown needed
+    if (isLearner) {
+        return (
+            <NuraButton
+                label="Analytics and Report"
+                variant="primary"
+                className="w-full"
+                leftIcon={<Image src="/icons/Analytics.svg" alt="Analytics" width={20} height={20} />}
+                onClick={() => {
+                    router.push(`/classes/${classId}/analytics`)
+                }}
+            />
+        )
+    }
+
     return (
-        <NuraButton
-            label="Analytics and Report"
-            variant="primary"
-            leftIcon={<Image src="/icons/Analytics.svg" alt="Analytics" width={20} height={20} />}
-            onClick={() => {
-                router.push(`/classes/${classId}/analytics`)
-            }}
-        />
+        <div className="relative w-full">
+            <NuraButton
+                label="Analytics and Report"
+                variant="primary"
+                className="w-full"
+                leftIcon={<Image src="/icons/Analytics.svg" alt="Analytics" width={20} height={20} />}
+                rightIcon={<ChevronDown/>}
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            />
+
+            {isDropdownOpen && (
+                <>
+                    <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setIsDropdownOpen(false)}
+                    />
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                        {canViewClassAnalytics && (
+                            <button
+                                onClick={() => {
+                                    router.push(`/classes/${classId}/analytics`)
+                                    setIsDropdownOpen(false)
+                                }}
+                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-[#DAEE49]/20 hover:text-black transition-colors"
+                            >
+                                Class Analytics
+                            </button>
+                        )}
+                        {canViewLearnerAnalytics && (
+                            <button
+                                onClick={() => {
+                                    router.push(`/classes/${classId}/analytics/user`)
+                                    setIsDropdownOpen(false)
+                                }}
+                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-[#DAEE49]/20 hover:text-black transition-colors border-t border-gray-50"
+                            >
+                                Learner Analytics
+                            </button>
+                        )}
+                    </div>
+                </>
+            )}
+        </div>
     )
 }
 

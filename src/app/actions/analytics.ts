@@ -403,3 +403,24 @@ export async function getClassFeedbackAnalytics(classId: number) {
         return { success: false, error: error.message };
     }
 }
+export async function getAllLearners() {
+    try {
+        await requirePermission('Analytics', 'ANALYTICS_REPORT_LEARNER');
+        const userId = await getSession();
+        if (!userId) return { success: false, error: "Unauthorized" };
+
+        const enrollments = await prisma.enrollment.findMany({
+            where: { deletedAt: null },
+            include: {
+                user: { select: { id: true, name: true, username: true, email: true, profilePicture: true } },
+                class: { select: { id: true, title: true } }
+            },
+            orderBy: { enrolledAt: 'desc' }
+        });
+
+        return { success: true, data: enrollments };
+    } catch (error: any) {
+        console.error("Get All Learners Analytics Error:", error);
+        return { success: false, error: error.message };
+    }
+}
