@@ -250,7 +250,29 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
                                     <h3 className="font-semibold text-gray-800">Report & Analytics</h3>
                                 </div>
                                 <div className="space-y-1 ml-11">
-                                    {myClasses.map((item) => (
+                                    {!isLearner && (
+                                        <>
+                                            <button
+                                                onClick={() => router.push(`/analytics/trainer`)}
+                                                className="w-full flex items-center p-2 rounded-xl hover:bg-gray-50 transition-colors text-sm text-gray-700 text-left truncate"
+                                            >
+                                                Trainer Analytics
+                                            </button>
+                                            <button
+                                                onClick={() => router.push(`/analytics/classes`)}
+                                                className="w-full flex items-center p-2 rounded-xl hover:bg-gray-50 transition-colors text-sm text-gray-700 text-left truncate"
+                                            >
+                                                Class Analytics
+                                            </button>
+                                            <button
+                                                onClick={() => router.push(`/analytics/user`)}
+                                                className="w-full flex items-center p-2 rounded-xl hover:bg-gray-50 transition-colors text-sm text-gray-700 text-left truncate"
+                                            >
+                                                Learner Analytics
+                                            </button>
+                                        </>
+                                    )}
+                                    {isLearner && myClasses.map((item) => (
                                         <button
                                             key={item.id}
                                             onClick={() => router.push(`/classes/${item.id}/analytics`)}
@@ -259,7 +281,7 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
                                             {item.title} Report
                                         </button>
                                     ))}
-                                    {myClasses.length === 0 && (
+                                    {isLearner && myClasses.length === 0 && (
                                         <p className="text-xs text-gray-400 p-2 italic">No reports available</p>
                                     )}
                                 </div>
