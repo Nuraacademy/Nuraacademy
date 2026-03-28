@@ -5,7 +5,6 @@ import Breadcrumb from '@/components/ui/breadcrumb/breadcrumb';
 import Link from 'next/link';
 import TitleCard from '@/components/ui/card/title_card';
 import { NuraSearchInput } from '@/components/ui/input/nura_search_input';
-import Image from 'next/image';
 
 interface GlobalLearnerListClientProps {
     learners: {
@@ -13,7 +12,6 @@ interface GlobalLearnerListClientProps {
         name: string;
         username: string;
         email?: string;
-        profilePicture?: string;
         classTitle: string;
         classId: number;
     }[];
@@ -63,9 +61,9 @@ export default function GlobalLearnerListClient({ learners }: GlobalLearnerListC
                         <table className="w-full text-left">
                             <thead className="bg-[#FDFDF7] border-b border-gray-100">
                                 <tr>
-                                    <th className="px-6 py-4 text-xs font-black text-[#1C3A37] uppercase tracking-widest">Learner</th>
-                                    <th className="px-6 py-4 text-xs font-black text-[#1C3A37] uppercase tracking-widest">Class</th>
-                                    <th className="px-6 py-4 text-xs font-black text-[#1C3A37] uppercase tracking-widest text-right">Action</th>
+                                    <th className="px-6 py-4 text-sm font-medium text-[#1C3A37]">Learner</th>
+                                    <th className="px-6 py-4 text-sm font-medium text-[#1C3A37]">Class</th>
+                                    <th className="px-6 py-4 text-sm font-medium text-[#1C3A37] text-right">Action</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
@@ -73,23 +71,14 @@ export default function GlobalLearnerListClient({ learners }: GlobalLearnerListC
                                     <tr key={learner.id} className="hover:bg-gray-50/50 transition-colors">
                                         <td className="px-6 py-5">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden shrink-0">
-                                                    <Image
-                                                        src={learner.profilePicture || `/example/human.png`}
-                                                        alt={learner.name}
-                                                        width={40}
-                                                        height={40}
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                </div>
                                                 <div>
-                                                    <p className="text-sm font-bold text-[#1C3A37]">{learner.name}</p>
+                                                    <p className="text-xs text-[#1C3A37]">{learner.name}</p>
                                                     <p className="text-[10px] text-gray-400">@{learner.username}</p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-5">
-                                            <p className="text-xs text-gray-600 line-clamp-1">{learner.classTitle}</p>
+                                            <p className="text-sm text-gray-600 line-clamp-1">{learner.classTitle}</p>
                                         </td>
                                         <td className="px-6 py-5 text-right">
                                             <Link

@@ -26,8 +26,7 @@ export default async function LearnerAnalyticsListPage({
         id: e.id,
         name: e.user.name || e.user.username,
         username: e.user.username,
-        email: e.user.email,
-        profilePicture: e.user.profilePicture
+        email: e.user.email
     }));
 
     return (

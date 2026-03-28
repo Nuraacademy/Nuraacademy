@@ -16,7 +16,6 @@ export default async function GlobalLearnerAnalyticsPage() {
         name: e.user.name || e.user.username,
         username: e.user.username,
         email: e.user.email,
-        profilePicture: e.user.profilePicture,
         classTitle: e.class.title,
         classId: e.class.id
     }));
