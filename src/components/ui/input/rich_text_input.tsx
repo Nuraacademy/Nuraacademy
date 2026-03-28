@@ -43,6 +43,16 @@ export const RichTextInput = ({ value, onChange, className }: { value: string, o
         },
     });
 
+    // Content Synchronization
+    useEffect(() => {
+        if (editor) {
+            const currentHTML = editor.getHTML();
+            if (value !== currentHTML) {
+                editor.commands.setContent(value);
+            }
+        }
+    }, [value, editor]);
+
     if (!isMounted || !editor) return <div className="h-[200px] bg-gray-50 rounded-xl animate-pulse border border-gray-200" />;
 
     // Local Image Upload Logic

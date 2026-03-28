@@ -23,7 +23,8 @@ export default async function CourseOverviewPage({
     const canUpdateCourse = await hasPermission('Course', 'UPDATE_COURSE');
     const canCreatePlacement = await hasPermission('Class', 'PLACEMENT_TEST_CREATE');
     const canViewFeedbackReport = await hasPermission('Feedback', 'VIEW_DETAIL_REFLECTION');
-    const canViewTrainerAnalytics = await hasPermission('Analytics', 'ANALYTICS_REPORT_TRAINER');
+    const canViewClassAnalytics = await hasPermission('Analytics', 'ANALYTICS_REPORT_TRAINER');
+    const canViewLearnerAnalytics = await hasPermission('Analytics', 'ANALYTICS_REPORT_LEARNER');
     const canEditClass = await hasPermission('Class', 'CREATE_UPDATE_CLASS');
 
     const session = await getFullSession();
@@ -105,7 +106,7 @@ export default async function CourseOverviewPage({
                                     width={16}
                                     height={16}
                                 />
-                                <span>{classData.timelines?.length || 0} modules</span>
+                                <span>{classData.courses?.length || 0} modules</span>
                             </div>
                         </div>
 
@@ -243,9 +244,17 @@ export default async function CourseOverviewPage({
                                                         </div>
                                                         <p className="text-xs text-gray-400">{trainer.role?.name || "Instructor"}</p>
                                                     </div>
+                                                    {/* Learner: Give Feedback */}
                                                     {isLearner && isEnrolled && (
-                                                        <Link href={`/feedback/trainer/${trainer.id}?classId=${classData.id}`} className="bg-[#DAEE49] p-2 rounded-xl hover:bg-[#C9D942] transition-colors shadow-sm">
+                                                        <Link href={`/feedback/trainer/${trainer.id}?classId=${classData.id}`} className="bg-[#DAEE49] p-2 rounded-xl hover:bg-[#C9D942] transition-colors shadow-sm" title="Give Feedback">
                                                             <Image src="/icons/Information.svg" alt="Feedback" width={16} height={16} />
+                                                        </Link>
+                                                    )}
+
+                                                    {/* Trainer/Admin: View Analytics */}
+                                                    {!isLearner && (canViewClassAnalytics || currentUserId === trainer.id) && (
+                                                        <Link href={`/classes/${id}/analytics/trainer?trainerId=${trainer.id}`} className="bg-[#DAEE49]/20 p-2 rounded-xl hover:bg-[#DAEE49]/40 border border-[#DAEE49]/50 transition-colors shadow-sm" title="View Report">
+                                                            <Image src="/icons/Information.svg" alt="Analytics" width={16} height={16} />
                                                         </Link>
                                                     )}
                                                 </div>
@@ -264,8 +273,13 @@ export default async function CourseOverviewPage({
                             {((isLearner && isEnrolled) || (!isLearner && canViewFeedbackReport)) && (
                                 <FeedbackButton classId={id} isLearner={isLearner} />
                             )}
-                            {((isLearner && isEnrolled) || (!isLearner && canViewTrainerAnalytics)) && (
-                                <AnalyticsButton classId={id} isLearner={isLearner} />
+                            {((isLearner && isEnrolled) || (!isLearner && (canViewClassAnalytics || canViewLearnerAnalytics))) && (
+                                <AnalyticsButton
+                                    classId={id}
+                                    isLearner={isLearner}
+                                    canViewClassAnalytics={canViewClassAnalytics}
+                                    canViewLearnerAnalytics={canViewLearnerAnalytics}
+                                />
                             )}
                         </div>
                     </aside>

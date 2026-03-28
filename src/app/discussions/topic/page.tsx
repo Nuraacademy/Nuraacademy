@@ -30,6 +30,17 @@ const parseDiscussionType = (type: string) => {
     }
 }
 
+const reverseParseDiscussionType = (type: string) => {
+    switch (type) {
+        case "Technical Help": return "TECHNICAL_HELP";
+        case "Learning Resource": return "LEARNING_RESOURCE";
+        case "Learning Partner": return "LEARNING_PARTNER";
+        case "Course Discussion": return "COURSE_DISCUSSION";
+        case "Career & Portos": return "CAREER_PORTOS";
+        default: return "TECHNICAL_HELP";
+    }
+}
+
 export default function DiscussionTopicPage({
     searchParams
 }: {
@@ -501,7 +512,7 @@ export default function DiscussionTopicPage({
                     initialData={{
                         title: discussion_data?.title || "",
                         content: discussion_data?.content || "",
-                        type: discussion_data?.type.toUpperCase().replace(" ", "_") // Simple mapping back
+                        type: discussion_data ? reverseParseDiscussionType(discussion_data.type) : "TECHNICAL_HELP"
                     }}
                 />
 
