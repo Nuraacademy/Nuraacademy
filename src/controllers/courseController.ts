@@ -31,7 +31,15 @@ export async function getCourseById(id: number) {
                 where: { deletedAt: null },
                 orderBy: { createdAt: 'asc' },
                 include: {
-                    assignments: { where: { deletedAt: null } },
+                    assignments: { 
+                        where: { 
+                            deletedAt: null,
+                            OR: [
+                                { startDate: null },
+                                { startDate: { lte: new Date() } }
+                            ]
+                        } 
+                    },
                 },
             },
             // Course-level assignments (ASSIGNMENT, EXERCISE) — no session attached
@@ -40,6 +48,10 @@ export async function getCourseById(id: number) {
                     deletedAt: null,
                     sessionId: null,
                     type: { in: ['ASSIGNMENT', 'EXERCISE'] },
+                    OR: [
+                        { startDate: null },
+                        { startDate: { lte: new Date() } }
+                    ]
                 },
                 orderBy: { createdAt: 'asc' },
             },
