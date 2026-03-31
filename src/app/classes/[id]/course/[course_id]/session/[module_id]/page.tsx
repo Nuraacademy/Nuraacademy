@@ -102,7 +102,7 @@ export default async function SessionPage({
                                 href={`/classes/${classId}/course/${courseId}/session/${moduleId}/edit`}
                                 className="flex items-center gap-2 bg-white text-[#005954] px-4 py-2 rounded-xl font-medium hover:bg-gray-100 transition-colors"
                             >
-                                <Image src="/icons/edit.svg" alt="Edit" width={20} height={20} />
+                                <Image src="/icons/Edit.svg" alt="Edit" width={20} height={20} />
                                 Edit Session
                             </Link>
                         )
