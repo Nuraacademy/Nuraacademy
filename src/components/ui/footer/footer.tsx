@@ -66,7 +66,7 @@ export default function Footer({ variant = "default", instagram, youtube, x }: F
                                             rel="noopener noreferrer"
                                         >
                                             <img
-                                                src="/icons/Youtube.svg"
+                                                src="/icons/YouTube.svg"
                                                 alt="Youtube"
                                                 className="w-6 h-6 hover:opacity-80 transition-all"
                                             />

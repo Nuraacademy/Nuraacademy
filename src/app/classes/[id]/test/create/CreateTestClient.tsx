@@ -7,6 +7,7 @@ import { NuraButton } from "@/components/ui/button/button";
 import { RichTextInput } from "@/components/ui/input/rich_text_input";
 import { FeedbackModal } from "@/components/ui/modal/feedback_modal";
 import { X, Plus, CheckCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
 import M3DateTimePicker from "@/components/ui/input/datetime_picker";
 import { useRouter } from "next/navigation";
 import { addAssignment, editAssignment, removeAssignment } from "@/app/actions/assignment";
@@ -71,6 +72,13 @@ function makeProjectQuestion(idRef: React.MutableRefObject<number>): ProjectQues
     return { id: idRef.current++, content: "", score: 0 };
 }
 
+// ─── Shared Helpers ────────────────────────────────────────────────────────
+const isEmpty = (html: string) => {
+    const text = html.replace(/<[^>]*>/g, '').trim();
+    const hasImage = html.includes('<img');
+    return !text && !hasImage;
+};
+
 // ─── Objective Block ──────────────────────────────────────────────────────────
 
 function ObjectiveBlock({
@@ -98,9 +106,9 @@ function ObjectiveBlock({
     };
 
     const hasError =
-        !question.content.replace(/<[^>]+>/g, "").trim() ||
+        isEmpty(question.content) ||
         !question.answers.some((a) => a.isCorrect) ||
-        question.answers.some((a) => !a.text.trim()) ||
+        question.answers.some((a) => isEmpty(a.text)) ||
         question.score <= 0;
 
     return (
@@ -129,36 +137,42 @@ function ObjectiveBlock({
                 {question.answers.map((ans) => {
                     const isDuplicate = question.answers.filter(a => a.text.trim().toLowerCase() === ans.text.trim().toLowerCase() && a.text.trim() !== "").length > 1;
                     return (
-                        <div key={ans.id} className="flex gap-2 items-center">
-                            <input
-                                type="text"
-                                placeholder="Answer option..."
-                                value={ans.text}
-                                onChange={(e) => updateAnswerText(ans.id, e.target.value)}
-                                className={`flex-1 rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#D9F55C] bg-white ${(!ans.text.trim() || isDuplicate) ? "border-orange-500 ring-1 ring-orange-500" : "border-gray-300"}`}
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setCorrect(ans.id)}
-                                className={`px-3 py-2 rounded-lg text-xs font-medium border transition-all shrink-0 ${ans.isCorrect
-                                    ? "bg-[#D9F55C] border-[#D9F55C] text-black shadow-sm"
-                                    : "bg-white border-gray-300 text-gray-400 hover:border-gray-400"
-                                    }`}
-                            >
-                                {ans.isCorrect ? "✓ Correct" : "Incorrect"}
-                            </button>
-                            <button
-                                onClick={() => removeAnswer(ans.id)}
-                                disabled={question.answers.length <= 2}
-                                className="text-gray-300 hover:text-red-400 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                            >
-                                <X size={14} />
-                            </button>
+                        <div key={ans.id} className="flex gap-2 items-start">
+                            <div className="flex-1">
+                                <RichTextInput 
+                                    value={ans.text} 
+                                    onChange={(val) => updateAnswerText(ans.id, val)}
+                                    minHeight="45px"
+                                    className={cn(
+                                        "bg-white",
+                                        (isEmpty(ans.text) || isDuplicate) ? "border-orange-500 ring-1 ring-orange-500" : "border-gray-200"
+                                    )}
+                                />
+                            </div>
+                            <div className="flex items-center gap-2 mt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setCorrect(ans.id)}
+                                    className={`px-3 py-2 rounded-lg text-xs font-semibold border transition-all shrink-0 ${ans.isCorrect
+                                        ? "bg-[#D9F55C] border-[#D9F55C] text-black shadow-sm"
+                                        : "bg-white border-gray-300 text-gray-400 hover:border-gray-400"
+                                        }`}
+                                >
+                                    {ans.isCorrect ? "✓ Correct" : "Incorrect"}
+                                </button>
+                                <button
+                                    onClick={() => removeAnswer(ans.id)}
+                                    disabled={question.answers.length <= 2}
+                                    className="text-gray-300 hover:text-red-400 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                >
+                                    <X size={14} />
+                                </button>
+                            </div>
                         </div>
                     );
                 })}
                 {(() => {
-                    const texts = question.answers.map(a => a.text.trim().toLowerCase()).filter(t => t !== "");
+                    const texts = question.answers.map(a => a.text.replace(/<[^>]*>/g, '').trim().toLowerCase()).filter(t => t !== "");
                     const hasDuplicates = new Set(texts).size !== texts.length;
                     return hasDuplicates && <p className="text-orange-500 text-xs">All answer options must be unique.</p>;
                 })()}
@@ -196,7 +210,7 @@ function OpenEndedBlock({
     onRemove: () => void;
     label: string;
 }) {
-    const hasError = !question.content.replace(/<[^>]+>/g, "").trim() || question.score <= 0;
+    const hasError = isEmpty(question.content) || question.score <= 0;
 
     return (
         <div className={`bg-[#F0F5D8] rounded-2xl p-5 mb-4 border-2 transition-colors ${hasError ? "border-orange-200" : "border-transparent"}`}>
@@ -348,24 +362,19 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
     const validateEditor = (): string[] => {
         const errors: string[] = [];
         objectiveQuestions.forEach((q, i) => {
-            if (!q.content.replace(/<[^>]+>/g, "").trim()) errors.push(`Objective Q${i + 1}: question text is required.`);
+            if (isEmpty(q.content)) errors.push(`Objective Q${i + 1}: question text is required.`);
             if (!q.answers.some((a) => a.isCorrect)) errors.push(`Objective Q${i + 1}: mark one answer as correct.`);
-            if (q.answers.some((a) => !a.text.trim())) errors.push(`Objective Q${i + 1}: all answer options must be filled.`);
+            if (q.answers.some((a) => isEmpty(a.text))) errors.push(`Objective Q${i + 1}: all answer options must be filled.`);
             if (q.score <= 0) errors.push(`Objective Q${i + 1}: score must be > 0.`);
-
-            // Uniqueness check for answers
-            const texts = q.answers.map(a => a.text.trim().toLowerCase()).filter(t => t !== "");
-            const hasDuplicates = new Set(texts).size !== texts.length;
-            if (hasDuplicates) {
-                errors.push(`Objective Q${i + 1}: all answer options must be unique.`);
-            }
+            const texts = q.answers.map(a => a.text.replace(/<[^>]*>/g, '').trim().toLowerCase()).filter(t => t !== "");
+            if (new Set(texts).size !== texts.length) errors.push(`Objective Q${i + 1}: all answer options must be unique.`);
         });
         essayQuestions.forEach((q, i) => {
-            if (!q.content.replace(/<[^>]+>/g, "").trim()) errors.push(`Essay Q${i + 1}: question text is required.`);
+            if (isEmpty(q.content)) errors.push(`Essay Q${i + 1}: question text is required.`);
             if (q.score <= 0) errors.push(`Essay Q${i + 1}: score must be > 0.`);
         });
         projectQuestions.forEach((q, i) => {
-            if (!q.content.replace(/<[^>]+>/g, "").trim()) errors.push(`Project Q${i + 1}: question text is required.`);
+            if (isEmpty(q.content)) errors.push(`Project Q${i + 1}: question text is required.`);
             if (q.score <= 0) errors.push(`Project Q${i + 1}: score must be > 0.`);
         });
         return errors;
@@ -457,7 +466,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
             if (!course.saved) return;
 
             course.objective.forEach(q => {
-                if (q.content.replace(/<[^>]+>/g, "").trim()) {
+                if (!isEmpty(q.content)) {
                     itemsPayload.push({
                         courseId: parseInt(courseId),
                         type: "OBJECTIVE",
@@ -470,7 +479,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
             });
 
             course.essay.forEach(q => {
-                if (q.content.replace(/<[^>]+>/g, "").trim()) {
+                if (!isEmpty(q.content)) {
                     itemsPayload.push({
                         courseId: parseInt(courseId),
                         type: "ESSAY",
@@ -481,7 +490,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
             });
 
             course.project.forEach(q => {
-                if (q.content.replace(/<[^>]+>/g, "").trim()) {
+                if (!isEmpty(q.content)) {
                     itemsPayload.push({
                         courseId: parseInt(courseId),
                         type: "PROJECT",
@@ -613,6 +622,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                 }}
                                 error={overviewErrors.startDate}
                                 required
+                                minDate={new Date()}
                                 id="start-date-picker"
                             />
 
@@ -626,6 +636,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                 }}
                                 error={overviewErrors.endTime}
                                 required
+                                minDate={startDate || new Date()}
                                 id="end-time-picker"
                             />
                         </div>

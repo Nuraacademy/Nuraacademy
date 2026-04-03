@@ -155,7 +155,9 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                         <M3DateTimePicker
                             label="Start Date"
                             value={startDate}
+                            withTime={false}
                             onChange={setStartDate}
+                            minDate={new Date()}
                         />
                     </div>
                     <div className="w-full md:w-64">
@@ -163,7 +165,8 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                             label="End Date"
                             value={endDate}
                             onChange={setEndDate}
-                            minDate={startDate}
+                            withTime={false}
+                            minDate={startDate || new Date()}
                         />
                     </div>
                 </div>

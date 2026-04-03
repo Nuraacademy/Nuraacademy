@@ -76,7 +76,9 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
     };
 
     const onLogin = async () => {
+        if (pathname === '/login') return;
         startRedirect('/login');
+
     };
 
     return (

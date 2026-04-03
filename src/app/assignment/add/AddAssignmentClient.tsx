@@ -2,12 +2,11 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useNuraRouter as useRouter } from "@/components/providers/navigation-provider";
-import { Plus, CheckCircle } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 import { addAssignment, editAssignment } from "@/app/actions/assignment";
 import {
     fetchCoursesByClassIdAction,
     fetchSessionsByCourseIdAction,
-    fetchPlacementTestByClassIdAction,
     fetchExistingAssignmentAction
 } from "@/app/actions/assignmentActions";
 import M3DateTimePicker from "@/components/ui/input/datetime_picker";
@@ -19,11 +18,8 @@ import Image from "next/image";
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import {
     TestEditor,
-    ObjectiveBlock,
-    OpenEndedBlock,
     makeObjectiveQuestion,
     makeEssayQuestion,
-    makeProjectQuestion,
     validateQuestions,
     type ObjectiveQuestion,
     type EssayQuestion,
@@ -613,25 +609,7 @@ export function AddAssignmentClient({
                                 />
                                 {overviewErrors.title && <p className="text-orange-500 text-xs mt-1">{overviewErrors.title}</p>}
                             </div>
-
-                            {/* Start Date */}
-                            <M3DateTimePicker
-                                label="Start Date"
-                                value={startDate}
-                                onChange={(d) => { setStartDate(d); setOverviewErrors(p => ({ ...p, startDate: "" })); }}
-                                error={overviewErrors.startDate}
-                                required
-                            />
-
-                            {/* End Date */}
-                            <M3DateTimePicker
-                                label="End Date"
-                                value={endDate}
-                                onChange={(d) => { setEndDate(d); setOverviewErrors(p => ({ ...p, endDate: "" })); }}
-                                error={overviewErrors.endDate}
-                                required
-                            />
-
+                            
                             {/* Duration */}
                             <div className="md:col-span-1">
                                 <label className="block text-sm font-semibold mb-1">Duration (min)</label>
@@ -644,6 +622,26 @@ export function AddAssignmentClient({
                                 />
                                 {overviewErrors.duration && <p className="text-orange-500 text-xs mt-1">{overviewErrors.duration}</p>}
                             </div>
+
+                            {/* Start Date */}
+                            <M3DateTimePicker
+                                label="Start Date"
+                                value={startDate}
+                                onChange={(d) => { setStartDate(d); setOverviewErrors(p => ({ ...p, startDate: "" })); }}
+                                error={overviewErrors.startDate}
+                                required
+                                minDate={new Date()}
+                            />
+
+                            {/* End Date */}
+                            <M3DateTimePicker
+                                label="End Date"
+                                value={endDate}
+                                onChange={(d) => { setEndDate(d); setOverviewErrors(p => ({ ...p, endDate: "" })); }}
+                                error={overviewErrors.endDate}
+                                required
+                                minDate={startDate || new Date()}
+                            />
                         </div>
 
                         {/* ── Row 2: Type + Submission + Class + Course + Session ── */}

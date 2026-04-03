@@ -157,9 +157,17 @@ function CalendarPopover({ value, onChange, onClose, withTime = true, minDate, m
                     <div className="flex items-center justify-center gap-3">
                         {/* Hours */}
                         <div className="flex flex-col items-center">
-                            <div className="w-14 h-12 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-center text-xl font-medium tabular-nums">
-                                {String(hour).padStart(2, '0')}
-                            </div>
+                            <input
+                                type="text"
+                                value={String(hour).padStart(2, '0')}
+                                onChange={(e) => {
+                                    const val = e.target.value.replace(/\D/g, '').slice(-2);
+                                    if (val === '') { setHour(0); return; }
+                                    const h = parseInt(val);
+                                    if (h >= 0 && h <= 23) setHour(h);
+                                }}
+                                className="w-14 h-12 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-center text-xl font-medium tabular-nums text-center focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all"
+                            />
                             <div className="flex gap-1 mt-1">
                                 <button type="button" onClick={() => setHour(h => (h + 23) % 24)} className="p-1 hover:bg-gray-100 rounded"><ChevronLeft size={14} className="-rotate-90" /></button>
                                 <button type="button" onClick={() => setHour(h => (h + 1) % 24)} className="p-1 hover:bg-gray-100 rounded"><ChevronLeft size={14} className="rotate-90" /></button>
@@ -168,9 +176,17 @@ function CalendarPopover({ value, onChange, onClose, withTime = true, minDate, m
                         <span className="text-xl font-medium text-gray-300 pb-6">:</span>
                         {/* Minutes */}
                         <div className="flex flex-col items-center">
-                            <div className="w-14 h-12 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-center text-xl font-medium tabular-nums">
-                                {String(minute).padStart(2, '0')}
-                            </div>
+                            <input
+                                type="text"
+                                value={String(minute).padStart(2, '0')}
+                                onChange={(e) => {
+                                    const val = e.target.value.replace(/\D/g, '').slice(-2);
+                                    if (val === '') { setMinute(0); return; }
+                                    const m = parseInt(val);
+                                    if (m >= 0 && m <= 59) setMinute(m);
+                                }}
+                                className="w-14 h-12 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-center text-xl font-medium tabular-nums text-center focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all"
+                            />
                             <div className="flex gap-1 mt-1">
                                 <button type="button" onClick={() => setMinute(m => (m + 55) % 60)} className="p-1 hover:bg-gray-100 rounded"><ChevronLeft size={14} className="-rotate-90" /></button>
                                 <button type="button" onClick={() => setMinute(m => (m + 5) % 60)} className="p-1 hover:bg-gray-100 rounded"><ChevronLeft size={14} className="rotate-90" /></button>
@@ -194,6 +210,7 @@ interface M3DateTimePickerProps {
     onChange: (d: Date) => void;
     error?: string;
     required?: boolean;
+    withTime?: boolean;
     className?: string;
     id?: string;
     placeholder?: string;
@@ -207,14 +224,18 @@ export default function M3DateTimePicker({
     onChange,
     error,
     required,
+    withTime = true,
     className,
     id,
-    placeholder = "DD/MM/YYYY HH:mm",
+    placeholder,
     minDate,
     maxDate
 }: M3DateTimePickerProps) {
     const [open, setOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
+
+    const defaultPlaceholder = withTime ? "DD/MM/YYYY HH:mm" : "DD/MM/YYYY";
+    const effectivePlaceholder = placeholder || defaultPlaceholder;
 
     // Close on click outside
     useEffect(() => {
@@ -230,8 +251,10 @@ export default function M3DateTimePicker({
             day: "2-digit",
             month: "2-digit",
             year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit"
+            ...(withTime ? {
+                hour: "2-digit",
+                minute: "2-digit"
+            } : {})
         })
         : "";
 
@@ -260,7 +283,7 @@ export default function M3DateTimePicker({
                     )}
                 >
                     <span className={value ? "text-black" : "text-gray-400"}>
-                        {displayDate || placeholder}
+                        {displayDate || effectivePlaceholder}
                     </span>
                     <Calendar size={16} className="text-gray-400 shrink-0" />
                 </button>
@@ -271,12 +294,12 @@ export default function M3DateTimePicker({
                     <div className="absolute z-[100] mt-2 right-0 md:left-0 md:right-auto">
                         <CalendarPopover
                             value={value}
-                            withTime={true}
+                            withTime={withTime}
                             minDate={minDate}
                             maxDate={maxDate}
                             onChange={(d) => {
                                 onChange(d);
-                                setOpen(false);
+                                if (!withTime) setOpen(false);
                             }}
                             onClose={() => setOpen(false)}
                         />
