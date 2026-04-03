@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 
 export default async function AdminPage() {
   const session = await getFullSession();
-  const allowedRole = ["Trainer", "Instructor", "Learning Designer", "Admin"];
+  const allowedRole = ["Trainer", "Instructor", "Instructur", "Learning Designer", "Admin"];
 
   if (!allowedRole.includes(session.role)) {
     redirect("/");
@@ -21,7 +21,7 @@ export default async function AdminPage() {
 
   const role = response.data.user.role;
 
-  if (role === "Trainer" || role === "Instructor") {
+  if (role === "Trainer" || role === "Instructor" || role === "Instructur") {
     return <TrainerDashboard data={response.data} />;
   }
 

@@ -2,6 +2,7 @@
 
 import { getSession } from "@/app/actions/auth";
 import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
 
 /**
  * Checks if the currently logged-in user has the specified permission.
@@ -86,6 +87,6 @@ export async function getPermissions(requests: { resource: string, action: strin
 export async function requirePermission(resource: string, action: string) {
     const allowed = await hasPermission(resource, action);
     if (!allowed) {
-        throw new Error(`Unauthorized: Missing ${resource}:${action} permission.`);
+        redirect(`/unauthorized?needed=${encodeURIComponent(resource + ':' + action)}`);
     }
 }

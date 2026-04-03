@@ -48,6 +48,10 @@ export interface DashboardData {
     }[];
     stats: {
         totalLearners: number;
+        ungradedAssignments: number;
+        ungradedExercises: number;
+        uncheckedFeedback: number;
+        uncheckedReflections: number;
     };
     schedule: {
         id: number;
@@ -74,9 +78,12 @@ export async function getDashboardData() {
         return { success: false, error: "Unauthorized" };
     }
 
-    // 1. Fetch Classes (All active)
+    const isTrainerOrInstructor = ['Trainer', 'Instructor', 'Instructur'].includes(user.role?.name || '');
+    const classFilter = isTrainerOrInstructor ? { OR: [{ trainerId: userId }, { createdBy: userId }] } : {};
+
+    // 1. Fetch Classes
     const classes = await prisma.class.findMany({
-        where: { deletedAt: null },
+        where: { deletedAt: null, ...classFilter },
         orderBy: { createdAt: 'desc' },
         take: 6,
         include: {
@@ -84,9 +91,9 @@ export async function getDashboardData() {
         }
     });
 
-    // 2. Fetch Assignments (Recent across all classes)
+    // 2. Fetch Assignments (Recent across classes)
     const assignments = await prisma.assignment.findMany({
-        where: { deletedAt: null },
+        where: { deletedAt: null, class: classFilter },
         include: {
             class: { select: { title: true } },
             course: { select: { title: true } }
@@ -99,7 +106,8 @@ export async function getDashboardData() {
     const enrollments = await prisma.enrollment.findMany({
         where: {
             deletedAt: null,
-            user: { role: { name: 'Learner' } }
+            user: { role: { name: 'Learner' } },
+            class: classFilter
         },
         include: {
             user: { select: { id: true, name: true, username: true } },
@@ -137,6 +145,36 @@ export async function getDashboardData() {
     // 5. Fetch Global Stats
     const totalLearners = await prisma.user.count({
         where: { role: { name: 'Learner' }, deletedAt: null }
+    });
+
+    const ungradedAssignments = await prisma.assignmentResult.count({
+        where: { 
+            totalScore: null, 
+            finishedAt: { not: null },
+            deletedAt: null,
+            assignment: { type: { in: ['ASSIGNMENT', 'PROJECT'] }, deletedAt: null, class: classFilter }
+        }
+    });
+
+    const ungradedExercises = await prisma.assignmentResult.count({
+        where: { 
+            totalScore: null, 
+            finishedAt: { not: null },
+            deletedAt: null,
+            assignment: { type: 'EXERCISE', deletedAt: null, class: classFilter }
+        }
+    });
+
+    const uncheckedReflections = await prisma.reflection.count({
+        where: {
+            deletedAt: null,
+            feedback: null,
+            enrollment: { class: classFilter }
+        }
+    });
+
+    const uncheckedFeedback = await prisma.classFeedback.count({
+        where: { deletedAt: null, class: classFilter }
     });
 
     // 6. Fetch Global Schedule (Timelines)
@@ -201,7 +239,11 @@ export async function getDashboardData() {
                 image: null
             })),
             stats: {
-                totalLearners
+                totalLearners,
+                ungradedAssignments,
+                ungradedExercises,
+                uncheckedFeedback,
+                uncheckedReflections
             },
             schedule: timelines.map(t => ({
                 id: t.id,
