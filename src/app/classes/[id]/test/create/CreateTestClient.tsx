@@ -622,6 +622,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                 }}
                                 error={overviewErrors.startDate}
                                 required
+                                minDate={new Date()}
                                 id="start-date-picker"
                             />
 
@@ -635,6 +636,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                 }}
                                 error={overviewErrors.endTime}
                                 required
+                                minDate={startDate || new Date()}
                                 id="end-time-picker"
                             />
                         </div>

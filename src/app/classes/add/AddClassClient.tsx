@@ -157,6 +157,7 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                             value={startDate}
                             withTime={false}
                             onChange={setStartDate}
+                            minDate={new Date()}
                         />
                     </div>
                     <div className="w-full md:w-64">
@@ -165,7 +166,7 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                             value={endDate}
                             onChange={setEndDate}
                             withTime={false}
-                            minDate={startDate}
+                            minDate={startDate || new Date()}
                         />
                     </div>
                 </div>
