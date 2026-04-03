@@ -93,24 +93,25 @@ export function NavigationProvider({ children }: { children: React.ReactNode }) 
 
 export function useNavigation() {
   const context = useContext(NavigationContext);
-  if (context === undefined) {
-    throw new Error("useNavigation must be used within a NavigationProvider");
-  }
   return context;
 }
 
 export function useNuraRouter() {
   const router = useRouter();
-  const { setIsRedirecting } = useNavigation();
+  const context = useNavigation();
 
   return {
     ...router,
     push: (href: string, options?: any) => {
-      setTimeout(() => setIsRedirecting(true), 0);
+      if (context) {
+        setTimeout(() => context.setIsRedirecting(true), 0);
+      }
       return router.push(href, options);
     },
     replace: (href: string, options?: any) => {
-      setTimeout(() => setIsRedirecting(true), 0);
+      if (context) {
+        setTimeout(() => context.setIsRedirecting(true), 0);
+      }
       return router.replace(href, options);
     },
   };

@@ -79,7 +79,14 @@ export async function getDashboardData() {
     }
 
     const isTrainerOrInstructor = ['Trainer', 'Instructor', 'Instructur'].includes(user.role?.name || '');
-    const classFilter = isTrainerOrInstructor ? { OR: [{ trainerId: userId }, { createdBy: userId }] } : {};
+    const classFilter = isTrainerOrInstructor ? {
+        OR: [
+            { trainerId: userId },
+            { createdBy: userId },
+            { courses: { some: { createdBy: userId } } },
+            { courses: { some: { sessions: { some: { createdBy: userId } } } } }
+        ]
+    } : {};
 
     // 1. Fetch Classes
     const classes = await prisma.class.findMany({
@@ -124,7 +131,7 @@ export async function getDashboardData() {
         if (!seenUserIds.has(e.userId)) {
             uniqueLearners.push(e);
             seenUserIds.add(e.userId);
-            if (uniqueLearners.length >= 5) break; 
+            if (uniqueLearners.length >= 5) break;
         }
     }
 
@@ -148,8 +155,8 @@ export async function getDashboardData() {
     });
 
     const ungradedAssignments = await prisma.assignmentResult.count({
-        where: { 
-            totalScore: null, 
+        where: {
+            totalScore: null,
             finishedAt: { not: null },
             deletedAt: null,
             assignment: { type: { in: ['ASSIGNMENT', 'PROJECT'] }, deletedAt: null, class: classFilter }
@@ -157,8 +164,8 @@ export async function getDashboardData() {
     });
 
     const ungradedExercises = await prisma.assignmentResult.count({
-        where: { 
-            totalScore: null, 
+        where: {
+            totalScore: null,
             finishedAt: { not: null },
             deletedAt: null,
             assignment: { type: 'EXERCISE', deletedAt: null, class: classFilter }

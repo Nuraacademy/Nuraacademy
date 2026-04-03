@@ -110,13 +110,13 @@ export default function TrainerDashboard({ data }: DashboardProps) {
                                 <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform">
                                     <Image src="/icons/Classroom.svg" alt="Analytics" width={24} height={24} />
                                 </div>
-                                <span className="font-bold text-[#1C3A37] text-sm text-center leading-tight">My Analytics<br/>& Report</span>
+                                <span className="font-bold text-[#1C3A37] text-sm text-center leading-tight">My Analytics<br />& Report</span>
                             </button>
                             <button onClick={() => router.push('/classes')} className="flex bg-[#D9F55C] hover:bg-[#c6e350] rounded-2xl p-6 flex flex-col items-center gap-2 transition-all shadow-lg active:scale-95 group">
                                 <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform">
                                     <Image src="/icons/Task.svg" alt="Presence" width={24} height={24} />
                                 </div>
-                                <span className="font-bold text-[#1C3A37] text-sm text-center leading-tight">Student<br/>Presence</span>
+                                <span className="font-bold text-[#1C3A37] text-sm text-center leading-tight">Student<br />Presence</span>
                             </button>
                         </div>
 
