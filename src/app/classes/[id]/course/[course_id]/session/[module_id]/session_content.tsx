@@ -122,13 +122,15 @@ export default function SessionContent({
                                 onClick={handleJoin}
                                 disabled={isStarting}
                             />
-                            <NuraButton
-                                label="View Record"
-                                variant="secondary"
-                                onClick={() => {
-                                    router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/recording`);
-                                }}
-                            />
+                            {content?.recording && (
+                                <NuraButton
+                                    label="View Record"
+                                    variant="secondary"
+                                    onClick={() => {
+                                        router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/recording`);
+                                    }}
+                                />
+                            )}
                         </div>
 
                         <div className="border-t border-gray-100"></div>
