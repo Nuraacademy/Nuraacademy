@@ -197,6 +197,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
                                     label="Profession"
                                     placeholder="Profession"
                                     value={formData.profession}
+                                    required
                                     onChange={(e) => handleInputChange("profession", e.target.value)}
                                 />
                                 <NuraTextInput
@@ -204,6 +205,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
                                     placeholder="Yoe (Years of Experience)"
                                     value={formData.yoe}
                                     variant="number"
+                                    required
                                     onChange={(e) => handleInputChange("yoe", e.target.value)}
                                 />
                             </div>
@@ -212,18 +214,21 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
                                     label="Work Field"
                                     placeholder="Work Field"
                                     value={formData.workField}
+                                    required
                                     onChange={(e) => handleInputChange("workField", e.target.value)}
                                 />
                                 <NuraTextInput
                                     label="Education Field"
                                     placeholder="Education Field"
                                     value={formData.educationField}
+                                    required
                                     onChange={(e) => handleInputChange("educationField", e.target.value)}
                                 />
                                 <NuraTextInput
                                     label="Job Industry"
                                     placeholder="Job Industry"
                                     value={formData.jobIndustry}
+                                    required
                                     onChange={(e) => handleInputChange("jobIndustry", e.target.value)}
                                     className="md:col-span-2"
                                 />
@@ -232,7 +237,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
 
                         {/* Learning Objectives Section */}
                         <div>
-                            <h2 className="text-xl font-medium text-gray-900 mb-4">Learning Objectives</h2>
+                            <h2 className="text-xl font-medium text-gray-900 mb-4">Learning Objectives*</h2>
                             <div className="flex flex-wrap gap-3">
                                 {learningObjectives.map((objective) => (
                                     <Chip
@@ -248,7 +253,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
 
                         {/* Final Expectations Section */}
                         <div>
-                            <h2 className="text-xl font-medium text-gray-900 mb-4">Final Expectations</h2>
+                            <h2 className="text-xl font-medium text-gray-900 mb-4">Final Expectations*</h2>
                             <div className="relative">
                                 <NuraTextArea
                                     label="Final Expectations"
@@ -261,7 +266,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
 
                         {/* Upload CV Section */}
                         <div>
-                            <h2 className="text-xl font-medium text-gray-900 mb-4">Upload CV</h2>
+                            <h2 className="text-xl font-medium text-gray-900 mb-4">Upload CV*</h2>
                             <CVUpload
                                 onFileSelect={(file) => setCvFile(file)}
                                 maxSizeMB={5}

@@ -17,6 +17,7 @@ interface TextInputProp {
     color?: string;
     disabled?: boolean;
     id?: string;
+    required?: boolean;
 }
 
 export const NuraTextInput = ({
@@ -31,7 +32,8 @@ export const NuraTextInput = ({
     icon,
     color = "black",
     disabled = false,
-    id
+    id,
+    required = false,
 }: TextInputProp) => {
     const [showPassword, setShowPassword] = useState(false);
     const isPassword = variant === 'password';
@@ -42,7 +44,7 @@ export const NuraTextInput = ({
         <div className="w-full">
             {label && (
                 <label className={cn("block text-sm mb-1", `text-${color}`)}>
-                    {label}
+                    {label}{required && <span className="text-red-500">*</span>}
                 </label>
             )}
             <div className="relative">
