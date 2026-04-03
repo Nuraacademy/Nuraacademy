@@ -8,6 +8,7 @@ export interface DashboardData {
     user: {
         username: string;
         name: string;
+        role: string;
     };
     classes: {
         id: number;
@@ -28,26 +29,39 @@ export interface DashboardData {
         submissionType: string | null;
         className: string;
         courseName: string;
+        classId: number | null;
+        courseId: number | null;
+        sessionId: number | null;
     }[];
     analytics: {
         id: number;
         name: string;
         className: string;
+        image: string | null;
     }[];
     trainers: {
         id: number;
         name: string;
         role: string;
         username: string;
+        image: string | null;
     }[];
     stats: {
         totalLearners: number;
+        ungradedAssignments: number;
+        ungradedExercises: number;
+        uncheckedFeedback: number;
+        uncheckedReflections: number;
     };
     schedule: {
         id: number;
         date: Date | null;
         activity: string;
         className: string;
+    }[];
+    curricula: {
+        id: number;
+        title: string;
     }[];
 }
 
@@ -64,9 +78,19 @@ export async function getDashboardData() {
         return { success: false, error: "Unauthorized" };
     }
 
-    // 1. Fetch Classes (All active)
+    const isStaff = ['Trainer', 'Instructor', 'Instructur', 'Learning Designer'].includes(user.role?.name || '');
+    const classFilter = isStaff ? {
+        OR: [
+            { trainerId: userId },
+            { createdBy: userId },
+            { courses: { some: { createdBy: userId } } },
+            { courses: { some: { sessions: { some: { createdBy: userId } } } } }
+        ]
+    } : {};
+
+    // 1. Fetch Classes
     const classes = await prisma.class.findMany({
-        where: { deletedAt: null },
+        where: { deletedAt: null, ...classFilter },
         orderBy: { createdAt: 'desc' },
         take: 6,
         include: {
@@ -74,9 +98,9 @@ export async function getDashboardData() {
         }
     });
 
-    // 2. Fetch Assignments (Recent across all classes)
+    // 2. Fetch Assignments (Recent across classes)
     const assignments = await prisma.assignment.findMany({
-        where: { deletedAt: null },
+        where: { deletedAt: null, class: classFilter },
         include: {
             class: { select: { title: true } },
             course: { select: { title: true } }
@@ -89,7 +113,8 @@ export async function getDashboardData() {
     const enrollments = await prisma.enrollment.findMany({
         where: {
             deletedAt: null,
-            user: { role: { name: 'Learner' } }
+            user: { role: { name: 'Learner' } },
+            class: classFilter
         },
         include: {
             user: { select: { id: true, name: true, username: true } },
@@ -106,7 +131,7 @@ export async function getDashboardData() {
         if (!seenUserIds.has(e.userId)) {
             uniqueLearners.push(e);
             seenUserIds.add(e.userId);
-            if (uniqueLearners.length >= 5) break; 
+            if (uniqueLearners.length >= 5) break;
         }
     }
 
@@ -129,6 +154,36 @@ export async function getDashboardData() {
         where: { role: { name: 'Learner' }, deletedAt: null }
     });
 
+    const ungradedAssignments = await prisma.assignmentResult.count({
+        where: {
+            totalScore: null,
+            finishedAt: { not: null },
+            deletedAt: null,
+            assignment: { type: { in: ['ASSIGNMENT', 'PROJECT'] }, deletedAt: null, class: classFilter }
+        }
+    });
+
+    const ungradedExercises = await prisma.assignmentResult.count({
+        where: {
+            totalScore: null,
+            finishedAt: { not: null },
+            deletedAt: null,
+            assignment: { type: 'EXERCISE', deletedAt: null, class: classFilter }
+        }
+    });
+
+    const uncheckedReflections = await prisma.reflection.count({
+        where: {
+            deletedAt: null,
+            feedback: null,
+            enrollment: { class: classFilter }
+        }
+    });
+
+    const uncheckedFeedback = await prisma.classFeedback.count({
+        where: { deletedAt: null, class: classFilter }
+    });
+
     // 6. Fetch Global Schedule (Timelines)
     const timelines = await prisma.timeline.findMany({
         where: { deletedAt: null },
@@ -139,12 +194,20 @@ export async function getDashboardData() {
         take: 5
     });
 
+    // 7. Fetch Recent Curricula
+    const curricula = await prisma.curricula.findMany({
+        where: { deletedAt: null },
+        orderBy: { createdAt: 'desc' },
+        take: 3
+    });
+
     return {
         success: true,
         data: {
             user: {
                 username: user.username,
-                name: user.name || user.username
+                name: user.name || user.username,
+                role: user.role?.name || "Member"
             },
             classes: classes.map(c => ({
                 id: c.id,
@@ -164,7 +227,10 @@ export async function getDashboardData() {
                 type: a.type,
                 submissionType: a.submissionType,
                 className: a.class?.title || "Global",
-                courseName: a.course?.title || "N/A"
+                courseName: a.course?.title || "N/A",
+                classId: a.classId,
+                courseId: a.courseId,
+                sessionId: null
             })),
             analytics: uniqueLearners.map(l => ({
                 id: l.id, // Using enrollment ID for specific class context
@@ -176,16 +242,25 @@ export async function getDashboardData() {
                 id: t.id,
                 name: t.name || t.username,
                 username: t.username,
-                role: "Mentor" // Simplified for UI
+                role: "Mentor", // Simplified for UI
+                image: null
             })),
             stats: {
-                totalLearners
+                totalLearners,
+                ungradedAssignments,
+                ungradedExercises,
+                uncheckedFeedback,
+                uncheckedReflections
             },
             schedule: timelines.map(t => ({
                 id: t.id,
                 date: t.date,
                 activity: t.activity,
                 className: t.class.title
+            })),
+            curricula: curricula.map(c => ({
+                id: c.id,
+                title: c.title
             }))
         }
     };

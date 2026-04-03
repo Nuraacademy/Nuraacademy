@@ -1,4 +1,3 @@
-import { hasPermission } from '@/lib/rbac';
 import { prisma } from '@/lib/prisma';
 import { getFullSession } from '@/app/actions/auth';
 import LearnerClassSelection from '@/app/analytics/LearnerClassSelection';
@@ -8,38 +7,58 @@ export default async function AnalyticsDashboardPage() {
     const session = await getFullSession();
     if (!session) return null;
 
-    const isStaff = await hasPermission('Analytics', 'ANALYTICS_REPORT_LEARNER');
+    const isAdmin = session.role === 'Admin';
+    const isStaff = ['Trainer', 'Instructor', 'Instructur', 'Learning Designer'].includes(session.role);
 
-    if (!isStaff || session.role === 'Learner') {
-        // Learner view: show their enrolled classes for selection
-        const enrollments = await prisma.enrollment.findMany({
-            where: { userId: session.id, deletedAt: null, status: 'ACTIVE' },
-            include: { class: true }
-        });
-        
-        const myClasses = enrollments.map(en => ({
-            id: en.classId,
-            title: en.class.title,
-            imgUrl: en.class.imgUrl
-        }));
+    if (isAdmin) {
+        // Admin view: show the global stats dashboard
+        const [enrollmentCount, classCount, feedbackCount, discussionCount] = await Promise.all([
+            prisma.enrollment.count({ where: { deletedAt: null } }),
+            prisma.class.count({ where: { deletedAt: null } }),
+            prisma.classFeedback.count({ where: { deletedAt: null } }),
+            prisma.discussion.count({ where: { deletedAt: null } })
+        ]);
 
-        return <LearnerClassSelection classes={myClasses} />;
+        const stats = {
+            enrollmentCount,
+            classCount,
+            feedbackCount,
+            discussionCount
+        };
+
+        return <AnalyticsDashboardClient stats={stats} />;
     }
 
-    // Staff view: show the global stats dashboard
-    const [enrollmentCount, classCount, feedbackCount, discussionCount] = await Promise.all([
-        prisma.enrollment.count({ where: { deletedAt: null } }),
-        prisma.class.count({ where: { deletedAt: null } }),
-        prisma.classFeedback.count({ where: { deletedAt: null } }),
-        prisma.discussion.count({ where: { deletedAt: null } })
-    ]);
+    if (isStaff) {
+        // Show assigned classes for staff
+        const classFilter = {
+            OR: [
+                { trainerId: session.id },
+                { createdBy: session.id },
+                { courses: { some: { createdBy: session.id } } },
+                { courses: { some: { sessions: { some: { createdBy: session.id } } } } }
+            ]
+        };
 
-    const stats = {
-        enrollmentCount,
-        classCount,
-        feedbackCount,
-        discussionCount
-    };
+        const assignedClasses = await prisma.class.findMany({
+            where: { deletedAt: null, ...classFilter },
+            select: { id: true, title: true, imgUrl: true }
+        });
 
-    return <AnalyticsDashboardClient stats={stats} />;
+        return <LearnerClassSelection classes={assignedClasses} />;
+    }
+
+    // Learner view: show their enrolled classes for selection
+    const enrollments = await prisma.enrollment.findMany({
+        where: { userId: session.id, deletedAt: null, status: 'ACTIVE' },
+        include: { class: true }
+    });
+    
+    const myClasses = enrollments.map(en => ({
+        id: en.classId,
+        title: en.class.title,
+        imgUrl: en.class.imgUrl
+    }));
+
+    return <LearnerClassSelection classes={myClasses} />;
 }

@@ -29,6 +29,17 @@ export async function getFeedbacks() {
             include: { role: true }
         });
         const isLearner = user?.role?.name === 'Learner';
+        const isStaff = ['Trainer', 'Instructor', 'Instructur', 'Learning Designer'].includes(user?.role?.name || '');
+        const isAdmin = user?.role?.name === 'Admin';
+
+        const classFilter = isAdmin ? {} : (isStaff ? {
+            OR: [
+                { trainerId: userId },
+                { createdBy: userId },
+                { courses: { some: { createdBy: userId } } },
+                { courses: { some: { sessions: { some: { createdBy: userId } } } } }
+            ]
+        } : { id: -1 });
 
         console.log("Fetching feedbacks for user:", userId, "isLearner:", isLearner);
 
@@ -212,9 +223,11 @@ export async function getFeedbacks() {
             // 1. Fetch Student Reflections (already existing)
             const reflections = await prisma.reflection.findMany({
                 where: {
-                    deletedAt: null,
                     user: {
                         role: { name: 'Learner' }
+                    },
+                    enrollment: {
+                        class: classFilter
                     }
                 },
                 include: {
@@ -254,6 +267,7 @@ export async function getFeedbacks() {
                 where: {
                     type: { in: ['PROJECT', 'ASSIGNMENT'] },
                     deletedAt: null,
+                    class: classFilter
                 },
                 include: {
                     class: true,
@@ -283,7 +297,8 @@ export async function getFeedbacks() {
             // 3. Fetch Class Feedbacks (Submitted by students)
             const classFeedbacks = await prisma.classFeedback.findMany({
                 where: {
-                    deletedAt: null
+                    deletedAt: null,
+                    class: classFilter
                 },
                 include: {
                     user: true,

@@ -19,32 +19,15 @@ export async function getAssignmentsBySessionId(sessionId: number, type?: Assign
 }
 
 export async function getAssignments(userId?: number) {
-    if (userId) {
-        // Fetch user's enrollments to know which classes they are in
-        const enrollments = await prisma.enrollment.findMany({
-            where: { userId, deletedAt: null },
-            select: { classId: true }
-        });
-        const enrolledClassIds = enrollments.map(e => e.classId);
-
-        // Fetch assignments for those classes, excluding those finished by the user
+    if (!userId) {
+        // Fetch ALL if no user context (Admin/Global view)
         return await prisma.assignment.findMany({
             where: {
-                classId: { in: enrolledClassIds },
                 deletedAt: null,
                 OR: [
                     { startDate: null },
                     { startDate: { lte: new Date() } }
-                ],
-                // Check for results where this user hasn't finished
-                NOT: {
-                    assignmentResults: {
-                        some: {
-                            enrollment: { userId: userId },
-                            finishedAt: { not: null }
-                        }
-                    }
-                }
+                ]
             },
             include: {
                 class: { select: { title: true } },
@@ -54,32 +37,92 @@ export async function getAssignments(userId?: number) {
         });
     }
 
-    // Default admin/instructor view (fetch all)
+    const user = await prisma.user.findUnique({
+        where: { id: userId },
+        include: { role: true }
+    });
+
+    const isLearner = user?.role?.name === 'Learner';
+    const isStaff = ['Trainer', 'Instructor', 'Instructur', 'Learning Designer'].includes(user?.role?.name || '');
+    const isAdmin = user?.role?.name === 'Admin';
+
+    if (isAdmin) {
+        return await prisma.assignment.findMany({
+            where: {
+                deletedAt: null,
+                OR: [
+                    { startDate: null },
+                    { startDate: { lte: new Date() } }
+                ]
+            },
+            include: {
+                class: { select: { title: true } },
+                course: { select: { title: true } },
+            },
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+
+    if (isStaff) {
+        // Fetch classes where staff is assigned
+        const classFilter = {
+            OR: [
+                { trainerId: userId },
+                { createdBy: userId },
+                { courses: { some: { createdBy: userId } } },
+                { courses: { some: { sessions: { some: { createdBy: userId } } } } }
+            ]
+        };
+
+        return await prisma.assignment.findMany({
+            where: {
+                deletedAt: null,
+                class: classFilter,
+                OR: [
+                    { startDate: null },
+                    { startDate: { lte: new Date() } }
+                ]
+            },
+            include: {
+                class: { select: { title: true } },
+                course: { select: { title: true } },
+            },
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+
+    // Default: Learner view
+    const enrollments = await prisma.enrollment.findMany({
+        where: { userId, deletedAt: null, status: 'ACTIVE' },
+        select: { classId: true }
+    });
+    const enrolledClassIds = enrollments.map(e => e.classId);
+
     return await prisma.assignment.findMany({
         where: {
+            classId: { in: enrolledClassIds },
             deletedAt: null,
             OR: [
                 { startDate: null },
                 { startDate: { lte: new Date() } }
-            ]
+            ],
+            NOT: {
+                assignmentResults: {
+                    some: {
+                        enrollment: { userId: userId },
+                        finishedAt: { not: null }
+                    }
+                }
+            }
         },
         include: {
-            class: {
-                select: {
-                    title: true,
-                },
-            },
-            course: {
-                select: {
-                    title: true,
-                },
-            },
+            class: { select: { title: true } },
+            course: { select: { title: true } },
         },
-        orderBy: {
-            createdAt: 'desc',
-        },
+        orderBy: { createdAt: 'desc' },
     });
 }
+
 
 export async function getProjectAssignmentsByClassId(classId: number) {
     return await prisma.assignment.findMany({

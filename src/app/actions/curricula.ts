@@ -13,7 +13,7 @@ import { requirePermission } from "@/lib/rbac"
 
 export async function getCurriculaList(search?: string, status?: string) {
     try {
-        await requirePermission('Curricula', 'SEARCH_VIEW_CURRICULA');
+        await requirePermission('Class', 'SEARCH_VIEW_CURRICULA');
         const curricula = await getAllCurricula(search, status);
         return { success: true, curricula };
     } catch (error: any) {
@@ -23,7 +23,7 @@ export async function getCurriculaList(search?: string, status?: string) {
 
 export async function getCurriculaDetail(id: number) {
     try {
-        await requirePermission('Curricula', 'VIEW_DETAIL_CURRICULA');
+        await requirePermission('Class', 'VIEW_DETAIL_CURRICULA');
         const curricula = await getCurriculaById(id);
         if (!curricula) return { success: false, error: "Curricula not found" };
         return { success: true, curricula };
@@ -34,7 +34,7 @@ export async function getCurriculaDetail(id: number) {
 
 export async function createCurriculaAction(data: any) {
     try {
-        await requirePermission('Curricula', 'UPLOAD_CURRICULA');
+        await requirePermission('Class', 'UPLOAD_CURRICULA');
         const userId = await getSession();
         const newCurricula = await createCurricula({ ...data, createdBy: userId });
         revalidatePath('/curricula');
@@ -47,7 +47,7 @@ export async function createCurriculaAction(data: any) {
 
 export async function updateCurriculaAction(id: number, data: any) {
     try {
-        await requirePermission('Curricula', 'UPDATE_CURRICULA');
+        await requirePermission('Class', 'UPDATE_CURRICULA');
         await updateCurricula(id, data);
         revalidatePath('/curricula');
         revalidatePath(`/curricula/${id}/edit`);
@@ -60,7 +60,7 @@ export async function updateCurriculaAction(id: number, data: any) {
 
 export async function deleteCurriculaAction(id: number) {
     try {
-        await requirePermission('Curricula', 'DELETE_CURRICULA');
+        await requirePermission('Class', 'DELETE_CURRICULA');
         await deleteCurricula(id);
         revalidatePath('/curricula');
         return { success: true };
@@ -74,7 +74,7 @@ import { uploadToSupabase, UploadResult } from "@/lib/storage";
 
 export async function uploadCurriculaFile(formData: FormData): Promise<UploadResult> {
     try {
-        await requirePermission('Curricula', 'UPLOAD_CURRICULA');
+        await requirePermission('Class', 'UPLOAD_CURRICULA');
         const file = formData.get("file") as File;
         if (!file) {
             return { 

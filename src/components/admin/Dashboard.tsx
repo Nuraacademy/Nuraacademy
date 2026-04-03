@@ -1,6 +1,5 @@
 "use client"
 
-import React from 'react';
 import Image from 'next/image';
 import { DashboardData } from '@/app/actions/dashboard';
 import ClassSection from './dashboard/ClassSection';
@@ -15,8 +14,6 @@ interface DashboardProps {
 }
 
 export default function AdminDashboard({ data }: DashboardProps) {
-
-
     return (
         <div className="min-h-screen bg-[#F9F9EE] relative overflow-hidden ">
             {/* Background Decorative Elements */}

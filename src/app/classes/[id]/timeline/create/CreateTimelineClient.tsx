@@ -166,16 +166,14 @@ export function CreateTimelineClient({ classData }: Props) {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 w-full mx-auto">
                     {EVENTS.map((event, index) => {
-                        // Calculate minDate for Start Date
-                        let startMinDate: Date | null = classData.startDate ? new Date(classData.startDate) : null;
-                        if (index > 0) {
-                            // Enforce sequential starts, but allow overlap with previous ends
-                            const prevStart = dates[`${EVENTS[index - 1].prefix} Starts`];
-                            if (prevStart) startMinDate = prevStart;
-                        }
+                        const today = new Date();
 
-                        // Calculate minDate for End Date
-                        const endMinDate = dates[`${event.prefix} Starts`] || startMinDate;
+                        // Start date min is always today as per request
+                        const startMinDate = today;
+
+                        // End date min is the start date of the same event
+                        const eventStart = dates[`${event.prefix} Starts`];
+                        const endMinDate = eventStart || today;
 
                         return (
                             <div key={index} className="space-y-6 contents">

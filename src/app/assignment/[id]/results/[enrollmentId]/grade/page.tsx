@@ -17,7 +17,7 @@ export default async function IndividualGradingPage({
     const isNumeric = /^\d+$/.test(rawEnrollmentId);
     const eid = isNumeric ? parseInt(rawEnrollmentId) : rawEnrollmentId;
 
-    await requirePermission('Assignment', 'GRADE_ASSIGNMENT');
+    await requirePermission('Assignment', 'CHECK_ASSIGNMENT_RESULT');
 
     const assignment = await getAssignmentById(assignmentId);
     if (!assignment) return notFound();

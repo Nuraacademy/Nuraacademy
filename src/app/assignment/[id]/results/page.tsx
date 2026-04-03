@@ -16,7 +16,7 @@ export default async function AssignmentResultsPage({
     const { id } = await params;
     const assignmentId = parseInt(id);
 
-    await requirePermission('Assignment', 'GRADE_ASSIGNMENT');
+    await requirePermission('Assignment', 'CHECK_ASSIGNMENT_RESULT');
 
     const [assignment, results] = await Promise.all([
         getAssignmentById(assignmentId),

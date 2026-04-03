@@ -9,7 +9,6 @@ import CVUpload from "@/components/ui/upload/cv_upload"
 import { NuraButton } from "@/components/ui/button/button"
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb"
 import { NuraTextArea } from "@/components/ui/input/text_area"
-import WelcomingModal from "@/components/ui/modal/welcoming_modal"
 import { checkEnrollment } from "@/app/actions/enrollment"
 import { getClassDetails } from "@/app/actions/classes"
 import { hasPermission } from "@/lib/rbac"
@@ -65,7 +64,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
 
     const [selectedObjectives, setSelectedObjectives] = useState<string[]>(["Job seeker", "Upskilling"])
     const [cvFile, setCvFile] = useState<File | null>(null)
-    const [isWelcomingModalOpen, setIsWelcomingModalOpen] = useState(false)
 
     const learningObjectives = [
         "Career switch",
@@ -87,12 +85,10 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
         setFormData(prev => ({ ...prev, [field]: value }))
     }
 
-    const [error, setError] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(false)
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        setError(null)
 
         // Validate all fields are filled
         if (!formData.profession.trim() ||
@@ -101,17 +97,17 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
             !formData.educationField.trim() ||
             !formData.jobIndustry.trim() ||
             !formData.finalExpectations.trim()) {
-            setError("Please fill in all required fields.")
+            toast.error("Please fill in all required fields.")
             return
         }
 
         if (selectedObjectives.length === 0) {
-            setError("Please select at least one learning objective.")
+            toast.error("Please select at least one learning objective.")
             return
         }
 
         if (!cvFile) {
-            setError("Please upload your CV.")
+            toast.error("Please upload your CV.")
             return
         }
 
@@ -124,7 +120,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
                 uploadFormData.append("file", cvFile);
                 const uploadResult = await uploadFileAction(uploadFormData);
                 if (!uploadResult.success) {
-                    setError(uploadResult.error || "Failed to upload CV");
+                    toast.error(uploadResult.error || "Failed to upload CV");
                     setIsLoading(false);
                     return;
                 }
@@ -142,9 +138,10 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
                 cvUrl: uploadedCvUrl,
             });
 
+            toast.success("Form submitted successfully!");
             router.push(`/classes/${classId}/payment?${params.toString()}`);
         } catch (err: any) {
-            setError(err.message || "An unexpected error occurred")
+            toast.error(err.message || "An unexpected error occurred")
             setIsLoading(false)
         }
     }
@@ -190,13 +187,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
                     />
                 </div>
 
-                {/* Form Card */}
                 <div className="p-8 md:p-12">
-                    {error && (
-                        <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl">
-                            {error}
-                        </div>
-                    )}
                     <form onSubmit={handleSubmit} className="space-y-8">
                         {/* Personal Information Section */}
                         <div className="space-y-6">
@@ -206,12 +197,15 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
                                     label="Profession"
                                     placeholder="Profession"
                                     value={formData.profession}
+                                    required
                                     onChange={(e) => handleInputChange("profession", e.target.value)}
                                 />
                                 <NuraTextInput
-                                    label="YoE (Years of Experience)"
-                                    placeholder="YoE (Years of Experience)"
+                                    label="Yoe (Years of Experience)"
+                                    placeholder="Yoe (Years of Experience)"
                                     value={formData.yoe}
+                                    variant="number"
+                                    required
                                     onChange={(e) => handleInputChange("yoe", e.target.value)}
                                 />
                             </div>
@@ -220,18 +214,21 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
                                     label="Work Field"
                                     placeholder="Work Field"
                                     value={formData.workField}
+                                    required
                                     onChange={(e) => handleInputChange("workField", e.target.value)}
                                 />
                                 <NuraTextInput
                                     label="Education Field"
                                     placeholder="Education Field"
                                     value={formData.educationField}
+                                    required
                                     onChange={(e) => handleInputChange("educationField", e.target.value)}
                                 />
                                 <NuraTextInput
                                     label="Job Industry"
                                     placeholder="Job Industry"
                                     value={formData.jobIndustry}
+                                    required
                                     onChange={(e) => handleInputChange("jobIndustry", e.target.value)}
                                     className="md:col-span-2"
                                 />
@@ -240,7 +237,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
 
                         {/* Learning Objectives Section */}
                         <div>
-                            <h2 className="text-xl font-medium text-gray-900 mb-4">Learning Objectives</h2>
+                            <h2 className="text-xl font-medium text-gray-900 mb-4">Learning Objectives*</h2>
                             <div className="flex flex-wrap gap-3">
                                 {learningObjectives.map((objective) => (
                                     <Chip
@@ -256,7 +253,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
 
                         {/* Final Expectations Section */}
                         <div>
-                            <h2 className="text-xl font-medium text-gray-900 mb-4">Final Expectations</h2>
+                            <h2 className="text-xl font-medium text-gray-900 mb-4">Final Expectations*</h2>
                             <div className="relative">
                                 <NuraTextArea
                                     label="Final Expectations"
@@ -269,7 +266,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
 
                         {/* Upload CV Section */}
                         <div>
-                            <h2 className="text-xl font-medium text-gray-900 mb-4">Upload CV</h2>
+                            <h2 className="text-xl font-medium text-gray-900 mb-4">Upload CV*</h2>
                             <CVUpload
                                 onFileSelect={(file) => setCvFile(file)}
                                 maxSizeMB={5}

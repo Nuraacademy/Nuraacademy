@@ -8,34 +8,98 @@ export async function getSidebarData() {
         const userId = await getCurrentUserId();
         if (!userId) return { success: false, error: "Unauthorized" };
 
-        // 1. Fetch Enrolled Classes and their Courses/Sessions
-        const enrollments = await prisma.enrollment.findMany({
-            where: {
-                userId,
-                deletedAt: null,
-                status: 'ACTIVE'
-            },
-            include: {
-                class: {
-                    include: {
-                        courses: {
-                            where: { deletedAt: null },
-                            include: {
-                                sessions: {
-                                    where: { deletedAt: null },
-                                    orderBy: { id: 'asc' }
+        // 1. Fetch User Role
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            include: { role: true }
+        });
+        const roleName = user?.role?.name || "";
+        const isLearner = roleName === 'Learner';
+        const isStaff = ['Trainer', 'Instructor', 'Instructur', 'Learning Designer'].includes(roleName);
+        const isAdmin = roleName === 'Admin';
+
+        // 2. Fetch Classes (Assigned for Staff, Enrolled for Learners)
+        let myClassesRaw = [];
+        let enrolledClassIds: number[] = [];
+
+        if (isAdmin) {
+            // Admins see all classes (or a recent subset)
+            myClassesRaw = await prisma.class.findMany({
+                where: { deletedAt: null },
+                include: {
+                    courses: {
+                        where: { deletedAt: null },
+                        include: {
+                            sessions: {
+                                where: { deletedAt: null },
+                                orderBy: { id: 'asc' }
+                            }
+                        }
+                    }
+                },
+                orderBy: { createdAt: 'desc' },
+                take: 10
+            });
+        } else if (isStaff) {
+            // Staff see their assigned classes
+            const classFilter = {
+                OR: [
+                    { trainerId: userId },
+                    { createdBy: userId },
+                    { courses: { some: { createdBy: userId } } },
+                    { courses: { some: { sessions: { some: { createdBy: userId } } } } }
+                ]
+            };
+
+            myClassesRaw = await prisma.class.findMany({
+                where: { deletedAt: null, ...classFilter },
+                include: {
+                    courses: {
+                        where: { deletedAt: null },
+                        include: {
+                            sessions: {
+                                where: { deletedAt: null },
+                                orderBy: { id: 'asc' }
+                            }
+                        }
+                    }
+                },
+                orderBy: { createdAt: 'desc' },
+                take: 10
+            });
+        } else {
+            // Learners see their enrolled classes
+            const enrollments = await prisma.enrollment.findMany({
+                where: {
+                    userId,
+                    deletedAt: null,
+                    status: 'ACTIVE',
+                    class: { deletedAt: null }
+                },
+                include: {
+                    class: {
+                        include: {
+                            courses: {
+                                where: { deletedAt: null },
+                                include: {
+                                    sessions: {
+                                        where: { deletedAt: null },
+                                        orderBy: { id: 'asc' }
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
-        });
+            });
+            myClassesRaw = enrollments.map(en => en.class);
+            enrolledClassIds = enrollments.map(en => en.classId);
+        }
 
-        const myClasses = enrollments.map(en => ({
-            id: en.classId.toString(),
-            title: en.class.title,
-            courses: en.class.courses.map(course => ({
+        const myClasses = myClassesRaw.map(cls => ({
+            id: cls.id.toString(),
+            title: cls.title,
+            courses: cls.courses.map(course => ({
                 id: course.id.toString(),
                 title: course.title,
                 sessions: course.sessions.map(session => ({
@@ -45,23 +109,13 @@ export async function getSidebarData() {
             }))
         }));
 
-        // 2. Fetch User Role for dynamic links
-        const user = await prisma.user.findUnique({
-            where: { id: userId },
-            include: { role: true }
-        });
-        const isLearner = user?.role?.name === 'Learner';
-
-        // 3. Fetch Assignments for this user (same logic as /assignment page)
-        const isAdmin = user?.role?.name === 'Admin' || user?.role?.name === 'Instructor' || user?.role?.name === 'Superadmin';
-        
+        // 3. Fetch Assignments for this user
         let assignments = [];
-        const classIds = enrollments.map(en => en.classId);
         
-        if (!isAdmin && isLearner) {
+        if (isLearner) {
             assignments = await prisma.assignment.findMany({
                 where: {
-                    classId: { in: classIds },
+                    classId: { in: enrolledClassIds },
                     deletedAt: null,
                     OR: [
                         { startDate: null },
@@ -76,19 +130,30 @@ export async function getSidebarData() {
                         }
                     }
                 },
-                orderBy: { endDate: 'asc' }, // nearest due date order
+                orderBy: { endDate: 'asc' }, 
                 take: 6
             });
         } else {
+            // Admin/Staff see all relevant ungraded assignments (simplified for sidebar)
+            const classFilter = isAdmin ? {} : (isStaff ? {
+                OR: [
+                    { trainerId: userId },
+                    { createdBy: userId },
+                    { courses: { some: { createdBy: userId } } },
+                    { courses: { some: { sessions: { some: { createdBy: userId } } } } }
+                ]
+            } : { id: -1 });
+
             assignments = await prisma.assignment.findMany({
                 where: { 
                     deletedAt: null,
+                    class: classFilter,
                     OR: [
                         { startDate: null },
                         { startDate: { lte: new Date() } }
                     ]
                 },
-                orderBy: { endDate: 'asc' }, // nearest due date order
+                orderBy: { createdAt: 'desc' }, 
                 take: 6
             });
         }
@@ -114,7 +179,7 @@ export async function getSidebarData() {
             };
         });
 
-        // 4. Fetch Actual Feedback Items (same as /feedback page)
+        // 4. Fetch Actual Feedback Items
         const { getFeedbacks, getFeedbackHubData } = await import("@/app/actions/feedback");
         let allFeedbacks: any[] = [];
         
@@ -130,11 +195,10 @@ export async function getSidebarData() {
             }
         }
 
-        // The feedbacks returned are already sorted by createdAt desc. We just take top 6.
         const feedbackLinks = allFeedbacks.slice(0, 6).map(f => ({
             id: f.id.toString(),
             name: f.title,
-            type: f.type.toLowerCase(), // 'reflection', 'assignment', 'peer', 'class'
+            type: f.type.toLowerCase(), 
             href: f.href
         }));
 

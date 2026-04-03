@@ -10,6 +10,7 @@ import { Plus } from "lucide-react";
 import Image from "next/image";
 import FileUpload from "@/components/ui/upload/file_upload";
 import M3DateTimePicker from "@/components/ui/input/datetime_picker";
+import { toast } from "sonner";
 
 interface ReferenceMaterial {
     name: string;
@@ -53,7 +54,6 @@ export default function EditSessionForm({
     );
 
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [error, setError] = useState<string | null>(null);
 
     // State for Video
     const [videoUrl, setVideoUrl] = useState(initialContent?.video?.url || "");
@@ -96,11 +96,11 @@ export default function EditSessionForm({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
-        setError(null);
+        setIsSubmitting(true);
 
         try {
             if (!sessionTitle.trim()) {
-                setError("Session title is required.");
+                toast.error("Session title is required.");
                 setIsSubmitting(false);
                 return;
             }
@@ -130,7 +130,7 @@ export default function EditSessionForm({
                         if (uploadRes.success && uploadRes.url) {
                             finalFileUrl = uploadRes.url;
                         } else {
-                            setError(uploadRes.error || "Failed to upload file");
+                            toast.error(uploadRes.error || "Failed to upload file");
                             setIsSubmitting(false);
                             return;
                         }
@@ -193,6 +193,7 @@ export default function EditSessionForm({
             }
 
             if (result.success) {
+                toast.success(isNew ? "Session created successfully!" : "Session updated successfully!");
                 if (isNew && "sessionId" in result && result.sessionId) {
                     router.push(`/classes/${classId}/course/${courseId}/session/${result.sessionId}`);
                 } else {
@@ -200,11 +201,11 @@ export default function EditSessionForm({
                 }
                 router.refresh();
             } else {
-                setError(result.error || "Something went wrong.");
+                toast.error(result.error || "Something went wrong.");
             }
         } catch (err) {
             console.error(err);
-            setError("Failed to save changes. Please try again.");
+            toast.error("Failed to save changes. Please try again.");
         } finally {
             setIsSubmitting(false);
         }
@@ -212,11 +213,6 @@ export default function EditSessionForm({
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-8">
-            {error && (
-                <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm border border-red-100">
-                    {error}
-                </div>
-            )}
 
             <div className="flex flex-col gap-6 text-sm w-full bg-gray-50 p-6 rounded-xl border border-gray-100">
                 <div className="flex flex-col gap-2">

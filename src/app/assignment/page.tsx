@@ -9,10 +9,10 @@ export default async function AssignmentPage() {
     const userId = await getCurrentUserId();
     const isAdmin = await hasPermission('Assignment', 'CREATE_UPDATE_ASSIGNMENT');
     const canDeleteAssignment = await hasPermission('Assignment', 'DELETE_ASSIGNMENT');
-    const canGrade = await hasPermission('Assignment', 'GRADE_ASSIGNMENT');
+    const canGrade = await hasPermission('Assignment', 'CHECK_ASSIGNMENT_RESULT');
     
-    // For students (non-admins), fetch only unfinished assignments
-    const assignments = await getAssignments(!isAdmin && userId ? userId : undefined);
+    // Fetch assignments with automatic role-based filtering
+    const assignments = await getAssignments(userId || undefined);
 
     const canAddAssignment = isAdmin;
 

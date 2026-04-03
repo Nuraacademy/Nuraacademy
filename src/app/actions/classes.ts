@@ -80,7 +80,7 @@ export async function getGroupedClasses() {
 
             if (keywords.includes('data') || titleLower.includes('data') || titleLower.includes('analytics')) {
                 groups["Data"].push({ id: cls.id, title: cls.title });
-            } else if (keywords.includes('software engineer') || keywords.includes('software') || keywords.includes('development') || titleLower.includes('software') || titleLower.includes('engineer') || titleLower.includes('web')) {
+            } else if (keywords.includes('software engineer') || keywords.includes('software') || keywords.includes('development') || titleLower.includes('software') || titleLower.includes('engineer') || titleLower.includes('web') || titleLower.includes('programming')) {
                 groups["Software Engineer"].push({ id: cls.id, title: cls.title });
             } else if (keywords.includes('ui/ux') || keywords.includes('ui') || keywords.includes('ux') || keywords.includes('design') || titleLower.includes('ui') || titleLower.includes('ux') || titleLower.includes('design')) {
                 groups["UI/UX"].push({ id: cls.id, title: cls.title });
@@ -153,6 +153,7 @@ export async function getClassesAction() {
 }
 
 import { uploadToSupabase, UploadResult } from "@/lib/storage";
+import { title } from "process"
 
 export async function uploadClassFile(formData: FormData): Promise<UploadResult> {
     try {

@@ -170,7 +170,7 @@ export async function removeAssignment(assignmentId: number, classId?: number, c
 
 export async function submitGradingAction(assignmentId: number, resultId: number, scores: Record<number, number>) {
     try {
-        await requirePermission('Assignment', 'GRADE_ASSIGNMENT')
+        await requirePermission('Assignment', 'CHECK_ASSIGNMENT_RESULT')
         await submitManualScores(resultId, scores);
         
         revalidatePath(`/assignment/${assignmentId}/results`);

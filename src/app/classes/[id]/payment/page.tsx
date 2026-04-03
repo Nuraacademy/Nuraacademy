@@ -22,7 +22,6 @@ export default function PaymentPage({ params }: PaymentPageProps) {
     const [classData, setClassData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         setIsLoading(true);
@@ -45,7 +44,6 @@ export default function PaymentPage({ params }: PaymentPageProps) {
 
     const handlePay = async () => {
         setIsSubmitting(true);
-        setError(null);
 
         try {
             const profession = searchParams.get("profession");
@@ -70,13 +68,14 @@ export default function PaymentPage({ params }: PaymentPageProps) {
             });
 
             if (result.success) {
+                toast.success("Enrollment successful!");
                 router.push(`/classes/${id}/overview?enrolled=true`);
             } else {
-                setError(result.error || "Failed to complete enrollment");
+                toast.error(result.error || "Failed to complete enrollment");
                 setIsSubmitting(false);
             }
         } catch (err: any) {
-            setError(err.message || "An unexpected error occurred");
+            toast.error(err.message || "An unexpected error occurred");
             setIsSubmitting(false);
         }
     };
@@ -116,12 +115,6 @@ export default function PaymentPage({ params }: PaymentPageProps) {
                 {/* Page Title */}
                 <h1 className="text-2xl font-medium mb-8">Payment Information</h1>
 
-                {error && (
-                    <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl">
-                        {error}
-                    </div>
-                )}
-
                 {/* Content Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     {/* My Item Card - Left Column */}
@@ -140,7 +133,7 @@ export default function PaymentPage({ params }: PaymentPageProps) {
                             <div className="grid grid-cols-2 gap-8 text-sm">
                                 <div className="flex flex-col gap-2">
                                     <p className="font-semibold text-gray-900">Methods</p>
-                                    <p className="text-gray-700">{classData.methods || "Flipped blended classroom"}</p>
+                                    <p className="text-gray-700" dangerouslySetInnerHTML={{ __html: classData.methods || "Flipped blended classroom" }} />
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <p className="font-semibold text-gray-900">Schedules</p>
