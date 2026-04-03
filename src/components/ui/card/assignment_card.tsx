@@ -1,12 +1,12 @@
 "use client"
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useNuraRouter } from "@/components/providers/navigation-provider";
 import { getAssignmentIcon, getAssignmentEndpoint, AssignmentType } from "@/utils/assignment";
 import { ConfirmModal } from "@/components/ui/modal/confirmation_modal";
 import { toast } from "sonner";
 import { removeAssignment } from "@/app/actions/assignment";
+import Image from "next/image";
 
 interface AssignmentCardProps {
     id?: number;
@@ -22,6 +22,7 @@ interface AssignmentCardProps {
     isAdmin?: boolean;
     canGrade?: boolean;
     syntheticType?: string;
+    showActions?: boolean;
 }
 
 export const AssignmentCard = ({
@@ -37,7 +38,8 @@ export const AssignmentCard = ({
     className = "",
     isAdmin = false,
     canGrade = false,
-    syntheticType
+    syntheticType,
+    showActions = true
 }: AssignmentCardProps) => {
     const router = useNuraRouter();
     const [isDeleting, setIsDeleting] = useState(false);
@@ -117,7 +119,7 @@ export const AssignmentCard = ({
                         </button>
                     )}
 
-                    {isAdmin && id && (
+                    {isAdmin && showActions && id && (
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
                                 className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-red-500"
@@ -127,7 +129,7 @@ export const AssignmentCard = ({
                                 }}
                                 disabled={isDeleting}
                             >
-                                <img src="/icons/Delete.svg" alt="Delete" className="w-5 h-5" />
+                                <Image src="/icons/Delete.svg" alt="Delete" width={20} height={20} />
                             </button>
                             <button
                                 className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-gray-900"
@@ -136,7 +138,7 @@ export const AssignmentCard = ({
                                     router.push(`/assignment/add?id=${id}`);
                                 }}
                             >
-                                <img src="/icons/Edit.svg" alt="Edit" className="w-5 h-5" />
+                                <Image src="/icons/Edit.svg" alt="Edit" width={20} height={20} />
                             </button>
                         </div>
                     )}

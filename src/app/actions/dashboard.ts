@@ -29,6 +29,9 @@ export interface DashboardData {
         submissionType: string | null;
         className: string;
         courseName: string;
+        classId: number | null;
+        courseId: number | null;
+        sessionId: number | null;
     }[];
     analytics: {
         id: number;
@@ -179,7 +182,10 @@ export async function getDashboardData() {
                 type: a.type,
                 submissionType: a.submissionType,
                 className: a.class?.title || "Global",
-                courseName: a.course?.title || "N/A"
+                courseName: a.course?.title || "N/A",
+                classId: a.classId,
+                courseId: a.courseId,
+                sessionId: null
             })),
             analytics: uniqueLearners.map(l => ({
                 id: l.id, // Using enrollment ID for specific class context

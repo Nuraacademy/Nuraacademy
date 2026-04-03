@@ -11,6 +11,9 @@ interface DashboardProps {
 }
 
 import { NuraButton } from '../ui/button/button';
+import AnalyticsSection from './dashboard/AnalyticsSection';
+import InstructorSection from './dashboard/InstructorSection';
+import CurriculaSection from './dashboard/CurriculaSection';
 
 export default function LearningDesignerDashboard({ data }: DashboardProps) {
     const router = useRouter();
@@ -43,27 +46,7 @@ export default function LearningDesignerDashboard({ data }: DashboardProps) {
                             <div className="md:col-span-7">
                                 {/* Analytics & Report */}
                                 <div className="space-y-6">
-                                    <div className="flex items-center justify-between">
-                                        <h2 className="text-lg md:text-xl font-medium text-[#1C3A37]">Analytics & Report</h2>
-                                        <button onClick={() => router.push('/admin/users?filter=learner')} className="text-xs font-medium text-gray-400 hover:text-gray-600 transition-colors uppercase tracking-wider">See All</button>
-                                    </div>
-                                    <div className="space-y-4">
-                                        {data.analytics.slice(0, 3).map((learner) => (
-                                            <div key={learner.id} className="flex items-center gap-4 bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer">
-                                                <div className="relative w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden shadow-sm border-2 border-white shrink-0">
-                                                    {learner.image ? (
-                                                        <Image src={learner.image} alt={learner.name} fill className='object-cover' />
-                                                    ) : (
-                                                        <Image src={`/example/human.png`} alt={learner.name} fill className='object-cover' />
-                                                    )}
-                                                </div>
-                                                <div className="flex flex-col gap-1">
-                                                    <h4 className="text-base font-medium text-[#1C3A37] leading-none">{learner.name}</h4>
-                                                    <p className="text-sm text-gray-400 font-medium leading-tight">{learner.className} | Batch Number</p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
+                                    <AnalyticsSection data={data.analytics} />
                                 </div>
                             </div>
 
@@ -86,27 +69,7 @@ export default function LearningDesignerDashboard({ data }: DashboardProps) {
 
                                 {/* Instructor & Trainer */}
                                 <div className="space-y-6 pt-4">
-                                    <div className="flex items-center justify-between">
-                                        <h2 className="text-lg md:text-xl font-medium text-[#1C3A37]">Instructor & Trainer</h2>
-                                        <button onClick={() => router.push('/admin/users?filter=staff')} className="text-xs font-medium text-gray-400 hover:text-gray-600 transition-colors uppercase tracking-wider">See All</button>
-                                    </div>
-                                    <div className="space-y-4">
-                                        {data.trainers.slice(0, 2).map((trainer) => (
-                                            <div key={trainer.id} className="flex items-center gap-4 bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer">
-                                                <div className="relative w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden shadow-sm border-2 border-white shrink-0">
-                                                    {trainer.image ? (
-                                                        <Image src={trainer.image} alt={trainer.name} fill className='object-cover' />
-                                                    ) : (
-                                                        <Image src={`/example/human.png`} alt={trainer.name} fill className='object-cover' />
-                                                    )}
-                                                </div>
-                                                <div className="flex flex-col gap-1">
-                                                    <h4 className="text-base font-medium text-[#1C3A37] leading-none">{trainer.name}</h4>
-                                                    <p className="text-sm text-gray-400 font-medium leading-tight">Staff Developer at Google</p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
+                                    <InstructorSection trainers={data.trainers} />
                                 </div>
                             </div>
                         </div>
@@ -127,9 +90,9 @@ export default function LearningDesignerDashboard({ data }: DashboardProps) {
                                         id={item.id}
                                         title={item.title}
                                         tag={item.submissionType === 'Group' ? 'Group' : 'Individual'}
-                                        classId={String(item.className)} // Reusing classTitle slot
-                                        courseId={String(item.courseName)} 
-                                        sessionId={"0"}
+                                        classId={String(item.classId)}
+                                        courseId={String(item.courseId)} 
+                                        sessionId={String(item.sessionId)}
                                         type={mapPrismaAssignmentType(item.type)}
                                         classTitle={item.className}
                                         courseTitle={item.courseName}
@@ -146,23 +109,8 @@ export default function LearningDesignerDashboard({ data }: DashboardProps) {
                         {/* Assignments (Reusable) */}
                         <AssignmentSection assignments={data.assignments} />
 
-                        {/* Curricula (Manual list matching AssignmentCard layout) */}
-                        <div className="space-y-6">
-                            <div className="flex items-center justify-between">
-                                <h2 className="text-lg md:text-xl font-medium text-[#1C3A37]">Curricula</h2>
-                                <button onClick={() => router.push('/curricula')} className="text-xs font-medium text-gray-400 hover:text-gray-600 transition-colors uppercase tracking-wider">See All</button>
-                            </div>
-                            <div className="space-y-4">
-                                {data.curricula.slice(0, 3).map((item) => (
-                                    <div key={item.id} className="flex items-center gap-4 bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer">
-                                        <div className="flex rounded-xl">
-                                            <Image src="/icons/Curricula.svg" alt="Curricula" width={40} height={40} />
-                                        </div>
-                                        <h3 className="text-base font-medium text-[#1C3A37]">{item.title}</h3>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                        {/* Curricula */}
+                        <CurriculaSection curricula={data.curricula} />
                     </div>
                 </div>
             </div>

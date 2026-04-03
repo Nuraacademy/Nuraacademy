@@ -1,7 +1,7 @@
 "use client"
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
+import { useNuraRouter } from '@/components/providers/navigation-provider';
 import { ChevronRight } from 'lucide-react';
 import { AssignmentCard } from '@/components/ui/card/assignment_card';
 import { mapPrismaAssignmentType } from '@/utils/assignment';
@@ -11,7 +11,7 @@ interface AssignmentSectionProps {
 }
 
 export default function AssignmentSection({ assignments }: AssignmentSectionProps) {
-    const router = useRouter();
+    const router = useNuraRouter();
 
     return (
         <section className="space-y-6">
@@ -35,7 +35,8 @@ export default function AssignmentSection({ assignments }: AssignmentSectionProp
                         type={mapPrismaAssignmentType(assignment.type)}
                         classTitle={assignment.className}
                         canGrade={false}
-                        isAdmin={false}
+                        isAdmin={true}
+                        showActions={false}
                     />
                 ))}
             </div>

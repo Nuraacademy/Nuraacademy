@@ -12,7 +12,7 @@ export default function AnalyticsSection({ data }: AnalyticsSectionProps) {
     const router = useRouter();
 
     return (
-        <section className="bg-white rounded-[40px] p-4 md:p-6 shadow-sm border border-white/50 space-y-8">
+        <section className="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-white/50 space-y-8">
             <div className="flex items-center justify-between">
                 <h2 className="text-lg md:text-xl font-medium text-[#1C3A37]">Analytics</h2>
                 <button
@@ -27,7 +27,7 @@ export default function AnalyticsSection({ data }: AnalyticsSectionProps) {
                 {data.slice(0, 3).map((learner, idx) => (
                     <React.Fragment key={learner.id}>
                         <div className="flex items-center gap-4 group cursor-pointer" onClick={() => router.push(`/analytics/user/${learner.id}`)}>
-                            <div className="relative w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden shadow-sm border-2 border-white">
+                            <div className="relative w-14 h-14 rounded-full overflow-hidden shadow-sm border-2 border-white">
                                 {learner.image ? (
                                     <Image
                                         src={learner.image}
@@ -44,9 +44,9 @@ export default function AnalyticsSection({ data }: AnalyticsSectionProps) {
                                     />
                                 )}
                             </div>
-                            <div className="space-y-0.5">
-                                <h4 className="text-base md:text-lg font-medium text-[#1C3A37] group-hover:text-[#2D5A54] transition-colors">{learner.name}</h4>
-                                <p className="text-sm md:text-base text-gray-400 font-medium line-clamp-1">{learner.className}</p>
+                            <div className="">
+                                <h4 className="text-md font-medium text-[#1C3A37] group-hover:text-[#2D5A54] transition-colors">{learner.name}</h4>
+                                <p className="text-sm text-gray-400 font-medium line-clamp-1">{learner.className}</p>
                             </div>
                         </div>
                         {idx < data.slice(0, 3).length - 1 && (
