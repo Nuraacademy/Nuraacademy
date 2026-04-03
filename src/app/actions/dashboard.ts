@@ -8,6 +8,7 @@ export interface DashboardData {
     user: {
         username: string;
         name: string;
+        role: string;
     };
     classes: {
         id: number;
@@ -33,12 +34,14 @@ export interface DashboardData {
         id: number;
         name: string;
         className: string;
+        image: string | null;
     }[];
     trainers: {
         id: number;
         name: string;
         role: string;
         username: string;
+        image: string | null;
     }[];
     stats: {
         totalLearners: number;
@@ -48,6 +51,10 @@ export interface DashboardData {
         date: Date | null;
         activity: string;
         className: string;
+    }[];
+    curricula: {
+        id: number;
+        title: string;
     }[];
 }
 
@@ -139,12 +146,20 @@ export async function getDashboardData() {
         take: 5
     });
 
+    // 7. Fetch Recent Curricula
+    const curricula = await prisma.curricula.findMany({
+        where: { deletedAt: null },
+        orderBy: { createdAt: 'desc' },
+        take: 3
+    });
+
     return {
         success: true,
         data: {
             user: {
                 username: user.username,
-                name: user.name || user.username
+                name: user.name || user.username,
+                role: user.role?.name || "Member"
             },
             classes: classes.map(c => ({
                 id: c.id,
@@ -176,7 +191,8 @@ export async function getDashboardData() {
                 id: t.id,
                 name: t.name || t.username,
                 username: t.username,
-                role: "Mentor" // Simplified for UI
+                role: "Mentor", // Simplified for UI
+                image: null
             })),
             stats: {
                 totalLearners
@@ -186,6 +202,10 @@ export async function getDashboardData() {
                 date: t.date,
                 activity: t.activity,
                 className: t.class.title
+            })),
+            curricula: curricula.map(c => ({
+                id: c.id,
+                title: c.title
             }))
         }
     };
