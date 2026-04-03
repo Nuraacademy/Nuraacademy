@@ -13,7 +13,10 @@ export async function getSidebarData() {
             where: {
                 userId,
                 deletedAt: null,
-                status: 'ACTIVE'
+                status: 'ACTIVE',
+                class: {
+                    deletedAt: null
+                }
             },
             include: {
                 class: {

@@ -3,7 +3,7 @@
 import { Menu, ChevronUp, ChevronDown } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation";
-import { getAssignmentEndpoint, getAssignmentIcon, mapPrismaAssignmentType } from "@/utils/assignment";
+import { getAssignmentIcon, mapPrismaAssignmentType } from "@/utils/assignment";
 import { getSidebarData } from "@/app/actions/sidebar";
 
 interface SidebarProp {
