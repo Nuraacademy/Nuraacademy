@@ -16,7 +16,7 @@ export default function AnalyticsSection({ data }: AnalyticsSectionProps) {
             <div className="flex items-center justify-between">
                 <h2 className="text-lg md:text-xl font-medium text-[#1C3A37]">Analytics</h2>
                 <button
-                    onClick={() => router.push('/admin/users?filter=learner')}
+                    onClick={() => router.push('/analytics')}
                     className="text-sm font-medium text-gray-400 hover:text-[#1C3A37] transition-colors"
                 >
                     See All

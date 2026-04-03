@@ -65,11 +65,17 @@ export const AssignmentCard = ({
         } else if (id && type === "Placement" && isAdmin) {
             router.push(`/classes/${classId}/test/create`);
         } else if (id && type !== "Placement") {
-            router.push(`/assignment/${id}`);
+            // Redirect to results if user has grading permissions, otherwise to standard view
+            if (canGrade) {
+                router.push(`/assignment/${id}/results`);
+            } else {
+                router.push(`/assignment/${id}`);
+            }
         } else {
             router.push(getAssignmentEndpoint(classId, courseId, sessionId, type));
         }
     };
+
 
     return (
         <>

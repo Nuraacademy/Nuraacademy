@@ -8,9 +8,11 @@ import { mapPrismaAssignmentType } from '@/utils/assignment';
 
 interface AssignmentSectionProps {
     assignments: any[];
+    canGrade?: boolean;
+    isAdmin?: boolean;
 }
 
-export default function AssignmentSection({ assignments }: AssignmentSectionProps) {
+export default function AssignmentSection({ assignments, canGrade = false, isAdmin = false }: AssignmentSectionProps) {
     const router = useRouter();
 
     return (
@@ -34,8 +36,8 @@ export default function AssignmentSection({ assignments }: AssignmentSectionProp
                         sessionId={String(assignment.sessionId)}
                         type={mapPrismaAssignmentType(assignment.type)}
                         classTitle={assignment.className}
-                        canGrade={false}
-                        isAdmin={true}
+                        canGrade={canGrade}
+                        isAdmin={isAdmin}
                         showActions={false}
                     />
                 ))}

@@ -51,7 +51,7 @@ export default function TrainerDashboard({ data }: DashboardProps) {
                         <ClassSection classes={data.classes} />
 
                         {/* Assignments */}
-                        <AssignmentSection assignments={data.assignments} />
+                        <AssignmentSection assignments={data.assignments} canGrade={true} isAdmin={true} />
                     </div>
 
                     {/* Right Area - 5 columns */}

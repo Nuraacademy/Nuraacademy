@@ -78,8 +78,8 @@ export async function getDashboardData() {
         return { success: false, error: "Unauthorized" };
     }
 
-    const isTrainerOrInstructor = ['Trainer', 'Instructor', 'Instructur'].includes(user.role?.name || '');
-    const classFilter = isTrainerOrInstructor ? {
+    const isStaff = ['Trainer', 'Instructor', 'Instructur', 'Learning Designer'].includes(user.role?.name || '');
+    const classFilter = isStaff ? {
         OR: [
             { trainerId: userId },
             { createdBy: userId },

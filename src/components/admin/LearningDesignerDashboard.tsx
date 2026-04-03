@@ -107,7 +107,7 @@ export default function LearningDesignerDashboard({ data }: DashboardProps) {
                         </div> */}
 
                         {/* Assignments (Reusable) */}
-                        <AssignmentSection assignments={data.assignments} />
+                        <AssignmentSection assignments={data.assignments} canGrade={true} isAdmin={true} />
 
                         {/* Curricula */}
                         <CurriculaSection curricula={data.curricula} />
