@@ -597,141 +597,145 @@ export function AddAssignmentClient({
                         <Breadcrumb items={breadcrumbBase} />
                         <h1 className="text-2xl font-medium mt-6 mb-6">Add Assignment</h1>
 
-                        {/* ── Row 1: Title ── */}
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mb-4">
-                            <div className="md:col-span-1">
-                                <label className="block text-sm font-semibold mb-1">Assignment Title</label>
-                                <NuraTextInput
-                                    value={title}
-                                    onChange={e => { setTitle(e.target.value); setOverviewErrors(p => ({ ...p, title: "" })); }}
-                                    placeholder="e.g. Week 1 Assignment"
-                                    className={`rounded-full border-gray-200 ${overviewErrors.title ? "border-orange-400 ring-1 ring-orange-400" : ""}`}
-                                />
-                                {overviewErrors.title && <p className="text-orange-500 text-xs mt-1">{overviewErrors.title}</p>}
-                            </div>
+                        {/* ── Row 1: Title, Duration and Dates ── */}
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-start mb-6">
+                            <NuraTextInput
+                                label="Assignment Title"
+                                required
+                                value={title}
+                                onChange={e => { setTitle(e.target.value); setOverviewErrors(p => ({ ...p, title: "" })); }}
+                                placeholder="e.g. Week 1 Assignment"
+                                className={overviewErrors.title ? "border-orange-400 ring-1 ring-orange-400" : ""}
+                            />
                             
-                            {/* Duration */}
-                            <div className="md:col-span-1">
-                                <label className="block text-sm font-semibold mb-1">Duration (min)</label>
-                                <NuraTextInput
-                                    value={duration}
-                                    onChange={e => { setDuration(e.target.value); setOverviewErrors(p => ({ ...p, duration: "" })); }}
-                                    placeholder="60"
-                                    variant="number"
-                                    className={`rounded-full border-gray-200 ${overviewErrors.duration ? "border-orange-400 ring-1 ring-orange-400" : ""}`}
-                                />
-                                {overviewErrors.duration && <p className="text-orange-500 text-xs mt-1">{overviewErrors.duration}</p>}
-                            </div>
+                            <NuraTextInput
+                                label="Duration (minutes)"
+                                value={duration}
+                                onChange={e => { setDuration(e.target.value); setOverviewErrors(p => ({ ...p, duration: "" })); }}
+                                placeholder="60"
+                                variant="number"
+                                className={overviewErrors.duration ? "border-orange-400 ring-1 ring-orange-400" : ""}
+                            />
 
-                            {/* Start Date */}
                             <M3DateTimePicker
                                 label="Start Date"
+                                required
                                 value={startDate}
                                 onChange={(d) => { setStartDate(d); setOverviewErrors(p => ({ ...p, startDate: "" })); }}
                                 error={overviewErrors.startDate}
-                                required
                                 minDate={new Date()}
                             />
 
-                            {/* End Date */}
                             <M3DateTimePicker
                                 label="End Date"
+                                required
                                 value={endDate}
                                 onChange={(d) => { setEndDate(d); setOverviewErrors(p => ({ ...p, endDate: "" })); }}
                                 error={overviewErrors.endDate}
-                                required
                                 minDate={startDate || new Date()}
                             />
                         </div>
 
-                        {/* ── Row 2: Type + Submission + Class + Course + Session ── */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end mb-8">
-                            <div>
-                                <label className="block text-sm font-semibold mb-1">Type</label>
-                                <NuraSelect
-                                    value={assignmentType}
-                                    onChange={handleTypeChange}
-                                    placeholder="Select type..."
-                                    options={[
-                                        { label: "Placement Test", value: "PLACEMENT" },
-                                        { label: "Pre Test", value: "PRETEST" },
-                                        { label: "Post Test", value: "POSTTEST" },
-                                        { label: "Assignment", value: "ASSIGNMENT" },
-                                        { label: "Exercise", value: "EXERCISE" },
-                                        { label: "Final Project", value: "PROJECT" },
-                                    ]}
-                                />
-                                {overviewErrors.type && <p className="text-orange-500 text-xs mt-1">{overviewErrors.type}</p>}
+                        {/* Error messages for non-M3 picker inputs */}
+                        {(overviewErrors.title || overviewErrors.duration) && (
+                            <div className="grid grid-cols-4 gap-6 -mt-4 mb-6">
+                                <div className="col-span-1">
+                                    {overviewErrors.title && <p className="text-orange-500 text-xs mt-1">{overviewErrors.title}</p>}
+                                </div>
+                                <div className="col-span-1">
+                                    {overviewErrors.duration && <p className="text-orange-500 text-xs mt-1">{overviewErrors.duration}</p>}
+                                </div>
                             </div>
+                        )}
+
+                        {/* ── Row 2: Type + Submission ── */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start mb-8">
+                            <NuraSelect
+                                label="Assignment Type"
+                                value={assignmentType}
+                                onChange={handleTypeChange}
+                                placeholder="Select type..."
+                                options={[
+                                    { label: "Placement Test", value: "PLACEMENT" },
+                                    { label: "Pre Test", value: "PRETEST" },
+                                    { label: "Post Test", value: "POSTTEST" },
+                                    { label: "Assignment", value: "ASSIGNMENT" },
+                                    { label: "Exercise", value: "EXERCISE" },
+                                    { label: "Final Project", value: "PROJECT" },
+                                ]}
+                            />
 
                             {/* Submission Type — only for ASSIGNMENT / PROJECT */}
                             <div>
-                                <label className={`block text-sm font-semibold mb-1 ${!hasSubmissionType ? "text-gray-300" : ""}`}>
-                                    Submission
+                                <label className={`block text-sm font-medium mb-1.5 ${!hasSubmissionType ? "text-gray-300" : "text-black"}`}>
+                                    Submission Method
                                 </label>
-                                <div className={`flex rounded-full border overflow-hidden h-[42px] text-sm font-medium transition-opacity ${!hasSubmissionType ? "opacity-30 pointer-events-none border-gray-200" : "border-gray-300"}`}>
+                                <div className={`flex rounded-xl border overflow-hidden h-[42px] text-sm font-medium transition-all ${!hasSubmissionType ? "opacity-30 pointer-events-none border-gray-200" : "border-black shadow-sm"}`}>
                                     <button
                                         type="button"
                                         onClick={() => setSubmissionType("INDIVIDUAL")}
-                                        className={`flex-1 px-4 transition-colors ${submissionType === "INDIVIDUAL" ? "bg-black text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}
+                                        className={`flex-1 px-4 transition-all ${submissionType === "INDIVIDUAL" ? "bg-black text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}
                                     >
                                         Individual
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setSubmissionType("GROUP")}
-                                        className={`flex-1 px-4 transition-colors border-l ${submissionType === "GROUP" ? "bg-black text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}
+                                        className={`flex-1 px-4 transition-all border-l border-gray-100 ${submissionType === "GROUP" ? "bg-black text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}
                                     >
                                         Group
                                     </button>
                                 </div>
                             </div>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end mb-8">
-                            {/* Class */}
-                            <div>
-                                <label className="block text-sm font-semibold mb-1">Class</label>
-                                <NuraSelect
-                                    value={selectedClassId?.toString() || ""}
-                                    onChange={handleClassChange}
-                                    placeholder="Select class..."
-                                    options={classes.map(c => ({ label: c.title, value: c.id.toString() }))}
-                                    disabled={!assignmentType}
-                                />
-                                {overviewErrors.classId && <p className="text-orange-500 text-xs mt-1">{overviewErrors.classId}</p>}
-                            </div>
+                        {overviewErrors.type && <p className="text-orange-500 text-xs -mt-6 mb-6">{overviewErrors.type}</p>}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start mb-8">
+                            <NuraSelect
+                                label="Target Class"
+                                value={selectedClassId?.toString() || ""}
+                                onChange={handleClassChange}
+                                placeholder="Select class..."
+                                options={classes.map(c => ({ label: c.title, value: c.id.toString() }))}
+                                disabled={!assignmentType}
+                            />
 
-                            {/* Course — always visible, disabled when not needed */}
-                            <div>
-                                <label className={`block text-sm font-semibold mb-1 ${!courseEnabled ? "text-gray-300" : ""}`}>Course</label>
-                                <NuraSelect
-                                    value={selectedCourseId?.toString() || ""}
-                                    onChange={handleCourseChange}
-                                    placeholder="Select course..."
-                                    options={courses.map(c => ({ label: c.title, value: c.id.toString() }))}
-                                    disabled={!courseEnabled || !selectedClassId}
-                                />
-                                {courseEnabled && overviewErrors.courseId && <p className="text-orange-500 text-xs mt-1">{overviewErrors.courseId}</p>}
-                            </div>
+                            <NuraSelect
+                                label="Core Course"
+                                value={selectedCourseId?.toString() || ""}
+                                onChange={handleCourseChange}
+                                placeholder="Select course..."
+                                options={courses.map(c => ({ label: c.title, value: c.id.toString() }))}
+                                disabled={!courseEnabled || !selectedClassId}
+                            />
 
-                            {/* Session — always visible, disabled when not needed */}
-                            <div>
-                                <label className={`block text-sm font-semibold mb-1 ${!sessionEnabled ? "text-gray-300" : ""}`}>Session</label>
-                                <NuraSelect
-                                    value={selectedSessionId?.toString() || ""}
-                                    onChange={v => {
-                                        const sid = parseInt(v);
-                                        setSelectedSessionId(sid);
-                                        setOverviewErrors(p => ({ ...p, sessionId: "" }));
-                                        triggerExistingCheck(assignmentType, selectedClassId, selectedCourseId, sid);
-                                    }}
-                                    placeholder="Select session..."
-                                    options={sessions.map(s => ({ label: s.title, value: s.id.toString() }))}
-                                    disabled={!sessionEnabled || !selectedCourseId}
-                                />
-                                {sessionEnabled && overviewErrors.sessionId && <p className="text-orange-500 text-xs mt-1">{overviewErrors.sessionId}</p>}
-                            </div>
+                            <NuraSelect
+                                label="Linked Session"
+                                value={selectedSessionId?.toString() || ""}
+                                onChange={v => {
+                                    const sid = parseInt(v);
+                                    setSelectedSessionId(sid);
+                                    setOverviewErrors(p => ({ ...p, sessionId: "" }));
+                                    triggerExistingCheck(assignmentType, selectedClassId, selectedCourseId, sid);
+                                }}
+                                placeholder="Select session..."
+                                options={sessions.map(s => ({ label: s.title, value: s.id.toString() }))}
+                                disabled={!sessionEnabled || !selectedCourseId}
+                            />
                         </div>
+                        {/* More Error Messages */}
+                        {(overviewErrors.classId || overviewErrors.courseId || overviewErrors.sessionId) && (
+                            <div className="grid grid-cols-3 gap-6 -mt-6 mb-8">
+                                <div className="col-span-1">
+                                    {overviewErrors.classId && <p className="text-orange-500 text-xs mt-1">{overviewErrors.classId}</p>}
+                                </div>
+                                <div className="col-span-1">
+                                    {overviewErrors.courseId && <p className="text-orange-500 text-xs mt-1">{overviewErrors.courseId}</p>}
+                                </div>
+                                <div className="col-span-1">
+                                    {overviewErrors.sessionId && <p className="text-orange-500 text-xs mt-1">{overviewErrors.sessionId}</p>}
+                                </div>
+                            </div>
+                        )}
 
                         {/* ── Question Section ── */}
                         {selectedClassId && assignmentType && (
