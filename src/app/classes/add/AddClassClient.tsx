@@ -154,22 +154,24 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                 {/* Title and Stats */}
                 <div className="flex flex-col md:flex-row gap-6">
                     <div className="flex-grow">
-                        <label className="block text-sm font-semibold mb-2">Class Title</label>
                         <NuraTextInput
+                            label="Class Title"
                             placeholder="Class title"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             className={errors.title ? "border-red-500" : ""}
+                            required
                         />
                         {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title}</p>}
                     </div>
                     <div className="w-full md:w-48">
-                        <label className="block text-sm font-semibold mb-2">Total Hours</label>
                         <NuraTextInput
+                            label="Total Hours"
                             variant="number"
                             placeholder="Total hours"
                             value={String(hours)}
                             onChange={(e) => setHours(e.target.value)}
+                            required
                         />
                     </div>
                     <div className="w-full md:w-64">
@@ -179,6 +181,7 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                             withTime={false}
                             onChange={setStartDate}
                             minDate={new Date()}
+                            required
                         />
                     </div>
                     <div className="w-full md:w-64">
@@ -188,26 +191,25 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                             onChange={setEndDate}
                             withTime={false}
                             minDate={startDate || new Date()}
+                            required
                         />
                     </div>
                 </div>
 
                 {/* Description */}
                 <div>
-                    <label className="block text-sm font-semibold mb-2">Description</label>
-                    <RichTextInput value={description} onChange={setDescription} />
+                    <RichTextInput label="Description" value={description} onChange={setDescription} required />
                     {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
                 </div>
 
                 {/* Learning Objectives */}
                 <div>
-                    <label className="block text-sm font-semibold mb-2">What You Will Learn</label>
-                    <RichTextInput value={learningObjectives} onChange={setLearningObjectives} />
+                    <RichTextInput label="What You Will Learn" value={learningObjectives} onChange={setLearningObjectives} required />
                 </div>
 
                 {/* Picture Banner */}
                 <div>
-                    <label className="block text-sm font-semibold mb-2">Picture Banner</label>
+                    <label className="block text-sm mb-2">Picture Banner <span className="text-red-500">*</span></label>
                     <FileUpload 
                         accept=".jpg,.jpeg,.png"
                         supportedFileType=".jpg, .png, .jpeg"
@@ -242,13 +244,12 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
 
                 {/* Methods */}
                 <div>
-                    <label className="block text-sm font-semibold mb-2">Methods</label>
-                    <RichTextInput value={methods} onChange={setMethods} />
+                    <RichTextInput label="Methods" value={methods} onChange={setMethods} required />
                 </div>
 
                 {/* Preview Video */}
                 <div>
-                    <label className="block text-sm font-semibold mb-2">Preview Class (Video)</label>
+                    <label className="block text-sm mb-2">Preview Class (Video)</label>
                     <FileUpload 
                         accept=".mp4"
                         supportedFileType=".mp4"
@@ -283,16 +284,14 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
 
                 {/* Class Keyword */}
                 <div>
-                    <label className="block text-sm font-semibold mb-2 font-medium">Class Keyword</label>
-                    <div className="relative">
-                        <NuraTextInput
-                            placeholder="Technology; Data; Programming; Product Design; Programming"
-                            value={keywordInput}
-                            onChange={(e) => setKeywordInput(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleAddKeyword()}
-                            icon={<Search strokeWidth={1.5} className="text-gray-400" />}
-                        />
-                    </div>
+                    <NuraTextInput
+                        label="Class Keyword"
+                        placeholder="Technology; Data; Programming; Product Design; Programming"
+                        value={keywordInput}
+                        onChange={(e) => setKeywordInput(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleAddKeyword()}
+                        icon={<Search strokeWidth={1.5} className="text-gray-400" />}
+                    />
                     <div className="flex flex-wrap gap-3 mt-4 text-sm">
                         {keywords.map(tag => (
                             <span key={tag} className="flex items-center gap-2 px-6 py-2 border border-gray-200 rounded-full bg-white shadow-sm">
@@ -307,8 +306,8 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
 
                 {/* Trainer Selection */}
                 <div>
-                    <label className="block text-sm font-semibold mb-2">Assign Trainer</label>
                     <NuraSelect
+                        label="Assign Trainer"
                         placeholder="Select Trainer"
                         options={trainers.map(t => ({ label: t.name || t.username, value: String(t.id) }))}
                         value=""
@@ -332,8 +331,8 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
 
                 {/* Curricula */}
                 <div>
-                    <label className="block text-sm font-semibold mb-2 font-medium">Curricula</label>
                     <NuraSelect
+                        label="Curricula"
                         placeholder="Select Curricula"
                         options={allCurricula.map(c => ({ label: c.title, value: String(c.id) }))}
                         value=""
