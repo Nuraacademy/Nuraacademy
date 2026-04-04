@@ -163,7 +163,7 @@ export default async function CourseOverviewPage({
                             <div className="flex items-center justify-between mb-6">
                                 <h2 className="text-md">Timeline</h2>
                                 {canUpdateSchedule && (
-                                    <AddTimelineButton classId={id} />
+                                    <AddTimelineButton classId={id} isEdit={classData.timelines?.length > 0} />
                                 )}
                             </div>
 

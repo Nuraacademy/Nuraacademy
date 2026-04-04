@@ -49,9 +49,14 @@ export function EnrollButton({ classId }: { classId: string }) {
     )
 }
 
-export function AddTimelineButton({ classId }: { classId: string }) {
+export function AddTimelineButton({ classId, isEdit }: { classId: string, isEdit: boolean }) {
     const router = useRouter()
-    return <NuraButton label="Add Timeline" variant="primary" className="h-6 text-sm" onClick={() => router.push(`/classes/${classId}/timeline/create`)} />
+    return <NuraButton 
+        label={isEdit ? "Edit Timeline" : "Add Timeline"}
+        variant="primary" 
+        className="h-6 text-sm" 
+        onClick={() => router.push(`/classes/${classId}/timeline/create`)} 
+    />
 }
 
 
