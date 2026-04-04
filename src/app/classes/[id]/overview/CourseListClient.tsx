@@ -72,7 +72,13 @@ export default function CourseListClient({
 
             {/* Scrollable Container */}
             <div className="flex-grow min-h-0">
-                <div className="max-h-[600px] overflow-y-auto pr-2 custom-scrollbar flex flex-col gap-4">
+                <div className="max-h-[600px] overflow-y-auto pr-2 flex flex-col gap-4 
+                                scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-200 hover:scrollbar-thumb-[#DAEE49]
+                                [&::-webkit-scrollbar]:w-1
+                                [&::-webkit-scrollbar-track]:bg-transparent
+                                [&::-webkit-scrollbar-thumb]:bg-gray-200
+                                [&::-webkit-scrollbar-thumb]:rounded-full
+                                hover:[&::-webkit-scrollbar-thumb]:bg-[#DAEE49]">
                     {filteredCourses.map((course) => (
                         <CourseCard
                             key={course.id}
@@ -107,22 +113,6 @@ export default function CourseListClient({
                     )}
                 </div>
             </div>
-
-            <style jsx global>{`
-                .custom-scrollbar::-webkit-scrollbar {
-                    width: 4px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-track {
-                    background: transparent;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: #E5E5E5;
-                    border-radius: 20px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                    background: #DAEE49;
-                }
-            `}</style>
         </div>
     );
 }

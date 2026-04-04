@@ -4,7 +4,11 @@ import { useRouter } from "next/navigation";
 import { ExternalLink } from "lucide-react";
 import { NuraButton } from "@/components/ui/button/button";
 import ReferenceMaterials from "@/components/ui/reference_materials/reference_materials";
-import PDFViewer from "@/components/ui/video/pdf_viewer";
+import dynamic from "next/dynamic";
+const PDFViewer = dynamic(() => import("@/components/ui/video/pdf_viewer"), { 
+    ssr: false,
+    loading: () => <div className="p-10 text-center animate-pulse text-gray-400">Loading document engine...</div>
+});
 import { startSessionAction } from "@/app/actions/session";
 import { toast } from "sonner";
 import { useState } from "react";
