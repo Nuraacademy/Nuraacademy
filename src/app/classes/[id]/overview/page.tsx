@@ -144,7 +144,10 @@ export default async function CourseOverviewPage({
                     {/* Action Buttons */}
                     {canEditClass && (
                         <div className="flex justify-center mt-6 mr-6 gap-4 top-0">
-                            <Link href={`/classes/${id}/edit`}>
+                            <Link href={`/classes/${id}/enrollments`} title="View Enrollments">
+                                <Image src="/icons/People.svg" alt="Enrollments" width={16} height={16} />
+                            </Link>
+                            <Link href={`/classes/${id}/edit`} title="Edit Class">
                                 <Image src="/icons/Edit.svg" alt="Edit" width={16} height={16} />
                             </Link>
                         </div>
