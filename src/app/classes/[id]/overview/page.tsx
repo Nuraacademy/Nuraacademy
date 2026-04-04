@@ -40,14 +40,14 @@ export default async function CourseOverviewPage({
     const enrollment = currentUserId ? await getEnrollment(currentUserId, parseInt(id)) : null;
     const isEnrolled = !!enrollment;
 
-    // Check placement test status
+    // Fetch placement test
+    const placementTest = await getPlacementTestByClassId(parseInt(id));
+
+    // Check placement test status for enrolled students
     let isPlacementTestFinished = false;
-    if (isEnrolled && enrollment) {
-        const placementTest = await getPlacementTestByClassId(parseInt(id));
-        if (placementTest) {
-            const testResult = await getAssignmentResult(placementTest.id, enrollment.id);
-            isPlacementTestFinished = !!testResult?.finishedAt;
-        }
+    if (isEnrolled && enrollment && placementTest) {
+        const testResult = await getAssignmentResult(placementTest.id, enrollment.id);
+        isPlacementTestFinished = !!testResult?.finishedAt;
     }
 
     // Fetch PROJECT assignments for this class
@@ -300,6 +300,8 @@ export default async function CourseOverviewPage({
                                     isAdmin={canCreatePlacement}
                                     isFinished={isPlacementTestFinished}
                                     courseCount={classData.courses?.length || 0}
+                                    startDate={placementTest?.startDate || undefined}
+                                    endDate={placementTest?.endDate || undefined}
                                 />
                             </div>
                         )}
@@ -326,7 +328,11 @@ export default async function CourseOverviewPage({
                                         isLearner={isLearner}
                                     />
                                 ))}
-                                {projectAssignments.map((assignment) => (
+                                {projectAssignments.filter(a => {
+                                    if (canUpdateCourse) return true; // Admin/Staff sees all
+                                    if (!a.startDate) return true;
+                                    return new Date(a.startDate) <= new Date();
+                                }).map((assignment) => (
                                     <ProjectCard
                                         key={assignment.id}
                                         classId={id}

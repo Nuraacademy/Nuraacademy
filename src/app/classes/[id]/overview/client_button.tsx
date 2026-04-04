@@ -99,15 +99,25 @@ export function PlacementTestButton({
     classId,
     isAdmin,
     isFinished,
-    courseCount
+    courseCount,
+    startDate,
+    endDate
 }: {
     classId: string,
     isAdmin: boolean,
     isFinished: boolean,
-    courseCount: number
+    courseCount: number,
+    startDate?: Date,
+    endDate?: Date
 }) {
     const router = useRouter()
     const [isModalOpen, setIsModalOpen] = useState(false)
+
+    const isStarted = startDate ? new Date() >= new Date(startDate) : true;
+    const isEnded = endDate ? new Date() > new Date(endDate) : false;
+
+    // For students, if not started and not finished, we hide the button entirely
+    const shouldHide = !isAdmin && !isFinished && !isStarted;
 
     const handleClick = () => {
         if (courseCount === 0) {
@@ -124,6 +134,8 @@ export function PlacementTestButton({
         }
     }
 
+    if (shouldHide) return null;
+
     return (
         <div className="flex gap-4">
             <NuraButton
@@ -131,6 +143,7 @@ export function PlacementTestButton({
                 variant="primary"
                 onClick={handleClick}
                 id="create-placement-test-btn"
+                disabled={!isAdmin && !isFinished && isEnded}
             />
             {isAdmin && (
                 <NuraButton
@@ -139,6 +152,7 @@ export function PlacementTestButton({
                     onClick={() => router.push(`/classes/${classId}/placement/results`)}
                 />
             )}
+
             <ConfirmModal
                 isOpen={isModalOpen}
                 title="Placement Test Unavailable"
