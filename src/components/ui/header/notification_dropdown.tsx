@@ -36,6 +36,16 @@ const typeConfig: Record<AppNotification["type"], { icon: React.ReactNode; color
         color: "text-indigo-600",
         bg: "bg-indigo-50",
     },
+    placement_test_soon: {
+        icon: <Calendar size={16} />,
+        color: "text-emerald-600",
+        bg: "bg-emerald-50",
+    },
+    placement_test_ending: {
+        icon: <AlertCircle size={16} />,
+        color: "text-rose-600",
+        bg: "bg-rose-50",
+    },
 };
 
 export function NotificationDropdown() {
