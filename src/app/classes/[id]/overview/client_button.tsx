@@ -11,7 +11,17 @@ import { removeAssignment } from "@/app/actions/assignment"
 import Image from "next/image"
 import { ChevronDown } from "lucide-react"
 
-export function SuccessHandler({ classId, timelines }: { classId: string, timelines: any[] }) {
+export function SuccessHandler({
+    classId,
+    timelines,
+    startDate,
+    endDate
+}: {
+    classId: string,
+    timelines: any[],
+    startDate?: Date,
+    endDate?: Date
+}) {
     const searchParams = useSearchParams()
     const [isOpen, setIsOpen] = useState(false)
 
@@ -24,18 +34,43 @@ export function SuccessHandler({ classId, timelines }: { classId: string, timeli
         }
     }, [searchParams])
 
+    const formatDate = (date: any) => {
+        if (!date) return "TBA";
+        return new Date(date).toLocaleDateString("id-ID", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        });
+    };
+
+    // Filter and map timelines to specific labels
+    const getStep = (search: string, label: string) => {
+        const t = timelines.find(t => t.activity.toLowerCase().includes(search.toLowerCase()));
+        if (!t) return null;
+        return {
+            date: `${formatDate(t.date)}`,
+            label: label
+        };
+    };
+
+    const steps = [
+        getStep("Placement Test", "Placement Test"),
+        getStep("Course Mapping", "Penilaian Placement Test"),
+        getStep("Grouping", "Pembagian Grup Belajar"),
+        getStep("Learning", "Kegiatan Belajar"),
+        getStep("Final Project", "Final Project"),
+    ].filter(Boolean) as { date: string, label: string }[];
+
     return (
         <WelcomingModal
             isOpen={isOpen}
             onClose={() => setIsOpen(false)}
             classId={classId}
-            steps={timelines.map(t => ({
-                date: new Date(t.date).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
-                label: t.activity
-            }))}
+            steps={steps}
         />
     )
 }
+
 
 export function EnrollButton({ classId }: { classId: string }) {
     const router = useRouter()

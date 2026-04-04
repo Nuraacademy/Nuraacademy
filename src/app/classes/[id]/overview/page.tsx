@@ -58,7 +58,12 @@ export default async function CourseOverviewPage({
 
     return (
         <main className="min-h-screen bg-[#F5F5EC]  text-gray-800">
-            <SuccessHandler classId={id} timelines={classData.timelines || []} />
+            <SuccessHandler
+                classId={id}
+                timelines={classData.timelines || []}
+                startDate={classData.startDate}
+                endDate={classData.endDate}
+            />
             <div className="max-w-7xl mx-auto px-6 md:px-10 py-8">
 
                 {/* Breadcrumb */}

@@ -51,28 +51,6 @@ export function CreateTimelineClient({ classData }: Props) {
         let isValid = true;
         let errorMessage = "";
 
-        for (let i = 0; i < EVENTS.length; i++) {
-            const startKey = `${EVENTS[i].prefix} Starts`;
-            const endKey = `${EVENTS[i].prefix} Ends`;
-            const startVal = dates[startKey];
-            const endVal = dates[endKey];
-
-            if (startVal && endVal && endVal < startVal) {
-                isValid = false;
-                errorMessage = `${EVENTS[i].label} End Date cannot be before its Start Date.`;
-                break;
-            }
-
-            if (i > 0 && startVal) {
-                const prevStart = dates[`${EVENTS[i - 1].prefix} Starts`];
-                if (prevStart && startVal < prevStart) {
-                    isValid = false;
-                    errorMessage = `${EVENTS[i].label} Start Date cannot be before ${EVENTS[i - 1].label} Start Date.`;
-                    break;
-                }
-            }
-        }
-
         if (!isValid) {
             setModal({
                 open: true,
