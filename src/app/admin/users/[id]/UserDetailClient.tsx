@@ -37,10 +37,24 @@ export default function UserDetailClient({
         });
 
         if (res.success) {
-            toast.success("User updated successfully");
+            toast.success("Profile updated successfully!");
             setFormData(prev => ({ ...prev, password: "" }));
         } else {
-            toast.error("Failed to update user: " + res.error);
+            // Provide more user-friendly error messages based on common failures
+            const error = res.error || "";
+            
+            if (error.includes("Unique constraint") && error.includes("email")) {
+                toast.error("This email address is already in use. Please try another one.");
+            } else if (error.includes("Unique constraint") && error.includes("username")) {
+                toast.error("This username is already taken. Please choose a different one.");
+            } else if (error.includes("Invalid role")) {
+                toast.error("The selected system role is invalid. Please try again.");
+            } else if (error.includes("Not authorized") || error.includes("Permission denied")) {
+                toast.error("You don't have the required permissions to perform this action.");
+            } else {
+                toast.error("We couldn't save your changes. Please check your internet connection and try again.");
+                console.error("Update user error:", res.error);
+            }
         }
         setIsSaving(false);
     };
