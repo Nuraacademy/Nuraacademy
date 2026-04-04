@@ -24,7 +24,14 @@ export default function AssignmentList({ initialAssignments, canAddAssignment, c
     const [assignmentType, setAssignmentType] = useState("all");
 
     const filteredAssignments = initialAssignments.filter((assignment) => {
-        const matchesSearch = assignment.title?.toLowerCase().includes(searchValue.toLowerCase()) || !searchValue;
+        const query = searchValue.toLowerCase();
+        
+        const titleMatch = assignment.title?.toLowerCase().includes(query);
+        const classMatch = assignment.class?.title?.toLowerCase().includes(query);
+        const courseMatch = assignment.course?.title?.toLowerCase().includes(query);
+        const sessionMatch = assignment.session?.title?.toLowerCase().includes(query);
+        
+        const matchesSearch = !searchValue || titleMatch || classMatch || courseMatch || sessionMatch;
         const matchesType = assignmentType === "all" || assignment.type === assignmentType;
         return matchesSearch && matchesType;
     });
