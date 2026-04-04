@@ -238,9 +238,6 @@ export default async function CourseOverviewPage({
                                                     <div className="flex-grow">
                                                         <div className="flex items-center gap-2">
                                                             <h4 className="text-sm text-[#1C3A37]">{trainer.name || trainer.username}</h4>
-                                                            {trainer.isMain && (
-                                                                <span className="text-[10px] font-bold text-[#005954] bg-[#DAEE49]/40 px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">Batch Trainer</span>
-                                                            )}
                                                         </div>
                                                         <p className="text-xs text-gray-400">{trainer.role?.name || "Instructor"}</p>
                                                     </div>

@@ -34,12 +34,26 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
     const [methods, setMethods] = useState(classData?.methods || "");
     const [imgUrl, setImgUrl] = useState(classData?.imgUrl || "");
     const [previewVideoUrl, setPreviewVideoUrl] = useState(classData?.previewVideoUrl || "");
-    const [trainerId, setTrainerId] = useState<string>(classData?.trainerId ? String(classData.trainerId) : "");
+    const [selectedTrainerIds, setSelectedTrainerIds] = useState<number[]>(
+        classData?.trainers?.map((t: any) => t.id) || 
+        (classData?.trainerId ? [classData.trainerId] : [])
+    );
     const [trainers, setTrainers] = useState<any[]>([]);
 
     // Tags state
     const [keywordInput, setKeywordInput] = useState("");
-    const [keywords, setKeywords] = useState<string[]>(classData?.keywords || []);
+    const [keywords, setKeywords] = useState<string[]>(
+        classData?.keywords?.filter((k: string) => !k.startsWith('trainer:')) || []
+    );
+
+    const handleTrainerChange = (id: number) => {
+        if (selectedTrainerIds.includes(id)) {
+            setSelectedTrainerIds(selectedTrainerIds.filter(i => i !== id));
+        } else {
+            setSelectedTrainerIds([...selectedTrainerIds, id]);
+        }
+    };
+
     const [allCurricula, setAllCurricula] = useState<any[]>([]);
     const [selectedCurriculaIds, setSelectedCurriculaIds] = useState<number[]>(
         classData?.curricula?.map((c: any) => c.id) || []
@@ -107,9 +121,14 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
             methods,
             imgUrl,
             previewVideoUrl,
-            keywords,
+            // Prefix trainers in keywords to store safely
+            keywords: [
+                ...keywords,
+                ...selectedTrainerIds.map(id => `trainer:${id}`)
+            ],
             curriculaIds: selectedCurriculaIds,
-            trainerId: trainerId ? Number(trainerId) : undefined,
+            // Still use first trainer as the primary one for standard relations
+            trainerId: selectedTrainerIds[0] || undefined,
         };
 
         const res = isEditing
@@ -290,10 +309,24 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                     <NuraSelect
                         placeholder="Select Trainer"
                         options={trainers.map(t => ({ label: t.name || t.username, value: String(t.id) }))}
-                        value={trainerId}
-                        onChange={setTrainerId}
+                        value=""
+                        onChange={(val) => handleTrainerChange(Number(val))}
                     />
+                    <div className="flex flex-wrap gap-3 mt-4 text-sm">
+                        {selectedTrainerIds.map(id => {
+                            const trainer = trainers.find(t => t.id === id);
+                            return (
+                                <span key={id} className="flex items-center gap-2 px-6 py-2 border border-gray-200 rounded-full bg-white shadow-sm">
+                                    {trainer?.name || trainer?.username || `ID: ${id}`}
+                                    <button onClick={() => handleTrainerChange(id)} className="text-gray-400 hover:text-red-500 transition-colors">
+                                        <X size={14} />
+                                    </button>
+                                </span>
+                            );
+                        })}
+                    </div>
                 </div>
+
 
                 {/* Curricula */}
                 <div>
