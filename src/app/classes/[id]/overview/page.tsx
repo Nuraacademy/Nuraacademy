@@ -291,7 +291,7 @@ export default async function CourseOverviewPage({
                     </aside>
 
                     {/* Right Column */}
-                    <section className="lg:col-span-8 flex flex-col gap-6">
+                    <section className="lg:col-span-8 flex flex-col gap-6 h-full">
                         {/* Placement Test */}
                         {(isEnrolled || canCreatePlacement) && (
                             <div className="bg-[#1C3A37] rounded-xl px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
@@ -311,14 +311,16 @@ export default async function CourseOverviewPage({
                         )}
 
                         {/* Courses & Curriculum (Client-side Searchable & Scrollable) */}
-                        <CourseListClient
-                            classId={id}
-                            initialCourses={classData.courses || []}
-                            projectAssignments={projectAssignments || []}
-                            canCreateCourse={canCreateCourse}
-                            canUpdateCourse={canUpdateCourse}
-                            isLearner={isLearner}
-                        />
+                        <div className="flex-grow flex flex-col min-h-0">
+                            <CourseListClient
+                                classId={id}
+                                initialCourses={classData.courses || []}
+                                projectAssignments={projectAssignments || []}
+                                canCreateCourse={canCreateCourse}
+                                canUpdateCourse={canUpdateCourse}
+                                isLearner={isLearner}
+                            />
+                        </div>
                     </section>
 
                 </div>
