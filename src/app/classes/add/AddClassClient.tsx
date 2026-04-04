@@ -14,6 +14,7 @@ import { NuraSelect } from "@/components/ui/input/nura_select"
 import M3DateTimePicker from "@/components/ui/input/datetime_picker"
 import FileUpload from "@/components/ui/upload/file_upload"
 import { toast } from "sonner"
+import CurriculaModal from "@/components/ui/modal/curricula_modal"
 
 interface AddClassClientProps {
     classData?: any;
@@ -58,6 +59,7 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
     const [selectedCurriculaIds, setSelectedCurriculaIds] = useState<number[]>(
         classData?.curricula?.map((c: any) => c.id) || []
     );
+    const [isCurriculaModalOpen, setIsCurriculaModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchCurricula = async () => {
@@ -354,10 +356,19 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                     <NuraButton
                         label="Add Curricula"
                         variant="primary"
-                        onClick={() => { router.push('/curricula/add') }}
+                        onClick={() => setIsCurriculaModalOpen(true)}
                         className="mt-4"
                     />
                 </div>
+
+                <CurriculaModal 
+                    isOpen={isCurriculaModalOpen}
+                    onClose={() => setIsCurriculaModalOpen(false)}
+                    onCreated={(newCur) => {
+                        setAllCurricula([...allCurricula, newCur]);
+                        setSelectedCurriculaIds([...selectedCurriculaIds, newCur.id]);
+                    }}
+                />
 
                 {/* Actions */}
                 <div className="flex justify-end items-center gap-8 pt-10">
