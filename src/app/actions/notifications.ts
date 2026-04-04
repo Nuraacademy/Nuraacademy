@@ -5,7 +5,7 @@ import { getSession } from "./auth";
 
 export type AppNotification = {
     id: string;
-    type: "class_started" | "class_ending" | "session_soon" | "assignment_due" | "timeline_today" | "reflection_pending";
+    type: "class_started" | "class_ending" | "session_soon" | "assignment_due" | "timeline_today" | "reflection_pending" | "placement_test_soon" | "placement_test_ending";
     title: string;
     message: string;
     href: string;
@@ -18,6 +18,7 @@ export async function getNotificationsAction(): Promise<{ success: boolean; data
 
         const now = new Date();
         const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+        const in3Days = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
         const in1h = new Date(now.getTime() + 60 * 60 * 1000);
         const startOfToday = new Date(now); startOfToday.setHours(0, 0, 0, 0);
         const endOfToday = new Date(now); endOfToday.setHours(23, 59, 59, 999);
@@ -41,7 +42,11 @@ export async function getNotificationsAction(): Promise<{ success: boolean; data
                         assignments: {
                             where: {
                                 deletedAt: null,
-                                endDate: { gte: now, lte: in24h }
+                                OR: [
+                                    { endDate: { gte: now, lte: in3Days } },
+                                    { startDate: { gte: now, lte: in3Days } },
+                                    { type: "PLACEMENT" }
+                                ]
                             }
                         }
                     }
@@ -89,9 +94,31 @@ export async function getNotificationsAction(): Promise<{ success: boolean; data
                 });
             }
 
-            // 4. Assignment due within 24 hours
+            // 4. Assignment due and Placement Tests
             for (const assignment of cls.assignments) {
-                if (assignment.endDate) {
+                if (assignment.type === "PLACEMENT") {
+                    // Placement Start soon (3 days)
+                    if (assignment.startDate && assignment.startDate > now && assignment.startDate <= in3Days) {
+                        notifications.push({
+                            id: `placement-start-${assignment.id}`,
+                            type: "placement_test_soon",
+                            title: "Placement test starting soon",
+                            message: `The placement test for ${cls.title} starts on ${assignment.startDate.toLocaleDateString()}.`,
+                            href: `/classes/${cls.id}/test`,
+                        });
+                    }
+                    // Placement End soon (3 days)
+                    if (assignment.endDate && assignment.endDate > now && assignment.endDate <= in3Days) {
+                        notifications.push({
+                            id: `placement-end-${assignment.id}`,
+                            type: "placement_test_ending",
+                            title: "Placement test ending soon",
+                            message: `The placement test for ${cls.title} ends on ${assignment.endDate.toLocaleDateString()}.`,
+                            href: `/classes/${cls.id}/test`,
+                        });
+                    }
+                } else if (assignment.endDate && assignment.endDate > now && assignment.endDate <= in24h) {
+                    // Normal assignment due soon (24 hours)
                     notifications.push({
                         id: `assignment-due-${assignment.id}`,
                         type: "assignment_due",
@@ -101,6 +128,7 @@ export async function getNotificationsAction(): Promise<{ success: boolean; data
                     });
                 }
             }
+
 
             // 5. Synchronous session starting within 1 hour (reads schedule JSON)
             const submittedSessionIds = new Set(enrollment.reflections.map(r => r.sessionId));
