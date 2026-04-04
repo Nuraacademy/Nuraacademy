@@ -24,9 +24,8 @@ export default function AssignmentList({ initialAssignments, canAddAssignment, c
     const [assignmentType, setAssignmentType] = useState("all");
 
     const filteredAssignments = initialAssignments.filter((assignment) => {
-        const matchesSearch = assignment.title?.toLowerCase().includes(searchValue.toLowerCase()) || true;
-        const uiType = mapPrismaAssignmentType(assignment.type);
-        const matchesType = assignmentType === "all" || uiType.toLowerCase().replace(/\s/g, "") === assignmentType.toLowerCase();
+        const matchesSearch = assignment.title?.toLowerCase().includes(searchValue.toLowerCase()) || !searchValue;
+        const matchesType = assignmentType === "all" || assignment.type === assignmentType;
         return matchesSearch && matchesType;
     });
 
