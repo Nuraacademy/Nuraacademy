@@ -55,7 +55,7 @@ export async function getTrainersAction() {
             where: {
                 role: {
                     name: {
-                        in: ['Trainer', 'Instructur', 'Instructor']
+                        in: ['Trainer', 'Instructur', 'Instructor', 'Admin']
                     }
                 },
                 deletedAt: null

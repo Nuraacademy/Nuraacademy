@@ -21,19 +21,26 @@ export default async function PlacementTestPage({
   const currentUserId = await getSession();
   const enrollment = currentUserId ? await getEnrollment(currentUserId, parseInt(classId)) : null;
 
-  if (!assignment || !enrollment) {
+  // Check if test has started
+  const now = new Date();
+  const isStarted = assignment?.startDate ? new Date(assignment.startDate) <= now : true;
+
+  if (!assignment || !enrollment || !isStarted) {
     return (
       <main className="min-h-screen w-full bg-[#F9F9F0] flex items-center justify-center">
         <NotFoundState
-          title={!assignment ? "Placement Test Not Available" : "Enrollment Not Found"}
+          title={!assignment ? "Placement Test Not Available" : (!enrollment ? "Enrollment Not Found" : "Placement Test Not Yet Available")}
           message={!assignment
             ? "It looks like there is no placement test available for this class yet. Please contact your instructor for more information."
-            : "You must be enrolled in this class to take the placement test."
+            : (!enrollment 
+                ? "You must be enrolled in this class to take the placement test."
+                : `The placement test is scheduled to start on ${new Date(assignment.startDate!).toLocaleString()}. Please check back then.`)
           }
         />
       </main>
     )
   }
+
 
   // Fetch score if finished
   let initialScore: number | undefined;

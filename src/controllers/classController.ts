@@ -28,7 +28,7 @@ export async function getAllClasses() {
  */
 export async function getClassById(id: number) {
     if (!id || isNaN(id)) return null;
-    return await prisma.class.findFirst({
+    const classData = await prisma.class.findFirst({
         where: {
             id,
             deletedAt: null,
@@ -60,7 +60,34 @@ export async function getClassById(id: number) {
             },
         },
     });
+
+    if (!classData) return null;
+
+    // Extract additional trainers from keywords
+    const keywordTrainerIds = classData.keywords
+        .filter(k => k.startsWith('trainer:'))
+        .map(k => parseInt(k.replace('trainer:', '')))
+        .filter(id => !isNaN(id));
+
+    // Ensure the primary trainerId is also in the list
+    if (classData.trainerId && !keywordTrainerIds.includes(classData.trainerId)) {
+        keywordTrainerIds.push(classData.trainerId);
+    }
+
+    let trainersList: any[] = [];
+    if (keywordTrainerIds.length > 0) {
+        trainersList = await prisma.user.findMany({
+            where: { id: { in: keywordTrainerIds }, deletedAt: null },
+            select: { id: true, name: true, username: true, role: { select: { name: true } } }
+        });
+    }
+
+    return {
+        ...classData,
+        trainers: trainersList
+    };
 }
+
 export async function createClass(data: {
     title: string;
     imgUrl?: string;

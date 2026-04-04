@@ -40,14 +40,14 @@ export default async function CourseOverviewPage({
     const enrollment = currentUserId ? await getEnrollment(currentUserId, parseInt(id)) : null;
     const isEnrolled = !!enrollment;
 
-    // Check placement test status
+    // Fetch placement test
+    const placementTest = await getPlacementTestByClassId(parseInt(id));
+
+    // Check placement test status for enrolled students
     let isPlacementTestFinished = false;
-    if (isEnrolled && enrollment) {
-        const placementTest = await getPlacementTestByClassId(parseInt(id));
-        if (placementTest) {
-            const testResult = await getAssignmentResult(placementTest.id, enrollment.id);
-            isPlacementTestFinished = !!testResult?.finishedAt;
-        }
+    if (isEnrolled && enrollment && placementTest) {
+        const testResult = await getAssignmentResult(placementTest.id, enrollment.id);
+        isPlacementTestFinished = !!testResult?.finishedAt;
     }
 
     // Fetch PROJECT assignments for this class
@@ -58,7 +58,12 @@ export default async function CourseOverviewPage({
 
     return (
         <main className="min-h-screen bg-[#F5F5EC]  text-gray-800">
-            <SuccessHandler classId={id} timelines={classData.timelines || []} />
+            <SuccessHandler
+                classId={id}
+                timelines={classData.timelines || []}
+                startDate={classData.startDate}
+                endDate={classData.endDate}
+            />
             <div className="max-w-7xl mx-auto px-6 md:px-10 py-8">
 
                 {/* Breadcrumb */}
@@ -139,7 +144,10 @@ export default async function CourseOverviewPage({
                     {/* Action Buttons */}
                     {canEditClass && (
                         <div className="flex justify-center mt-6 mr-6 gap-4 top-0">
-                            <Link href={`/classes/${id}/edit`}>
+                            <Link href={`/classes/${id}/enrollments`} title="View Enrollments">
+                                <Image src="/icons/People.svg" alt="Enrollments" width={16} height={16} />
+                            </Link>
+                            <Link href={`/classes/${id}/edit`} title="Edit Class">
                                 <Image src="/icons/Edit.svg" alt="Edit" width={16} height={16} />
                             </Link>
                         </div>
@@ -163,7 +171,7 @@ export default async function CourseOverviewPage({
                             <div className="flex items-center justify-between mb-6">
                                 <h2 className="text-md">Timeline</h2>
                                 {canUpdateSchedule && (
-                                    <AddTimelineButton classId={id} />
+                                    <AddTimelineButton classId={id} isEdit={classData.timelines?.length > 0} />
                                 )}
                             </div>
 
@@ -238,9 +246,6 @@ export default async function CourseOverviewPage({
                                                     <div className="flex-grow">
                                                         <div className="flex items-center gap-2">
                                                             <h4 className="text-sm text-[#1C3A37]">{trainer.name || trainer.username}</h4>
-                                                            {trainer.isMain && (
-                                                                <span className="text-[10px] font-bold text-[#005954] bg-[#DAEE49]/40 px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">Batch Trainer</span>
-                                                            )}
                                                         </div>
                                                         <p className="text-xs text-gray-400">{trainer.role?.name || "Instructor"}</p>
                                                     </div>
@@ -298,6 +303,8 @@ export default async function CourseOverviewPage({
                                     isAdmin={canCreatePlacement}
                                     isFinished={isPlacementTestFinished}
                                     courseCount={classData.courses?.length || 0}
+                                    startDate={placementTest?.startDate || undefined}
+                                    endDate={placementTest?.endDate || undefined}
                                 />
                             </div>
                         )}
@@ -324,7 +331,11 @@ export default async function CourseOverviewPage({
                                         isLearner={isLearner}
                                     />
                                 ))}
-                                {projectAssignments.map((assignment) => (
+                                {projectAssignments.filter(a => {
+                                    if (canUpdateCourse) return true; // Admin/Staff sees all
+                                    if (!a.startDate) return true;
+                                    return new Date(a.startDate) <= new Date();
+                                }).map((assignment) => (
                                     <ProjectCard
                                         key={assignment.id}
                                         classId={id}

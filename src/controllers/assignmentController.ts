@@ -7,10 +7,6 @@ export async function getAssignmentsBySessionId(sessionId: number, type?: Assign
             sessionId,
             ...(type && { type }),
             deletedAt: null,
-            OR: [
-                { startDate: null },
-                { startDate: { lte: new Date() } }
-            ]
         },
         orderBy: {
             createdAt: 'asc',
@@ -24,10 +20,6 @@ export async function getAssignments(userId?: number) {
         return await prisma.assignment.findMany({
             where: {
                 deletedAt: null,
-                OR: [
-                    { startDate: null },
-                    { startDate: { lte: new Date() } }
-                ]
             },
             include: {
                 class: { select: { title: true } },
@@ -50,10 +42,6 @@ export async function getAssignments(userId?: number) {
         return await prisma.assignment.findMany({
             where: {
                 deletedAt: null,
-                OR: [
-                    { startDate: null },
-                    { startDate: { lte: new Date() } }
-                ]
             },
             include: {
                 class: { select: { title: true } },
@@ -64,7 +52,6 @@ export async function getAssignments(userId?: number) {
     }
 
     if (isStaff) {
-        // Fetch classes where staff is assigned
         const classFilter = {
             OR: [
                 { trainerId: userId },
@@ -78,10 +65,6 @@ export async function getAssignments(userId?: number) {
             where: {
                 deletedAt: null,
                 class: classFilter,
-                OR: [
-                    { startDate: null },
-                    { startDate: { lte: new Date() } }
-                ]
             },
             include: {
                 class: { select: { title: true } },
@@ -91,7 +74,7 @@ export async function getAssignments(userId?: number) {
         });
     }
 
-    // Default: Learner view
+    // Default: Learner view - KEEP the startDate filter
     const enrollments = await prisma.enrollment.findMany({
         where: { userId, deletedAt: null, status: 'ACTIVE' },
         select: { classId: true }
@@ -130,10 +113,6 @@ export async function getProjectAssignmentsByClassId(classId: number) {
             classId,
             type: "PROJECT",
             deletedAt: null,
-            OR: [
-                { startDate: null },
-                { startDate: { lte: new Date() } }
-            ]
         },
         include: {
             course: { select: { title: true } },
@@ -167,10 +146,6 @@ export async function getPlacementTestByClassId(classId: number) {
             classId,
             type: 'PLACEMENT',
             deletedAt: null,
-            OR: [
-                { startDate: null },
-                { startDate: { lte: new Date() } }
-            ]
         },
         include: {
             class: true,
@@ -180,6 +155,7 @@ export async function getPlacementTestByClassId(classId: number) {
         },
     });
 }
+
 
 export async function findExistingAssignment(params: {
     classId: number,
