@@ -178,8 +178,10 @@ export default function SessionContent({
                             label={preTestId ? "Pre-test" : isAdmin ? "Create Pre-test" : "Pre-test"}
                             variant={preTestId ? "primary" : isAdmin ? "secondary" : "primary"}
                             onClick={() => {
-                                if (preTestId) {
+                                if (preTestId && !isAdmin) {
                                     router.push(`/assignment/${preTestId}`);
+                                } else if (preTestId && isAdmin) {
+                                    router.push(`/assignment/${preTestId}/results`);
                                 } else if (isAdmin) {
                                     router.push(`/assignment/add?classId=${classId}&courseId=${courseId}&sessionId=${moduleId}&type=PRETEST`);
                                 } else {
@@ -203,8 +205,10 @@ export default function SessionContent({
                             label={postTestId ? "Post-test" : isAdmin ? "Create Post-test" : "Post-test"}
                             variant={postTestId ? "primary" : isAdmin ? "secondary" : "primary"}
                             onClick={() => {
-                                if (postTestId) {
+                                if (postTestId && !isAdmin) {
                                     router.push(`/assignment/${postTestId}`);
+                                } else if (postTestId && isAdmin) {
+                                    router.push(`/assignment/${postTestId}/results`);
                                 } else if (isAdmin) {
                                     router.push(`/assignment/add?classId=${classId}&courseId=${courseId}&sessionId=${moduleId}&type=POSTTEST`);
                                 } else {
