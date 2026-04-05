@@ -106,7 +106,22 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
     const validate = () => {
         const newErrors: Record<string, string> = {};
         if (!title.trim()) newErrors.title = "Title is required";
-        if (!description.trim()) newErrors.description = "Description is required";
+        if (!hours || isNaN(Number(hours))) newErrors.hours = "Total hours is required and must be a number";
+        if (!startDate) newErrors.startDate = "Start date is required";
+        if (!endDate) newErrors.endDate = "End date is required";
+        if (startDate && endDate && endDate < startDate) {
+            newErrors.endDate = "End date cannot be before start date";
+        }
+        
+        const isRichTextEmpty = (html: string) => {
+            if (!html) return true;
+            const stripped = html.replace(/<[^>]*>/g, '').trim();
+            return stripped.length === 0;
+        };
+
+        if (isRichTextEmpty(description)) newErrors.description = "Description is required";
+        if (isRichTextEmpty(learningObjectives)) newErrors.learningObjectives = "Learning objectives are required";
+        if (isRichTextEmpty(methods)) newErrors.methods = "Methods is required";
         
         if (!imgUrl.trim()) {
             newErrors.imgUrl = "Banner image is required (upload or link)";
@@ -187,40 +202,71 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                             placeholder="Total hours"
                             value={String(hours)}
                             onChange={(e) => setHours(e.target.value)}
+                            className={errors.hours ? "border-red-500" : ""}
                             required
                         />
+                        {errors.hours && <p className="text-red-500 text-xs mt-1">{errors.hours}</p>}
                     </div>
                     <div className="w-full md:w-64">
                         <M3DateTimePicker
                             label="Start Date"
                             value={startDate}
                             withTime={false}
-                            onChange={setStartDate}
+                            onChange={(d) => {
+                                setStartDate(d);
+                                if (errors.startDate) setErrors(prev => ({ ...prev, startDate: "" }));
+                            }}
                             minDate={today}
+                            error={errors.startDate}
                             required
                         />
+                        {errors.startDate && <p className="text-red-500 text-xs mt-1">{errors.startDate}</p>}
                     </div>
                     <div className="w-full md:w-64">
                         <M3DateTimePicker
                             label="End Date"
                             value={endDate}
-                            onChange={setEndDate}
+                            onChange={(d) => {
+                                setEndDate(d);
+                                if (errors.endDate) setErrors(prev => ({ ...prev, endDate: "" }));
+                            }}
                             withTime={false}
                             minDate={startDate || today}
+                            error={errors.endDate}
                             required
                         />
+                        {errors.endDate && <p className="text-red-500 text-xs mt-1">{errors.endDate}</p>}
                     </div>
                 </div>
 
                 {/* Description */}
                 <div>
-                    <RichTextInput label="Description" value={description} onChange={setDescription} required />
+                    <RichTextInput 
+                        label="Description" 
+                        value={description} 
+                        onChange={(val) => {
+                            setDescription(val);
+                            if (errors.description) setErrors(prev => ({ ...prev, description: "" }));
+                        }} 
+                        className={errors.description ? "border-red-500" : ""}
+                        required 
+                    />
                     {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
                 </div>
 
                 {/* Learning Objectives */}
                 <div>
-                    <RichTextInput label="What You Will Learn" value={learningObjectives} onChange={setLearningObjectives} required />
+                    <RichTextInput 
+                        label="What You Will Learn" 
+                        value={learningObjectives} 
+                        onChange={(val) => {
+                            setLearningObjectives(val);
+                            if (errors.learningObjectives) setErrors(prev => ({ ...prev, learningObjectives: "" }));
+                        }} 
+                        className={errors.learningObjectives ? "border-red-500" : ""}
+                        required 
+                    />
+                    {errors.learningObjectives && <p className="text-red-500 text-xs mt-1">{errors.learningObjectives}</p>}
                 </div>
 
                 {/* Picture Banner */}
@@ -264,7 +310,17 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
 
                 {/* Methods */}
                 <div>
-                    <RichTextInput label="Methods" value={methods} onChange={setMethods} required />
+                    <RichTextInput 
+                        label="Methods" 
+                        value={methods} 
+                        onChange={(val) => {
+                            setMethods(val);
+                            if (errors.methods) setErrors(prev => ({ ...prev, methods: "" }));
+                        }} 
+                        className={errors.methods ? "border-red-500" : ""}
+                        required 
+                    />
+                    {errors.methods && <p className="text-red-500 text-xs mt-1">{errors.methods}</p>}
                 </div>
 
                 {/* Preview Video */}
