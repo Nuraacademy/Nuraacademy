@@ -9,12 +9,16 @@ import {
     fetchSessionsByCourseIdAction,
     fetchExistingAssignmentAction
 } from "@/app/actions/assignmentActions";
+import { getClassesAction } from "@/app/actions/classes";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import M3DateTimePicker from "@/components/ui/input/datetime_picker";
 import { NuraButton } from "@/components/ui/button/button";
 import { NuraTextInput } from "@/components/ui/input/text_input";
 import { NuraSelect } from "@/components/ui/input/nura_select";
 import { FeedbackModal } from "@/components/ui/modal/feedback_modal";
 import Image from "next/image";
+import Link from "next/link";
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import {
     TestEditor,
@@ -57,6 +61,25 @@ export function AddAssignmentClient({
     // View: "overview" | "editor" (PLACEMENT per-course) | "simple-editor" (other types)
     const [view, setView] = useState<"overview" | "editor" | "simple-editor">("overview");
     const [selectedCourseForEditor, setSelectedCourseForEditor] = useState<{ id: number; title: string } | null>(null);
+    const [localClasses, setLocalClasses] = useState(classes);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
+    const refreshClassesList = async () => {
+        setIsRefreshing(true);
+        const res = await getClassesAction();
+        if (res.success && res.classes) {
+            setLocalClasses(res.classes);
+        }
+        setIsRefreshing(false);
+    };
+
+    useEffect(() => {
+        const onFocus = () => {
+            refreshClassesList();
+        };
+        window.addEventListener('focus', onFocus);
+        return () => window.removeEventListener('focus', onFocus);
+    }, []);
 
     // Overview fields
     const [title, setTitle] = useState("");
@@ -164,7 +187,7 @@ export function AddAssignmentClient({
 
     // Type rules
     const isPlacement = assignmentType === "PLACEMENT";
-    const currentClass = classes.find(c => c.id === selectedClassId);
+    const currentClass = localClasses.find(c => c.id === selectedClassId);
     const isClassLevel = isPlacement || assignmentType === "PROJECT";
     const isCourseLevel = assignmentType === "EXERCISE" || assignmentType === "ASSIGNMENT";
     const isSessionLevel = assignmentType === "PRETEST" || assignmentType === "POSTTEST";
@@ -174,6 +197,12 @@ export function AddAssignmentClient({
     const hasSubmissionType = assignmentType === "ASSIGNMENT" || assignmentType === "PROJECT" || assignmentType === "EXERCISE";
 
     // ── Hierarchical handlers ────────────────────────────────────────────────
+
+    useEffect(() => {
+        if (currentClass && (assignmentType === "PLACEMENT" || assignmentType === "PROJECT")) {
+            syncDatesFromTimeline(assignmentType, currentClass);
+        }
+    }, [currentClass, assignmentType]);
 
     const handleClassChange = async (val: string) => {
         const id = parseInt(val);
@@ -192,7 +221,11 @@ export function AddAssignmentClient({
         setOverviewErrors(p => ({ ...p, classId: "" }));
         if (id) {
             const res = await fetchCoursesByClassIdAction(id);
-            if (res.success) setCourses(res.courses);
+            if (res.success && res.courses) {
+                setCourses(res.courses);
+                const cls = classes.find(c => c.id === id);
+                if (cls) syncDatesFromTimeline(assignmentType, cls);
+            }
 
             // Check for existing based on type
             triggerExistingCheck(assignmentType, id, null, null);
@@ -228,8 +261,28 @@ export function AddAssignmentClient({
         // Reset submission type on type change
         setSubmissionType("INDIVIDUAL");
 
+        // Auto-sync dates if type change involves Placement or Project
+        if (currentClass) {
+            syncDatesFromTimeline(val, currentClass);
+        }
+
         if (selectedClassId) {
             triggerExistingCheck(val, selectedClassId, selectedCourseId, selectedSessionId);
+        }
+    };
+
+    const syncDatesFromTimeline = (type: string, cls: any) => {
+        if (!cls.timelines) return;
+        if (type === "PLACEMENT") {
+            const st = cls.timelines.find((t: any) => t.activity === "Placement Test Starts" || t.activity === "Placement test Starts");
+            const et = cls.timelines.find((t: any) => t.activity === "Placement Test Ends" || t.activity === "Placement test Ends");
+            if (st) setStartDate(new Date(st.date));
+            if (et) setEndDate(new Date(et.date));
+        } else if (type === "PROJECT") {
+            const st = cls.timelines.find((t: any) => t.activity === "Project Starts" || t.activity === "project Starts" || t.activity === "Final Project Starts");
+            const et = cls.timelines.find((t: any) => t.activity === "Project Ends" || t.activity === "project Ends" || t.activity === "Final Project Ends");
+            if (st) setStartDate(new Date(st.date));
+            if (et) setEndDate(new Date(et.date));
         }
     };
 
@@ -627,6 +680,7 @@ export function AddAssignmentClient({
                                 onChange={(d) => { setStartDate(d); setOverviewErrors(p => ({ ...p, startDate: "" })); }}
                                 error={overviewErrors.startDate}
                                 minDate={today}
+                                disabled={isPlacement || assignmentType === "PROJECT"}
                             />
 
                             <M3DateTimePicker
@@ -636,8 +690,21 @@ export function AddAssignmentClient({
                                 onChange={(d) => { setEndDate(d); setOverviewErrors(p => ({ ...p, endDate: "" })); }}
                                 error={overviewErrors.endDate}
                                 minDate={startDate || today}
+                                disabled={isPlacement || assignmentType === "PROJECT"}
                             />
                         </div>
+
+                        {(isPlacement || assignmentType === "PROJECT") && selectedClassId && (
+                            <div className="mb-8 flex items-center justify-between p-4 bg-orange-50 rounded-2xl border border-orange-100">
+                                <div className="flex items-center gap-2 px-1">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-orange-400"></div>
+                                    <p className="text-[11px] text-gray-500 italic">
+                                        Dates follow "{isPlacement ? "Placement Test" : "Final Project"}" milestones.
+                                        Edit in <Link href={`/classes/${selectedClassId}/timeline/create`} target="_blank" rel="noopener noreferrer" className="text-black font-semibold hover:underline px-1">class timeline</Link>.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Error messages for non-M3 picker inputs */}
                         {(overviewErrors.title || overviewErrors.duration) && (

@@ -256,6 +256,11 @@ export function ProjectCard({ classId, assignment, isAdmin, isLearner }: { class
     const router = useRouter()
     const [isDeleting, setIsDeleting] = useState(false);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const submissionLabel = assignment.submissionType === "GROUP" ? "Group" : "Individual"
     const submissionColor = assignment.submissionType === "GROUP"
@@ -277,68 +282,68 @@ export function ProjectCard({ classId, assignment, isAdmin, isLearner }: { class
 
     return (
         <>
-        <div
-            className="border border-gray-200 rounded-xl p-5 hover:border-gray-400 hover:shadow-sm transition-all duration-200 cursor-pointer group relative"
-            onClick={() => {
-                if (isLearner) {
-                    router.push(`/assignment/${assignment.id}`)
-                } else {
-                    router.push(`/assignment/${assignment.id}/results`)
-                }
-            }}
-        >
-            <div className="flex justify-between items-start">
-                <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-sm">{assignment.title}</h3>
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${submissionColor}`}>
-                            {submissionLabel}
-                        </span>
+            <div
+                className="border border-gray-200 rounded-xl p-5 hover:border-gray-400 hover:shadow-sm transition-all duration-200 cursor-pointer group relative"
+                onClick={() => {
+                    if (isLearner) {
+                        router.push(`/assignment/${assignment.id}`)
+                    } else {
+                        router.push(`/assignment/${assignment.id}/results`)
+                    }
+                }}
+            >
+                <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                            <h3 className="text-sm">{assignment.title}</h3>
+                            <span className={`text-xs px-2 py-0.5 rounded-full ${submissionColor}`}>
+                                {submissionLabel}
+                            </span>
+                        </div>
+                        {assignment.course && (
+                            <p className="text-sm">{assignment.course.title}</p>
+                        )}
+                        {isMounted && assignment.startDate && (
+                            <p className="text-xs mt-0.5">
+                                Start: {new Date(assignment.startDate).toLocaleDateString()} - Due: {new Date(assignment.endDate).toLocaleDateString()}
+                            </p>
+                        )}
                     </div>
-                    {assignment.course && (
-                        <p className="text-sm">{assignment.course.title}</p>
-                    )}
-                    {assignment.startDate && (
-                        <p className="text-xs mt-0.5">
-                            Due: {new Date(assignment.startDate).toLocaleDateString()}
-                        </p>
+                    {isAdmin && (
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                                className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-red-500"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsConfirmOpen(true);
+                                }}
+                                disabled={isDeleting}
+                            >
+                                <img src="/icons/Delete.svg" alt="Delete" className="w-5 h-5" />
+                            </button>
+                            <button
+                                className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-gray-900"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    router.push(`/assignment/add?id=${assignment.id}`);
+                                }}
+                            >
+                                <img src="/icons/Edit.svg" alt="Edit" className="w-5 h-5" />
+                            </button>
+                        </div>
                     )}
                 </div>
-                {isAdmin && (
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                            className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-red-500"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setIsConfirmOpen(true);
-                            }}
-                            disabled={isDeleting}
-                        >
-                            <img src="/icons/Delete.svg" alt="Delete" className="w-5 h-5" />
-                        </button>
-                        <button
-                            className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-gray-900"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                router.push(`/assignment/add?id=${assignment.id}`);
-                            }}
-                        >
-                            <img src="/icons/Edit.svg" alt="Edit" className="w-5 h-5" />
-                        </button>
-                    </div>
-                )}
             </div>
-        </div>
 
-        <ConfirmModal
-            isOpen={isConfirmOpen}
-            title="Delete Assignment"
-            message={`Are you sure you want to delete "${assignment.title}"? This action cannot be undone.`}
-            confirmText="Delete"
-            onConfirm={handleDelete}
-            onCancel={() => setIsConfirmOpen(false)}
-            isLoading={isDeleting}
-        />
+            <ConfirmModal
+                isOpen={isConfirmOpen}
+                title="Delete Assignment"
+                message={`Are you sure you want to delete "${assignment.title}"? This action cannot be undone.`}
+                confirmText="Delete"
+                onConfirm={handleDelete}
+                onCancel={() => setIsConfirmOpen(false)}
+                isLoading={isDeleting}
+            />
         </>
     )
 }

@@ -39,7 +39,7 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
     const [imgUrl, setImgUrl] = useState(classData?.imgUrl || "");
     const [previewVideoUrl, setPreviewVideoUrl] = useState(classData?.previewVideoUrl || "");
     const [selectedTrainerIds, setSelectedTrainerIds] = useState<number[]>(
-        classData?.trainers?.map((t: any) => t.id) || 
+        classData?.trainers?.map((t: any) => t.id) ||
         (classData?.trainerId ? [classData.trainerId] : [])
     );
     const [trainers, setTrainers] = useState<any[]>([]);
@@ -107,13 +107,26 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
         const newErrors: Record<string, string> = {};
         if (!title.trim()) newErrors.title = "Title is required";
         if (!description.trim()) newErrors.description = "Description is required";
-        // Add more validation as needed
+        
+        if (!imgUrl.trim()) {
+            newErrors.imgUrl = "Banner image is required (upload or link)";
+        } else {
+            // Simple URL regex check
+            const urlPattern = /^(https?:\/\/)/;
+            if (!urlPattern.test(imgUrl)) {
+                newErrors.imgUrl = "Please enter a valid URL starting with http:// or https://";
+            }
+        }
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = async () => {
-        if (!validate()) return;
+        if (!validate()) {
+            toast.error("Please check your form for errors.");
+            return;
+        }
         setLoading(true);
 
         const data = {
@@ -140,8 +153,8 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
             ? await updateClassAction(classData.id, data)
             : await createClassAction(data);
 
-        setLoading(true);
         if (res.success) {
+            toast.success(isEditing ? "Class updated successfully!" : "Class created successfully!");
             router.push('/classes');
         } else {
             toast.error(res.error || "Failed to save class");
@@ -213,7 +226,7 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                 {/* Picture Banner */}
                 <div>
                     <label className="block text-sm mb-2">Picture Banner <span className="text-red-500">*</span></label>
-                    <FileUpload 
+                    <FileUpload
                         accept=".jpg,.jpeg,.png"
                         supportedFileType=".jpg, .png, .jpeg"
                         maxSizeMB={5}
@@ -240,9 +253,13 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                     <NuraTextInput
                         placeholder="Picture banner link"
                         value={imgUrl}
-                        onChange={(e) => setImgUrl(e.target.value)}
-                        className="mt-4"
+                        onChange={(e) => {
+                            setImgUrl(e.target.value);
+                            if (errors.imgUrl) setErrors(prev => ({ ...prev, imgUrl: "" }));
+                        }}
+                        className={`mt-4 ${errors.imgUrl ? "border-red-500" : ""}`}
                     />
+                    {errors.imgUrl && <p className="text-red-500 text-xs mt-1">{errors.imgUrl}</p>}
                 </div>
 
                 {/* Methods */}
@@ -253,7 +270,7 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                 {/* Preview Video */}
                 <div>
                     <label className="block text-sm mb-2">Preview Class (Video)</label>
-                    <FileUpload 
+                    <FileUpload
                         accept=".mp4"
                         supportedFileType=".mp4"
                         maxSizeMB={100}
@@ -363,7 +380,7 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                     />
                 </div>
 
-                <CurriculaModal 
+                <CurriculaModal
                     isOpen={isCurriculaModalOpen}
                     onClose={() => setIsCurriculaModalOpen(false)}
                     onCreated={(newCur) => {

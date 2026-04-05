@@ -10,8 +10,11 @@ import { X, Plus, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import M3DateTimePicker from "@/components/ui/input/datetime_picker";
 import { useRouter } from "next/navigation";
+import Link from 'next/link';
 import { addAssignment, editAssignment, removeAssignment } from "@/app/actions/assignment";
 import { NuraTextInput } from "@/components/ui/input/text_input";
+import { getClassDetails } from "@/app/actions/classes";
+import { toast } from "sonner";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -248,9 +251,53 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
     const [view, setView] = useState<"overview" | "editor">("overview");
     const [selectedCourse, setSelectedCourse] = useState<CourseItem | null>(null);
 
+    // Dynamic Class Data refresh
+    const [localClassData, setLocalClassData] = useState(classData);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
+    const refreshTimeline = async () => {
+        setIsRefreshing(true);
+        const res = await getClassDetails(classData.id);
+        if (res.success && res.class) {
+            setLocalClassData(res.class);
+        }
+        setIsRefreshing(false);
+    };
+
+    // Auto-refresh when tab gets focus
+    useEffect(() => {
+        const onFocus = () => {
+            refreshTimeline();
+        };
+        window.addEventListener('focus', onFocus);
+        return () => window.removeEventListener('focus', onFocus);
+    }, []);
+
+    // Sync dates from localClassData when it updates (since it's a Placement Test, it's always synced)
+    useEffect(() => {
+        if (!existingTest && localClassData.timelines) {
+            const st = localClassData.timelines.find((t: any) => 
+                t.activity.toLowerCase().includes("placement test") && t.activity.toLowerCase().includes("start")
+            );
+            const et = localClassData.timelines.find((t: any) => 
+                t.activity.toLowerCase().includes("placement test") && t.activity.toLowerCase().includes("end")
+            );
+            if (st) setStartDate(new Date(st.date));
+            if (et) setEndTime(new Date(et.date));
+        }
+    }, [localClassData.timelines]);
+
     // Overview form
-    const [startDate, setStartDate] = useState<Date | null>(null);
-    const [endTime, setEndTime] = useState<Date | null>(null);
+    const [startDate, setStartDate] = useState<Date | null>(() => {
+        if (existingTest?.startDate) return new Date(existingTest.startDate);
+        const st = classData.timelines?.find((t: any) => t.activity === "Placement Test Starts" || t.activity === "Placement test Starts");
+        return st ? new Date(st.date) : null;
+    });
+    const [endTime, setEndTime] = useState<Date | null>(() => {
+        if (existingTest?.endDate) return new Date(existingTest.endDate);
+        const et = classData.timelines?.find((t: any) => t.activity === "Placement Test Ends" || t.activity === "Placement test Ends");
+        return et ? new Date(et.date) : null;
+    });
     const [durationMinutes, setDurationMinutes] = useState(120);
     const [overviewErrors, setOverviewErrors] = useState<{ startDate?: string; endTime?: string; durationMinutes?: string }>({});
 
@@ -589,7 +636,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                         <h1 className="text-2xl font-medium mt-6 mb-6">{existingTest ? "Edit Test" : "Create Test"}</h1>
 
                         {/* ── Form Row ── */}
-                        <div className="grid grid-cols-1 md:grid-cols-[1fr_120px_240px_240px] gap-4 items-start mb-8">
+                        <div className="grid grid-cols-1 md:grid-cols-[1fr_120px_240px_240px] gap-4 items-start mb-2">
 
                             {/* Class Title — Read Only */}
                             <div className="relative">
@@ -619,13 +666,9 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                             <M3DateTimePicker
                                 label="Start Date"
                                 value={startDate}
-                                onChange={(d) => {
-                                    setStartDate(d);
-                                    setOverviewErrors((p) => ({ ...p, startDate: undefined }));
-                                }}
-                                error={overviewErrors.startDate}
+                                onChange={(d) => {}} // Disabled for PLACEMENT
                                 required
-                                minDate={today}
+                                disabled
                                 id="start-date-picker"
                             />
 
@@ -633,15 +676,20 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                             <M3DateTimePicker
                                 label="End Time"
                                 value={endTime}
-                                onChange={(v) => {
-                                    setEndTime(v);
-                                    setOverviewErrors((p) => ({ ...p, endTime: undefined }));
-                                }}
-                                error={overviewErrors.endTime}
+                                onChange={(v) => {}} // Disabled for PLACEMENT
                                 required
-                                minDate={startDate || today}
+                                disabled
                                 id="end-time-picker"
                             />
+                        </div>
+
+                        <div className="mb-8 flex items-center justify-between p-4 bg-orange-50 rounded-2xl border border-orange-100">
+                            <div className="flex items-center gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-orange-400"></div>
+                                <p className="text-[11px] text-gray-500 italic">
+                                    Dates follow "Placement Test" milestones. Edit in <Link href={`/classes/${classData.id}/timeline/create`} target="_blank" rel="noopener noreferrer" className="text-black font-semibold hover:underline">class timeline</Link>.
+                                </p>
+                            </div>
                         </div>
 
                         {/* ── Course Questions ── */}
