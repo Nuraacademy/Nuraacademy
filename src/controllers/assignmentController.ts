@@ -134,6 +134,7 @@ export async function getAssignmentById(id: number) {
             session: { select: { title: true } },
             assignmentItems: {
                 where: { deletedAt: null },
+                include: { course: true }
             },
         },
     });
@@ -151,6 +152,7 @@ export async function getPlacementTestByClassId(classId: number) {
             class: true,
             assignmentItems: {
                 where: { deletedAt: null },
+                include: { course: true }
             },
         },
     });
@@ -417,7 +419,7 @@ export async function createAssignment(
             for (const { courseId, threshold } of thresholds) {
                 await tx.course.update({
                     where: { id: courseId },
-                    data: { threshold }
+                    data: { threshold: parseFloat(threshold.toString()) }
                 });
             }
         }
@@ -454,7 +456,7 @@ export async function updateAssignment(
             for (const { courseId, threshold } of thresholds) {
                 await tx.course.update({
                     where: { id: courseId },
-                    data: { threshold }
+                    data: { threshold: parseFloat(threshold.toString()) }
                 });
             }
         }

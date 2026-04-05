@@ -142,8 +142,8 @@ function ObjectiveBlock({
                     return (
                         <div key={ans.id} className="flex gap-2 items-start">
                             <div className="flex-1">
-                                <RichTextInput 
-                                    value={ans.text} 
+                                <RichTextInput
+                                    value={ans.text}
                                     onChange={(val) => updateAnswerText(ans.id, val)}
                                     minHeight="45px"
                                     className={cn(
@@ -276,10 +276,10 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
     // Sync dates from localClassData when it updates (since it's a Placement Test, it's always synced)
     useEffect(() => {
         if (!existingTest && localClassData.timelines) {
-            const st = localClassData.timelines.find((t: any) => 
+            const st = localClassData.timelines.find((t: any) =>
                 t.activity.toLowerCase().includes("placement test") && t.activity.toLowerCase().includes("start")
             );
-            const et = localClassData.timelines.find((t: any) => 
+            const et = localClassData.timelines.find((t: any) =>
                 t.activity.toLowerCase().includes("placement test") && t.activity.toLowerCase().includes("end")
             );
             if (st) setStartDate(new Date(st.date));
@@ -305,7 +305,16 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
     const [courseData, setCourseData] = useState<Record<string, CourseQuestions>>({});
 
     // Per-course thresholds
-    const [thresholds, setThresholds] = useState<Record<string, number>>({});
+    const [thresholds, setThresholds] = useState<Record<string, number>>(() => {
+        const initial: Record<string, number> = {};
+        if (classData.courses) {
+            classData.courses.forEach((c: any) => {
+                // Prioritize existing test data if we have it, else course default
+                initial[c.id] = c.threshold ?? 80;
+            });
+        }
+        return initial;
+    });
 
     // Editor state
     const [objectiveQuestions, setObjectiveQuestions] = useState<ObjectiveQuestion[]>([]);
@@ -352,8 +361,11 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                     const cid = item.courseId;
                     if (!cid) return;
 
-                    // Initialize threshold from course if not set
-                    if (item.course && item.course.threshold !== undefined && !initialThresholds[cid]) {
+                    // Initialize threshold from assignment context if available
+                    if (existingTest.thresholds) {
+                        const t = existingTest.thresholds.find((th: any) => th.courseId === cid);
+                        if (t) initialThresholds[cid] = t.threshold;
+                    } else if (item.course && item.course.threshold !== undefined && !initialThresholds[cid]) {
                         initialThresholds[cid] = item.course.threshold;
                     }
 
@@ -405,6 +417,15 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
             setEssayQuestions([makeEssayQuestion(idRef)]);
             setProjectQuestions([]);
         }
+
+        // Initialize threshold if not set
+        setThresholds(prev => {
+            if (prev[course.id] === undefined) {
+                return { ...prev, [course.id]: (course as any).threshold ?? 80 };
+            }
+            return prev;
+        });
+
         setView("editor");
     };
 
@@ -666,7 +687,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                             <M3DateTimePicker
                                 label="Start Date"
                                 value={startDate}
-                                onChange={(d) => {}} // Disabled for PLACEMENT
+                                onChange={(d) => { }} // Disabled for PLACEMENT
                                 required
                                 disabled
                                 id="start-date-picker"
@@ -676,7 +697,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                             <M3DateTimePicker
                                 label="End Time"
                                 value={endTime}
-                                onChange={(v) => {}} // Disabled for PLACEMENT
+                                onChange={(v) => { }} // Disabled for PLACEMENT
                                 required
                                 disabled
                                 id="end-time-picker"
