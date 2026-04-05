@@ -82,7 +82,7 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
     };
 
     return (
-        <main className="sticky top-0 h-16 flex justify-between text-center items-center bg-white px-4 md:px-16 py-2 z-50 shadow-sm">
+        <header className="sticky top-0 h-16 flex justify-between text-center items-center bg-white px-4 md:px-16 py-2 z-50 shadow-sm">
             <Link href="/">
                 <Image
                     src="/logo/logo_nura.png"
@@ -131,14 +131,20 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
                             width={24}
                             height={24}
                         />
-                        Posts
+                        Blogs
                     </Link>
 
                 </div>
 
                 {!isLoading && (
                     <div className="flex justify-end items-center gap-4 bg-white">
-                        {isLoggedIn ? (
+                        {!isLoggedIn ? (
+                            <NuraButton
+                                label="Sign In"
+                                variant="medium"
+                                onClick={onLogin}
+                            />
+                        ) : (
                             <>
                                 <NotificationDropdown />
                                 <div className="relative" ref={dropdownRef}>
@@ -205,18 +211,12 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
                                     )}
                                 </div>
                             </>
-                        ) : (
-                            <NuraButton
-                                label="Sign In"
-                                variant="medium"
-                                onClick={onLogin}
-                            />
                         )}
                     </div>
                 )}
             </div>
 
-        </main>
+        </header>
     )
 
 }
