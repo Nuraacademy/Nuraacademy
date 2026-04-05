@@ -7,17 +7,25 @@ import HomeStoriesCard from "@/components/ui/card/home_stories_card";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { getHomeClasses } from "@/app/actions/classes";
+import { getHomeStats } from "@/app/actions/home";
 import Image from "next/image";
 
 export default function LandingPage() {
   const router = useRouter();
   const [topClasses, setTopClasses] = useState<any[]>([]);
+  const [stats, setStats] = useState({ users: 0, curricula: 0, submissions: 0 });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     getHomeClasses().then(result => {
       if (result.success && result.classes) {
         setTopClasses(result.classes);
+      }
+    }).catch(() => {});
+
+    getHomeStats().then(result => {
+      if (result.success && result.stats) {
+        setStats(result.stats);
       }
       setIsLoading(false);
     }).catch(() => setIsLoading(false));
@@ -47,17 +55,17 @@ export default function LandingPage() {
         {/* Stats */}
         <div className="relative z-10 flex justify-between items-center text-center text-white px-16 py-2 mb-4">
           <div className="flex flex-col items-center w-full">
-            <span className="text-xl font-semibold">0</span>
+            <span className="text-xl font-semibold">{stats.users.toLocaleString()}</span>
             <p className="text-sm">Pengguna Aktif</p>
           </div>
           <div className="text-white/40">|</div>
           <div className="flex flex-col items-center w-full">
-            <span className="text-xl font-semibold">0</span>
+            <span className="text-xl font-semibold">{stats.curricula.toLocaleString()}</span>
             <p className="text-sm">Kurikulum Berstandar Industri</p>
           </div>
           <div className="text-white/40">|</div>
           <div className="flex flex-col items-center w-full">
-            <span className="text-xl font-semibold">0</span>
+            <span className="text-xl font-semibold">{stats.submissions.toLocaleString()}</span>
             <p className="text-sm">Submission Dinilai Ahlinya</p>
           </div>
         </div>
@@ -144,6 +152,14 @@ export default function LandingPage() {
             ) : (
               <p className="text-gray-500 italic">No classes available at the moment.</p>
             )}
+          </div>
+
+          <div className="mt-12 flex justify-center">
+            <NuraButton
+              label="See All Classes"
+              variant="medium"
+              onClick={() => router.push('/classes')}
+            />
           </div>
         </div>
       </section>
