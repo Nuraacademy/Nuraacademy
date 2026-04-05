@@ -22,20 +22,30 @@ export const metadata: Metadata = {
   manifest: "/manifest.json"
 };
 
-export default function RootLayout({
+import { getSession } from "@/app/actions/auth";
+import SidebarWrapper from "@/app/classes/sidebar_wrapper";
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const userId = await getSession();
+
   return (
     <html lang="en">
       <body
         className={`${outfit.variable} antialiased min-h-screen`}
       >
         <NavigationProvider>
-          <Header initialIsLoggedIn={false} />
+          <Header initialIsLoggedIn={!!userId} />
 
-          {children}
+          {userId && <SidebarWrapper />}
+          
+          <main className="transition-all duration-300">
+            {children}
+          </main>
+
           <Toaster position="bottom-right" richColors />
 
           <Footer instagram="www.google.com" youtube="www.youtube.com" x="www.x.com" />
