@@ -698,9 +698,8 @@ export function TestRunner({
             [currentEssay.id]: file,
           }))
         }
-        accept=".pdf"
+        accept="Any"
         maxSizeMB={5}
-        supportedFileType=".pdf"
         title="Attach File"
       />
 
@@ -713,9 +712,8 @@ export function TestRunner({
             [currentProject.id]: file,
           }))
         }
-        accept=".pdf"
+        accept="Any"
         maxSizeMB={5}
-        supportedFileType=".pdf"
         title="Attach File"
       />
     </div>
