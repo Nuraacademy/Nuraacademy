@@ -746,6 +746,7 @@ function processGradingData(result: any) {
             score: ir.score,
             maxScore: item.maxScore || 10,
             answerFiles,
+            referenceFiles: (item.options as any)?.attachments || ((item.options as any)?.attachmentUrl ? [(item.options as any).attachmentUrl] : []),
             resultItemId: ir.id,
         };
 

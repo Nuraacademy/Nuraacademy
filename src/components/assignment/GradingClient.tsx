@@ -202,8 +202,9 @@ export default function GradingClient({
                                     <thead>
                                         <tr className="border-b border-gray-200 bg-gray-50">
                                             <th className="px-6 py-4 text-sm font-medium text-black w-16">No</th>
-                                            <th className="px-6 py-4 text-sm font-medium text-black w-1/3">Question</th>
-                                            <th className="px-6 py-4 text-sm font-medium text-black">Student Response</th>
+                                            <th className="px-6 py-4 text-sm font-medium text-black w-1/4">Question</th>
+                                            <th className="px-6 py-4 text-sm font-medium text-black w-1/2">Student Response</th>
+                                            <th className="px-6 py-4 text-sm font-medium text-black">Learner Files</th>
                                             <th className="px-6 py-4 text-sm font-medium text-black text-right w-40">Score</th>
                                         </tr>
                                     </thead>
@@ -212,8 +213,21 @@ export default function GradingClient({
                                             <tr key={item.resultItemId} className="border-b border-gray-100 last:border-0 h-full">
                                                 <td className="px-6 py-5 text-xs text-gray-600 align-top">{idx + 1}</td>
                                                 <td className="px-6 py-5 text-xs text-black align-top border-l border-r border-gray-100" dangerouslySetInnerHTML={{ __html: item.question }} />
-                                                <td className="px-6 py-5 text-xs text-gray-600 italic leading-relaxed whitespace-pre-wrap">
+                                            
+                                                <td className="px-6 py-5 text-sm text-gray-600 align-top leading-relaxed whitespace-pre-wrap border-l border-r border-gray-100">
                                                     <div dangerouslySetInnerHTML={{ __html: isEmptyAnswer(item.givenAnswer) ? "-" : item.givenAnswer }} />
+                                                </td>
+                                                <td className="px-6 py-5 text-xs align-top leading-relaxed border-l border-r border-gray-100">
+                                                    <div className="space-y-2">
+                                                        {(Array.isArray(item.answerFiles) ? item.answerFiles : []).map((file: string, fIdx: number) => (
+                                                            <div key={fIdx} className="flex items-center gap-2 text-emerald-700 hover:text-emerald-900 transition-colors group cursor-pointer" onClick={() => window.open(file, '_blank')}>
+                                                                <FileText size={14} className="text-emerald-500" />
+                                                                <span className="text-[11px] truncate max-w-[120px] font-medium">{file.split('/').pop()}</span>
+                                                                <Download size={12} className="ml-auto opacity-0 group-hover:opacity-100" />
+                                                            </div>
+                                                        ))}
+                                                        {(!item.answerFiles || item.answerFiles.length === 0) && <span className="text-gray-400 italic font-light text-[11px]">No submission</span>}
+                                                    </div>
                                                 </td>
                                                 <td className="px-6 py-5 text-right align-top border-l border-gray-100">
                                                     <div className="flex items-center justify-end gap-3 group">
@@ -245,9 +259,10 @@ export default function GradingClient({
                                         <tr className="border-b border-gray-100 last:border-0 h-full">
                                             <td className="px-6 py-5 text-xs text-gray-600"></td>
                                             <td className="px-6 py-5 text-xs text-black"></td>
+                                            <td className="px-6 py-5 text-xs text-black"></td>
                                             <td className="px-6 py-5 text-right text-sm text-black font-medium">Total Score</td>
-                                            <td className="px-6 py-5 text-right text-sm font-medium text-black border-l border-r border-gray-100">
-                                                {initialData.essay.reduce((acc, item) => acc + (item.score || 0), 0)}/{initialData.essay.reduce((acc, item) => acc + (item.maxScore || 0), 0)}
+                                            <td className="px-6 py-5 text-right text-sm font-medium text-black border-l border-r border-gray-100 bg-gray-50/30">
+                                                {initialData.essay.reduce((acc, item) => acc + (scores[item.resultItemId] || 0), 0)}/{initialData.essay.reduce((acc, item) => acc + (item.maxScore || 0), 0)}
                                             </td>
                                         </tr>
                                     </tbody>
@@ -264,11 +279,12 @@ export default function GradingClient({
                                 <table className="w-full text-left border-collapse">
                                     <thead>
                                         <tr className="border-b border-gray-200 bg-gray-50">
-                                            <th className="px-6 py-4 text-sm font-medium text-gray-500 w-16">No</th>
-                                            <th className="px-6 py-4 text-sm font-medium text-gray-500 w-2/3">Question</th>
-                                            <th className="px-6 py-4 text-sm font-medium text-gray-500 w-2/3">Answer</th>
-                                            <th className="px-6 py-4 text-sm font-medium text-gray-500">File Submission</th>
-                                            <th className="px-6 py-4 text-sm font-medium text-gray-500 text-right w-40">Score</th>
+                                            <th className="px-6 py-4 text-sm font-medium text-black w-16">No</th>
+                                            <th className="px-6 py-4 text-sm font-medium text-black w-1/4">Question</th>
+                                            <th className="px-6 py-4 text-sm font-medium text-black">Reference Files</th>
+                                            <th className="px-6 py-4 text-sm font-medium text-black w-1/4">Answer</th>
+                                            <th className="px-6 py-4 text-sm font-medium text-black">Learner Files</th>
+                                            <th className="px-6 py-4 text-sm font-medium text-black text-right w-40">Score</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -277,6 +293,18 @@ export default function GradingClient({
                                                 <td className="px-6 py-4 text-xs text-gray-600 font-medium align-top leading-relaxed">{idx + 1}</td>
                                                 <td className="px-6 py-4 text-xs text-black align-top leading-relaxed border-l border-gray-100 border-r border-gray-100">
                                                     <div className="prose prose-sm max-w-none prose-p:leading-relaxed" dangerouslySetInnerHTML={{ __html: item.question }} />
+                                                </td>
+                                                <td className="px-6 py-4 text-xs align-top bg-blue-50/30 border-l border-gray-100 border-r border-gray-100">
+                                                    <div className="space-y-3">
+                                                        {(item.referenceFiles || []).map((file: string, fIdx: number) => (
+                                                            <div key={fIdx} className="flex items-center gap-2 text-blue-700 hover:text-blue-900 transition-colors group cursor-pointer" onClick={() => window.open(file, '_blank')}>
+                                                                <FileText size={16} className="text-blue-400" />
+                                                                <span className="text-[11px] truncate max-w-[120px] font-medium">{file.split('/').pop()}</span>
+                                                                <Download size={14} className="ml-auto opacity-0 group-hover:opacity-100" />
+                                                            </div>
+                                                        ))}
+                                                        {(!item.referenceFiles || item.referenceFiles.length === 0) && <span className="text-gray-400 italic font-light text-[11px]">None</span>}
+                                                    </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-xs text-black align-top leading-relaxed border-l border-gray-100 border-r border-gray-100">
                                                     {isEmptyAnswer(item.givenAnswer) ? (
@@ -288,13 +316,13 @@ export default function GradingClient({
                                                 <td className="px-6 py-4 text-xs align-top leading-relaxed border-l border-gray-100 border-r border-gray-100">
                                                     <div className="space-y-3">
                                                         {(Array.isArray(item.answerFiles) ? item.answerFiles : []).map((file: any, fIdx: number) => (
-                                                            <div key={fIdx} className="flex items-center gap-3 text-gray-700 font-medium hover:text-black transition-colors group cursor-pointer" onClick={() => window.open(file, '_blank')}>
-                                                                <FileText size={18} className="text-gray-400 group-hover:text-[#00524D]" />
+                                                            <div key={fIdx} className="flex items-center gap-2 text-emerald-700 hover:text-emerald-900 transition-colors group cursor-pointer" onClick={() => window.open(file, '_blank')}>
+                                                                <FileText size={16} className="text-emerald-400" />
                                                                 <span className="text-sm truncate max-w-[200px]">{typeof file === 'string' ? file.split('/').pop() : 'File'}</span>
                                                                 <Download size={14} className="ml-auto text-gray-300 group-hover:text-gray-500" />
                                                             </div>
                                                         ))}
-                                                        {(!item.answerFiles || (Array.isArray(item.answerFiles) && item.answerFiles.length === 0)) && <span className="text-gray-400 italic">No files submitted.</span>}
+                                                        {(!item.answerFiles || (Array.isArray(item.answerFiles) && item.answerFiles.length === 0)) && <span className="text-gray-400 italic font-light text-[11px]">No submission</span>}
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-5 text-right align-top border-l border-gray-100">
@@ -324,13 +352,14 @@ export default function GradingClient({
                                                 </td>
                                             </tr>
                                         ))}
-                                        <tr>
+                                        <tr className="border-b border-gray-100 last:border-0 h-full">
                                             <td className="px-6 py-5 text-xs text-gray-600"></td>
                                             <td className="px-6 py-5 text-xs text-black"></td>
                                             <td className="px-6 py-5 text-xs text-black"></td>
+                                            <td className="px-6 py-5 text-xs text-black"></td>
                                             <td className="px-6 py-5 text-right text-sm text-black font-medium">Total Score</td>
-                                            <td className="px-6 py-5 text-right text-sm font-medium text-black border-l border-r border-gray-100">
-                                                {initialData.project.reduce((acc, item) => acc + (item.score || 0), 0)}/{initialData.project.reduce((acc, item) => acc + (item.maxScore || 0), 0)}
+                                            <td className="px-6 py-5 text-right text-sm font-medium text-black border-l border-r border-gray-100 bg-gray-50/30">
+                                                {initialData.project.reduce((acc, item) => acc + (scores[item.resultItemId] || 0), 0)}/{initialData.project.reduce((acc, item) => acc + (item.maxScore || 0), 0)}
                                             </td>
                                         </tr>
                                     </tbody>
