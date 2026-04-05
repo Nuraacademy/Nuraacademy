@@ -6,14 +6,16 @@ import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import { NuraButton } from "@/components/ui/button/button";
 import { RichTextInput } from "@/components/ui/input/rich_text_input";
 import { FeedbackModal } from "@/components/ui/modal/feedback_modal";
-import { X, Plus, CheckCircle } from "lucide-react";
+import { X, Plus, CheckCircle, Upload, Download, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import M3DateTimePicker from "@/components/ui/input/datetime_picker";
+import FileUpload from "@/components/ui/upload/file_upload";
+import FileUploadModal from "@/components/ui/modal/file_upload_modal";
 import { useRouter } from "next/navigation";
 import Link from 'next/link';
 import { addAssignment, editAssignment, removeAssignment } from "@/app/actions/assignment";
 import { NuraTextInput } from "@/components/ui/input/text_input";
-import { getClassDetails } from "@/app/actions/classes";
+import { getClassDetails, uploadClassFile } from "@/app/actions/classes";
 import { toast } from "sonner";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -41,6 +43,7 @@ interface ProjectQuestion {
     id: number;
     content: string;
     score: number;
+    attachments?: string[];
 }
 
 interface CourseQuestions {
@@ -202,8 +205,6 @@ function ObjectiveBlock({
     );
 }
 
-// ─── Open-ended Block (Essay / Project) ──────────────────────────────────────
-
 function OpenEndedBlock({
     question, index, onChange, onRemove, label,
 }: {
@@ -214,6 +215,31 @@ function OpenEndedBlock({
     label: string;
 }) {
     const hasError = isEmpty(question.content) || question.score <= 0;
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+
+    const attachments = (question as any).attachments || [];
+
+    const handleUploadComplete = async (file: File) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await uploadClassFile(formData);
+        if (res.success) {
+            onChange(prev => ({
+                ...prev,
+                attachments: [...(prev.attachments || []), res.url]
+            }));
+            toast.success("Document attached successfully");
+        } else {
+            toast.error(res.error || "Failed to upload document");
+        }
+    };
+
+    const removeAttachment = (url: string) => {
+        onChange(prev => ({
+            ...prev,
+            attachments: prev.attachments?.filter((a: string) => a !== url)
+        }));
+    };
 
     return (
         <div className={`bg-[#F0F5D8] rounded-2xl p-5 mb-4 border-2 transition-colors ${hasError ? "border-orange-200" : "border-transparent"}`}>
@@ -224,19 +250,72 @@ function OpenEndedBlock({
                 </button>
             </div>
             <RichTextInput value={question.content} onChange={(val) => onChange((prev) => ({ ...prev, content: val }))} />
-            <div className="mt-4 flex items-center gap-3">
-                <label className="text-xs font-medium text-gray-500 shrink-0">Score</label>
-                <input
-                    type="number"
-                    min={1}
-                    value={question.score || ""}
-                    placeholder="e.g. 20"
-                    onChange={(e) => onChange((prev) => ({ ...prev, score: Math.max(0, Number(e.target.value)) }))}
-                    onWheel={(e) => e.currentTarget.blur()}
-                    className={`w-28 rounded-lg border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#D9F55C] bg-white ${question.score <= 0 ? "border-orange-200" : "border-gray-300"}`}
-                />
-                {question.score <= 0 && <span className="text-orange-500 text-xs">Required</span>}
+            <div className="mt-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <label className="text-xs font-medium text-gray-500 shrink-0">Score</label>
+                    <input
+                        type="number"
+                        min={1}
+                        value={question.score || ""}
+                        placeholder="e.g. 20"
+                        onChange={(e) => onChange((prev) => ({ ...prev, score: Math.max(0, Number(e.target.value)) }))}
+                        onWheel={(e) => e.currentTarget.blur()}
+                        className={`w-28 rounded-lg border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#D9F55C] bg-white ${question.score <= 0 ? "border-orange-200" : "border-gray-300"}`}
+                    />
+                    {question.score <= 0 && <span className="text-orange-500 text-xs font-medium">Required</span>}
+                </div>
+
+                {label === "Project Question" && (
+                    <div className="flex items-center gap-2">
+                        {attachments.length > 0 && (
+                            <div className="flex -space-x-1 pr-2 border-r border-gray-200">
+                                {attachments.map((_: any, idx: number) => (
+                                    <div key={idx} className="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm">
+                                        <FileText size={10} className="text-emerald-600" />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        <NuraButton
+                            label={attachments.length > 0 ? `${attachments.length} Attachments` : "Add Attachments"}
+                            variant="secondary"
+                            className="!h-9 !text-xs !px-4"
+                            onClick={() => setIsUploadModalOpen(true)}
+                        />
+                    </div>
+                )}
             </div>
+
+            {/* List of attachments for Projects if and only if label was originally Project in the editor */}
+            {attachments.length > 0 && (
+                <div className="mt-4 space-y-2">
+                    {attachments.map((url: string, idx: number) => {
+                        const filename = url.split("/").pop() || `Document ${idx + 1}`;
+                        return (
+                            <div key={idx} className="flex items-center justify-between bg-white px-4 py-2 rounded-xl border border-gray-100 shadow-sm">
+                                <div className="flex items-center gap-3">
+                                    <FileText size={16} className="text-emerald-600" />
+                                    <span className="text-xs font-medium text-gray-700 truncate max-w-[200px]">{filename}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <button onClick={() => removeAttachment(url)} className="p-1.5 text-gray-400 hover:text-red-500">
+                                        <X size={14} />
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+
+            <FileUploadModal
+                isOpen={isUploadModalOpen}
+                onClose={() => setIsUploadModalOpen(false)}
+                onUploadSuccess={handleUploadComplete}
+                title="Attach Document"
+                accept="Any"
+                maxSizeMB={5}
+            />
         </div>
     );
 }
@@ -391,10 +470,12 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                             score: item.maxScore || 20
                         });
                     } else if (item.type === "PROJECT") {
+                        const opts = item.options as any;
                         initialCourseData[cid].project.push({
                             id: idRef.current++,
                             content: item.question,
-                            score: item.maxScore || 20
+                            score: item.maxScore || 20,
+                            attachments: Array.isArray(opts?.attachments) ? opts.attachments : (opts?.attachmentUrl ? [opts.attachmentUrl] : [])
                         });
                     }
                 });
@@ -566,6 +647,9 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                         courseId: parseInt(courseId),
                         type: "PROJECT",
                         question: q.content,
+                        options: {
+                            attachments: q.attachments || []
+                        },
                         maxScore: q.score || 20
                     });
                 }
@@ -891,7 +975,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                     key={q.id}
                                     question={q}
                                     index={i}
-                                    label="Question"
+                                    label="Project Question"
                                     onChange={(updater) =>
                                         setProjectQuestions((prev) => prev.map((item) => (item.id === q.id ? updater(item) : item)))
                                     }

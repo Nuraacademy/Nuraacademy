@@ -29,12 +29,16 @@ export function mapAssignmentToTestRunner(assignment: any) {
 
     const projectQuestions: ProjectQuestion[] = items
         .filter((item: AssignmentItem) => item.type === "PROJECT")
-        .map((item: AssignmentItem) => ({
-            id: item.id,
-            question: item.question,
-            requirements: Array.isArray(item.options) ? item.options : [], // requirements stored in options/json for now
-            points: item.maxScore || 50,
-        }));
+        .map((item: AssignmentItem) => {
+            const opts = item.options as any;
+            return {
+                id: item.id,
+                question: item.question,
+                requirements: Array.isArray(opts?.requirements) ? opts.requirements : [],
+                attachments: Array.isArray(opts?.attachments) ? opts.attachments : (opts?.attachmentUrl ? [opts.attachmentUrl] : []),
+                points: item.maxScore || 50,
+            };
+        });
 
     // Derive course name from the complex include structure
     let courseName = "Class Overview";

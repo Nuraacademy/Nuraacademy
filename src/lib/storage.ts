@@ -23,7 +23,15 @@ export interface UploadResult {
 
 export async function uploadToSupabase(file: File | Blob, bucket: StorageBucket, fileName?: string): Promise<UploadResult> {
     try {
-        const name = fileName || `${Date.now()}-${(file as File).name?.replace(/\s+/g, '-') || 'uploaded-file'}`;
+        // Sanitize filename: remove special characters except dots, dashes and alphanumeric
+        const originalName = (file as File).name || 'uploaded-file';
+        const sanitizedName = originalName
+            .replace(/\s+/g, '-')              // Replace spaces with -
+            .replace(/[^a-zA-Z0-9.\-_]/g, '-') // Replace any other non-safe chars with -
+            .replace(/-+/g, '-')               // Remove double dashes
+            .replace(/^-+|-+$/g, '');          // Trim dashes from ends
+            
+        const name = fileName || `${Date.now()}-${sanitizedName}`;
         const key = `${bucket}/${name}`;
         
         console.log(`[S3 Upload] Starting: Bucket=nura-bucket, Key=${key}, Endpoint=${process.env.NEXT_S3_ENDPOINT}`);
