@@ -39,7 +39,7 @@ export default async function PresenceAndSESPage({
             enrollmentId: enrollment.id,
             name: enrollment.user?.name || enrollment.user?.username || "Unknown",
             status: status,
-            sesScore: STATUS_SCORES[status] || 0
+            sesScore: ses?.score ?? 0 // Read existing score from DB
         };
     });
 

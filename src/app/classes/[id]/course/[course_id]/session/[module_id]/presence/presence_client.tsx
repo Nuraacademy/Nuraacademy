@@ -32,17 +32,25 @@ export default function PresenceClient({
     const [students, setStudents] = useState<StudentPresence[]>(initialStudents);
     const [loading, setLoading] = useState(false);
 
-    const STATUS_SCORES: Record<string, number> = {
-        "attend": 4,
-        "sick": 3,
-        "permit": 2,
-        "absent": 0
-    };
-
     const handleStatusChange = (enrollmentId: number, status: string) => {
         if (!canEdit) return;
         setStudents(prev => prev.map(s =>
-            s.enrollmentId === enrollmentId ? { ...s, status, sesScore: STATUS_SCORES[status] || 0 } : s
+            s.enrollmentId === enrollmentId ? { ...s, status } : s
+        ));
+    };
+
+    const handleScoreChange = (enrollmentId: number, value: string) => {
+        if (!canEdit) return;
+        
+        let score = value === "" ? 0 : parseFloat(value);
+        if (isNaN(score)) score = 0;
+        
+        // Clamp between 0 and 10
+        if (score < 0) score = 0;
+        if (score > 10) score = 10;
+
+        setStudents(prev => prev.map(s =>
+            s.enrollmentId === enrollmentId ? { ...s, sesScore: score } : s
         ));
     };
 
@@ -112,11 +120,14 @@ export default function PresenceClient({
                             <div className="col-span-4 flex justify-end">
                                 <input
                                     type="number"
-                                    readOnly
-                                    disabled
-                                    value={student.sesScore}
-                                    className={`w-20 text-right border-b border-black focus:outline-none bg-transparent px-1 text-sm font-medium opacity-70 cursor-not-allowed`}
-                                />
+                                    min="0"
+                                    max="10"
+                                    step="1"
+                                    disabled={!canEdit}
+                                    value={student.sesScore ?? ""}
+                                    onChange={(e) => handleScoreChange(student.enrollmentId, e.target.value)}
+                                    className={`w-20 text-right border-b border-black focus:outline-none bg-transparent px-1 text-sm font-medium ${!canEdit ? 'opacity-70 cursor-not-allowed' : 'focus:border-[#00524D]' }`}
+                                />/10
                             </div>
                         </div>
                     ))
