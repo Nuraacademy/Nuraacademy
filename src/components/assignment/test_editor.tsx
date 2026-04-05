@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { RichTextInput } from "@/components/ui/input/rich_text_input";
 import { NuraButton } from "@/components/ui/button/button";
-import { X, Plus, FileText, Upload, Download } from "lucide-react";
+import { X, Plus, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import FileUploadModal from "@/components/ui/modal/file_upload_modal";
 import { useState } from "react";
@@ -280,14 +280,6 @@ export function OpenEndedBlock({
                                     <span className="text-xs font-medium text-gray-700 truncate max-w-[200px]">{filename}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <a
-                                        href={url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="p-1.5 hover:bg-gray-100 rounded-md transition-colors text-gray-400 hover:text-[#00524D]"
-                                    >
-                                        <Download size={14} />
-                                    </a>
                                     <button
                                         onClick={() => removeAttachment(url)}
                                         className="p-1.5 hover:bg-red-50 rounded-md transition-colors text-gray-400 hover:text-red-500"
