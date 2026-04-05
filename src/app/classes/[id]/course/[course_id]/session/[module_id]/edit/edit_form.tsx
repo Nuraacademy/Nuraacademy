@@ -40,6 +40,9 @@ export default function EditSessionForm({
     const router = useRouter();
     const isNew = moduleId === "new";
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     const [sessionTitle, setSessionTitle] = useState(initialTitle);
     const [isSynchronous, setIsSynchronous] = useState(initialIsSynchronous);
 
@@ -256,6 +259,7 @@ export default function EditSessionForm({
                     label="Schedule Date"
                     value={scheduleDate}
                     onChange={(date) => setScheduleDate(date)}
+                    minDate={today}
                     required
                 />
             </div>

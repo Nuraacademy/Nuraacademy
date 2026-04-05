@@ -280,6 +280,9 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
     const showModal = (opts: typeof modal) => setModal({ ...opts, open: true });
     const closeModal = () => setModal((m) => ({ ...m, open: false }));
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
@@ -622,7 +625,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                 }}
                                 error={overviewErrors.startDate}
                                 required
-                                minDate={new Date()}
+                                minDate={today}
                                 id="start-date-picker"
                             />
 
@@ -636,7 +639,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                 }}
                                 error={overviewErrors.endTime}
                                 required
-                                minDate={startDate || new Date()}
+                                minDate={startDate || today}
                                 id="end-time-picker"
                             />
                         </div>

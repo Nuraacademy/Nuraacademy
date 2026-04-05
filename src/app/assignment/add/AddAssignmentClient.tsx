@@ -51,6 +51,9 @@ export function AddAssignmentClient({
     const router = useRouter();
     const idRef = useRef(1);
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     // View: "overview" | "editor" (PLACEMENT per-course) | "simple-editor" (other types)
     const [view, setView] = useState<"overview" | "editor" | "simple-editor">("overview");
     const [selectedCourseForEditor, setSelectedCourseForEditor] = useState<{ id: number; title: string } | null>(null);
@@ -623,7 +626,7 @@ export function AddAssignmentClient({
                                 value={startDate}
                                 onChange={(d) => { setStartDate(d); setOverviewErrors(p => ({ ...p, startDate: "" })); }}
                                 error={overviewErrors.startDate}
-                                minDate={new Date()}
+                                minDate={today}
                             />
 
                             <M3DateTimePicker
@@ -632,7 +635,7 @@ export function AddAssignmentClient({
                                 value={endDate}
                                 onChange={(d) => { setEndDate(d); setOverviewErrors(p => ({ ...p, endDate: "" })); }}
                                 error={overviewErrors.endDate}
-                                minDate={startDate || new Date()}
+                                minDate={startDate || today}
                             />
                         </div>
 

@@ -25,6 +25,9 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
     const router = useRouter();
     const [loading, setLoading] = useState(false);
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     // Form state
     const [title, setTitle] = useState(classData?.title || "");
     const [hours, setHours] = useState(classData?.hours || "");
@@ -180,7 +183,7 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                             value={startDate}
                             withTime={false}
                             onChange={setStartDate}
-                            minDate={new Date()}
+                            minDate={today}
                             required
                         />
                     </div>
@@ -190,7 +193,7 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                             value={endDate}
                             onChange={setEndDate}
                             withTime={false}
-                            minDate={startDate || new Date()}
+                            minDate={startDate || today}
                             required
                         />
                     </div>

@@ -145,7 +145,7 @@ export function CreateTimelineClient({ classData }: Props) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 w-full mx-auto">
                     {EVENTS.map((event, index) => {
                         const today = new Date();
-
+                        today.setHours(0, 0, 0, 0);
                         // Start date min is always today as per request
                         const startMinDate = today;
 
