@@ -13,11 +13,15 @@ export const RichTextInput = ({
     value, 
     onChange, 
     className,
+    label,
+    required,
     minHeight = "150px",
     hideToolbar = false
 }: { 
     value: string, 
     onChange: (val: string) => void, 
+    label?: string,
+    required?: boolean,
     className?: string,
     minHeight?: string,
     hideToolbar?: boolean
@@ -115,6 +119,10 @@ export const RichTextInput = ({
     );
 
     return (
+        <>
+        {label && (
+            <label className="block text-sm mb-2">{label}{required && <span className="text-red-500">*</span>}</label>
+        )}
         <div className={cn(
             "group w-full bg-white border border-gray-200 rounded-xl overflow-hidden transition-all focus-within:border-black focus-within:ring-1 focus-within:ring-black",
             className
@@ -158,5 +166,6 @@ export const RichTextInput = ({
                 <EditorContent editor={editor} />
             </div>
         </div>
+        </>
     );
 };

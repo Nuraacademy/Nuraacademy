@@ -43,7 +43,7 @@ export async function handleLogin(formData: FormData) {
             path: "/",
         });
 
-        return { success: true };
+        return { success: true, role: user.role?.name || 'Learner' };
     } catch (error: any) {
         // Record failed attempt
         const count = (attempt?.count || 0) + 1;
@@ -124,7 +124,10 @@ export async function handleGoogleLogin(idToken: string) {
         }
 
         const email = payload.email;
-        let user = await prisma.user.findUnique({ where: { email } });
+        let user = await prisma.user.findUnique({ 
+            where: { email },
+            include: { role: true }
+        }) as any;
 
         if (!user) {
             const baseUsername = payload.name ? payload.name.replace(/\s+/g, '').toLowerCase() : email.split('@')[0];
@@ -144,7 +147,8 @@ export async function handleGoogleLogin(idToken: string) {
                     name: payload.name || "Google User",
                     password: hashedPassword,
                     roleId: defaultRole?.id || null,
-                }
+                },
+                include: { role: true }
             });
         }
 
@@ -157,7 +161,7 @@ export async function handleGoogleLogin(idToken: string) {
             path: "/",
         });
 
-        return { success: true };
+        return { success: true, role: user.role?.name || 'Learner' };
     } catch (error: any) {
         console.error("Google Auth Error:", error);
         return { success: false, error: error.message || "Failed to authenticate with Google" };

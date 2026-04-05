@@ -19,22 +19,24 @@ interface AssignmentListProps {
 }
 
 export default function AssignmentList({ initialAssignments, canAddAssignment, canDeleteAssignment, canGrade }: AssignmentListProps) {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [searchValue, setSearchValue] = useState("");
     const [assignmentType, setAssignmentType] = useState("all");
 
     const filteredAssignments = initialAssignments.filter((assignment) => {
-        const matchesSearch = assignment.title?.toLowerCase().includes(searchValue.toLowerCase()) || true;
-        const uiType = mapPrismaAssignmentType(assignment.type);
-        const matchesType = assignmentType === "all" || uiType.toLowerCase().replace(/\s/g, "") === assignmentType.toLowerCase();
+        const query = searchValue.toLowerCase();
+        
+        const titleMatch = assignment.title?.toLowerCase().includes(query);
+        const classMatch = assignment.class?.title?.toLowerCase().includes(query);
+        const courseMatch = assignment.course?.title?.toLowerCase().includes(query);
+        const sessionMatch = assignment.session?.title?.toLowerCase().includes(query);
+        
+        const matchesSearch = !searchValue || titleMatch || classMatch || courseMatch || sessionMatch;
+        const matchesType = assignmentType === "all" || assignment.type === assignmentType;
         return matchesSearch && matchesType;
     });
 
     return (
-        <main className={`relative min-h-screen w-full overflow-hidden py-4 px-4 md:py-8 md:pr-8 transition-all duration-300 ${isSidebarOpen ? "md:pl-80" : "md:pl-8"}`}>
-            {/* Sidebar */}
-            <Sidebar onOpenChange={setIsSidebarOpen} />
-
+        <div className="relative min-h-screen w-full overflow-hidden py-4 px-4 md:py-8 md:pr-8 transition-all duration-300">
             {/* Background Image */}
             <Image
                 src="/background/PolygonBGTop.svg"
@@ -116,6 +118,6 @@ export default function AssignmentList({ initialAssignments, canAddAssignment, c
                     )}
                 </div>
             </div>
-        </main>
+        </div>
     );
 }

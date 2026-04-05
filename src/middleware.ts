@@ -10,6 +10,8 @@ export function middleware(request: NextRequest) {
         pathname === '/' ||
         pathname === '/login' ||
         pathname === '/register' ||
+        pathname === '/classes' ||
+        pathname.match(/^\/classes\/[^\/]+\/overview$/) ||
         pathname.startsWith('/api/') || // Allow API routes for now, or protect them separately
         pathname.includes('.'); // Allow static files
 

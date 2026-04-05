@@ -9,6 +9,7 @@ import { notFound } from "next/navigation";
 import { getFullSession } from "@/app/actions/auth";
 import Image from "next/image";
 import Link from "next/link";
+import CourseListClient from "./CourseListClient";
 
 export default async function CourseOverviewPage({
     params
@@ -290,7 +291,7 @@ export default async function CourseOverviewPage({
                     </aside>
 
                     {/* Right Column */}
-                    <section className="lg:col-span-8 flex flex-col gap-6">
+                    <section className="lg:col-span-8 flex flex-col gap-6 h-full">
                         {/* Placement Test */}
                         {(isEnrolled || canCreatePlacement) && (
                             <div className="bg-[#1C3A37] rounded-xl px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
@@ -309,45 +310,16 @@ export default async function CourseOverviewPage({
                             </div>
                         )}
 
-                        {/* Courses */}
-                        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col gap-4">
-                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
-                                <h2 className="text-md">Courses</h2>
-                                {canCreateCourse && (
-                                    <div className="flex items-center gap-2">
-                                        <AddCourseButton classId={id} />
-                                        <AddAssignmentButton classId={id} />
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="flex flex-col gap-4">
-                                {classData.courses?.map((course) => (
-                                    <CourseCard
-                                        key={course.id}
-                                        classId={id}
-                                        course={course}
-                                        isAdmin={canUpdateCourse}
-                                        isLearner={isLearner}
-                                    />
-                                ))}
-                                {projectAssignments.filter(a => {
-                                    if (canUpdateCourse) return true; // Admin/Staff sees all
-                                    if (!a.startDate) return true;
-                                    return new Date(a.startDate) <= new Date();
-                                }).map((assignment) => (
-                                    <ProjectCard
-                                        key={assignment.id}
-                                        classId={id}
-                                        assignment={assignment}
-                                        isAdmin={canUpdateCourse}
-                                        isLearner={isLearner}
-                                    />
-                                ))}
-                                {(!classData.courses || classData.courses.length === 0) && (
-                                    <p className="text-sm text-gray-500 italic">No courses added yet.</p>
-                                )}
-                            </div>
+                        {/* Courses & Curriculum (Client-side Searchable & Scrollable) */}
+                        <div className="flex-grow flex flex-col min-h-0">
+                            <CourseListClient
+                                classId={id}
+                                initialCourses={classData.courses || []}
+                                projectAssignments={projectAssignments || []}
+                                canCreateCourse={canCreateCourse}
+                                canUpdateCourse={canUpdateCourse}
+                                isLearner={isLearner}
+                            />
                         </div>
                     </section>
 

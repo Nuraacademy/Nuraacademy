@@ -1,6 +1,5 @@
 import { getAllClasses } from "@/controllers/classController"
 import ClassesGrid from "./class_grid"
-import SidebarWrapper from "./sidebar_wrapper"
 import Image from "next/image"
 import { hasPermission } from "@/lib/rbac"
 
@@ -44,10 +43,7 @@ export default async function ClassesPage() {
     }
 
     return (
-        <main className="relative min-h-screen w-full overflow-hidden py-4 px-4 md:py-8 md:pr-8 transition-all duration-300 md:pl-8">
-            {/* Sidebar State Managed Separately to Avoid Client Wrapper */}
-            <SidebarWrapper />
-
+        <div className="relative min-h-screen w-full overflow-hidden py-4 px-4 md:py-8 md:pr-8 transition-all duration-300 md:pl-8">
             {/* Background Image */}
             <Image
                 src="/background/PolygonBGTop.svg"
@@ -69,6 +65,6 @@ export default async function ClassesPage() {
 
             {/* Render the interactive grid using Client Component */}
             <ClassesGrid initialClasses={classesWithStatus} canCreate={canCreate} canDelete={canDelete} />
-        </main>
+        </div>
     )
 }

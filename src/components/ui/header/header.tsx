@@ -82,7 +82,7 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
     };
 
     return (
-        <main className="sticky top-0 h-16 flex justify-between text-center items-center bg-white px-4 md:px-16 py-2 z-50 shadow-sm">
+        <header className="sticky top-0 h-16 flex justify-between text-center items-center bg-white px-4 md:px-16 py-2 z-50 shadow-sm">
             <Link href="/">
                 <Image
                     src="/logo/logo_nura.png"
@@ -96,7 +96,7 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
             <div className="flex justify-between items-center gap-8">
                 <div className="flex justify-center items-center gap-4 bg-white">
                     <Link
-                        href="/classes"
+                        href={(isLoggedIn && ['Admin', 'Trainer', 'Instructor', 'Instructur', 'Learning Designer'].includes(userData?.role || '')) ? "/admin" : "/classes"}
                         className="flex justify-center items-center gap-2 w-32 h-12 rounded-xl hover:bg-gray-100 transition-colors px-4 text-s text-black bg-white"
                     >
                         <Image
@@ -131,14 +131,20 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
                             width={24}
                             height={24}
                         />
-                        Posts
+                        Blogs
                     </Link>
 
                 </div>
 
                 {!isLoading && (
                     <div className="flex justify-end items-center gap-4 bg-white">
-                        {isLoggedIn ? (
+                        {!isLoggedIn ? (
+                            <NuraButton
+                                label="Sign In"
+                                variant="medium"
+                                onClick={onLogin}
+                            />
+                        ) : (
                             <>
                                 <NotificationDropdown />
                                 <div className="relative" ref={dropdownRef}>
@@ -181,16 +187,6 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
                                                 </Link>
 
                                             </div>
-                                             {userData?.role !== 'Learner' && <div className="px-2 pb-2 mb-2 border-b border-gray-50">
-                                                <Link
-                                                    href="/admin"
-                                                    className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-colors flex items-center gap-2"
-                                                    onClick={() => setShowDropdown(false)}
-                                                >
-                                                    <Image src="/icons/People.svg" alt="Admin" width={16} height={16} className="opacity-70" />
-                                                    Admin
-                                                </Link>
-                                            </div>}
 
                                             <div className="px-2">
                                                 <button
@@ -205,18 +201,12 @@ export default function Header({ initialIsLoggedIn = false }: { initialIsLoggedI
                                     )}
                                 </div>
                             </>
-                        ) : (
-                            <NuraButton
-                                label="Sign In"
-                                variant="medium"
-                                onClick={onLogin}
-                            />
                         )}
                     </div>
                 )}
             </div>
 
-        </main>
+        </header>
     )
 
 }

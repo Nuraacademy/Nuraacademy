@@ -8,6 +8,23 @@ export async function getAllUsers() {
 }
 
 export async function createUser(data: { email: string; name?: string; username: string; password?: string; whatsapp?: string; roleId?: number }) {
+  // Proactively clear unique constraints on legacy soft-deleted users
+  const deletedBlocking = await prisma.user.findFirst({
+    where: { 
+      deletedAt: { not: null },
+      OR: [{ email: data.email }, { username: data.username }]
+    }
+  });
+  if (deletedBlocking) {
+    await prisma.user.update({
+      where: { id: deletedBlocking.id },
+      data: {
+        email: `${deletedBlocking.email}.deleted.${Date.now()}`,
+        username: `${deletedBlocking.username}.deleted.${Date.now()}`,
+      }
+    });
+  }
+
   if (data.password) {
     data.password = await bcrypt.hash(data.password, 10);
   }
@@ -36,6 +53,23 @@ export async function registerUser(data: {
   password: string;
   whatsapp: string;
 }) {
+  // Proactively clear unique constraints on legacy soft-deleted users
+  const deletedBlocking = await prisma.user.findFirst({
+    where: { 
+      deletedAt: { not: null },
+      OR: [{ email: data.email }, { username: data.username }]
+    }
+  });
+  if (deletedBlocking) {
+    await prisma.user.update({
+      where: { id: deletedBlocking.id },
+      data: {
+        email: `${deletedBlocking.email}.deleted.${Date.now()}`,
+        username: `${deletedBlocking.username}.deleted.${Date.now()}`,
+      }
+    });
+  }
+
   const hashedPassword = await bcrypt.hash(data.password, 10);
   const defaultRole = await prisma.role.findUnique({ where: { name: 'Learner' } });
   return await prisma.user.create({
@@ -69,9 +103,18 @@ export async function updateUser(id: number, data: { name?: string; email?: stri
 }
 
 export async function deleteUser(id: number) {
+  const user = await prisma.user.findUnique({ where: { id } });
+  if (!user) throw new Error("User not found");
+
+  const timestamp = Date.now();
   return prisma.user.update({
     where: { id },
-    data: { deletedAt: new Date() },
+    data: { 
+      deletedAt: new Date(),
+      // Rename to clear unique constraints for future new accounts
+      email: `${user.email}.deleted.${timestamp}`,
+      username: `${user.username}.deleted.${timestamp}`,
+    },
   });
 }
 

@@ -32,7 +32,9 @@ export default function LoginPage() {
 
             if (result.success) {
                 toast.success("Login successful!");
-                startRedirect("/classes");
+                const role = result.role || 'Learner';
+                const isStaff = ['Admin', 'Trainer', 'Instructor', 'Instructur', 'Learning Designer'].includes(role);
+                startRedirect(isStaff ? "/admin" : "/classes");
             } else {
                 toast.error(result.error || "Login failed");
             }
@@ -50,7 +52,9 @@ export default function LoginPage() {
                 const result = await handleGoogleLogin(credentialResponse.credential);
                 if (result.success) {
                     toast.success("Login successful!");
-                    startRedirect("/classes");
+                    const role = result.role || 'Learner';
+                    const isStaff = ['Admin', 'Trainer', 'Instructor', 'Instructur', 'Learning Designer'].includes(role);
+                    startRedirect(isStaff ? "/admin" : "/classes");
                 } else {
                     toast.error(result.error || "Google login failed");
                 }

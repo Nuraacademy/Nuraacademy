@@ -4,7 +4,11 @@ import { useRouter } from "next/navigation";
 import { ExternalLink } from "lucide-react";
 import { NuraButton } from "@/components/ui/button/button";
 import ReferenceMaterials from "@/components/ui/reference_materials/reference_materials";
-import PDFViewer from "@/components/ui/video/pdf_viewer";
+import dynamic from "next/dynamic";
+const PDFViewer = dynamic(() => import("@/components/ui/video/pdf_viewer"), { 
+    ssr: false,
+    loading: () => <div className="p-10 text-center animate-pulse text-gray-400">Loading document engine...</div>
+});
 import { startSessionAction } from "@/app/actions/session";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -174,8 +178,10 @@ export default function SessionContent({
                             label={preTestId ? "Pre-test" : isAdmin ? "Create Pre-test" : "Pre-test"}
                             variant={preTestId ? "primary" : isAdmin ? "secondary" : "primary"}
                             onClick={() => {
-                                if (preTestId) {
+                                if (preTestId && !isAdmin) {
                                     router.push(`/assignment/${preTestId}`);
+                                } else if (preTestId && isAdmin) {
+                                    router.push(`/assignment/${preTestId}/results`);
                                 } else if (isAdmin) {
                                     router.push(`/assignment/add?classId=${classId}&courseId=${courseId}&sessionId=${moduleId}&type=PRETEST`);
                                 } else {
@@ -199,8 +205,10 @@ export default function SessionContent({
                             label={postTestId ? "Post-test" : isAdmin ? "Create Post-test" : "Post-test"}
                             variant={postTestId ? "primary" : isAdmin ? "secondary" : "primary"}
                             onClick={() => {
-                                if (postTestId) {
+                                if (postTestId && !isAdmin) {
                                     router.push(`/assignment/${postTestId}`);
+                                } else if (postTestId && isAdmin) {
+                                    router.push(`/assignment/${postTestId}/results`);
                                 } else if (isAdmin) {
                                     router.push(`/assignment/add?classId=${classId}&courseId=${courseId}&sessionId=${moduleId}&type=POSTTEST`);
                                 } else {
