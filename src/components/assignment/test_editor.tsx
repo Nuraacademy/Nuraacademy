@@ -3,8 +3,12 @@
 import { useRef } from "react";
 import { RichTextInput } from "@/components/ui/input/rich_text_input";
 import { NuraButton } from "@/components/ui/button/button";
-import { X, Plus } from "lucide-react";
+import { X, Plus, FileText, Upload, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
+import FileUploadModal from "@/components/ui/modal/file_upload_modal";
+import { useState } from "react";
+import { uploadAssignmentFile } from "@/app/actions/assignment";
+import { toast } from "sonner";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -31,6 +35,7 @@ export interface ProjectQuestion {
     id: number;
     content: string;
     score: number;
+    attachments?: string[];
 }
 
 // ─── ID helpers ───────────────────────────────────────────────────────────────
@@ -95,7 +100,7 @@ export function ObjectiveBlock({
     return (
         <div className={`bg-[#F0F5D8] rounded-2xl p-5 mb-4 border-2 transition-colors ${hasError ? "border-orange-200" : "border-transparent"}`}>
             <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-semibold text-gray-700">Question {index + 1}</span>
+                <span className="text-sm font-medium text-gray-700">Question {index + 1}</span>
                 <button onClick={onRemove} className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-lg hover:bg-white">
                     <X size={15} />
                 </button>
@@ -171,6 +176,7 @@ export function ObjectiveBlock({
                     value={question.score || ""}
                     placeholder="e.g. 10"
                     onChange={(e) => onChange((prev) => ({ ...prev, score: Math.max(0, Number(e.target.value)) }))}
+                    onWheel={(e) => e.currentTarget.blur()}
                     className={`w-28 rounded-lg border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#D9F55C] bg-white ${question.score <= 0 ? "border-orange-200" : "border-gray-300"}`}
                 />
                 {question.score <= 0 && <span className="text-orange-500 text-xs">Required</span>}
@@ -191,28 +197,118 @@ export function OpenEndedBlock({
     label: string;
 }) {
     const hasError = isEmpty(question.content) || question.score <= 0;
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+
+    const attachments = (question as any).attachments || [];
+
+    const handleUploadComplete = async (file: File) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await uploadAssignmentFile(formData);
+        if (res.success) {
+            onChange(prev => ({
+                ...prev,
+                attachments: [...(prev.attachments || []), res.url]
+            }));
+            toast.success("Document attached successfully");
+        } else {
+            toast.error(res.error || "Failed to upload document");
+        }
+    };
+
+    const removeAttachment = (url: string) => {
+        onChange(prev => ({
+            ...prev,
+            attachments: prev.attachments?.filter((a: string) => a !== url)
+        }));
+    };
 
     return (
         <div className={`bg-[#F0F5D8] rounded-2xl p-5 mb-4 border-2 transition-colors ${hasError ? "border-orange-200" : "border-transparent"}`}>
             <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-semibold text-gray-700">{label} {index + 1}</span>
+                <span className="text-sm font-medium text-gray-700">{label} {index + 1}</span>
                 <button onClick={onRemove} className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-lg hover:bg-white">
                     <X size={15} />
                 </button>
             </div>
             <RichTextInput value={question.content} onChange={(val) => onChange((prev: any) => ({ ...prev, content: val }))} />
-            <div className="mt-4 flex items-center gap-3">
-                <label className="text-xs font-medium text-gray-500 shrink-0">Score</label>
-                <input
-                    type="number"
-                    min={1}
-                    value={question.score || ""}
-                    placeholder="e.g. 20"
-                    onChange={(e) => onChange((prev: any) => ({ ...prev, score: Math.max(0, Number(e.target.value)) }))}
-                    className={`w-28 rounded-lg border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#D9F55C] bg-white ${question.score <= 0 ? "border-orange-200" : "border-gray-300"}`}
-                />
-                {question.score <= 0 && <span className="text-orange-500 text-xs">Required</span>}
+            
+            <div className="mt-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <label className="text-xs font-medium text-gray-500 shrink-0">Score</label>
+                    <input
+                        type="number"
+                        min={1}
+                        value={question.score || ""}
+                        placeholder="e.g. 20"
+                        onChange={(e) => onChange((prev: any) => ({ ...prev, score: Math.max(0, Number(e.target.value)) }))}
+                        onWheel={(e) => e.currentTarget.blur()}
+                        className={`w-28 rounded-lg border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#D9F55C] bg-white ${question.score <= 0 ? "border-orange-200" : "border-gray-300"}`}
+                    />
+                    {question.score <= 0 && <span className="text-orange-500 text-xs">Required</span>}
+                </div>
+
+                {label === "Project Question" && (
+                    <div className="flex items-center gap-2">
+                        {attachments.length > 0 && (
+                            <div className="flex -space-x-1 pr-2 border-r border-gray-200">
+                                {attachments.map((_: any, idx: number) => (
+                                    <div key={idx} className="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm">
+                                        <FileText size={10} className="text-emerald-600" />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        <NuraButton
+                            label={attachments.length > 0 ? `${attachments.length} Attachments` : "Add Attachments"}
+                            variant="secondary"
+                            className="!h-9 !text-xs !px-4"
+                            onClick={() => setIsUploadModalOpen(true)}
+                        />
+                    </div>
+                )}
             </div>
+
+            {attachments.length > 0 && (
+                <div className="mt-4 space-y-2">
+                    {attachments.map((url: string, idx: number) => {
+                        const filename = url.split("/").pop() || `Document ${idx + 1}`;
+                        return (
+                            <div key={idx} className="flex items-center justify-between bg-white px-4 py-2 rounded-xl border border-gray-100 shadow-sm">
+                                <div className="flex items-center gap-3 overflow-hidden">
+                                    <FileText size={16} className="text-emerald-600 shrink-0" />
+                                    <span className="text-xs font-medium text-gray-700 truncate max-w-[200px]">{filename}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <a
+                                        href={url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="p-1.5 hover:bg-gray-100 rounded-md transition-colors text-gray-400 hover:text-[#00524D]"
+                                    >
+                                        <Download size={14} />
+                                    </a>
+                                    <button
+                                        onClick={() => removeAttachment(url)}
+                                        className="p-1.5 hover:bg-red-50 rounded-md transition-colors text-gray-400 hover:text-red-500"
+                                    >
+                                        <X size={14} />
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+
+            <FileUploadModal
+                isOpen={isUploadModalOpen}
+                onClose={() => setIsUploadModalOpen(false)}
+                onUploadSuccess={handleUploadComplete}
+                title="Attach Document"
+                accept="Any"
+                maxSizeMB={10}
+            />
         </div>
     );
 }
@@ -416,7 +512,7 @@ export function TestEditor({
                         key={q.id}
                         question={q}
                         index={i}
-                        label="Question"
+                        label="Project Question"
                         onChange={(updater) =>
                             setProjectQuestions((prev) => prev.map((item) => (item.id === q.id ? updater(item) : item)))
                         }

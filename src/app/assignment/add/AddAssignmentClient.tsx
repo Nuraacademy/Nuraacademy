@@ -324,10 +324,11 @@ export function AddAssignmentClient({
                 if (!newData[item.courseId]) {
                     newData[item.courseId] = { objective: [], essay: [], project: [], saved: true };
                 }
-                const q = {
+                const q: any = {
                     id: item.id,
                     content: item.question,
                     score: item.maxScore || 10,
+                    attachments: item.options?.attachments || [],
                     answers: (item.options || []).map((text: string) => ({
                         id: idRef.current++,
                         text: text,
@@ -356,6 +357,7 @@ export function AddAssignmentClient({
                     id: item.id,
                     content: item.question,
                     score: item.maxScore || 10,
+                    attachments: item.options?.attachments || []
                 };
                 if (item.type === "OBJECTIVE") {
                     (q as any).answers = (item.options || []).map((text: string) => ({
@@ -547,13 +549,25 @@ export function AddAssignmentClient({
                 const cId = parseInt(cid);
                 data.objective.forEach(q => items.push({ courseId: cId, type: "OBJECTIVE", question: q.content, maxScore: q.score, options: q.answers.map(a => a.text), correctAnswer: q.answers.find(a => a.isCorrect)?.text || "" }));
                 data.essay.forEach(q => items.push({ courseId: cId, type: "ESSAY", question: q.content, maxScore: q.score }));
-                data.project.forEach(q => items.push({ courseId: cId, type: "PROJECT", question: q.content, maxScore: q.score }));
+                data.project.forEach(q => items.push({ 
+                    courseId: cId, 
+                    type: "PROJECT", 
+                    question: q.content, 
+                    maxScore: q.score,
+                    options: { attachments: q.attachments || [] }
+                }));
             });
         } else {
             const baseCId = isClassLevel ? null : selectedCourseId;
             simpleObjective.forEach(q => items.push({ courseId: baseCId, type: "OBJECTIVE", question: q.content, maxScore: q.score, options: q.answers.map(a => a.text), correctAnswer: q.answers.find(a => a.isCorrect)?.text || "" }));
             simpleEssay.forEach(q => items.push({ courseId: baseCId, type: "ESSAY", question: q.content, maxScore: q.score }));
-            simpleProject.forEach(q => items.push({ courseId: baseCId, type: "PROJECT", question: q.content, maxScore: q.score }));
+            simpleProject.forEach(q => items.push({ 
+                courseId: baseCId, 
+                type: "PROJECT", 
+                question: q.content, 
+                maxScore: q.score,
+                options: { attachments: q.attachments || [] }
+            }));
         }
 
         const thresholdsPayload = isPlacement
@@ -814,14 +828,14 @@ export function AddAssignmentClient({
                                     /* ── PLACEMENT: per-course question cards ── */
                                     <>
                                         <div className="flex items-center justify-between mb-3">
-                                            <h2 className="text-sm font-semibold">Course Questions</h2>
+                                            <h2 className="text-sm font-medium">Course Questions</h2>
                                             {savedCount > 0 && (
                                                 <span className="text-xs text-gray-500 bg-[#F0F5D8] px-3 py-1 rounded-full">
                                                     {savedCount} / {TOTAL_COURSES} courses configured
                                                 </span>
                                             )}
                                         </div>
-                                        <div className="bg-[#F2F5DC] rounded-xl p-5 space-y-3 mb-10">
+                                        <div className="bg-[#F2F5DC] rounded-[2rem] p-5 space-y-3 mb-10">
                                             {(currentClass?.courses || []).map((course: any) => {
                                                 const saved = courseData[course.id]?.saved;
                                                 const totalQ = saved
@@ -830,11 +844,11 @@ export function AddAssignmentClient({
                                                     courseData[course.id].project.length
                                                     : 0;
                                                 return (
-                                                    <div key={course.id} className={`bg-white rounded-xl px-5 py-3.5 flex items-center justify-between shadow-sm transition-all ${saved ? "ring-2 ring-[#D9F55C]/60" : ""}`}>
+                                                    <div key={course.id} className={`bg-white rounded-2xl px-5 py-3.5 flex items-center justify-between shadow-sm transition-all ${saved ? "ring-2 ring-[#D9F55C]/60" : ""}`}>
                                                         <div className="flex items-center gap-3">
                                                             {saved && <CheckCircle size={16} className="text-green-500 shrink-0" />}
                                                             <div className="flex flex-col">
-                                                                <span className="text-sm font-semibold text-gray-800">{course.title}</span>
+                                                                <span className="text-xs font-medium text-gray-800">{course.title}</span>
                                                                 {saved && (
                                                                     <p className="text-[10px] text-gray-400 mt-0.5">
                                                                         {totalQ} question{totalQ !== 1 ? "s" : ""} added
