@@ -10,9 +10,10 @@ import AnalyticsSection from './dashboard/AnalyticsSection';
 
 interface DashboardProps {
     data: DashboardData;
+    permissions: Record<string, boolean>;
 }
 
-export default function TrainerDashboard({ data }: DashboardProps) {
+export default function TrainerDashboard({ data, permissions }: DashboardProps) {
     const router = useRouter();
 
     return (
@@ -48,7 +49,11 @@ export default function TrainerDashboard({ data }: DashboardProps) {
                     {/* Main Content Area - 7 columns */}
                     <div className="lg:col-span-7 space-y-10">
                         {/* Active Courses */}
-                        <ClassSection classes={data.classes} />
+                        <ClassSection 
+                            classes={data.classes} 
+                            canEditClass={permissions['Class_CREATE_UPDATE_CLASS']} 
+                            canDeleteClass={permissions['Class_DELETE_CLASS']} 
+                        />
 
                         {/* Assignments */}
                         <AssignmentSection assignments={data.assignments} canGrade={true} isAdmin={true} />

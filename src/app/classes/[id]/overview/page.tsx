@@ -31,7 +31,7 @@ export default async function CourseOverviewPage({
     const canViewCurricula = await hasPermission('Class', 'SEARCH_VIEW_CURRICULA');
 
     const session = await getFullSession();
-    const isLearner = session?.role === 'Learner';
+    const isLearner = !session || session.role === 'Learner';
 
     // Fetch live class data
     const classData = await getClassById(parseInt(id)) as any;
@@ -137,7 +137,7 @@ export default async function CourseOverviewPage({
                         </div>
 
                         {/* Enroll Button */}
-                        {(!isEnrolled && !canCreateCourse) && (
+                        {(!isEnrolled && isLearner) && (
                             <div className="mt-5">
                                 <EnrollButton classId={id} />
                             </div>

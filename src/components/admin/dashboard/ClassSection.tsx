@@ -7,9 +7,11 @@ import ClassCard from '@/components/ui/card/class_card';
 
 interface ClassSectionProps {
     classes: any[];
+    canEditClass?: boolean;
+    canDeleteClass?: boolean;
 }
 
-export default function ClassSection({ classes }: ClassSectionProps) {
+export default function ClassSection({ classes, canEditClass = false, canDeleteClass = false }: ClassSectionProps) {
     const router = useRouter();
 
     return (
@@ -37,8 +39,8 @@ export default function ClassSection({ classes }: ClassSectionProps) {
                         duration={cls.hours || 0}
                         courses={cls.modules || 0}
                         isEnrolled={true}
-                        canEdit={true}
-                        canDelete={true}
+                        canEdit={canEditClass}
+                        canDelete={canDeleteClass}
                         canViewAnalytics={true}
                         onClick={() => router.push(`/classes/${cls.id}/overview`)}
                     />
