@@ -1,4 +1,5 @@
 "use client";
+import { NuraButton } from "@/components/ui/button/button";
 
 import { useState } from "react";
 import { NuraSearchInput } from "@/components/ui/input/nura_search_input";
@@ -8,8 +9,10 @@ interface CourseListClientProps {
     classId: string;
     initialCourses: any[];
     projectAssignments: any[];
+    curricula: any[];
     canCreateCourse: boolean;
     canUpdateCourse: boolean;
+    canViewCurricula: boolean;
     isLearner: boolean;
 }
 
@@ -17,8 +20,10 @@ export default function CourseListClient({
     classId,
     initialCourses,
     projectAssignments,
+    curricula,
     canCreateCourse,
     canUpdateCourse,
+    canViewCurricula,
     isLearner
 }: CourseListClientProps) {
     const [searchQuery, setSearchQuery] = useState("");
