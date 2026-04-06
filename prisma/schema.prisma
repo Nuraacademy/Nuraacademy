@@ -32,6 +32,7 @@ model User {
   reflections          Reflection[]
   createdSessions      Session[]             @relation("SessionCreator")
   trainerFeedbacks     TrainerFeedback[]     @relation("TrainerFeedbackReceiver")
+  groupSummaries       GroupSummary[]        @relation("GroupSummarySubmitter")
   role                 Role?                 @relation(fields: [roleId], references: [id])
 
   @@map("users")
@@ -53,6 +54,7 @@ model Session {
   assignments   Assignment[]
   reflections   Reflection[]
   ses           SES[]
+  groupSummaries GroupSummary[]
   course        Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
   user          User?        @relation("SessionCreator", fields: [createdBy], references: [id])
 
@@ -685,4 +687,21 @@ enum SessionType {
   SESSION
   EXERCISE
   ASSIGNMENT
+}
+
+model GroupSummary {
+  id          Int       @id @default(autoincrement())
+  sessionId   Int
+  groupName   String
+  content     String
+  submittedBy Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  session     Session   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user        User      @relation("GroupSummarySubmitter", fields: [submittedBy], references: [id])
+
+  @@unique([sessionId, groupName])
+  @@map("group_summaries")
 }
