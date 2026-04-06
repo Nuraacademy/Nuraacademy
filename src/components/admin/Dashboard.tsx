@@ -65,7 +65,11 @@ export default function AdminDashboard({ data, permissions }: DashboardProps) {
 
                     {/* Sidebar Area - 4 columns */}
                     <div className="lg:col-span-4 space-y-12">
-                        <AssignmentSection assignments={data.assignments} />
+                        <AssignmentSection
+                            assignments={data.assignments}
+                            canGrade={true}
+                            isAdmin={true}
+                        />
                         <AnalyticsSection data={data.analytics} />
                     </div>
                 </div>

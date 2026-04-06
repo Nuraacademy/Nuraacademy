@@ -5,6 +5,7 @@ import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import QuestionPreviewClient from "./QuestionPreviewClient";
 import { mapAssignmentToTestRunner } from "@/utils/test_mapper";
 import Image from "next/image";
+import TitleCard from "@/components/ui/card/title_card";
 
 export default async function AssignmentQuestionsPage({
     params
@@ -50,16 +51,11 @@ export default async function AssignmentQuestionsPage({
                 <Breadcrumb items={breadcrumbs} />
 
                 {/* Header Card */}
-                <div className="mt-8 bg-[#075546] rounded-2xl p-8 text-white shadow-lg relative overflow-hidden">
-                    <div className="relative z-10">
-                        <div className="flex items-center gap-3 mb-2">
-                            <h1 className="text-2xl font-semibold">{assignment.title || "Assignment"}</h1>
-                            <span className="border border-white/40 rounded-full px-4 py-0.5 text-xs font-medium">
-                                {assignment.submissionType === 'GROUP' ? 'Group' : 'Individual'}
-                            </span>
-                        </div>
-                        <p className="text-white/80 text-sm font-medium">{classTitle}</p>
-                    </div>
+                <div className="mt-8">
+                    <TitleCard
+                        title={assignment.title || "Assignment"}
+                        description={classTitle}
+                    />
                 </div>
 
                 {/* Schedule Info */}
@@ -72,106 +68,106 @@ export default async function AssignmentQuestionsPage({
                         <span className="font-semibold text-gray-900">End Date:</span>
                         <span className="text-gray-700">{formatDate(assignment.endDate)}</span>
                     </div>
-                </div>
+                
 
-                {/* Questions Section */}
-                <div className="mt-12 space-y-16">
-                    {/* Objective Questions */}
-                    {objectiveQuestions.length > 0 && (
-                        <section className="space-y-6">
-                            <h2 className="text-lg font-semibold text-gray-900 pb-2 border-b border-gray-200">Objective Questions</h2>
-                            <div className="space-y-4">
-                                {objectiveQuestions.map((q, idx) => (
-                                    <div key={q.id} className="bg-[#FFFDF3] border border-[#F2F2D9] rounded-2xl p-8 shadow-sm relative">
-                                        <div className="flex justify-between items-start mb-4">
-                                            <span className="text-sm font-semibold text-gray-900">Question {idx + 1}</span>
-                                            <span className="text-xs font-medium text-gray-500">{q.points} points</span>
-                                        </div>
-                                        <p className="text-sm text-gray-800 leading-relaxed mb-6" dangerouslySetInnerHTML={{ __html: q.question }} />
-                                        <div className="space-y-3">
-                                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Answer</p>
-                                            {q.options.map((opt, optIdx) => (
-                                                <div key={optIdx} className="flex items-center gap-3 text-sm text-gray-700">
-                                                    <div className="w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center shrink-0">
-                                                        <div className="w-2 h-2 rounded-full bg-transparent" />
+                    {/* Questions Section */}
+                    <div className="mt-12 space-y-16">
+                        {/* Objective Questions */}
+                        {objectiveQuestions.length > 0 && (
+                            <section className="space-y-6">
+                                <h2 className="text-lg font-semibold text-gray-900 pb-2 border-b border-gray-200">Objective Questions</h2>
+                                <div className="space-y-4">
+                                    {objectiveQuestions.map((q, idx) => (
+                                        <div key={q.id} className="bg-[#FFFDF3] border border-[#F2F2D9] rounded-2xl p-8 shadow-sm relative">
+                                            <div className="flex justify-between items-start mb-4">
+                                                <span className="text-sm font-semibold text-gray-900">Question {idx + 1}</span>
+                                                <span className="text-xs font-medium text-gray-500">{q.points} points</span>
+                                            </div>
+                                            <p className="text-sm text-gray-800 leading-relaxed mb-6" dangerouslySetInnerHTML={{ __html: q.question }} />
+                                            <div className="space-y-3">
+                                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Answer</p>
+                                                {q.options.map((opt, optIdx) => (
+                                                    <div key={optIdx} className="flex items-center gap-3 text-sm text-gray-700">
+                                                        <div className="w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center shrink-0">
+                                                            <div className="w-2 h-2 rounded-full bg-transparent" />
+                                                        </div>
+                                                        <span dangerouslySetInnerHTML={{ __html: opt }} />
                                                     </div>
-                                                    <span dangerouslySetInnerHTML={{ __html: opt }} />
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-                    )}
-
-                    {/* Essay Questions */}
-                    {essayQuestions.length > 0 && (
-                        <section className="space-y-6">
-                            <h2 className="text-lg font-semibold text-gray-900 pb-2 border-b border-gray-200">Essay Questions</h2>
-                            <div className="space-y-4">
-                                {essayQuestions.map((q, idx) => (
-                                    <div key={q.id} className="bg-[#FFFDF3] border border-[#F2F2D9] rounded-2xl p-8 shadow-sm relative">
-                                        <div className="flex justify-between items-start mb-4">
-                                            <span className="text-sm font-semibold text-gray-900">Question {idx + 1}</span>
-                                            <span className="text-xs font-medium text-gray-500">{q.points} points</span>
-                                        </div>
-                                        <p className="text-sm text-gray-800 leading-relaxed" dangerouslySetInnerHTML={{ __html: q.question }} />
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-                    )}
-
-                    {/* Project Questions */}
-                    {projectQuestions.length > 0 && (
-                        <section className="space-y-6">
-                            <h2 className="text-lg font-semibold text-gray-900 pb-2 border-b border-gray-200">Project Questions</h2>
-                            <div className="space-y-4">
-                                {projectQuestions.map((q, idx) => (
-                                    <div key={q.id} className="bg-[#FFFDF3] border border-[#F2F2D9] rounded-2xl p-8 shadow-sm relative">
-                                        <div className="flex justify-between items-start mb-4">
-                                            <span className="text-sm font-semibold text-gray-900">Question {idx + 1}</span>
-                                            <span className="text-xs font-medium text-gray-500">{q.points} points</span>
-                                        </div>
-                                        <div className="text-sm text-gray-800 leading-relaxed prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: q.question }} />
-                                        
-                                        {q.requirements.length > 0 && (
-                                            <div className="mt-6 space-y-2">
-                                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Requirements</p>
-                                                <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
-                                                    {q.requirements.map((req, rIdx) => (
-                                                        <li key={rIdx}>{req}</li>
-                                                    ))}
-                                                </ul>
+                                                ))}
                                             </div>
-                                        )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        )}
 
-                                        {q.attachments.length > 0 && (
-                                            <div className="mt-6 space-y-2">
-                                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Attachments</p>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {q.attachments.map((at, aIdx) => (
-                                                        <a 
-                                                            key={aIdx} 
-                                                            href={at} 
-                                                            target="_blank" 
-                                                            rel="noopener noreferrer"
-                                                            className="text-xs text-blue-600 hover:underline bg-blue-50 px-3 py-1 rounded-full border border-blue-100"
-                                                        >
-                                                            Attachment {aIdx + 1}
-                                                        </a>
-                                                    ))}
-                                                </div>
+                        {/* Essay Questions */}
+                        {essayQuestions.length > 0 && (
+                            <section className="space-y-6">
+                                <h2 className="text-lg font-semibold text-gray-900 pb-2 border-b border-gray-200">Essay Questions</h2>
+                                <div className="space-y-4">
+                                    {essayQuestions.map((q, idx) => (
+                                        <div key={q.id} className="bg-[#FFFDF3] border border-[#F2F2D9] rounded-2xl p-8 shadow-sm relative">
+                                            <div className="flex justify-between items-start mb-4">
+                                                <span className="text-sm font-semibold text-gray-900">Question {idx + 1}</span>
+                                                <span className="text-xs font-medium text-gray-500">{q.points} points</span>
                                             </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-                    )}
+                                            <p className="text-sm text-gray-800 leading-relaxed" dangerouslySetInnerHTML={{ __html: q.question }} />
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        )}
+
+                        {/* Project Questions */}
+                        {projectQuestions.length > 0 && (
+                            <section className="space-y-6">
+                                <h2 className="text-lg font-semibold text-gray-900 pb-2 border-b border-gray-200">Project Questions</h2>
+                                <div className="space-y-4">
+                                    {projectQuestions.map((q, idx) => (
+                                        <div key={q.id} className="bg-[#FFFDF3] border border-[#F2F2D9] rounded-2xl p-8 shadow-sm relative">
+                                            <div className="flex justify-between items-start mb-4">
+                                                <span className="text-sm font-semibold text-gray-900">Question {idx + 1}</span>
+                                                <span className="text-xs font-medium text-gray-500">{q.points} points</span>
+                                            </div>
+                                            <div className="text-sm text-gray-800 leading-relaxed prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: q.question }} />
+                                            
+                                            {q.requirements.length > 0 && (
+                                                <div className="mt-6 space-y-2">
+                                                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Requirements</p>
+                                                    <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                                                        {q.requirements.map((req, rIdx) => (
+                                                            <li key={rIdx}>{req}</li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )}
+
+                                            {q.attachments.length > 0 && (
+                                                <div className="mt-6 space-y-2">
+                                                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Attachments</p>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {q.attachments.map((at, aIdx) => (
+                                                            <a 
+                                                                key={aIdx} 
+                                                                href={at} 
+                                                                target="_blank" 
+                                                                rel="noopener noreferrer"
+                                                                className="text-xs text-blue-600 hover:underline bg-blue-50 px-3 py-1 rounded-full border border-blue-100"
+                                                            >
+                                                                Attachment {aIdx + 1}
+                                                            </a>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        )}
+                    </div>
                 </div>
-
                 {/* Actions */}
                 <QuestionPreviewClient assignmentId={assignment.id} resultsUrl={`/assignment/${assignment.id}/results`} />
             </div>
