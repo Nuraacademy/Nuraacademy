@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation"
 import { useNavigation } from "@/components/providers/navigation-provider"
 import { NuraSearchInput } from "@/components/ui/input/nura_search_input"
 
-export default function ClassesGrid({ initialClasses, canCreate, canDelete }: { initialClasses: any[], canCreate?: boolean, canDelete?: boolean }) {
+export default function ClassesGrid({ initialClasses, canCreate, canDelete, isEnrolledView }: { initialClasses: any[], canCreate?: boolean, canDelete?: boolean, isEnrolledView?: boolean }) {
     const [searchValue, setSearchValue] = useState("");
     const router = useRouter();
     const { startRedirect } = useNavigation();
@@ -23,7 +23,7 @@ export default function ClassesGrid({ initialClasses, canCreate, canDelete }: { 
             {/* Search Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-black mb-4 w-full max-w-screen-2xl mx-auto md:px-16 relative z-10">
                 <h1 className="text-4xl font-medium">
-                    Explore Our Classes
+                    {isEnrolledView ? "My Classes" : "Explore Our Classes"}
                 </h1>
                 <div className="flex items-center gap-4 w-full md:w-auto">
                     <div className="relative w-full md:w-64">

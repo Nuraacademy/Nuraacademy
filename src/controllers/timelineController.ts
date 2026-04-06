@@ -34,6 +34,45 @@ export async function saveClassTimelines(classId: number, timelines: { activity:
             await tx.timeline.createMany({
                 data: safeTimelines
             });
+
+            // --- SYNC ASSIGNMENTS ---
+            // Update PLACEMENT assignments for this class
+            const placementStart = timelines.find(t => 
+                t.activity.toLowerCase().includes("placement test") && t.activity.toLowerCase().includes("start")
+            )?.date;
+            const placementEnd = timelines.find(t => 
+                t.activity.toLowerCase().includes("placement test") && t.activity.toLowerCase().includes("end")
+            )?.date;
+            
+            if (placementStart) {
+                await tx.assignment.updateMany({
+                    where: { classId, type: "PLACEMENT", deletedAt: null },
+                    data: { 
+                        startDate: placementStart, 
+                        ...(placementEnd ? { endDate: placementEnd } : {})
+                    }
+                });
+            }
+
+            // Update PROJECT assignments for this class
+            const projectStart = timelines.find(t => 
+                (t.activity.toLowerCase().includes("project") || t.activity.toLowerCase().includes("final project")) 
+                && t.activity.toLowerCase().includes("start")
+            )?.date;
+            const projectEnd = timelines.find(t => 
+                (t.activity.toLowerCase().includes("project") || t.activity.toLowerCase().includes("final project")) 
+                && t.activity.toLowerCase().includes("end")
+            )?.date;
+
+            if (projectStart) {
+                await tx.assignment.updateMany({
+                    where: { classId, type: "PROJECT", deletedAt: null },
+                    data: { 
+                        startDate: projectStart, 
+                        ...(projectEnd ? { endDate: projectEnd } : {})
+                    }
+                });
+            }
         }
 
         return true;

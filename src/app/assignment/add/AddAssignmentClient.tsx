@@ -9,12 +9,16 @@ import {
     fetchSessionsByCourseIdAction,
     fetchExistingAssignmentAction
 } from "@/app/actions/assignmentActions";
+import { getClassesAction } from "@/app/actions/classes";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import M3DateTimePicker from "@/components/ui/input/datetime_picker";
 import { NuraButton } from "@/components/ui/button/button";
 import { NuraTextInput } from "@/components/ui/input/text_input";
 import { NuraSelect } from "@/components/ui/input/nura_select";
 import { FeedbackModal } from "@/components/ui/modal/feedback_modal";
 import Image from "next/image";
+import Link from "next/link";
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import {
     TestEditor,
@@ -57,6 +61,25 @@ export function AddAssignmentClient({
     // View: "overview" | "editor" (PLACEMENT per-course) | "simple-editor" (other types)
     const [view, setView] = useState<"overview" | "editor" | "simple-editor">("overview");
     const [selectedCourseForEditor, setSelectedCourseForEditor] = useState<{ id: number; title: string } | null>(null);
+    const [localClasses, setLocalClasses] = useState(classes);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
+    const refreshClassesList = async () => {
+        setIsRefreshing(true);
+        const res = await getClassesAction();
+        if (res.success && res.classes) {
+            setLocalClasses(res.classes);
+        }
+        setIsRefreshing(false);
+    };
+
+    useEffect(() => {
+        const onFocus = () => {
+            refreshClassesList();
+        };
+        window.addEventListener('focus', onFocus);
+        return () => window.removeEventListener('focus', onFocus);
+    }, []);
 
     // Overview fields
     const [title, setTitle] = useState("");
@@ -164,7 +187,7 @@ export function AddAssignmentClient({
 
     // Type rules
     const isPlacement = assignmentType === "PLACEMENT";
-    const currentClass = classes.find(c => c.id === selectedClassId);
+    const currentClass = localClasses.find(c => c.id === selectedClassId);
     const isClassLevel = isPlacement || assignmentType === "PROJECT";
     const isCourseLevel = assignmentType === "EXERCISE" || assignmentType === "ASSIGNMENT";
     const isSessionLevel = assignmentType === "PRETEST" || assignmentType === "POSTTEST";
@@ -174,6 +197,12 @@ export function AddAssignmentClient({
     const hasSubmissionType = assignmentType === "ASSIGNMENT" || assignmentType === "PROJECT" || assignmentType === "EXERCISE";
 
     // ── Hierarchical handlers ────────────────────────────────────────────────
+
+    useEffect(() => {
+        if (currentClass && (assignmentType === "PLACEMENT" || assignmentType === "PROJECT")) {
+            syncDatesFromTimeline(assignmentType, currentClass);
+        }
+    }, [currentClass, assignmentType]);
 
     const handleClassChange = async (val: string) => {
         const id = parseInt(val);
@@ -192,7 +221,11 @@ export function AddAssignmentClient({
         setOverviewErrors(p => ({ ...p, classId: "" }));
         if (id) {
             const res = await fetchCoursesByClassIdAction(id);
-            if (res.success) setCourses(res.courses);
+            if (res.success && res.courses) {
+                setCourses(res.courses);
+                const cls = classes.find(c => c.id === id);
+                if (cls) syncDatesFromTimeline(assignmentType, cls);
+            }
 
             // Check for existing based on type
             triggerExistingCheck(assignmentType, id, null, null);
@@ -228,8 +261,28 @@ export function AddAssignmentClient({
         // Reset submission type on type change
         setSubmissionType("INDIVIDUAL");
 
+        // Auto-sync dates if type change involves Placement or Project
+        if (currentClass) {
+            syncDatesFromTimeline(val, currentClass);
+        }
+
         if (selectedClassId) {
             triggerExistingCheck(val, selectedClassId, selectedCourseId, selectedSessionId);
+        }
+    };
+
+    const syncDatesFromTimeline = (type: string, cls: any) => {
+        if (!cls.timelines) return;
+        if (type === "PLACEMENT") {
+            const st = cls.timelines.find((t: any) => t.activity === "Placement Test Starts" || t.activity === "Placement test Starts");
+            const et = cls.timelines.find((t: any) => t.activity === "Placement Test Ends" || t.activity === "Placement test Ends");
+            if (st) setStartDate(new Date(st.date));
+            if (et) setEndDate(new Date(et.date));
+        } else if (type === "PROJECT") {
+            const st = cls.timelines.find((t: any) => t.activity === "Project Starts" || t.activity === "project Starts" || t.activity === "Final Project Starts");
+            const et = cls.timelines.find((t: any) => t.activity === "Project Ends" || t.activity === "project Ends" || t.activity === "Final Project Ends");
+            if (st) setStartDate(new Date(st.date));
+            if (et) setEndDate(new Date(et.date));
         }
     };
 
@@ -271,10 +324,11 @@ export function AddAssignmentClient({
                 if (!newData[item.courseId]) {
                     newData[item.courseId] = { objective: [], essay: [], project: [], saved: true };
                 }
-                const q = {
+                const q: any = {
                     id: item.id,
                     content: item.question,
                     score: item.maxScore || 10,
+                    attachments: item.options?.attachments || [],
                     answers: (item.options || []).map((text: string) => ({
                         id: idRef.current++,
                         text: text,
@@ -303,6 +357,7 @@ export function AddAssignmentClient({
                     id: item.id,
                     content: item.question,
                     score: item.maxScore || 10,
+                    attachments: item.options?.attachments || []
                 };
                 if (item.type === "OBJECTIVE") {
                     (q as any).answers = (item.options || []).map((text: string) => ({
@@ -494,13 +549,25 @@ export function AddAssignmentClient({
                 const cId = parseInt(cid);
                 data.objective.forEach(q => items.push({ courseId: cId, type: "OBJECTIVE", question: q.content, maxScore: q.score, options: q.answers.map(a => a.text), correctAnswer: q.answers.find(a => a.isCorrect)?.text || "" }));
                 data.essay.forEach(q => items.push({ courseId: cId, type: "ESSAY", question: q.content, maxScore: q.score }));
-                data.project.forEach(q => items.push({ courseId: cId, type: "PROJECT", question: q.content, maxScore: q.score }));
+                data.project.forEach(q => items.push({ 
+                    courseId: cId, 
+                    type: "PROJECT", 
+                    question: q.content, 
+                    maxScore: q.score,
+                    options: { attachments: q.attachments || [] }
+                }));
             });
         } else {
             const baseCId = isClassLevel ? null : selectedCourseId;
             simpleObjective.forEach(q => items.push({ courseId: baseCId, type: "OBJECTIVE", question: q.content, maxScore: q.score, options: q.answers.map(a => a.text), correctAnswer: q.answers.find(a => a.isCorrect)?.text || "" }));
             simpleEssay.forEach(q => items.push({ courseId: baseCId, type: "ESSAY", question: q.content, maxScore: q.score }));
-            simpleProject.forEach(q => items.push({ courseId: baseCId, type: "PROJECT", question: q.content, maxScore: q.score }));
+            simpleProject.forEach(q => items.push({ 
+                courseId: baseCId, 
+                type: "PROJECT", 
+                question: q.content, 
+                maxScore: q.score,
+                options: { attachments: q.attachments || [] }
+            }));
         }
 
         const thresholdsPayload = isPlacement
@@ -627,6 +694,7 @@ export function AddAssignmentClient({
                                 onChange={(d) => { setStartDate(d); setOverviewErrors(p => ({ ...p, startDate: "" })); }}
                                 error={overviewErrors.startDate}
                                 minDate={today}
+                                disabled={isPlacement || assignmentType === "PROJECT"}
                             />
 
                             <M3DateTimePicker
@@ -636,8 +704,21 @@ export function AddAssignmentClient({
                                 onChange={(d) => { setEndDate(d); setOverviewErrors(p => ({ ...p, endDate: "" })); }}
                                 error={overviewErrors.endDate}
                                 minDate={startDate || today}
+                                disabled={isPlacement || assignmentType === "PROJECT"}
                             />
                         </div>
+
+                        {(isPlacement || assignmentType === "PROJECT") && selectedClassId && (
+                            <div className="mb-8 flex items-center justify-between p-4 bg-orange-50 rounded-2xl border border-orange-100">
+                                <div className="flex items-center gap-2 px-1">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-orange-400"></div>
+                                    <p className="text-[11px] text-gray-500 italic">
+                                        Dates follow "{isPlacement ? "Placement Test" : "Final Project"}" milestones.
+                                        Edit in <Link href={`/classes/${selectedClassId}/timeline/create`} target="_blank" rel="noopener noreferrer" className="text-black font-semibold hover:underline px-1">class timeline</Link>.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Error messages for non-M3 picker inputs */}
                         {(overviewErrors.title || overviewErrors.duration) && (
@@ -747,14 +828,14 @@ export function AddAssignmentClient({
                                     /* ── PLACEMENT: per-course question cards ── */
                                     <>
                                         <div className="flex items-center justify-between mb-3">
-                                            <h2 className="text-sm font-semibold">Course Questions</h2>
+                                            <h2 className="text-sm font-medium">Course Questions</h2>
                                             {savedCount > 0 && (
                                                 <span className="text-xs text-gray-500 bg-[#F0F5D8] px-3 py-1 rounded-full">
                                                     {savedCount} / {TOTAL_COURSES} courses configured
                                                 </span>
                                             )}
                                         </div>
-                                        <div className="bg-[#F2F5DC] rounded-xl p-5 space-y-3 mb-10">
+                                        <div className="bg-[#F2F5DC] rounded-[2rem] p-5 space-y-3 mb-10">
                                             {(currentClass?.courses || []).map((course: any) => {
                                                 const saved = courseData[course.id]?.saved;
                                                 const totalQ = saved
@@ -763,11 +844,11 @@ export function AddAssignmentClient({
                                                     courseData[course.id].project.length
                                                     : 0;
                                                 return (
-                                                    <div key={course.id} className={`bg-white rounded-xl px-5 py-3.5 flex items-center justify-between shadow-sm transition-all ${saved ? "ring-2 ring-[#D9F55C]/60" : ""}`}>
+                                                    <div key={course.id} className={`bg-white rounded-2xl px-5 py-3.5 flex items-center justify-between shadow-sm transition-all ${saved ? "ring-2 ring-[#D9F55C]/60" : ""}`}>
                                                         <div className="flex items-center gap-3">
                                                             {saved && <CheckCircle size={16} className="text-green-500 shrink-0" />}
                                                             <div className="flex flex-col">
-                                                                <span className="text-sm font-semibold text-gray-800">{course.title}</span>
+                                                                <span className="text-xs font-medium text-gray-800">{course.title}</span>
                                                                 {saved && (
                                                                     <p className="text-[10px] text-gray-400 mt-0.5">
                                                                         {totalQ} question{totalQ !== 1 ? "s" : ""} added

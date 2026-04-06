@@ -226,3 +226,34 @@ export async function saveAssignmentFeedback(
         return { success: false, error: error.message };
     }
 }
+
+export async function uploadAssignmentFile(formData: FormData) {
+    try {
+        await requirePermission('Assignment', 'CREATE_UPDATE_ASSIGNMENT');
+        
+        const file = formData.get("file") as File;
+        if (!file) {
+            return { 
+                success: false, 
+                error: "No file provided",
+                url: null,
+                path: null,
+                name: null,
+                size: null
+            };
+        }
+
+        const result = await uploadToSupabase(file, 'assignments');
+        return result;
+    } catch (error: any) {
+        console.error("Assignment Upload error:", error);
+        return { 
+            success: false, 
+            error: error.message || "Failed to upload file",
+            url: null,
+            path: null,
+            name: null,
+            size: null
+        };
+    }
+}

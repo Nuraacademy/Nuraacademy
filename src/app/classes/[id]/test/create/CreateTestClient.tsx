@@ -6,12 +6,17 @@ import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import { NuraButton } from "@/components/ui/button/button";
 import { RichTextInput } from "@/components/ui/input/rich_text_input";
 import { FeedbackModal } from "@/components/ui/modal/feedback_modal";
-import { X, Plus, CheckCircle } from "lucide-react";
+import { X, Plus, CheckCircle, Upload, Download, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import M3DateTimePicker from "@/components/ui/input/datetime_picker";
+import FileUpload from "@/components/ui/upload/file_upload";
+import FileUploadModal from "@/components/ui/modal/file_upload_modal";
 import { useRouter } from "next/navigation";
+import Link from 'next/link';
 import { addAssignment, editAssignment, removeAssignment } from "@/app/actions/assignment";
 import { NuraTextInput } from "@/components/ui/input/text_input";
+import { getClassDetails, uploadClassFile } from "@/app/actions/classes";
+import { toast } from "sonner";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -38,6 +43,7 @@ interface ProjectQuestion {
     id: number;
     content: string;
     score: number;
+    attachments?: string[];
 }
 
 interface CourseQuestions {
@@ -139,8 +145,8 @@ function ObjectiveBlock({
                     return (
                         <div key={ans.id} className="flex gap-2 items-start">
                             <div className="flex-1">
-                                <RichTextInput 
-                                    value={ans.text} 
+                                <RichTextInput
+                                    value={ans.text}
                                     onChange={(val) => updateAnswerText(ans.id, val)}
                                     minHeight="45px"
                                     className={cn(
@@ -199,8 +205,6 @@ function ObjectiveBlock({
     );
 }
 
-// ─── Open-ended Block (Essay / Project) ──────────────────────────────────────
-
 function OpenEndedBlock({
     question, index, onChange, onRemove, label,
 }: {
@@ -211,6 +215,31 @@ function OpenEndedBlock({
     label: string;
 }) {
     const hasError = isEmpty(question.content) || question.score <= 0;
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+
+    const attachments = (question as any).attachments || [];
+
+    const handleUploadComplete = async (file: File) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await uploadClassFile(formData);
+        if (res.success) {
+            onChange(prev => ({
+                ...prev,
+                attachments: [...(prev.attachments || []), res.url]
+            }));
+            toast.success("Document attached successfully");
+        } else {
+            toast.error(res.error || "Failed to upload document");
+        }
+    };
+
+    const removeAttachment = (url: string) => {
+        onChange(prev => ({
+            ...prev,
+            attachments: prev.attachments?.filter((a: string) => a !== url)
+        }));
+    };
 
     return (
         <div className={`bg-[#F0F5D8] rounded-2xl p-5 mb-4 border-2 transition-colors ${hasError ? "border-orange-200" : "border-transparent"}`}>
@@ -221,19 +250,72 @@ function OpenEndedBlock({
                 </button>
             </div>
             <RichTextInput value={question.content} onChange={(val) => onChange((prev) => ({ ...prev, content: val }))} />
-            <div className="mt-4 flex items-center gap-3">
-                <label className="text-xs font-medium text-gray-500 shrink-0">Score</label>
-                <input
-                    type="number"
-                    min={1}
-                    value={question.score || ""}
-                    placeholder="e.g. 20"
-                    onChange={(e) => onChange((prev) => ({ ...prev, score: Math.max(0, Number(e.target.value)) }))}
-                    onWheel={(e) => e.currentTarget.blur()}
-                    className={`w-28 rounded-lg border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#D9F55C] bg-white ${question.score <= 0 ? "border-orange-200" : "border-gray-300"}`}
-                />
-                {question.score <= 0 && <span className="text-orange-500 text-xs">Required</span>}
+            <div className="mt-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <label className="text-xs font-medium text-gray-500 shrink-0">Score</label>
+                    <input
+                        type="number"
+                        min={1}
+                        value={question.score || ""}
+                        placeholder="e.g. 20"
+                        onChange={(e) => onChange((prev) => ({ ...prev, score: Math.max(0, Number(e.target.value)) }))}
+                        onWheel={(e) => e.currentTarget.blur()}
+                        className={`w-28 rounded-lg border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#D9F55C] bg-white ${question.score <= 0 ? "border-orange-200" : "border-gray-300"}`}
+                    />
+                    {question.score <= 0 && <span className="text-orange-500 text-xs font-medium">Required</span>}
+                </div>
+
+                {label === "Project Question" && (
+                    <div className="flex items-center gap-2">
+                        {attachments.length > 0 && (
+                            <div className="flex -space-x-1 pr-2 border-r border-gray-200">
+                                {attachments.map((_: any, idx: number) => (
+                                    <div key={idx} className="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm">
+                                        <FileText size={10} className="text-emerald-600" />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        <NuraButton
+                            label={attachments.length > 0 ? `${attachments.length} Attachments` : "Add Attachments"}
+                            variant="secondary"
+                            className="!h-9 !text-xs !px-4"
+                            onClick={() => setIsUploadModalOpen(true)}
+                        />
+                    </div>
+                )}
             </div>
+
+            {/* List of attachments for Projects if and only if label was originally Project in the editor */}
+            {attachments.length > 0 && (
+                <div className="mt-4 space-y-2">
+                    {attachments.map((url: string, idx: number) => {
+                        const filename = url.split("/").pop() || `Document ${idx + 1}`;
+                        return (
+                            <div key={idx} className="flex items-center justify-between bg-white px-4 py-2 rounded-xl border border-gray-100 shadow-sm">
+                                <div className="flex items-center gap-3">
+                                    <FileText size={16} className="text-emerald-600" />
+                                    <span className="text-xs font-medium text-gray-700 truncate max-w-[200px]">{filename}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <button onClick={() => removeAttachment(url)} className="p-1.5 text-gray-400 hover:text-red-500">
+                                        <X size={14} />
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+
+            <FileUploadModal
+                isOpen={isUploadModalOpen}
+                onClose={() => setIsUploadModalOpen(false)}
+                onUploadSuccess={handleUploadComplete}
+                title="Attach Document"
+                accept="Any"
+                maxSizeMB={5}
+            />
         </div>
     );
 }
@@ -248,9 +330,53 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
     const [view, setView] = useState<"overview" | "editor">("overview");
     const [selectedCourse, setSelectedCourse] = useState<CourseItem | null>(null);
 
+    // Dynamic Class Data refresh
+    const [localClassData, setLocalClassData] = useState(classData);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
+    const refreshTimeline = async () => {
+        setIsRefreshing(true);
+        const res = await getClassDetails(classData.id);
+        if (res.success && res.class) {
+            setLocalClassData(res.class);
+        }
+        setIsRefreshing(false);
+    };
+
+    // Auto-refresh when tab gets focus
+    useEffect(() => {
+        const onFocus = () => {
+            refreshTimeline();
+        };
+        window.addEventListener('focus', onFocus);
+        return () => window.removeEventListener('focus', onFocus);
+    }, []);
+
+    // Sync dates from localClassData when it updates (since it's a Placement Test, it's always synced)
+    useEffect(() => {
+        if (!existingTest && localClassData.timelines) {
+            const st = localClassData.timelines.find((t: any) =>
+                t.activity.toLowerCase().includes("placement test") && t.activity.toLowerCase().includes("start")
+            );
+            const et = localClassData.timelines.find((t: any) =>
+                t.activity.toLowerCase().includes("placement test") && t.activity.toLowerCase().includes("end")
+            );
+            if (st) setStartDate(new Date(st.date));
+            if (et) setEndTime(new Date(et.date));
+        }
+    }, [localClassData.timelines]);
+
     // Overview form
-    const [startDate, setStartDate] = useState<Date | null>(null);
-    const [endTime, setEndTime] = useState<Date | null>(null);
+    const [startDate, setStartDate] = useState<Date | null>(() => {
+        if (existingTest?.startDate) return new Date(existingTest.startDate);
+        const st = classData.timelines?.find((t: any) => t.activity === "Placement Test Starts" || t.activity === "Placement test Starts");
+        return st ? new Date(st.date) : null;
+    });
+    const [endTime, setEndTime] = useState<Date | null>(() => {
+        if (existingTest?.endDate) return new Date(existingTest.endDate);
+        const et = classData.timelines?.find((t: any) => t.activity === "Placement Test Ends" || t.activity === "Placement test Ends");
+        return et ? new Date(et.date) : null;
+    });
     const [durationMinutes, setDurationMinutes] = useState(120);
     const [overviewErrors, setOverviewErrors] = useState<{ startDate?: string; endTime?: string; durationMinutes?: string }>({});
 
@@ -258,7 +384,16 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
     const [courseData, setCourseData] = useState<Record<string, CourseQuestions>>({});
 
     // Per-course thresholds
-    const [thresholds, setThresholds] = useState<Record<string, number>>({});
+    const [thresholds, setThresholds] = useState<Record<string, number>>(() => {
+        const initial: Record<string, number> = {};
+        if (classData.courses) {
+            classData.courses.forEach((c: any) => {
+                // Prioritize existing test data if we have it, else course default
+                initial[c.id] = c.threshold ?? 80;
+            });
+        }
+        return initial;
+    });
 
     // Editor state
     const [objectiveQuestions, setObjectiveQuestions] = useState<ObjectiveQuestion[]>([]);
@@ -305,8 +440,11 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                     const cid = item.courseId;
                     if (!cid) return;
 
-                    // Initialize threshold from course if not set
-                    if (item.course && item.course.threshold !== undefined && !initialThresholds[cid]) {
+                    // Initialize threshold from assignment context if available
+                    if (existingTest.thresholds) {
+                        const t = existingTest.thresholds.find((th: any) => th.courseId === cid);
+                        if (t) initialThresholds[cid] = t.threshold;
+                    } else if (item.course && item.course.threshold !== undefined && !initialThresholds[cid]) {
                         initialThresholds[cid] = item.course.threshold;
                     }
 
@@ -332,10 +470,12 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                             score: item.maxScore || 20
                         });
                     } else if (item.type === "PROJECT") {
+                        const opts = item.options as any;
                         initialCourseData[cid].project.push({
                             id: idRef.current++,
                             content: item.question,
-                            score: item.maxScore || 20
+                            score: item.maxScore || 20,
+                            attachments: Array.isArray(opts?.attachments) ? opts.attachments : (opts?.attachmentUrl ? [opts.attachmentUrl] : [])
                         });
                     }
                 });
@@ -358,6 +498,15 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
             setEssayQuestions([makeEssayQuestion(idRef)]);
             setProjectQuestions([]);
         }
+
+        // Initialize threshold if not set
+        setThresholds(prev => {
+            if (prev[course.id] === undefined) {
+                return { ...prev, [course.id]: (course as any).threshold ?? 80 };
+            }
+            return prev;
+        });
+
         setView("editor");
     };
 
@@ -498,6 +647,9 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                         courseId: parseInt(courseId),
                         type: "PROJECT",
                         question: q.content,
+                        options: {
+                            attachments: q.attachments || []
+                        },
                         maxScore: q.score || 20
                     });
                 }
@@ -589,7 +741,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                         <h1 className="text-2xl font-medium mt-6 mb-6">{existingTest ? "Edit Test" : "Create Test"}</h1>
 
                         {/* ── Form Row ── */}
-                        <div className="grid grid-cols-1 md:grid-cols-[1fr_120px_240px_240px] gap-4 items-start mb-8">
+                        <div className="grid grid-cols-1 md:grid-cols-[1fr_120px_240px_240px] gap-4 items-start mb-2">
 
                             {/* Class Title — Read Only */}
                             <div className="relative">
@@ -619,13 +771,9 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                             <M3DateTimePicker
                                 label="Start Date"
                                 value={startDate}
-                                onChange={(d) => {
-                                    setStartDate(d);
-                                    setOverviewErrors((p) => ({ ...p, startDate: undefined }));
-                                }}
-                                error={overviewErrors.startDate}
+                                onChange={(d) => { }} // Disabled for PLACEMENT
                                 required
-                                minDate={today}
+                                disabled
                                 id="start-date-picker"
                             />
 
@@ -633,15 +781,20 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                             <M3DateTimePicker
                                 label="End Time"
                                 value={endTime}
-                                onChange={(v) => {
-                                    setEndTime(v);
-                                    setOverviewErrors((p) => ({ ...p, endTime: undefined }));
-                                }}
-                                error={overviewErrors.endTime}
+                                onChange={(v) => { }} // Disabled for PLACEMENT
                                 required
-                                minDate={startDate || today}
+                                disabled
                                 id="end-time-picker"
                             />
+                        </div>
+
+                        <div className="mb-8 flex items-center justify-between p-4 bg-orange-50 rounded-2xl border border-orange-100">
+                            <div className="flex items-center gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-orange-400"></div>
+                                <p className="text-[11px] text-gray-500 italic">
+                                    Dates follow "Placement Test" milestones. Edit in <Link href={`/classes/${classData.id}/timeline/create`} target="_blank" rel="noopener noreferrer" className="text-black font-semibold hover:underline">class timeline</Link>.
+                                </p>
+                            </div>
                         </div>
 
                         {/* ── Course Questions ── */}
@@ -822,7 +975,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                     key={q.id}
                                     question={q}
                                     index={i}
-                                    label="Question"
+                                    label="Project Question"
                                     onChange={(updater) =>
                                         setProjectQuestions((prev) => prev.map((item) => (item.id === q.id ? updater(item) : item)))
                                     }

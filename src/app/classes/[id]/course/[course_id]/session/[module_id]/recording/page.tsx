@@ -63,7 +63,33 @@ export default async function SessionRecordingPage({
     ];
 
     const makeVideoUrl = (url: string) => {
-        return url.replace("watch?v=", "embed/");
+        if (!url) return "";
+
+        // YouTube handling
+        if (url.includes("youtube.com/watch?v=")) {
+            return url.replace("watch?v=", "embed/");
+        }
+        if (url.includes("youtu.be/")) {
+            const id = url.split("/").pop();
+            return `https://www.youtube.com/embed/${id}`;
+        }
+
+        // Google Drive handling
+        if (url.includes("drive.google.com")) {
+            // Transform sharing links like /view into /preview for embedding
+            let embedUrl = url.replace(/\/view(\?.*)?$/, "/preview");
+            if (!embedUrl.endsWith("/preview") && url.includes("/file/d/")) {
+                const parts = url.split("/");
+                const fileIndex = parts.indexOf("d");
+                if (fileIndex !== -1 && parts[fileIndex + 1]) {
+                    const fileId = parts[fileIndex + 1].split(/[?#]/)[0];
+                    return `https://drive.google.com/file/d/${fileId}/preview`;
+                }
+            }
+            return embedUrl;
+        }
+
+        return url;
     };
 
     return (

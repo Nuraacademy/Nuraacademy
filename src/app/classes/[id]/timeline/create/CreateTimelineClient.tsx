@@ -8,6 +8,7 @@ import { updateClassSchedule } from "@/app/actions/classes"
 import { FeedbackModal } from "@/components/ui/modal/feedback_modal"
 import M3DateTimePicker from "@/components/ui/input/datetime_picker"
 import Image from "next/image"
+import { toast } from "sonner"
 
 type Props = {
     classData: any
@@ -34,6 +35,18 @@ export function CreateTimelineClient({ classData }: Props) {
         }
         return initial;
     })
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+
+    const handleDateChange = (key: string, value: Date | null) => {
+        setDates(prev => ({ ...prev, [key]: value }));
+        if (fieldErrors[key]) {
+            setFieldErrors(prev => {
+                const next = { ...prev };
+                delete next[key];
+                return next;
+            });
+        }
+    }
 
     const [modal, setModal] = useState<{ open: boolean, type: "success" | "error", title: string, message: string }>({
         open: false,
@@ -42,22 +55,24 @@ export function CreateTimelineClient({ classData }: Props) {
         message: ""
     })
 
-    const handleDateChange = (key: string, value: Date | null) => {
-        setDates(prev => ({ ...prev, [key]: value }))
-    }
-
     const handleSubmit = async () => {
-        // Validation: End date >= Start date, and sequential starts
+        // Validation: End date >= Start date
+        const newFieldErrors: Record<string, string> = {};
         let isValid = true;
-        let errorMessage = "";
+
+        EVENTS.forEach(event => {
+            const start = dates[`${event.prefix} Starts`];
+            const end = dates[`${event.prefix} Ends`];
+
+            if (start && end && end < start) {
+                newFieldErrors[`${event.prefix} Ends`] = `${event.label} end date cannot be earlier than start date`;
+                isValid = false;
+            }
+        });
 
         if (!isValid) {
-            setModal({
-                open: true,
-                type: "error",
-                title: "Validation Error",
-                message: errorMessage,
-            });
+            setFieldErrors(newFieldErrors);
+            toast.error("Please fix the timeline sequence errors.");
             return;
         }
 
@@ -162,6 +177,7 @@ export function CreateTimelineClient({ classData }: Props) {
                                         value={(dates[`${event.prefix} Starts`] as Date | null | undefined) ?? null}
                                         onChange={(d) => handleDateChange(`${event.prefix} Starts`, d)}
                                         minDate={startMinDate}
+                                        error={fieldErrors[`${event.prefix} Starts`]}
                                     />
                                 </div>
 
@@ -172,6 +188,7 @@ export function CreateTimelineClient({ classData }: Props) {
                                         value={(dates[`${event.prefix} Ends`] as Date | null | undefined) ?? null}
                                         onChange={(d) => handleDateChange(`${event.prefix} Ends`, d)}
                                         minDate={endMinDate}
+                                        error={fieldErrors[`${event.prefix} Ends`]}
                                     />
                                 </div>
                             </div>

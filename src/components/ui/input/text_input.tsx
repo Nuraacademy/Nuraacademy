@@ -37,7 +37,7 @@ export const NuraTextInput = ({
 }: TextInputProp) => {
     const [showPassword, setShowPassword] = useState(false);
     const isPassword = variant === 'password';
-    
+
     const inputType = isPassword ? (showPassword ? 'text' : 'password') : variant;
 
     return (
@@ -68,7 +68,7 @@ export const NuraTextInput = ({
                         className
                     )}
                 />
-                
+
                 {isPassword ? (
                     <button
                         type="button"

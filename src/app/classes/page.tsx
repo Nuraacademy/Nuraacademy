@@ -6,7 +6,10 @@ import { hasPermission } from "@/lib/rbac"
 import { getSession } from "@/app/actions/auth"
 import { prisma } from "@/lib/prisma"
 
-export default async function ClassesPage() {
+export default async function ClassesPage({ searchParams }: { searchParams: Promise<{ enrolled?: string }> }) {
+    const params = await searchParams;
+    const isEnrolledView = params.enrolled === 'true';
+    
     // Fetch live data from the database
     const classes = await getAllClasses()
     const userId = await getSession()
@@ -37,8 +40,21 @@ export default async function ClassesPage() {
         }));
     }
 
-    // Only show started classes to learners (users without create permission)
-    if (!canCreate) {
+    // Handle view based on searchParams or permissions
+    if (isEnrolledView && userId) {
+        // Show ONLY enrolled and active classes
+        const enrollments = await prisma.enrollment.findMany({
+            where: {
+                userId,
+                status: 'ACTIVE',
+                deletedAt: null
+            },
+            select: { classId: true }
+        });
+        const enrolledIds = enrollments.map(en => en.classId);
+        classesWithStatus = classesWithStatus.filter((c: any) => enrolledIds.includes(c.id));
+    } else if (!canCreate) {
+        // Catalog view for learners: Only show started classes
         classesWithStatus = classesWithStatus.filter((c: any) => c.startDate && new Date(c.startDate) <= new Date());
     }
 
@@ -64,7 +80,7 @@ export default async function ClassesPage() {
             />
 
             {/* Render the interactive grid using Client Component */}
-            <ClassesGrid initialClasses={classesWithStatus} canCreate={canCreate} canDelete={canDelete} />
+            <ClassesGrid initialClasses={classesWithStatus} canCreate={canCreate} canDelete={canDelete} isEnrolledView={isEnrolledView} />
         </div>
     )
 }

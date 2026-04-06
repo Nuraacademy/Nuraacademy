@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Clock, ChevronLeft, ChevronRight } from "lucide-react"
+import { Clock, ChevronLeft, ChevronRight, Download, FileText } from "lucide-react"
 import { NuraButton } from "@/components/ui/button/button"
 import { RichTextInput } from "@/components/ui/input/rich_text_input"
 import FileUploadModal from "@/components/ui/modal/file_upload_modal"
@@ -521,6 +521,37 @@ export function TestRunner({
           dangerouslySetInnerHTML={{ __html: currentProject.question }}
         />
 
+        {((currentProject as any).attachments?.length > 0 || (currentProject as any).attachmentUrl) && (
+          <div className="mb-6 space-y-3">
+            <p className="text-sm font-semibold text-gray-700">Reference Documents</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {((currentProject as any).attachments || ((currentProject as any).attachmentUrl ? [(currentProject as any).attachmentUrl] : [])).map((url: string, idx: number) => (
+                <div key={idx} className="p-3 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-between group">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-blue-600 shadow-sm">
+                      <FileText size={16} />
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold text-blue-900 truncate max-w-[120px]">
+                        {url.split('/').pop() || `Document ${idx+1}`}
+                      </p>
+                    </div>
+                  </div>
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 bg-[#075546] text-white px-3 py-1.5 rounded-lg text-[10px] font-semibold hover:bg-[#0a6b58] transition-all"
+                  >
+                    <Download size={12} />
+                    Download
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <ul className="list-none space-y-2 mb-6">
           {currentProject.requirements.map((req, index) => (
             <li key={index} className="text-sm text-gray-900 leading-relaxed">
@@ -667,9 +698,8 @@ export function TestRunner({
             [currentEssay.id]: file,
           }))
         }
-        accept=".pdf"
+        accept="Any"
         maxSizeMB={5}
-        supportedFileType=".pdf"
         title="Attach File"
       />
 
@@ -682,9 +712,8 @@ export function TestRunner({
             [currentProject.id]: file,
           }))
         }
-        accept=".pdf"
+        accept="Any"
         maxSizeMB={5}
-        supportedFileType=".pdf"
         title="Attach File"
       />
     </div>

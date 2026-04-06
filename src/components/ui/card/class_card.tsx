@@ -190,7 +190,7 @@ export default function ClassCard({
                 <ConfirmModal
                     isOpen={isDeleteModalOpen}
                     title="Delete Class"
-                    message="Are you sure you want to delete this class? This action cannot be undone."
+                    message="By deleting class, you will also delete all components inside. Are you sure?"
                     onConfirm={handleConfirmDelete}
                     onCancel={() => setIsDeleteModalOpen(false)}
                     isLoading={isDeleting}

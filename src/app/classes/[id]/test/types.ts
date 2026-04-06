@@ -18,6 +18,7 @@ export interface ProjectQuestion {
     question: string
     requirements: string[]
     points: number
+    attachments?: string[]
 }
 
 export interface TestData {

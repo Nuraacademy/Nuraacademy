@@ -358,7 +358,7 @@ export default function EditSessionForm({
                     </div>
                     <div className="flex flex-col gap-4">
                         <NuraTextInput
-                            label="Recording URL (Youtube URL)"
+                            label="Recording URL"
                             placeholder="https://www.youtube.com/watch?v=..."
                             value={recordingUrl}
                             onChange={(e) => setRecordingUrl(e.target.value)}

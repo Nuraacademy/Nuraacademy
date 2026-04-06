@@ -1,10 +1,11 @@
 "use client"
 
-import { Menu, ChevronUp, ChevronDown } from "lucide-react"
+import { Menu, ChevronDown } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation";
 import { getAssignmentIcon, mapPrismaAssignmentType } from "@/utils/assignment";
 import { getSidebarData } from "@/app/actions/sidebar";
+import Image from "next/image";
 
 interface SidebarProp {
     className?: string
@@ -114,9 +115,12 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
                         <>
                             {/* My Class Section */}
                             <div className="group/section">
-                                <div className="flex items-center gap-3 mb-3 cursor-pointer" onClick={() => router.push("/classes")}>
+                                <div 
+                                    className="flex items-center gap-3 mb-3 cursor-pointer" 
+                                    onClick={() => router.push(isLearner ? "/classes?enrolled=true" : "/classes")}
+                                >
                                     <div className="p-2 transition-colors duration-200">
-                                        <img src="/icons/sidebar/Class.svg" alt="Class" width={20} height={20} />
+                                        <Image src="/icons/sidebar/Class.svg" alt="Class" width={20} height={20} />
                                     </div>
                                     <h3 className="font-semibold text-gray-800 text-sm">My Class</h3>
                                 </div>
@@ -171,7 +175,7 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
                             <div className="group/section">
                                 <div className="flex items-center gap-3 mb-3 cursor-pointer" onClick={() => router.push("/assignment")}>
                                     <div className="p-2 transition-colors duration-200">
-                                        <img src="/icons/sidebar/Assignment.svg" alt="Assignment" width={20} height={20} />
+                                        <Image src="/icons/sidebar/Assignment.svg" alt="Assignment" width={20} height={20} />
                                     </div>
                                     <h3 className="font-semibold text-gray-800 text-sm">Assignment</h3>
                                 </div>
@@ -182,7 +186,7 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
                                             href={assignment.href}
                                             className="flex items-center gap-3 p-2 text-xs text-gray-600 hover:text-black hover:bg-gray-50 rounded-xl transition-all min-w-0"
                                         >
-                                            <img
+                                            <Image
                                                 src={getAssignmentIcon(mapPrismaAssignmentType(assignment.type))}
                                                 alt={assignment.type}
                                                 width={18}
@@ -204,7 +208,7 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
                             <div className="group/section">
                                 <div className="flex items-center gap-3 mb-3 cursor-pointer" onClick={() => router.push("/feedback")}>
                                     <div className="p-2 transition-colors duration-200">
-                                        <img src="/icons/sidebar/Feedback.svg" alt="Feedback" width={20} height={20} />
+                                        <Image src="/icons/sidebar/Feedback.svg" alt="Feedback" width={20} height={20} />
                                     </div>
                                     <h3 className="font-semibold text-gray-800 text-sm">Feedback</h3>
                                 </div>
@@ -215,7 +219,7 @@ export default function Sidebar({ className, onOpenChange }: SidebarProp) {
                                             href={feedback.href}
                                             className="flex items-center gap-3 p-2 text-xs text-gray-600 hover:text-black hover:bg-gray-50 rounded-xl transition-all min-w-0"
                                         >
-                                            <img
+                                            <Image
                                                 src={map_type_to_icon[feedback.type]}
                                                 alt={feedback.type}
                                                 width={18}

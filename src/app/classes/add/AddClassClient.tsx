@@ -39,7 +39,7 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
     const [imgUrl, setImgUrl] = useState(classData?.imgUrl || "");
     const [previewVideoUrl, setPreviewVideoUrl] = useState(classData?.previewVideoUrl || "");
     const [selectedTrainerIds, setSelectedTrainerIds] = useState<number[]>(
-        classData?.trainers?.map((t: any) => t.id) || 
+        classData?.trainers?.map((t: any) => t.id) ||
         (classData?.trainerId ? [classData.trainerId] : [])
     );
     const [trainers, setTrainers] = useState<any[]>([]);
@@ -106,14 +106,42 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
     const validate = () => {
         const newErrors: Record<string, string> = {};
         if (!title.trim()) newErrors.title = "Title is required";
-        if (!description.trim()) newErrors.description = "Description is required";
-        // Add more validation as needed
+        if (!hours || isNaN(Number(hours))) newErrors.hours = "Total hours is required and must be a number";
+        if (!startDate) newErrors.startDate = "Start date is required";
+        if (!endDate) newErrors.endDate = "End date is required";
+        if (startDate && endDate && endDate < startDate) {
+            newErrors.endDate = "End date cannot be before start date";
+        }
+        
+        const isRichTextEmpty = (html: string) => {
+            if (!html) return true;
+            const stripped = html.replace(/<[^>]*>/g, '').trim();
+            return stripped.length === 0;
+        };
+
+        if (isRichTextEmpty(description)) newErrors.description = "Description is required";
+        if (isRichTextEmpty(learningObjectives)) newErrors.learningObjectives = "Learning objectives are required";
+        if (isRichTextEmpty(methods)) newErrors.methods = "Methods is required";
+        
+        if (!imgUrl.trim()) {
+            newErrors.imgUrl = "Banner image is required (upload or link)";
+        } else {
+            // Simple URL regex check
+            const urlPattern = /^(https?:\/\/)/;
+            if (!urlPattern.test(imgUrl)) {
+                newErrors.imgUrl = "Please enter a valid URL starting with http:// or https://";
+            }
+        }
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = async () => {
-        if (!validate()) return;
+        if (!validate()) {
+            toast.error("Please check your form for errors.");
+            return;
+        }
         setLoading(true);
 
         const data = {
@@ -140,8 +168,8 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
             ? await updateClassAction(classData.id, data)
             : await createClassAction(data);
 
-        setLoading(true);
         if (res.success) {
+            toast.success(isEditing ? "Class updated successfully!" : "Class created successfully!");
             router.push('/classes');
         } else {
             toast.error(res.error || "Failed to save class");
@@ -174,46 +202,77 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                             placeholder="Total hours"
                             value={String(hours)}
                             onChange={(e) => setHours(e.target.value)}
+                            className={errors.hours ? "border-red-500" : ""}
                             required
                         />
+                        {errors.hours && <p className="text-red-500 text-xs mt-1">{errors.hours}</p>}
                     </div>
                     <div className="w-full md:w-64">
                         <M3DateTimePicker
                             label="Start Date"
                             value={startDate}
                             withTime={false}
-                            onChange={setStartDate}
+                            onChange={(d) => {
+                                setStartDate(d);
+                                if (errors.startDate) setErrors(prev => ({ ...prev, startDate: "" }));
+                            }}
                             minDate={today}
+                            error={errors.startDate}
                             required
                         />
+                        {errors.startDate && <p className="text-red-500 text-xs mt-1">{errors.startDate}</p>}
                     </div>
                     <div className="w-full md:w-64">
                         <M3DateTimePicker
                             label="End Date"
                             value={endDate}
-                            onChange={setEndDate}
+                            onChange={(d) => {
+                                setEndDate(d);
+                                if (errors.endDate) setErrors(prev => ({ ...prev, endDate: "" }));
+                            }}
                             withTime={false}
                             minDate={startDate || today}
+                            error={errors.endDate}
                             required
                         />
+                        {errors.endDate && <p className="text-red-500 text-xs mt-1">{errors.endDate}</p>}
                     </div>
                 </div>
 
                 {/* Description */}
                 <div>
-                    <RichTextInput label="Description" value={description} onChange={setDescription} required />
+                    <RichTextInput 
+                        label="Description" 
+                        value={description} 
+                        onChange={(val) => {
+                            setDescription(val);
+                            if (errors.description) setErrors(prev => ({ ...prev, description: "" }));
+                        }} 
+                        className={errors.description ? "border-red-500" : ""}
+                        required 
+                    />
                     {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
                 </div>
 
                 {/* Learning Objectives */}
                 <div>
-                    <RichTextInput label="What You Will Learn" value={learningObjectives} onChange={setLearningObjectives} required />
+                    <RichTextInput 
+                        label="What You Will Learn" 
+                        value={learningObjectives} 
+                        onChange={(val) => {
+                            setLearningObjectives(val);
+                            if (errors.learningObjectives) setErrors(prev => ({ ...prev, learningObjectives: "" }));
+                        }} 
+                        className={errors.learningObjectives ? "border-red-500" : ""}
+                        required 
+                    />
+                    {errors.learningObjectives && <p className="text-red-500 text-xs mt-1">{errors.learningObjectives}</p>}
                 </div>
 
                 {/* Picture Banner */}
                 <div>
                     <label className="block text-sm mb-2">Picture Banner <span className="text-red-500">*</span></label>
-                    <FileUpload 
+                    <FileUpload
                         accept=".jpg,.jpeg,.png"
                         supportedFileType=".jpg, .png, .jpeg"
                         maxSizeMB={5}
@@ -240,20 +299,34 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                     <NuraTextInput
                         placeholder="Picture banner link"
                         value={imgUrl}
-                        onChange={(e) => setImgUrl(e.target.value)}
-                        className="mt-4"
+                        onChange={(e) => {
+                            setImgUrl(e.target.value);
+                            if (errors.imgUrl) setErrors(prev => ({ ...prev, imgUrl: "" }));
+                        }}
+                        className={`mt-4 ${errors.imgUrl ? "border-red-500" : ""}`}
                     />
+                    {errors.imgUrl && <p className="text-red-500 text-xs mt-1">{errors.imgUrl}</p>}
                 </div>
 
                 {/* Methods */}
                 <div>
-                    <RichTextInput label="Methods" value={methods} onChange={setMethods} required />
+                    <RichTextInput 
+                        label="Methods" 
+                        value={methods} 
+                        onChange={(val) => {
+                            setMethods(val);
+                            if (errors.methods) setErrors(prev => ({ ...prev, methods: "" }));
+                        }} 
+                        className={errors.methods ? "border-red-500" : ""}
+                        required 
+                    />
+                    {errors.methods && <p className="text-red-500 text-xs mt-1">{errors.methods}</p>}
                 </div>
 
                 {/* Preview Video */}
                 <div>
                     <label className="block text-sm mb-2">Preview Class (Video)</label>
-                    <FileUpload 
+                    <FileUpload
                         accept=".mp4"
                         supportedFileType=".mp4"
                         maxSizeMB={100}
@@ -363,7 +436,7 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                     />
                 </div>
 
-                <CurriculaModal 
+                <CurriculaModal
                     isOpen={isCurriculaModalOpen}
                     onClose={() => setIsCurriculaModalOpen(false)}
                     onCreated={(newCur) => {

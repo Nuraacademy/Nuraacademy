@@ -134,6 +134,7 @@ export async function getAssignmentById(id: number) {
             session: { select: { title: true } },
             assignmentItems: {
                 where: { deletedAt: null },
+                include: { course: true }
             },
         },
     });
@@ -151,6 +152,7 @@ export async function getPlacementTestByClassId(classId: number) {
             class: true,
             assignmentItems: {
                 where: { deletedAt: null },
+                include: { course: true }
             },
         },
     });
@@ -417,7 +419,7 @@ export async function createAssignment(
             for (const { courseId, threshold } of thresholds) {
                 await tx.course.update({
                     where: { id: courseId },
-                    data: { threshold }
+                    data: { threshold: parseFloat(threshold.toString()) }
                 });
             }
         }
@@ -454,7 +456,7 @@ export async function updateAssignment(
             for (const { courseId, threshold } of thresholds) {
                 await tx.course.update({
                     where: { id: courseId },
-                    data: { threshold }
+                    data: { threshold: parseFloat(threshold.toString()) }
                 });
             }
         }
@@ -744,6 +746,7 @@ function processGradingData(result: any) {
             score: ir.score,
             maxScore: item.maxScore || 10,
             answerFiles,
+            referenceFiles: (item.options as any)?.attachments || ((item.options as any)?.attachmentUrl ? [(item.options as any).attachmentUrl] : []),
             resultItemId: ir.id,
         };
 
@@ -883,11 +886,14 @@ export async function getAssignmentResultsByAssignmentId(assignmentId: number) {
             
             // Representative submission
             if (hasSubmitted) {
-                groupResults[groupName].status = "To Grade"; 
+                const items = result?.assignmentItemResults || [];
+                const totalItems = items.length;
+                const gradedItems = items.filter((i: any) => i.score !== null).length;
+                const isGraded = totalItems > 0 && gradedItems === totalItems;
+
+                groupResults[groupName].status = isGraded ? "Graded" : "To Grade";
                 groupResults[groupName].submittedAt = result.finishedAt;
                 groupResults[groupName].totalScore = result.totalScore;
-                // Update ID to the group member who actually submitted if we want precision, 
-                // but group?.id is more consistent for "Group navigation"
             }
         }
 

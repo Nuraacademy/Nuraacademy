@@ -25,9 +25,10 @@ export default function CourseListClient({
 
     // Filter assignments based on visibility logic (same as original page.tsx)
     const visibleAssignments = projectAssignments.filter(a => {
-        if (canUpdateCourse) return true; // Admin/Staff sees all
-        if (!a.startDate) return true;
-        return new Date(a.startDate) <= new Date();
+        // if (canUpdateCourse) return true; // Admin/Staff sees all
+        // if (!a.startDate) return true;
+        // return new Date(a.startDate) <= new Date();
+        return true
     });
 
     // Filter courses based on search query

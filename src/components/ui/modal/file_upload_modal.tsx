@@ -27,7 +27,7 @@ export default function FileUploadModal({
   const [file, setFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const displayFileType = supportedFileType ?? accept
+  const displayFileType = supportedFileType ?? (accept === ".*" || accept === "*" || !accept ? "Any" : accept)
 
   const formatSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes"
