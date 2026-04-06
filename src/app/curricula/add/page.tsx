@@ -61,8 +61,8 @@ export default function AddCurriculaPage() {
             });
 
             if (res.success) {
-                toast.success("Curricula created successfully");
-                router.push('/curricula');
+                toast.success("Curricula updated successfully");
+                router.push(`/curricula/${res.curricula.id}`);
                 router.refresh();
             } else {
                 toast.error(res.error || "Failed to create curricula");

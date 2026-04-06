@@ -94,7 +94,7 @@ export default function EditCurriculaPage({ params }: { params: Promise<{ id: st
 
             if (res.success) {
                 toast.success("Curricula updated successfully");
-                router.push('/curricula');
+                router.push(`/curricula/${id}`);
                 router.refresh();
             } else {
                 toast.error(res.error || "Failed to update curricula");
