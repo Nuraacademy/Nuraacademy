@@ -3,10 +3,12 @@ import ClassesGrid from "./class_grid"
 import Image from "next/image"
 import { hasPermission } from "@/lib/rbac"
 
-import { getSession } from "@/app/actions/auth"
+import { getSession, getFullSession } from "@/app/actions/auth"
 import { prisma } from "@/lib/prisma"
 
 export default async function ClassesPage({ searchParams }: { searchParams: Promise<{ enrolled?: string }> }) {
+    const session = await getFullSession();
+    const isLearner = !session || session.role === 'Learner';
     const params = await searchParams;
     const isEnrolledView = params.enrolled === 'true';
     
@@ -80,7 +82,13 @@ export default async function ClassesPage({ searchParams }: { searchParams: Prom
             />
 
             {/* Render the interactive grid using Client Component */}
-            <ClassesGrid initialClasses={classesWithStatus} canCreate={canCreate} canDelete={canDelete} isEnrolledView={isEnrolledView} />
+            <ClassesGrid 
+                initialClasses={classesWithStatus} 
+                canCreate={canCreate} 
+                canDelete={canDelete} 
+                isEnrolledView={isEnrolledView}
+                isLearner={isLearner}
+            />
         </div>
     )
 }

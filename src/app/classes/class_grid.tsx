@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation"
 import { useNavigation } from "@/components/providers/navigation-provider"
 import { NuraSearchInput } from "@/components/ui/input/nura_search_input"
 
-export default function ClassesGrid({ initialClasses, canCreate, canDelete, isEnrolledView }: { initialClasses: any[], canCreate?: boolean, canDelete?: boolean, isEnrolledView?: boolean }) {
+export default function ClassesGrid({ initialClasses, canCreate, canDelete, isEnrolledView, isLearner }: { initialClasses: any[], canCreate?: boolean, canDelete?: boolean, isEnrolledView?: boolean, isLearner?: boolean }) {
     const [searchValue, setSearchValue] = useState("");
     const router = useRouter();
     const { startRedirect } = useNavigation();
@@ -60,6 +60,7 @@ export default function ClassesGrid({ initialClasses, canCreate, canDelete, isEn
                             courses={item.courses?.length || 0}
                             description={item.description}
                             isEnrolled={item.isEnrolled}
+                            isLearner={isLearner}
                             canEdit={canCreate}
                             canDelete={canDelete}
                             onClick={() => startRedirect(`/classes/${item.id}/overview`)}
