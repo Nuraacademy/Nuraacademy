@@ -378,7 +378,8 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
         return et ? new Date(et.date) : null;
     });
     const [durationMinutes, setDurationMinutes] = useState(120);
-    const [overviewErrors, setOverviewErrors] = useState<{ startDate?: string; endTime?: string; durationMinutes?: string }>({});
+    const [testTitle, setTestTitle] = useState(existingTest?.title || `Placement Test - ${classData.title}`);
+    const [overviewErrors, setOverviewErrors] = useState<{ startDate?: string; endTime?: string; durationMinutes?: string; title?: string }>({});
 
     // Per-course saved questions
     const [courseData, setCourseData] = useState<Record<string, CourseQuestions>>({});
@@ -431,6 +432,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
             if (existingTest.endDate) {
                 setEndTime(new Date(existingTest.endDate));
             }
+            setTestTitle(existingTest.title || `Placement Test - ${classData.title}`);
 
             const initialCourseData: Record<string, CourseQuestions> = {};
             const initialThresholds: Record<string, number> = {};
@@ -452,11 +454,11 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                         initialCourseData[cid] = { objective: [], essay: [], project: [], saved: true };
                     }
                     if (item.type === "OBJECTIVE") {
-                        const options = item.options || [];
+                        const optionsArray = Array.isArray(item.options) ? item.options : [];
                         initialCourseData[cid].objective.push({
                             id: idRef.current++,
                             content: item.question,
-                            answers: options.map((opt: string) => ({
+                            answers: optionsArray.map((opt: string) => ({
                                 id: idRef.current++,
                                 text: opt,
                                 isCorrect: opt === item.correctAnswer
@@ -585,6 +587,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
         const errs: typeof overviewErrors = {};
         if (!startDate) errs.startDate = "Start date is required.";
         if (!endTime) errs.endTime = "End time is required.";
+        if (!testTitle.trim()) errs.title = "Title is required.";
         setOverviewErrors(errs);
         if (Object.keys(errs).length > 0) {
             showModal({
@@ -605,6 +608,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
         }
 
         const payload = {
+            title: testTitle,
             classId: classData.id,
             type: "PLACEMENT",
             startDate: start,
@@ -743,15 +747,17 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                         {/* ── Form Row ── */}
                         <div className="grid grid-cols-1 md:grid-cols-[1fr_120px_240px_240px] gap-4 items-start mb-2">
 
-                            {/* Class Title — Read Only */}
+                            {/* Test Title — Editable */}
                             <div className="relative">
-                                <label className="block text-sm font-medium mb-1">
-                                    Class Title
-                                </label>
                                 <NuraTextInput
-                                    value={classData.title}
-                                    disabled
+                                    label="Test Title"
+                                    value={testTitle}
+                                    onChange={(e) => setTestTitle(e.target.value)}
+                                    placeholder="Enter test title..."
+                                    className={cn(overviewErrors.title ? "border-red-500" : "")}
+                                    required
                                 />
+                                {overviewErrors.title && <p className="text-red-500 text-[10px] absolute mt-0.5">{overviewErrors.title}</p>}
                             </div>
 
                             {/* Duration — Number */}
