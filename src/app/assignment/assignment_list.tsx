@@ -16,9 +16,10 @@ interface AssignmentListProps {
     canAddAssignment: boolean;
     canDeleteAssignment: boolean;
     canGrade: boolean;
+    canStartAssignment?: boolean;
 }
 
-export default function AssignmentList({ initialAssignments, canAddAssignment, canDeleteAssignment, canGrade }: AssignmentListProps) {
+export default function AssignmentList({ initialAssignments, canAddAssignment, canDeleteAssignment, canGrade, canStartAssignment }: AssignmentListProps) {
     const [searchValue, setSearchValue] = useState("");
     const [assignmentType, setAssignmentType] = useState("all");
 
@@ -110,6 +111,7 @@ export default function AssignmentList({ initialAssignments, canAddAssignment, c
                             type={mapPrismaAssignmentType(assignment.type)}
                             isAdmin={canDeleteAssignment}
                             canGrade={canGrade}
+                            canStartAssignment={canStartAssignment}
                             syntheticType={(assignment as any).syntheticType}
                         />
                     ))}
