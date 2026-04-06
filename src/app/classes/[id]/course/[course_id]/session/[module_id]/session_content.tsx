@@ -173,59 +173,73 @@ export default function SessionContent({
             {/* Footer Buttons */}
             <div className="flex flex-col items-center gap-4 mt-10">
                 <div className="flex justify-center gap-4">
-                    <div className="flex flex-col items-center gap-2">
-                        <NuraButton
-                            label={preTestId ? "Pre-test" : isAdmin ? "Create Pre-test" : "Pre-test"}
-                            variant={preTestId ? "primary" : isAdmin ? "secondary" : "primary"}
-                            onClick={() => {
-                                if (preTestId && !isAdmin) {
-                                    router.push(`/assignment/${preTestId}`);
-                                } else if (preTestId && isAdmin) {
-                                    router.push(`/assignment/${preTestId}/results`);
-                                } else if (isAdmin) {
-                                    router.push(`/assignment/add?classId=${classId}&courseId=${courseId}&sessionId=${moduleId}&type=PRETEST`);
-                                } else {
-                                    toast.error("Pre-test not available");
-                                }
-                            }}
-                            disabled={!preTestId && !isAdmin}
-                        />
-                        {isAdmin && preTestId && (
-                            <Link
-                                href={`/assignment/add?id=${preTestId}`}
-                                className="text-[10px] font-medium text-[#005954] hover:underline uppercase tracking-wider"
-                            >
-                                Manage Pre-test
-                            </Link>
-                        )}
-                    </div>
+                    {isSynchronous === false ? (
+                         <div className="flex flex-col items-center gap-2">
+                         <NuraButton
+                             label="Group Summary"
+                             variant="primary"
+                             onClick={() => {
+                                 router.push(`/classes/${classId}/course/${courseId}/session/${moduleId}/group-summary`);
+                             }}
+                         />
+                     </div>
+                    ) : (
+                        <>
+                            <div className="flex flex-col items-center gap-2">
+                                <NuraButton
+                                    label={preTestId ? "Pre-test" : isAdmin ? "Create Pre-test" : "Pre-test"}
+                                    variant={preTestId ? "primary" : isAdmin ? "secondary" : "primary"}
+                                    onClick={() => {
+                                        if (preTestId && !isAdmin) {
+                                            router.push(`/assignment/${preTestId}`);
+                                        } else if (preTestId && isAdmin) {
+                                            router.push(`/assignment/${preTestId}/results`);
+                                        } else if (isAdmin) {
+                                            router.push(`/assignment/add?classId=${classId}&courseId=${courseId}&sessionId=${moduleId}&type=PRETEST`);
+                                        } else {
+                                            toast.error("Pre-test not available");
+                                        }
+                                    }}
+                                    disabled={!preTestId && !isAdmin}
+                                />
+                                {isAdmin && preTestId && (
+                                    <Link
+                                        href={`/assignment/add?id=${preTestId}`}
+                                        className="text-[10px] font-medium text-[#005954] hover:underline uppercase tracking-wider"
+                                    >
+                                        Manage Pre-test
+                                    </Link>
+                                )}
+                            </div>
 
-                    <div className="flex flex-col items-center gap-2">
-                        <NuraButton
-                            label={postTestId ? "Post-test" : isAdmin ? "Create Post-test" : "Post-test"}
-                            variant={postTestId ? "primary" : isAdmin ? "secondary" : "primary"}
-                            onClick={() => {
-                                if (postTestId && !isAdmin) {
-                                    router.push(`/assignment/${postTestId}`);
-                                } else if (postTestId && isAdmin) {
-                                    router.push(`/assignment/${postTestId}/results`);
-                                } else if (isAdmin) {
-                                    router.push(`/assignment/add?classId=${classId}&courseId=${courseId}&sessionId=${moduleId}&type=POSTTEST`);
-                                } else {
-                                    toast.error("Post-test not available");
-                                }
-                            }}
-                            disabled={!postTestId && !isAdmin}
-                        />
-                        {isAdmin && postTestId && (
-                            <Link
-                                href={`/assignment/add?id=${postTestId}`}
-                                className="text-[10px] font-medium text-[#005954] hover:underline uppercase tracking-wider"
-                            >
-                                Manage Post-test
-                            </Link>
-                        )}
-                    </div>
+                            <div className="flex flex-col items-center gap-2">
+                                <NuraButton
+                                    label={postTestId ? "Post-test" : isAdmin ? "Create Post-test" : "Post-test"}
+                                    variant={postTestId ? "primary" : isAdmin ? "secondary" : "primary"}
+                                    onClick={() => {
+                                        if (postTestId && !isAdmin) {
+                                            router.push(`/assignment/${postTestId}`);
+                                        } else if (postTestId && isAdmin) {
+                                            router.push(`/assignment/${postTestId}/results`);
+                                        } else if (isAdmin) {
+                                            router.push(`/assignment/add?classId=${classId}&courseId=${courseId}&sessionId=${moduleId}&type=POSTTEST`);
+                                        } else {
+                                            toast.error("Post-test not available");
+                                        }
+                                    }}
+                                    disabled={!postTestId && !isAdmin}
+                                />
+                                {isAdmin && postTestId && (
+                                    <Link
+                                        href={`/assignment/add?id=${postTestId}`}
+                                        className="text-[10px] font-medium text-[#005954] hover:underline uppercase tracking-wider"
+                                    >
+                                        Manage Post-test
+                                    </Link>
+                                )}
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
         </>
