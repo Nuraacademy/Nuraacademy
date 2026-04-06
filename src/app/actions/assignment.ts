@@ -257,3 +257,69 @@ export async function uploadAssignmentFile(formData: FormData) {
         };
     }
 }
+
+export async function startAssignmentAction(assignmentId: number) {
+    try {
+        await requirePermission('Assignment', 'START_ASSIGNMENT_INSTRUCTOR');
+
+        const assignment = await prisma.assignment.findUnique({
+            where: { id: assignmentId },
+            include: { class: true }
+        });
+
+        if (!assignment) {
+            return { success: false, error: "Assignment not found" };
+        }
+
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+
+        await prisma.assignment.update({
+            where: { id: assignmentId },
+            data: { startDate: now }
+        });
+
+        // Sync timeline if applicable
+        if (assignment.classId && (assignment.type === 'PLACEMENT' || assignment.type === 'PROJECT')) {
+            const searchTerms = assignment.type === 'PLACEMENT' 
+                ? ["placement test"] 
+                : ["project", "final project"];
+            
+            const timelineEntry = await prisma.timeline.findFirst({
+                where: {
+                    classId: assignment.classId,
+                    activity: {
+                        contains: searchTerms[0],
+                        mode: 'insensitive'
+                    },
+                    AND: {
+                        activity: {
+                            contains: "start",
+                            mode: 'insensitive'
+                        }
+                    }
+                }
+            });
+
+            if (timelineEntry) {
+                await prisma.timeline.update({
+                    where: { id: timelineEntry.id },
+                    data: { date: now }
+                });
+            }
+        }
+
+        if (assignment.classId) {
+            revalidatePath(`/classes/${assignment.classId}/overview`);
+            revalidatePath(`/classes/${assignment.classId}/test`);
+        }
+        revalidatePath(`/assignment`);
+        revalidatePath(`/assignment/${assignmentId}`);
+        revalidatePath(`/assignment/${assignmentId}/questions`);
+
+        return { success: true };
+    } catch (error: any) {
+        console.error("Start assignment error:", error);
+        return { success: false, error: error.message };
+    }
+}

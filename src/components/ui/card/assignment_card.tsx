@@ -21,6 +21,7 @@ interface AssignmentCardProps {
     className?: string;
     isAdmin?: boolean;
     canGrade?: boolean;
+    canStartAssignment?: boolean;
     syntheticType?: string;
     showActions?: boolean;
 }
@@ -38,6 +39,7 @@ export const AssignmentCard = ({
     className = "",
     isAdmin = false,
     canGrade = false,
+    canStartAssignment = false,
     syntheticType,
     showActions = true
 }: AssignmentCardProps) => {
@@ -62,15 +64,12 @@ export const AssignmentCard = ({
     const handleClick = () => {
         if (syntheticType === "Class Feedback") {
             router.push(`/classes/${classId}/feedback`);
+        } else if (id && (canStartAssignment || canGrade)) {
+            router.push(`/assignment/${id}/questions`);
         } else if (id && type === "Placement" && isAdmin) {
             router.push(`/classes/${classId}/test/create`);
         } else if (id && type !== "Placement") {
-            // Redirect to results if user has grading permissions, otherwise to standard view
-            if (canGrade) {
-                router.push(`/assignment/${id}/results`);
-            } else {
-                router.push(`/assignment/${id}`);
-            }
+            router.push(`/assignment/${id}`);
         } else {
             router.push(getAssignmentEndpoint(classId, courseId, sessionId, type));
         }
@@ -110,6 +109,18 @@ export const AssignmentCard = ({
                             className="rounded-full bg-[#00524D] px-4 py-1.5 text-xs font-medium text-white transition-all hover:bg-[#00423D]"
                         >
                             Results
+                        </button>
+                    )}
+
+                    {canStartAssignment && id && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/assignment/${id}/questions`);
+                            }}
+                            className="rounded-full bg-[#00524D] px-4 py-1.5 text-xs font-medium text-white transition-all hover:bg-[#00423D]"
+                        >
+                            Questions
                         </button>
                     )}
 

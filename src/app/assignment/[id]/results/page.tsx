@@ -90,12 +90,18 @@ export default async function AssignmentResultsPage({
                                         <tr className="border-b border-gray-50 last:border-0 hover:bg-gray-50/80 transition-colors group">
                                             <td className="px-6 py-5">
                                                 <div className="flex flex-col">
-                                                    <Link
-                                                        href={`/assignment/${id}/results/${res.isGroup ? encodeURIComponent(res.name) : (res.id || res.enrollmentId)}/grade`}
-                                                        className="text-xs text-[#00524D] font-medium hover:underline"
-                                                    >
-                                                        {res.name}
-                                                    </Link>
+                                                        {res.status === "Not Started" ? (
+                                                            <span className="text-xs text-gray-400 font-medium">
+                                                                {res.name}
+                                                            </span>
+                                                        ) : (
+                                                            <Link
+                                                                href={`/assignment/${id}/results/${res.isGroup ? encodeURIComponent(res.name) : (res.id || res.enrollmentId)}/grade`}
+                                                                className="text-xs text-[#00524D] font-medium hover:underline"
+                                                            >
+                                                                {res.name}
+                                                            </Link>
+                                                        )}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-5 text-center">
@@ -112,21 +118,33 @@ export default async function AssignmentResultsPage({
                                                 </div>
                                             </td>
                                             <td className="px-6 py-5 text-right">
-                                                <Link
-                                                    href={`/assignment/${id}/results/${res.isGroup ? encodeURIComponent(res.name) : (res.id || res.enrollmentId)}/grade`}
-                                                    className="text-sm font-medium underline text-[#00524D] hover:underline"
-                                                >
-                                                    Grade
-                                                </Link>
+                                                {res.status === "Not Started" ? (
+                                                    <span className="text-sm font-medium text-gray-400 cursor-not-allowed">
+                                                        Grade
+                                                    </span>
+                                                ) : (
+                                                    <Link
+                                                        href={`/assignment/${id}/results/${res.isGroup ? encodeURIComponent(res.name) : (res.id || res.enrollmentId)}/grade`}
+                                                        className="text-sm font-medium underline text-[#00524D] hover:underline"
+                                                    >
+                                                        Grade
+                                                    </Link>
+                                                )}
                                             </td>
                                             <td className="px-6 py-5 text-right">
                                                 {!res.isGroup ? (
-                                                    <Link
-                                                        href={`/feedback/assignment/${id}/learner/${res.enrollmentId}`}
-                                                        className="text-sm font-medium underline text-[#00524D] hover:underline"
-                                                    >
-                                                        Feedback
-                                                    </Link>
+                                                    res.status === "Graded" ? (
+                                                        <Link
+                                                            href={`/feedback/assignment/${id}/learner/${res.enrollmentId}`}
+                                                            className="text-sm font-medium underline text-[#00524D] hover:underline"
+                                                        >
+                                                            Feedback
+                                                        </Link>
+                                                    ) : (
+                                                        <span className="text-sm font-medium text-gray-400 cursor-not-allowed" title="Submit grade first to provide feedback">
+                                                            Feedback
+                                                        </span>
+                                                    )
                                                 ) : (
                                                     res.members && (
                                                         <div className="flex justify-end">
@@ -140,12 +158,21 @@ export default async function AssignmentResultsPage({
                                                                         {res.members.map((member: { id: number, name: string }, idx: number) => (
                                                                             <li key={idx} className="flex items-center justify-between gap-6 border-b border-gray-50 pb-2 last:border-0 last:pb-0">
                                                                                 <span className="text-[11px] text-gray-600 font-medium truncate max-w-[100px]">{member.name}</span>
-                                                                                <Link
-                                                                                    href={`/feedback/assignment/${id}/learner/${member.id}`}
-                                                                                    className="text-[9px] text-[#00524D] font-medium bg-[#DAEE49] px-2.5 py-1 rounded-lg hover:bg-[#C9D942] transition-colors uppercase tracking-tight shadow-sm"
-                                                                                >
-                                                                                    Feedback
-                                                                                </Link>
+                                                                                {res.status === "Graded" ? (
+                                                                                    <Link
+                                                                                        href={`/feedback/assignment/${id}/learner/${member.id}`}
+                                                                                        className="text-[9px] text-[#00524D] font-medium bg-[#DAEE49] px-2.5 py-1 rounded-lg hover:bg-[#C9D942] transition-colors uppercase tracking-tight shadow-sm"
+                                                                                    >
+                                                                                        Feedback
+                                                                                    </Link>
+                                                                                ) : (
+                                                                                    <span 
+                                                                                        className="text-[9px] text-gray-400 font-medium bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100 uppercase tracking-tight cursor-not-allowed"
+                                                                                        title="Submit grade first"
+                                                                                    >
+                                                                                        Feedback
+                                                                                    </span>
+                                                                                )}
                                                                             </li>
                                                                         ))}
                                                                     </ul>
