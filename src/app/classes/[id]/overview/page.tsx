@@ -1,4 +1,5 @@
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
+import { NuraButton } from "@/components/ui/button/button";
 import { getClassById } from "@/controllers/classController";
 import { getPlacementTestByClassId, getAssignmentResult, getProjectAssignmentsByClassId } from "@/controllers/assignmentController";
 import { getEnrollment } from "@/controllers/enrollmentController";
@@ -27,6 +28,7 @@ export default async function CourseOverviewPage({
     const canViewClassAnalytics = await hasPermission('Analytics', 'ANALYTICS_REPORT_TRAINER');
     const canViewLearnerAnalytics = await hasPermission('Analytics', 'ANALYTICS_REPORT_LEARNER');
     const canEditClass = await hasPermission('Class', 'CREATE_UPDATE_CLASS');
+    const canViewCurricula = await hasPermission('Class', 'SEARCH_VIEW_CURRICULA');
 
     const session = await getFullSession();
     const isLearner = session?.role === 'Learner';
@@ -287,6 +289,19 @@ export default async function CourseOverviewPage({
                                     canViewLearnerAnalytics={canViewLearnerAnalytics}
                                 />
                             )}
+                            {canViewCurricula && classData.curricula?.length > 0 && (
+                                <div className="flex flex-col gap-3">
+                                    {classData.curricula.map((cur: any) => (
+                                        <NuraButton
+                                            key={cur.id}
+                                            label={classData.curricula.length > 1 ? `View Curricula: ${cur.title}` : "View Curricula"}
+                                            href={`/curricula/${cur.id}`}
+                                            leftIcon={<Image src="/icons/Curricula.svg" alt="Curricula" width={20} height={20} />}
+                                            variant="primary"
+                                        />
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </aside>
 
@@ -316,8 +331,10 @@ export default async function CourseOverviewPage({
                                 classId={id}
                                 initialCourses={classData.courses || []}
                                 projectAssignments={projectAssignments || []}
+                                curricula={classData.curricula || []}
                                 canCreateCourse={canCreateCourse}
                                 canUpdateCourse={canUpdateCourse}
+                                canViewCurricula={canViewCurricula}
                                 isLearner={isLearner}
                             />
                         </div>

@@ -54,6 +54,9 @@ export async function getClassById(id: number) {
                 }
             }
         },
+        curricula: {
+            where: { deletedAt: null }
+        },
     };
 
     const classData = (await prisma.class.findFirst({
