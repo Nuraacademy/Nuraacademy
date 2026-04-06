@@ -112,18 +112,6 @@ export const AssignmentCard = ({
                         </button>
                     )}
 
-                    {canStartAssignment && id && (
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                router.push(`/assignment/${id}/questions`);
-                            }}
-                            className="rounded-full bg-[#00524D] px-4 py-1.5 text-xs font-medium text-white transition-all hover:bg-[#00423D]"
-                        >
-                            Questions
-                        </button>
-                    )}
-
                     {!isAdmin && !canGrade && type === "Final Project" && (
                         <button
                             onClick={(e) => {

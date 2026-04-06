@@ -328,16 +328,23 @@ export function AddAssignmentClient({
                     id: item.id,
                     content: item.question,
                     score: item.maxScore || 10,
-                    attachments: item.options?.attachments || [],
-                    answers: (item.options || []).map((text: string) => ({
+                };
+
+                if (item.type === "OBJECTIVE") {
+                    const optionsArray = Array.isArray(item.options) ? item.options : [];
+                    q.answers = optionsArray.map((text: string) => ({
                         id: idRef.current++,
                         text: text,
                         isCorrect: text === item.correctAnswer
-                    }))
-                };
-                if (item.type === "OBJECTIVE") newData[item.courseId].objective.push(q);
-                else if (item.type === "ESSAY") newData[item.courseId].essay.push(q);
-                else if (item.type === "PROJECT") newData[item.courseId].project.push(q);
+                    }));
+                    newData[item.courseId].objective.push(q);
+                } else if (item.type === "ESSAY") {
+                    q.attachments = Array.isArray(item.options?.attachments) ? item.options.attachments : [];
+                    newData[item.courseId].essay.push(q);
+                } else if (item.type === "PROJECT") {
+                    q.attachments = Array.isArray(item.options?.attachments) ? item.options.attachments : [];
+                    newData[item.courseId].project.push(q);
+                }
             });
 
             classCourses.forEach(c => {
@@ -353,21 +360,27 @@ export function AddAssignmentClient({
             const pro: ProjectQuestion[] = [];
 
             test.assignmentItems.forEach((item: any) => {
-                const q = {
+                const q: any = {
                     id: item.id,
                     content: item.question,
                     score: item.maxScore || 10,
-                    attachments: item.options?.attachments || []
                 };
+
                 if (item.type === "OBJECTIVE") {
-                    (q as any).answers = (item.options || []).map((text: string) => ({
+                    const optionsArray = Array.isArray(item.options) ? item.options : [];
+                    q.answers = optionsArray.map((text: string) => ({
                         id: idRef.current++,
                         text: text,
                         isCorrect: text === item.correctAnswer
                     }));
-                    obj.push(q as any);
-                } else if (item.type === "ESSAY") ess.push(q as any);
-                else if (item.type === "PROJECT") pro.push(q as any);
+                    obj.push(q);
+                } else if (item.type === "ESSAY") {
+                    q.attachments = Array.isArray(item.options?.attachments) ? item.options.attachments : [];
+                    ess.push(q);
+                } else if (item.type === "PROJECT") {
+                    q.attachments = Array.isArray(item.options?.attachments) ? item.options.attachments : [];
+                    pro.push(q);
+                }
             });
 
             setSimpleObjective(obj);
