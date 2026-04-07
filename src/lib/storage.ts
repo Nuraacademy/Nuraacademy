@@ -2,7 +2,7 @@ import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
 const s3Client = new S3Client({
     endpoint: process.env.NEXT_S3_ENDPOINT, // User provided endpoint
-    region: 'us-east-1', // You can also make this an env var if needed
+    region: 'ap-southeast-1', // You can also make this an env var if needed
     credentials: {
         accessKeyId: process.env.NEXT_ACCESS_KEY_ID!,
         secretAccessKey: process.env.NEXT_SECRET_ACCESS_KEY!,
@@ -50,8 +50,9 @@ export async function uploadToSupabase(file: File | Blob, bucket: StorageBucket,
         const response = await s3Client.send(command);
         console.log(`[S3 Upload] Success:`, response);
 
-        const supabaseUrl = process.env.NEXT_S3_ENDPOINT || 'https://ybiveiilxsvhzxrcpsle.supabase.co';
-        const publicUrl = `https://tcfssyagqsfqmdbdtckg.supabase.co/storage/v1/object/public/nura-bucket/${key}`;
+        // Construct public URL
+        const endpoint = process.env.NEXT_S3_ENDPOINT || 'https://is3.cloudhost.id';
+        const publicUrl = `${endpoint}/nura-bucket/${key}`;
 
         return { 
             success: true, 
