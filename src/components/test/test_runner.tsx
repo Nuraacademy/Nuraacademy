@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { Clock, ChevronLeft, ChevronRight, Download, FileText } from "lucide-react"
 import { NuraButton } from "@/components/ui/button/button"
 import { RichTextInput } from "@/components/ui/input/rich_text_input"
@@ -75,6 +75,7 @@ export function TestRunner({
   const [isFinished, setIsFinished] = useState(finished)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isTimeoutModalOpen, setIsTimeoutModalOpen] = useState(false)
   const [totalScore, setTotalScore] = useState<number | null>(initialScore ?? null)
   const [timeLeft, setTimeLeft] = useState(testData.durationMinutes * 60)
   const [currentType, setCurrentType] = useState<QuestionType>(
@@ -163,8 +164,9 @@ export function TestRunner({
     }
   }
 
-  const handleConfirmSubmit = async () => {
+  const handleConfirmSubmit = async (isAutoSubmit: boolean = false) => {
     setIsSubmitting(true)
+    setIsModalOpen(false)
 
     try {
       const formData = new FormData()
@@ -198,11 +200,14 @@ export function TestRunner({
 
       if (response.success) {
         cleanupStorage()
-        setIsModalOpen(false)
-        if (assignmentType === "PROJECT") {
-          window.location.href = `/classes/${classId}/feedback`
+        if (isAutoSubmit) {
+          setIsTimeoutModalOpen(true)
         } else {
-          window.location.reload()
+          if (assignmentType === "PROJECT") {
+            window.location.href = `/classes/${classId}/feedback`
+          } else {
+            window.location.reload()
+          }
         }
       } else {
         toast.error(response.error || "Failed to submit. Please try again.")
@@ -215,6 +220,8 @@ export function TestRunner({
     }
   }
 
+  const isAutoSubmittingRef = useRef(false)
+
   useEffect(() => {
     if (!hasStarted || isFinished || testData.durationMinutes === 0) return
 
@@ -222,7 +229,6 @@ export function TestRunner({
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer)
-          handleConfirmSubmit()
           return 0
         }
         return prev - 1
@@ -231,6 +237,14 @@ export function TestRunner({
 
     return () => clearInterval(timer)
   }, [hasStarted, isFinished, startTime, testData.durationMinutes])
+
+  useEffect(() => {
+    if (timeLeft === 0 && hasStarted && !isFinished && testData.durationMinutes > 0 && !isAutoSubmittingRef.current) {
+      isAutoSubmittingRef.current = true
+      handleConfirmSubmit(true)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeLeft, hasStarted, isFinished, testData.durationMinutes])
 
   const getUnansweredCount = () => {
     let count = 0
@@ -676,7 +690,7 @@ export function TestRunner({
 
       <ConfirmModal
         isOpen={isModalOpen}
-        onConfirm={handleConfirmSubmit}
+        onConfirm={() => handleConfirmSubmit(false)}
         isLoading={isSubmitting}
         onCancel={() => setIsModalOpen(false)}
         title="Submit Test?"
@@ -687,6 +701,23 @@ export function TestRunner({
         }
         confirmText="Submit Test"
         cancelText="Cancel"
+      />
+
+      <ConfirmModal
+        isOpen={isTimeoutModalOpen}
+        onConfirm={() => {
+          setIsTimeoutModalOpen(false)
+          if (assignmentType === "PROJECT") {
+            window.location.href = `/classes/${classId}/feedback`
+          } else {
+            window.location.reload()
+          }
+        }}
+        onCancel={() => {}}
+        title="Waktu Habis"
+        message="Waktu test telah habis, jawaban anda otomatis tersubmit"
+        confirmText="Tutup"
+        hideCancel={true}
       />
 
       <FileUploadModal

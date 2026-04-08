@@ -12,6 +12,7 @@ export interface ConfirmModalProps {
   confirmText?: string;
   cancelText?: string;
   isLoading?: boolean;
+  hideCancel?: boolean;
 }
 
 export const ConfirmModal = ({
@@ -22,7 +23,8 @@ export const ConfirmModal = ({
   onCancel,
   confirmText = "Yes",
   cancelText = "No",
-  isLoading = false
+  isLoading = false,
+  hideCancel = false
 }: ConfirmModalProps) => {
   if (!isOpen) return null;
 
@@ -46,12 +48,14 @@ export const ConfirmModal = ({
 
         <div className="flex gap-4 w-full justify-center">
           {/* Cancel Button (Dark) */}
-          <NuraButton
-            label={cancelText}
-            onClick={onCancel}
-            variant='secondary'
-            disabled={isLoading}
-          />
+          {!hideCancel && (
+            <NuraButton
+              label={cancelText}
+              onClick={onCancel}
+              variant='secondary'
+              disabled={isLoading}
+            />
+          )}
 
           {/* Confirm Button (Lime) */}
           <NuraButton
