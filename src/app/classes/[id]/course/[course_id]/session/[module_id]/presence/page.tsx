@@ -15,7 +15,7 @@ export default async function PresenceAndSESPage({
     const [session, enrollments, canEdit] = await Promise.all([
         getSessionById(parseInt(moduleId)),
         getSessionPresence(parseInt(moduleId)),
-        hasPermission('Presence', 'CREATE_UPDATE_PRESENCE_SES')
+        hasPermission('Course', 'CREATE_UPDATE_PRESENCE_SES')
     ]);
 
     if (!session) {

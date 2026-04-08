@@ -170,7 +170,7 @@ export async function updatePresence(
     updates: { enrollmentId: number; status: string; score: number }[]
 ) {
     try {
-        await requirePermission('Presence', 'CREATE_UPDATE_PRESENCE_SES');
+        await requirePermission('Course', 'CREATE_UPDATE_PRESENCE_SES');
 
         // Execute updates in a transaction
         await prisma.$transaction(
