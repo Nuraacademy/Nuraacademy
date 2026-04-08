@@ -400,6 +400,96 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
     const [objectiveQuestions, setObjectiveQuestions] = useState<ObjectiveQuestion[]>([]);
     const [essayQuestions, setEssayQuestions] = useState<EssayQuestion[]>([]);
     const [projectQuestions, setProjectQuestions] = useState<ProjectQuestion[]>([]);
+    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+
+    const handleImportCSV = (file: File) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const text = e.target?.result as string;
+            if (!text) return;
+
+            const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
+            if (lines.length < 2) {
+                toast.error("CSV file is empty or missing headers");
+                return;
+            }
+
+            // Simple CSV parser that handles quotes
+            const parseCSVLine = (line: string) => {
+                const result = [];
+                let current = "";
+                let inQuotes = false;
+                for (let i = 0; i < line.length; i++) {
+                    const char = line[i];
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        result.push(current.trim());
+                        current = "";
+                    } else {
+                        current += char;
+                    }
+                }
+                result.push(current.trim());
+                return result;
+            };
+
+            const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
+            const newQuestions: ObjectiveQuestion[] = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const values = parseCSVLine(lines[i]);
+                if (values.length < 2) continue;
+
+                const qData: any = {};
+                headers.forEach((h, idx) => {
+                    qData[h] = values[idx] || "";
+                });
+
+                const questionContent = qData["question"] || values[0];
+                const score = parseInt(qData["score"]) || 10;
+                const correctRef = (qData["correct answer"] || "").trim().toUpperCase();
+
+                const answers: Answer[] = [];
+                const optionCols = ["option a", "option b", "option c", "option d", "option e", "option f"];
+                
+                optionCols.forEach((col, idx) => {
+                    const text = qData[col];
+                    if (text && text.trim() !== "") {
+                        const letter = String.fromCharCode(65 + idx); // A, B, C...
+                        answers.push({
+                            id: idRef.current++,
+                            text: text,
+                            isCorrect: correctRef === letter
+                        });
+                    }
+                });
+
+                if (questionContent && answers.length >= 2) {
+                    newQuestions.push({
+                        id: idRef.current++,
+                        content: questionContent,
+                        answers: answers,
+                        score: score
+                    });
+                }
+            }
+
+            if (newQuestions.length > 0) {
+                setObjectiveQuestions(prev => {
+                    // If we only have one empty question, replace it
+                    if (prev.length === 1 && isEmpty(prev[0].content) && prev[0].answers.every(a => isEmpty(a.text))) {
+                        return newQuestions;
+                    }
+                    return [...prev, ...newQuestions];
+                });
+                toast.success(`Imported ${newQuestions.length} questions successfully`);
+            } else {
+                toast.error("No valid questions found in CSV. Please use the template.");
+            }
+        };
+        reader.readAsText(file);
+    };
 
     // Modal state
     const [modal, setModal] = useState<{
@@ -934,12 +1024,27 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                     }
                                 />
                             ))}
-                            <button
-                                onClick={() => setObjectiveQuestions((prev) => [...prev, makeObjectiveQuestion(idRef)])}
-                                className="w-full py-2.5 text-sm text-gray-500 hover:text-gray-800 flex items-center justify-center gap-1.5 transition-colors border-2 border-dashed border-gray-200 rounded-2xl hover:border-gray-300 hover:bg-gray-50"
-                            >
-                                <Plus size={14} /> Add Question Block
-                            </button>
+                            <div className="flex gap-3 mb-3">
+                                <button
+                                    onClick={() => setObjectiveQuestions((prev) => [...prev, makeObjectiveQuestion(idRef)])}
+                                    className="flex-1 py-2.5 text-sm text-gray-500 hover:text-gray-800 flex items-center justify-center gap-1.5 transition-colors border-2 border-dashed border-gray-200 rounded-2xl hover:border-gray-300 hover:bg-gray-50"
+                                >
+                                    <Plus size={14} /> Add Question Block
+                                </button>
+                                <button
+                                    onClick={() => setIsImportModalOpen(true)}
+                                    className="px-6 py-2.5 text-sm text-emerald-600 hover:text-emerald-700 flex items-center justify-center gap-1.5 transition-colors border-2 border-dashed border-emerald-100 rounded-2xl hover:border-emerald-200 hover:bg-emerald-50"
+                                >
+                                    <Upload size={14} /> Import CSV
+                                </button>
+                                <a
+                                    href="/templates/objective_questions_template.csv"
+                                    download
+                                    className="px-6 py-2.5 text-sm text-gray-400 hover:text-gray-600 flex items-center justify-center gap-1.5 transition-colors border-2 border-dashed border-gray-100 rounded-2xl hover:border-gray-200 hover:bg-gray-50"
+                                >
+                                    <Download size={14} /> Template
+                                </a>
+                            </div>
                         </section>
 
                         {/* ── Essay Questions ── */}
@@ -1005,6 +1110,15 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                         </div>
                     </>
                 )}
+
+                <FileUploadModal
+                    isOpen={isImportModalOpen}
+                    onClose={() => setIsImportModalOpen(false)}
+                    onUploadSuccess={handleImportCSV}
+                    title="Import Objective Questions"
+                    accept=".csv"
+                    supportedFileType=".csv"
+                />
             </div>
         </main>
     );
