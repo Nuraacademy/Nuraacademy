@@ -280,8 +280,8 @@ export async function startAssignmentAction(assignmentId: number) {
             data: { startDate: now }
         });
 
-        // Notify enrolled learners if this is a PROJECT assignment being started
-        if (assignment.type === 'PROJECT' && assignment.classId) {
+        // Notify enrolled learners when assignment is started
+        if (assignment.classId) {
             const enrollments = await prisma.enrollment.findMany({
                 where: { classId: assignment.classId, status: 'ACTIVE', deletedAt: null },
                 include: { user: { select: { email: true, name: true } } }
@@ -291,11 +291,11 @@ export async function startAssignmentAction(assignmentId: number) {
                 if (e.user.email) {
                     await sendMail({
                         to: e.user.email,
-                        subject: `Penugasan Baru Tersedia: ${assignment.title || 'Project'}`,
+                        subject: `Penugasan Tersedia: ${assignment.title || 'Tugas Baru'}`,
                         html: `
                             <h1>Halo, ${e.user.name || 'Peserta'}!</h1>
-                            <p>Terdapat penugasan (Project) baru yang telah dimulai di kelas <strong>${assignment.class?.title}</strong>.</p>
-                            <p><strong>Judul Penugasan:</strong> ${assignment.title || 'Project'}</p>
+                            <p>Terdapat penugasan baru yang telah dimulai di kelas <strong>${assignment.class?.title}</strong>.</p>
+                            <p><strong>Judul Penugasan:</strong> ${assignment.title || 'Tugas Baru'}</p>
                             <p>Silakan segera login ke sistem untuk melihat detail tugas dan instruksi pengerjaannya.</p>
                             <p><a href="${process.env.NEXT_PUBLIC_APP_URL || ''}/assignment/${assignment.id}" style="display:inline-block;background:#0070f3;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">Lihat Tugas</a></p>
                         `
