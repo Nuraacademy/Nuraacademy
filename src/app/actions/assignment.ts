@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache"
 import { requirePermission } from "@/lib/rbac"
 import { prisma } from "@/lib/prisma"
 import { uploadToSupabase } from "@/lib/storage"
+import { sendMail } from "@/lib/mailer"
 
 export async function submitTest(formData: FormData) {
     const assignmentId = parseInt(formData.get("assignmentId") as string)
@@ -278,6 +279,31 @@ export async function startAssignmentAction(assignmentId: number) {
             where: { id: assignmentId },
             data: { startDate: now }
         });
+
+        // Notify enrolled learners if this is a PROJECT assignment being started
+        if (assignment.type === 'PROJECT' && assignment.classId) {
+            const enrollments = await prisma.enrollment.findMany({
+                where: { classId: assignment.classId, status: 'ACTIVE', deletedAt: null },
+                include: { user: { select: { email: true, name: true } } }
+            });
+
+            const emailTasks = enrollments.map(async (e) => {
+                if (e.user.email) {
+                    await sendMail({
+                        to: e.user.email,
+                        subject: `Penugasan Baru Tersedia: ${assignment.title || 'Project'}`,
+                        html: `
+                            <h1>Halo, ${e.user.name || 'Peserta'}!</h1>
+                            <p>Terdapat penugasan (Project) baru yang telah dimulai di kelas <strong>${assignment.class?.title}</strong>.</p>
+                            <p><strong>Judul Penugasan:</strong> ${assignment.title || 'Project'}</p>
+                            <p>Silakan segera login ke sistem untuk melihat detail tugas dan instruksi pengerjaannya.</p>
+                            <p><a href="${process.env.NEXT_PUBLIC_APP_URL || ''}/assignment/${assignment.id}" style="display:inline-block;background:#0070f3;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">Lihat Tugas</a></p>
+                        `
+                    }).catch(err => console.error(`Failed to send start assignment notification to ${e.user.email}:`, err));
+                }
+            });
+            Promise.all(emailTasks);
+        }
 
         // Sync timeline if applicable
         if (assignment.classId && (assignment.type === 'PLACEMENT' || assignment.type === 'PROJECT')) {
