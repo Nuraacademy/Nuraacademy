@@ -10,12 +10,15 @@ import { toast } from "sonner";
 interface QuestionPreviewClientProps {
     assignmentId: number;
     resultsUrl: string;
+    startDate?: Date | string | null;
 }
 
-export default function QuestionPreviewClient({ assignmentId, resultsUrl }: QuestionPreviewClientProps) {
+export default function QuestionPreviewClient({ assignmentId, resultsUrl, startDate }: QuestionPreviewClientProps) {
     const router = useRouter();
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [isStarting, setIsStarting] = useState(false);
+
+    const hasStarted = startDate ? new Date(startDate).getTime() < new Date().getTime() : false;
 
     const handleStartTest = async () => {
         setIsStarting(true);
@@ -44,6 +47,7 @@ export default function QuestionPreviewClient({ assignmentId, resultsUrl }: Ques
                     label="Start Test"
                     variant="primary"
                     onClick={() => setIsConfirmOpen(true)}
+                    disabled={hasStarted}
                 />
             </div>
 

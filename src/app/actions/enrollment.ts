@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { getSession } from "./auth"
 import { revalidatePath } from "next/cache"
 import { requirePermission } from "@/lib/rbac"
+import { sendMail } from "@/lib/mailer"
 
 export async function handleEnrollment(classId: number, formData: any) {
     const userId = await getSession();
@@ -27,14 +28,27 @@ export async function handleEnrollment(classId: number, formData: any) {
 
     try {
         // Capacity check (UT-1.3.4)
-        const classData = await prisma.class.findUnique({
+        // Fetch complete class data including timelines for the email
+        const classWithTimelines = await prisma.class.findUnique({
             where: { id: classId },
-            include: { _count: { select: { enrollments: true } } }
+            include: { 
+                timelines: {
+                    where: { deletedAt: null },
+                    orderBy: { date: 'asc' }
+                },
+                _count: { select: { enrollments: true } }
+            }
         });
 
-        if (classData && classData.capacity !== null && classData._count.enrollments >= classData.capacity) {
+        if (classWithTimelines && classWithTimelines.capacity !== null && classWithTimelines._count.enrollments >= classWithTimelines.capacity) {
             return { success: false, error: "Class Full" };
         }
+
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: { email: true, name: true }
+        });
+
         const enrollment = await prisma.enrollment.create({
             data: {
                 userId,
@@ -50,6 +64,32 @@ export async function handleEnrollment(classId: number, formData: any) {
                 status: "ACTIVE",
             }
         });
+
+        // Send Enrollment Success Email
+        if (user?.email) {
+            const timelineHtml = classWithTimelines?.timelines.map(t => 
+                `<li><strong>${t.date.toLocaleDateString()}:</strong> ${t.activity}</li>`
+            ).join('') || '<li>No timeline activities scheduled yet.</li>';
+
+            const learningPeriod = (classWithTimelines?.startDate && classWithTimelines?.endDate) 
+                ? `<li><strong>Learning Period:</strong> ${classWithTimelines.startDate.toLocaleDateString()} to ${classWithTimelines.endDate.toLocaleDateString()}</li>`
+                : '';
+
+            await sendMail({
+                to: user.email,
+                subject: `Selamat! Pendaftaran Berhasil: ${classWithTimelines?.title}`,
+                html: `
+                    <h1>Selamat, ${user.name || 'Peserta'}!</h1>
+                    <p>Anda telah berhasil melakukan pendaftaran (enroll) untuk kelas <strong>${classWithTimelines?.title}</strong>.</p>
+                    <p>Berikut adalah timeline kegiatan yang perlu Anda perhatikan:</p>
+                    <ul>
+                        ${timelineHtml}
+                        ${learningPeriod}
+                    </ul>
+                    <p>Mohon pastikan Anda tidak melewatkan tahapan-tahapan di atas. Selamat belajar!</p>
+                `
+            });
+        }
 
         // Revalidate the class overview and classes grid
         revalidatePath(`/classes/${classId}/overview`);
