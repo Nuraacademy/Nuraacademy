@@ -116,9 +116,6 @@ export function PlacementTestButton({
     const isStarted = startDate ? new Date() >= new Date(startDate) : true;
     const isEnded = endDate ? new Date() > new Date(endDate) : false;
 
-    // For students, if not started and not finished, we hide the button entirely
-    const shouldHide = !isAdmin && !isFinished && !isStarted;
-
     const handleClick = () => {
         if (courseCount === 0) {
             setIsModalOpen(true)
@@ -134,17 +131,22 @@ export function PlacementTestButton({
         }
     }
 
-    if (shouldHide) return null;
-
     return (
         <div className="flex gap-4">
-            <NuraButton
-                label={isAdmin ? (courseCount > 0 ? "Edit Test" : "Create Test") : (isFinished ? "See Result" : "Start Test")}
-                variant="primary"
-                onClick={handleClick}
-                id="create-placement-test-btn"
-                disabled={!isAdmin && !isFinished && isEnded}
-            />
+            <div className="relative group flex items-center justify-center">
+                <NuraButton
+                    label={isAdmin ? (courseCount > 0 ? "Edit Test" : "Create Test") : (isFinished ? "See Result" : "Start Test")}
+                    variant="primary"
+                    onClick={handleClick}
+                    id="create-placement-test-btn"
+                    disabled={!isAdmin && !isFinished && (isEnded || !isStarted)}
+                />
+                {!isAdmin && !isFinished && !isStarted && (
+                    <div className="absolute -top-8 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                        placement test belum dimulai
+                    </div>
+                )}
+            </div>
             {isAdmin && (
                 <NuraButton
                     label="Mapping"
