@@ -12,6 +12,16 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+export async function sendMail({ to, subject, html }: { to: string, subject: string, html: string }) {
+  const info = await transporter.sendMail({
+    from: process.env.SMTP_FROM || 'Nuraacademy',
+    to,
+    subject,
+    html,
+  });
+  return info;
+}
+
 export async function sendEmailToCurrentUser(subject: string, html: string) {
   const userId = await getCurrentUserId();
   if (!userId) {
@@ -23,14 +33,11 @@ export async function sendEmailToCurrentUser(subject: string, html: string) {
     throw new Error('User email not found');
   }
 
-  const info = await transporter.sendMail({
-    from: process.env.SMTP_FROM || 'Nuraacademy',
+  return sendMail({
     to: user.email,
-    subject: subject,
-    html: html,
+    subject,
+    html,
   });
-
-  return info;
 }
 
 export { transporter };
