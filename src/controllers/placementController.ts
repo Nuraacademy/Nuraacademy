@@ -37,13 +37,30 @@ export async function getLearnerPlacementResults(classId: number) {
         const result = e.assignmentResults[0];
         const items = result?.assignmentItemResults || [];
 
-        // A test is "Fully Graded" if all items have a non-null score
-        const totalItems = items.length;
-        const gradedItems = items.filter(i => i.score !== null).length;
-        const isGraded = totalItems > 0 && gradedItems === totalItems;
+        const activeContentKeys = new Set(placementTest.assignmentItems.map(i => `${i.type}:${i.question}`));
+        const uniqueResults = new Map<string, any>();
+        
+        items.forEach((ir: any) => {
+            const item = ir.assignmentItem;
+            if (!item) return;
+            const contentKey = `${item.type}:${item.question}`;
+            if (activeContentKeys.has(contentKey)) {
+                const existing = uniqueResults.get(contentKey);
+                if (!existing || ir.id > existing.id) {
+                    uniqueResults.set(contentKey, ir);
+                }
+            }
+        });
 
-        const objectiveScore = items
-            .filter(i => i.assignmentItem.type === 'OBJECTIVE')
+        const validItems = Array.from(uniqueResults.values());
+        
+        // A test is "Fully Graded" if all items have a non-null score
+        const totalItems = placementTest.assignmentItems.length;
+        const gradedItems = validItems.filter(i => i.score !== null).length;
+        const isGraded = totalItems === 0 || gradedItems === totalItems;
+
+        const objectiveScore = validItems
+            .filter(i => i.assignmentItem?.type === 'OBJECTIVE')
             .reduce((acc, i) => acc + (i.score || 0), 0);
 
         return {
