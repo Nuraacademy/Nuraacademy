@@ -7,7 +7,7 @@ import Link from "next/link";
 import { hasPermission } from "@/lib/rbac";
 import TitleCard from "@/components/ui/card/title_card";
 import Image from "next/image";
-import { getSession } from "@/app/actions/auth";
+import { getFullSession } from "@/app/actions/auth";
 import { getEnrollment } from "@/controllers/enrollmentController";
 import { NotFoundState } from "@/components/ui/status/not_found_state";
 
@@ -18,19 +18,22 @@ export default async function SessionPage({
 }) {
     const { id: classId, course_id: courseId, module_id: moduleId } = await params;
 
-    const [session, preTest, postTest, currentUserId, canUpdateSession] = await Promise.all([
+    const [session, preTest, postTest, userSession, canUpdateSession] = await Promise.all([
         getSessionById(parseInt(moduleId)),
         getAssignmentBySessionAndType(parseInt(moduleId), "PRETEST"),
         getAssignmentBySessionAndType(parseInt(moduleId), "POSTTEST"),
-        getSession(),
+        getFullSession(),
         hasPermission("Session", "UPDATE_SESSION")
     ]);
+
+    const currentUserId = userSession?.id || null;
+    const isLearner = !userSession || userSession.role === 'Learner';
 
     // Check if user is enrolled or has admin permission
     const enrollment = currentUserId ? await getEnrollment(currentUserId, parseInt(classId)) : null;
     const isEnrolled = !!enrollment;
 
-    if (!isEnrolled && !canUpdateSession) {
+    if (isLearner && !isEnrolled && !canUpdateSession) {
         return <NotFoundState
             title="Not Enrolled"
             message="You are not enrolled in this class. Please enroll to access this session."
