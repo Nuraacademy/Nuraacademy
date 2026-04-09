@@ -215,7 +215,7 @@ export async function editReply(id: number, text: string, userId: number, isAdmi
     const reply = await prisma.discussionReply.findUnique({ where: { id } });
     if (!reply) throw new Error("Reply not found");
 
-    if (!isAdmin && reply.userId !== userId) {
+    if (reply.userId !== userId) {
         throw new Error("Unauthorized to edit this reply");
     }
 
@@ -227,10 +227,15 @@ export async function editReply(id: number, text: string, userId: number, isAdmi
 
 // Delete a reply
 export async function deleteReply(id: number, userId: number, isAdmin: boolean) {
-    const reply = await prisma.discussionReply.findUnique({ where: { id } });
+    const reply = await prisma.discussionReply.findUnique({ 
+        where: { id },
+        include: { discussion: true }
+    });
     if (!reply) throw new Error("Reply not found");
 
-    if (!isAdmin && reply.userId !== userId) {
+    const isDiscussionAuthor = reply.discussion.userId === userId;
+
+    if (!isAdmin && reply.userId !== userId && !isDiscussionAuthor) {
         throw new Error("Unauthorized to delete this reply");
     }
 

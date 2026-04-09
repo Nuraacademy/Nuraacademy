@@ -439,7 +439,7 @@ export default function DiscussionTopicPage({
                                                 <span>{reply.timeAgo}</span>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                {(perms.editOthersReply || (perms.editSelfReply && currentUserId === reply.userId)) && (
+                                                {(perms.editSelfReply && currentUserId === reply.userId) && (
                                                     <button
                                                         onClick={() => setReplyToEdit({ id: reply.id, text: reply.text })}
                                                         className="p-1.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
@@ -448,7 +448,7 @@ export default function DiscussionTopicPage({
                                                         <Image src="/icons/Edit.svg" alt="Edit" width={16} height={16} />
                                                     </button>
                                                 )}
-                                                {(perms.deleteOthersReply || (perms.deleteSelfReply && currentUserId === reply.userId)) && (
+                                                {(perms.deleteOthersReply || (perms.deleteSelfReply && currentUserId === reply.userId) || currentUserId === discussion_data.userId) && (
                                                     <button
                                                         onClick={() => {
                                                             setReplyToDelete(reply.id);
