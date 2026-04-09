@@ -1,6 +1,37 @@
 import { prisma } from '@/lib/prisma';
 import { AssignmentType, Prisma } from '@prisma/client';
 
+function assignmentItemContentKey(type: string, question: string) {
+    return `${type}:${question}`;
+}
+
+/** Same rules as submitAssignment for objective auto-grading. */
+function computeObjectiveScoreFromAnswers(
+    correctAnswer: string | null | undefined,
+    learnerAnswer: string | null | undefined,
+    maxScore: number | null | undefined,
+): number {
+    const stripHtml = (html: string) => html.replace(/<[^>]*>/g, '').trim();
+    const normalizedCorrect = stripHtml(correctAnswer || '').toLowerCase();
+    const normalizedAnswer = stripHtml(learnerAnswer || '').toLowerCase();
+
+    let isMatch = normalizedCorrect === normalizedAnswer;
+    if (!isMatch && normalizedAnswer) {
+        const stripPrefix = (str: string) => str.replace(/^[a-z]\.\s*/i, '').trim();
+        const correctPrefix = normalizedCorrect.match(/^[a-z](?=\.)/i)?.[0]?.toLowerCase();
+        const answerPrefix = normalizedAnswer.match(/^[a-z](?=\.)/i)?.[0]?.toLowerCase();
+
+        const correctNoPrefix = stripPrefix(normalizedCorrect);
+        const answerNoPrefix = stripPrefix(normalizedAnswer);
+
+        if (normalizedAnswer.length === 1 && correctPrefix === normalizedAnswer) isMatch = true;
+        else if (normalizedCorrect.length === 1 && answerPrefix === normalizedCorrect) isMatch = true;
+        else if (correctPrefix && answerNoPrefix === correctNoPrefix && normalizedAnswer === correctNoPrefix) isMatch = true;
+    }
+
+    return isMatch ? (maxScore ?? 10) : 0;
+}
+
 export async function getAssignmentsBySessionId(sessionId: number, type?: AssignmentType) {
     return await prisma.assignment.findMany({
         where: {
@@ -338,29 +369,11 @@ export async function submitAssignment(assignmentId: number, enrollmentId: numbe
 
             if (type === 'OBJECTIVE') {
                 answer = data.objectiveAnswers[itemId] || "";
-                
-                // Calculate score for objective
-                const stripHtml = (html: string) => html.replace(/<[^>]*>/g, '').trim();
-                const normalizedCorrect = stripHtml(assignmentItem.correctAnswer || "").toLowerCase();
-                const normalizedAnswer = stripHtml(answer || "").toLowerCase();
-
-                let isMatch = normalizedCorrect === normalizedAnswer;
-                if (!isMatch && normalizedAnswer) {
-                    const stripPrefix = (str: string) => str.replace(/^[a-z]\.\s*/i, "").trim();
-                    const correctPrefix = normalizedCorrect.match(/^[a-z](?=\.)/i)?.[0]?.toLowerCase();
-                    const answerPrefix = normalizedAnswer.match(/^[a-z](?=\.)/i)?.[0]?.toLowerCase();
-
-                    const correctNoPrefix = stripPrefix(normalizedCorrect);
-                    const answerNoPrefix = stripPrefix(normalizedAnswer);
-
-                    if (normalizedAnswer.length === 1 && correctPrefix === normalizedAnswer) isMatch = true;
-                    else if (normalizedCorrect.length === 1 && answerPrefix === normalizedCorrect) isMatch = true;
-                    else if (correctPrefix && answerNoPrefix === correctNoPrefix && normalizedAnswer === correctNoPrefix) isMatch = true;
-                }
-
-                if (isMatch) itemScore = assignmentItem.maxScore || 10;
-                else itemScore = 0;
-                
+                itemScore = computeObjectiveScoreFromAnswers(
+                    assignmentItem.correctAnswer,
+                    answer,
+                    assignmentItem.maxScore,
+                );
                 calculatedTotalScore += itemScore;
             } else if (type === 'ESSAY') {
                 answer = data.essayAnswers[itemId] || null;
@@ -466,6 +479,80 @@ export async function updateAssignment(
                     data: { threshold: parseFloat(threshold.toString()) }
                 });
             }
+        }
+
+        // Existing submissions still point at soft-deleted items; map by (type, question) to new rows
+        // and re-score OBJECTIVE from updated keys / maxScore.
+        const newItems = await tx.assignmentItem.findMany({
+            where: { assignmentId, deletedAt: null },
+            orderBy: { id: 'asc' },
+        });
+        const newItemByContentKey = new Map<string, (typeof newItems)[0]>();
+        for (const item of newItems) {
+            const k = assignmentItemContentKey(item.type, item.question);
+            if (!newItemByContentKey.has(k)) newItemByContentKey.set(k, item);
+        }
+
+        const assignmentForPassing = await tx.assignment.findUnique({
+            where: { id: assignmentId },
+            select: { passingGrade: true },
+        });
+
+        const finishedResults = await tx.assignmentResult.findMany({
+            where: {
+                assignmentId,
+                finishedAt: { not: null },
+                deletedAt: null,
+            },
+            include: {
+                assignmentItemResults: { include: { assignmentItem: true } },
+            },
+        });
+
+        for (const res of finishedResults) {
+            for (const ir of res.assignmentItemResults) {
+                const oldItem = ir.assignmentItem;
+                if (!oldItem) continue;
+
+                const key = assignmentItemContentKey(oldItem.type, oldItem.question);
+                const newItem = newItemByContentKey.get(key);
+                if (!newItem) {
+                    await tx.assignmentItemResult.delete({ where: { id: ir.id } });
+                    continue;
+                }
+
+                if (oldItem.type === 'OBJECTIVE') {
+                    const score = computeObjectiveScoreFromAnswers(
+                        newItem.correctAnswer,
+                        ir.answer,
+                        newItem.maxScore,
+                    );
+                    await tx.assignmentItemResult.update({
+                        where: { id: ir.id },
+                        data: { assignmentItemId: newItem.id, score },
+                    });
+                } else {
+                    await tx.assignmentItemResult.update({
+                        where: { id: ir.id },
+                        data: { assignmentItemId: newItem.id },
+                    });
+                }
+            }
+
+            const itemResults = await tx.assignmentItemResult.findMany({
+                where: { assignmentResultId: res.id },
+            });
+            const newTotal = itemResults.reduce((acc, r) => acc + (r.score || 0), 0);
+            const status =
+                assignmentForPassing?.passingGrade !== null &&
+                newTotal >= (assignmentForPassing?.passingGrade || 0)
+                    ? 'PASS'
+                    : 'NOT_PASS';
+
+            await tx.assignmentResult.update({
+                where: { id: res.id },
+                data: { totalScore: newTotal, status },
+            });
         }
 
         return updated;
