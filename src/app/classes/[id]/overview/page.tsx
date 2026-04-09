@@ -147,7 +147,7 @@ export default async function CourseOverviewPage({
                             </div>
                             <div>
                                 <p className="text-sm mb-0.5">Schedules</p>
-                                <p>{classData.startDate ? new Date(classData.startDate).toLocaleDateString() : 'TBA'} - {classData.endDate ? new Date(classData.endDate).toLocaleDateString() : 'TBA'}</p>
+                                <p>{classData.startDate ? new Date(classData.startDate).toLocaleDateString(undefined, { timeZone: 'UTC' }) : 'TBA'} - {classData.endDate ? new Date(classData.endDate).toLocaleDateString(undefined, { timeZone: 'UTC' }) : 'TBA'}</p>
                             </div>
                         </div>
 
