@@ -57,6 +57,17 @@ export async function createCurricula(data: {
     createdBy?: number;
     classIds?: number[];
 }) {
+    const existingCurricula = await prisma.curricula.findFirst({
+        where: {
+            title: { equals: data.title, mode: 'insensitive' },
+            deletedAt: null
+        }
+    });
+
+    if (existingCurricula) {
+        throw new Error('Curriculum name already exists');
+    }
+
     const { classIds, ...rest } = data;
     return await prisma.curricula.create({
         data: {
@@ -77,6 +88,20 @@ export async function updateCurricula(id: number, data: {
     status?: string;
     classIds?: number[];
 }) {
+    if (data.title) {
+        const existingCurricula = await prisma.curricula.findFirst({
+            where: {
+                title: { equals: data.title, mode: 'insensitive' },
+                id: { not: id },
+                deletedAt: null
+            }
+        });
+
+        if (existingCurricula) {
+            throw new Error('Curriculum name already exists');
+        }
+    }
+
     const { classIds, ...rest } = data;
 
     return await prisma.curricula.update({
