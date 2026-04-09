@@ -24,6 +24,7 @@ export default async function CourseOverviewPage({
     const canCreateCourse = await hasPermission('Course', 'CREATE_COURSE');
     const canUpdateCourse = await hasPermission('Course', 'UPDATE_COURSE');
     const canCreatePlacement = await hasPermission('Class', 'PLACEMENT_TEST_CREATE');
+    const canCreateAssignment = await hasPermission('Assignment', 'CREATE_UPDATE_ASSIGNMENT');
     const canViewFeedbackReport = await hasPermission('Feedback', 'VIEW_DETAIL_REFLECTION');
     const canViewClassAnalytics = await hasPermission('Analytics', 'ANALYTICS_REPORT_TRAINER');
     const canViewLearnerAnalytics = await hasPermission('Analytics', 'ANALYTICS_REPORT_LEARNER');
@@ -359,6 +360,7 @@ export default async function CourseOverviewPage({
                                 projectAssignments={projectAssignments || []}
                                 curricula={classData.curricula || []}
                                 canCreateCourse={canCreateCourse}
+                                canCreateAssignment={canCreateAssignment}
                                 canUpdateCourse={canUpdateCourse}
                                 canViewCurricula={canViewCurricula}
                                 isLearner={isLearner}

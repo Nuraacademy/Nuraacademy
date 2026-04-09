@@ -35,8 +35,8 @@ export async function getAssignments(userId?: number) {
     });
 
     const isLearner = user?.role?.name === 'Learner';
-    const isStaff = ['Trainer', 'Instructor', 'Instructur', 'Learning Designer'].includes(user?.role?.name || '');
-    const isAdmin = user?.role?.name === 'Admin';
+    const isStaff = ['Trainer', 'Instructor', 'Instructur'].includes(user?.role?.name || '');
+    const isAdmin = user?.role?.name === 'Admin' || user?.role?.name === 'Learning Designer';
 
     if (isAdmin) {
         return await prisma.assignment.findMany({
@@ -52,19 +52,20 @@ export async function getAssignments(userId?: number) {
     }
 
     if (isStaff) {
-        const classFilter = {
-            OR: [
-                { trainers: { some: { id: userId } } },
-                { createdBy: userId },
-                { courses: { some: { createdBy: userId } } },
-                { courses: { some: { sessions: { some: { createdBy: userId } } } } }
-            ]
-        };
-
         return await prisma.assignment.findMany({
             where: {
                 deletedAt: null,
-                class: classFilter,
+                OR: [
+                    { createdBy: userId },
+                    { class: {
+                        OR: [
+                            { trainers: { some: { id: userId } } },
+                            { createdBy: userId },
+                            { courses: { some: { createdBy: userId } } },
+                            { courses: { some: { sessions: { some: { createdBy: userId } } } } }
+                        ]
+                    }},
+                ],
             },
             include: {
                 class: { select: { title: true } },

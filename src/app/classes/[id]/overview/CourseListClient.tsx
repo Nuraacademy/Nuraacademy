@@ -11,6 +11,7 @@ interface CourseListClientProps {
     projectAssignments: any[];
     curricula: any[];
     canCreateCourse: boolean;
+    canCreateAssignment: boolean;
     canUpdateCourse: boolean;
     canViewCurricula: boolean;
     isLearner: boolean;
@@ -23,6 +24,7 @@ export default function CourseListClient({
     projectAssignments,
     curricula,
     canCreateCourse,
+    canCreateAssignment,
     canUpdateCourse,
     canViewCurricula,
     isLearner,
@@ -60,10 +62,10 @@ export default function CourseListClient({
                         <h2 className="text-lg">Courses & Curriculum</h2>
                         <p className="text-xs text-gray-400 font-medium mt-1">Explore modules and assignments in this class.</p>
                     </div>
-                    {canCreateCourse && (
+                    {(canCreateCourse || canCreateAssignment) && (
                         <div className="flex items-center gap-2">
-                            <AddCourseButton classId={classId} />
-                            <AddAssignmentButton classId={classId} />
+                            {canCreateCourse && <AddCourseButton classId={classId} />}
+                            {canCreateAssignment && <AddAssignmentButton classId={classId} />}
                         </div>
                     )}
                 </div>
