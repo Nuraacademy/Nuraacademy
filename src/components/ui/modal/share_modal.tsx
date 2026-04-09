@@ -9,13 +9,15 @@ interface ShareModalProps {
   onClose: () => void;
   shareUrl: string;
   title?: string;
+  onShare?: (platform: string) => void;
 }
 
 export const ShareModal = ({
   isOpen,
   onClose,
   shareUrl,
-  title = "Share Thread"
+  title = "Share Thread",
+  onShare
 }: ShareModalProps) => {
   const [copied, setCopied] = useState(false);
 
@@ -25,6 +27,7 @@ export const ShareModal = ({
     navigator.clipboard.writeText(shareUrl);
     setCopied(true);
     toast.success("Link copied to clipboard!");
+    onShare?.("copy");
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -60,16 +63,38 @@ export const ShareModal = ({
         <p className="text-gray-700 text-lg mb-6">Share this link via</p>
         
         <div className="flex gap-4 mb-10 justify-start">
-          <a href={shareLinks.instagram} target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform">
+          <a 
+            href={shareLinks.instagram} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="hover:scale-110 transition-transform"
+            onClick={() => onShare?.("instagram")}
+          >
             <img src="/icons/media/Instagram.svg" alt="Instagram" className="w-14 h-14" />
           </a>
-          <a href={shareLinks.facebook} target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform">
+          <a 
+            href={shareLinks.facebook} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="hover:scale-110 transition-transform"
+            onClick={() => onShare?.("facebook")}
+          >
             <img src="/icons/media/Facebook.svg" alt="Facebook" className="w-14 h-14" />
           </a>
-          <a href={shareLinks.x} target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform">
+          <a 
+            href={shareLinks.x} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="hover:scale-110 transition-transform"
+            onClick={() => onShare?.("x")}
+          >
             <img src="/icons/media/X.svg" alt="X" className="w-14 h-14" />
           </a>
-          <a href={shareLinks.email} className="hover:scale-110 transition-transform">
+          <a 
+            href={shareLinks.email} 
+            className="hover:scale-110 transition-transform"
+            onClick={() => onShare?.("email")}
+          >
             <img src="/icons/media/Gmail.svg" alt="Gmail" className="w-14 h-14" />
           </a>
         </div>

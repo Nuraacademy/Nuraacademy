@@ -5,7 +5,7 @@ import { useEffect, useState, use, useMemo } from 'react';
 import Breadcrumb from '@/components/ui/breadcrumb/breadcrumb';
 import { NuraButton } from '@/components/ui/button/button';
 import ForumTag from '@/components/ui/tag/discussion';
-import { getDiscussionByIdAction, createReplyAction, toggleLikeDiscussionAction, toggleLikeReplyAction, deleteDiscussionAction, editReplyAction, deleteReplyAction, editDiscussionAction } from '@/app/actions/discussion';
+import { getDiscussionByIdAction, createReplyAction, toggleLikeDiscussionAction, toggleLikeReplyAction, deleteDiscussionAction, editReplyAction, deleteReplyAction, editDiscussionAction, recordDiscussionShareAction, recordReplyShareAction } from '@/app/actions/discussion';
 import { getSession } from '@/app/actions/auth';
 import { toast } from 'sonner';
 import { Heart, MessageCircle, Send, Edit, Trash2 } from 'lucide-react';
@@ -52,6 +52,7 @@ export default function DiscussionTopicPage({
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+    const [sharingItem, setSharingItem] = useState<{ type: 'topic' | 'reply', id: number } | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [sortRepliesBy, setSortRepliesBy] = useState("newest");
 
@@ -119,6 +120,7 @@ export default function DiscussionTopicPage({
         content: string;
         repliesCount: number;
         likeCount: number;
+        shareCount: number;
         isLikedByCurrentUser: boolean;
         replies: {
             id: number;
@@ -127,6 +129,7 @@ export default function DiscussionTopicPage({
             timeAgo: string;
             text: string;
             likeCount: number;
+            shareCount: number;
             isLikedByCurrentUser: boolean;
             createdAt: string
         }[];
@@ -147,6 +150,7 @@ export default function DiscussionTopicPage({
                 content: res.data.content,
                 repliesCount: res.data.repliesCount,
                 likeCount: res.data.likeCount,
+                shareCount: res.data.shareCount || 0,
                 isLikedByCurrentUser: res.data.isLikedByCurrentUser,
                 replies: res.data.replies.map((r: any) => ({
                     id: r.id,
@@ -155,6 +159,7 @@ export default function DiscussionTopicPage({
                     timeAgo: r.createdAt ? formatDistanceToNow(new Date(r.createdAt)) + " ago" : "Just now",
                     text: r.text,
                     likeCount: r.likeCount,
+                    shareCount: r.shareCount || 0,
                     isLikedByCurrentUser: r.isLikedByCurrentUser,
                     createdAt: r.createdAt
                 })),
@@ -181,8 +186,30 @@ export default function DiscussionTopicPage({
         setIsDialogOpen(false);
     };
 
-    const handleShare = () => {
+    const handleShare = (type: 'topic' | 'reply', id: number) => {
+        setSharingItem({ type, id });
         setIsShareModalOpen(true);
+    };
+
+    const handleShareRecord = async (platform: string) => {
+        if (!sharingItem || !discussion_data) return;
+
+        if (sharingItem.type === 'topic') {
+            recordDiscussionShareAction(sharingItem.id, platform);
+            setDiscussion_data({
+                ...discussion_data,
+                shareCount: (discussion_data.shareCount || 0) + 1
+            });
+        } else {
+            recordReplyShareAction(sharingItem.id, platform);
+            const newReplies = discussion_data.replies.map(r => 
+                r.id === sharingItem.id ? { ...r, shareCount: (r.shareCount || 0) + 1 } : r
+            );
+            setDiscussion_data({
+                ...discussion_data,
+                replies: newReplies
+            });
+        }
     };
 
     const handleToggleLike = async () => {
@@ -336,22 +363,22 @@ export default function DiscussionTopicPage({
                 ) : (
                     <div className="flex flex-col gap-10">
                         {/* Main Post Card */}
-                        <div className="border border-gray-100 bg-white rounded-2xl p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
-                            <div className="flex items-center text-gray-400 text-xs font-medium mb-5">
-                                <span>{discussion_data.author}</span>
+                        <div className="border border-gray-100 bg-white rounded-2xl p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] min-w-0 overflow-hidden">
+                            <div className="flex items-center text-gray-400 text-xs font-medium mb-5 min-w-0">
+                                <span className="min-w-0 truncate">{discussion_data.author}</span>
                                 <span className="mx-2 text-[10px]">●</span>
                                 <span>{discussion_data.timeAgo}</span>
                             </div>
 
-                            <div className="flex items-center justify-between mb-6">
-                                <div className="flex items-center flex-wrap gap-4">
-                                    <h2 className="text-2xl font-medium text-gray-900 leading-tight">
+                            <div className="flex items-center justify-between gap-4 mb-6 min-w-0">
+                                <div className="flex items-center flex-wrap gap-4 min-w-0 flex-1">
+                                    <h2 className="text-2xl font-medium text-gray-900 leading-tight min-w-0 max-w-full break-words">
                                         {discussion_data.title}
                                     </h2>
                                     <ForumTag type={discussion_data.type} />
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    {(perms.createEditTopic || currentUserId === discussion_data.userId) && (
+                                <div className="flex items-center gap-2 shrink-0">
+                                    {((perms.createEditTopic && currentUserId === discussion_data.userId) || perms.deleteOthersTopic) && (
                                         <button
                                             onClick={() => setIsEditTopicModalOpen(true)}
                                             className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
@@ -373,7 +400,7 @@ export default function DiscussionTopicPage({
                             </div>
 
                             <div 
-                                className="prose prose-base max-w-5xl text-gray-700 leading-[1.7] mb-10"
+                                className="prose prose-base max-w-full text-gray-700 leading-[1.7] mb-10 break-words min-w-0 [&_pre]:overflow-x-auto [&_code]:break-all"
                                 dangerouslySetInnerHTML={{ __html: discussion_data.content }}
                             />
 
@@ -395,17 +422,17 @@ export default function DiscussionTopicPage({
                                 </div>
 
                                 <button
-                                    onClick={handleShare}
+                                    onClick={() => handleShare('topic', discussion_data.id)}
                                     className='flex items-center gap-2 transition-all hover:text-green-500 hover:scale-105 font-semibold text-xs'
                                 >
                                     <Send size={21} className="stroke-[1.5]" />
-                                    <span>{Math.floor(discussion_data.likeCount / 3)} shares</span>
+                                    <span>{discussion_data.shareCount} shares</span>
                                 </button>
                             </div>
                         </div>
 
                         {/* Replies Section Container */}
-                        <div className="bg-white/40 backdrop-blur-md rounded-2xl p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-white/50">
+                        <div className="bg-white/40 backdrop-blur-md rounded-2xl p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-white/50 min-w-0 overflow-hidden">
                             {/* Replies Header */}
                             <div className="flex justify-between items-center mb-12">
                                 <h2 className="text-2xl font-medium text-gray-900">Replies</h2>
@@ -439,7 +466,7 @@ export default function DiscussionTopicPage({
                                                 <span>{reply.timeAgo}</span>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                {(perms.editOthersReply || (perms.editSelfReply && currentUserId === reply.userId)) && (
+                                                {(perms.editSelfReply && currentUserId === reply.userId) && (
                                                     <button
                                                         onClick={() => setReplyToEdit({ id: reply.id, text: reply.text })}
                                                         className="p-1.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
@@ -448,7 +475,7 @@ export default function DiscussionTopicPage({
                                                         <Image src="/icons/Edit.svg" alt="Edit" width={16} height={16} />
                                                     </button>
                                                 )}
-                                                {(perms.deleteOthersReply || (perms.deleteSelfReply && currentUserId === reply.userId)) && (
+                                                {(perms.deleteOthersReply || (perms.deleteSelfReply && currentUserId === reply.userId) || currentUserId === discussion_data.userId) && (
                                                     <button
                                                         onClick={() => {
                                                             setReplyToDelete(reply.id);
@@ -463,7 +490,7 @@ export default function DiscussionTopicPage({
                                             </div>
                                         </div>
                                         <div 
-                                            className="prose prose-base max-w-none text-gray-700 leading-[1.7] mb-6"
+                                            className="prose prose-base max-w-none text-gray-700 leading-[1.7] mb-6 break-words min-w-0 [&_pre]:overflow-x-auto [&_code]:break-all"
                                             dangerouslySetInnerHTML={{ __html: reply.text }}
                                         />
                                         <div className="flex items-center text-gray-500 gap-8">
@@ -478,11 +505,11 @@ export default function DiscussionTopicPage({
                                                 <span className="text-xs font-semibold">{reply.likeCount} likes</span>
                                             </button>
                                             <button
-                                                onClick={handleShare}
+                                                onClick={() => handleShare('reply', reply.id)}
                                                 className='flex items-center gap-2 transition-all hover:text-green-500 hover:scale-105'
                                             >
                                                 <Send size={17} className="stroke-[1.5]" />
-                                                <span className="text-xs font-semibold">{Math.floor(reply.likeCount / 5)} shares</span>
+                                                <span className="text-xs font-semibold">{reply.shareCount} shares</span>
                                             </button>
                                         </div>
                                     </div>
@@ -547,9 +574,13 @@ export default function DiscussionTopicPage({
 
                 <ShareModal
                     isOpen={isShareModalOpen}
-                    onClose={() => setIsShareModalOpen(false)}
+                    onClose={() => {
+                        setIsShareModalOpen(false);
+                        setSharingItem(null);
+                    }}
                     shareUrl={typeof window !== 'undefined' ? window.location.href : ""}
-                    title="Share Thread"
+                    title={sharingItem?.type === 'reply' ? "Share Comment" : "Share Thread"}
+                    onShare={handleShareRecord}
                 />
             </div>
         </main>

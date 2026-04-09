@@ -121,7 +121,8 @@ export default function CurriculaPage() {
                             curricula.map((item) => (
                                 <div
                                     key={item.id}
-                                    className="group flex items-center justify-between bg-white p-4 px-6 rounded-xl border border-gray-100 hover:border-[#cdff2b] hover:shadow-xl transition-all duration-300"
+                                    className="group flex items-center justify-between bg-white p-4 px-6 rounded-xl border border-gray-100 hover:border-[#cdff2b] hover:shadow-xl transition-all duration-300 cursor-pointer"
+                                    onClick={() => router.push(`/curricula/${item.id}`)}
                                 >
                                     <div className="flex items-center gap-6">
                                         <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:bg-[#cdff2b11]">
@@ -150,7 +151,7 @@ export default function CurriculaPage() {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="flex gap-1">
+                                    <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
                                         <button
                                             onClick={() => setDeleteId(item.id)}
                                             className="p-2 text-gray-300 hover:text-red-500 bg-transparent rounded-xl transition-all"

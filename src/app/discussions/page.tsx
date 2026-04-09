@@ -5,7 +5,7 @@ import { useEffect, useState, useMemo } from "react";
 import DiscussionList, { Topic } from "@/components/ui/discussion/discussion_list";
 import { DiscussionTopicDialog } from "@/components/ui/discussion/discussion_topic_dialog";
 import { NuraButton } from "@/components/ui/button/button";
-import { getDiscussionsAction, createDiscussionAction } from "@/app/actions/discussion";
+import { getDiscussionsAction, createDiscussionAction, recordDiscussionShareAction } from "@/app/actions/discussion";
 import { DiscussionType } from "@prisma/client";
 import { toast } from "sonner";
 import { NuraSearchInput } from "@/components/ui/input/nura_search_input";
@@ -51,6 +51,7 @@ export default function DiscussionPage() {
                 preview: (d.content || "").replace(/<[^>]*>?/gm, ''),
                 likeCount: d.likeCount,
                 repliesCount: d.repliesCount,
+                shareCount: d.shareCount || 0,
                 type: parseDiscussionType(d.type),
             })));
         } else {
@@ -89,6 +90,15 @@ export default function DiscussionPage() {
             fetchDiscussions();
         } else {
             toast.error(res.error || "Failed to create topic");
+        }
+    };
+
+    const handleShareRecorded = async (topicId: string, platform: string) => {
+        const res = await recordDiscussionShareAction(parseInt(topicId), platform);
+        if (res.success) {
+            setDiscussions(prev => prev.map(d => 
+                d.id === topicId ? { ...d, shareCount: (d.shareCount || 0) + 1 } : d
+            ));
         }
     };
 
@@ -169,7 +179,7 @@ export default function DiscussionPage() {
                         </p>
                     </div>
                 ) : (
-                    <DiscussionList topics={filteredDiscussions} />
+                    <DiscussionList topics={filteredDiscussions} onShareRecorded={handleShareRecorded} />
                 )}
 
                 <DiscussionTopicDialog

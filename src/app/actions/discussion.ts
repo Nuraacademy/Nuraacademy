@@ -11,7 +11,9 @@ import {
     deleteDiscussion,
     editDiscussion,
     editReply,
-    deleteReply
+    deleteReply,
+    recordDiscussionShare,
+    recordReplyShare
 } from "@/controllers/discussionController";
 import { revalidatePath } from "next/cache";
 import { DiscussionType } from "@prisma/client";
@@ -144,15 +146,16 @@ export async function editDiscussionAction(id: number, title: string, content: s
         if (!discussion) return { success: false, error: "Discussion not found" };
 
         const isAuthor = discussion.userId === userId;
-        // CREATE_EDIT_TOPIC still covers both creating and editing self topics.
-        // If others want to edit, we refer to CREATE_EDIT_TOPIC as well or we could check a specific one.
-        // For now, let's stick to the tracker's CREATE_EDIT_TOPIC for topic editing.
-        const canEdit = await hasPermission('Forums', 'CREATE_EDIT_TOPIC');
-        
-        if (!isAuthor && !canEdit) {
+        const canCreateOrEditOwnTopic = await hasPermission('Forums', 'CREATE_EDIT_TOPIC');
+        const canModerateOthersTopic = await hasPermission('Forums', 'DELETE_OTHERS_TOPIC');
+
+        if (isAuthor && !canCreateOrEditOwnTopic) {
             return { success: false, error: "You don't have permission to edit this topic" };
         }
-        
+        if (!isAuthor && !canModerateOthersTopic) {
+            return { success: false, error: "You don't have permission to edit this topic" };
+        }
+
         const updated = await editDiscussion(id, { title, content, type }, userId, !isAuthor);
         revalidatePath("/discussions");
         revalidatePath(`/discussions/topic`);
@@ -195,5 +198,27 @@ export async function deleteReplyAction(id: number) {
         return { success: true };
     } catch (error: any) {
         return { success: false, error: error.message || "Failed to delete reply" };
+    }
+}
+
+export async function recordDiscussionShareAction(discussionId: number, platform?: string) {
+    try {
+        const userId = await getSession();
+        await recordDiscussionShare(discussionId, userId || undefined, platform);
+        revalidatePath(`/discussions/topic`);
+        return { success: true };
+    } catch (error: any) {
+        return { success: false, error: error.message || "Failed to record share" };
+    }
+}
+
+export async function recordReplyShareAction(replyId: number, platform?: string) {
+    try {
+        const userId = await getSession();
+        await recordReplyShare(replyId, userId || undefined, platform);
+        revalidatePath(`/discussions/topic`);
+        return { success: true };
+    } catch (error: any) {
+        return { success: false, error: error.message || "Failed to record share" };
     }
 }

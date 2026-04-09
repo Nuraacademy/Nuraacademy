@@ -24,6 +24,10 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
+
+            # Berhenti jika ada error
+            set -e
+            
             cd /var/www/my-app
             
             # Pull latest changes
@@ -34,6 +38,9 @@ jobs:
             
             # Sync Prisma Schema
             /home/nura/.bun/bin/bun x prisma generate
+
+            # Migrate Prisma Schema
+            /home/nura/.bun/bin/bun x prisma migrate deploy
             
             # Build the project
             /home/nura/.bun/bin/bun run build

@@ -24,10 +24,14 @@ import {
     TestEditor,
     makeObjectiveQuestion,
     makeEssayQuestion,
-    validateQuestions,
+    validateAssignmentQuestions,
+    buildAssignmentItemsPayload,
+    inferSectionWeightsFromQuestions,
+    DEFAULT_SECTION_WEIGHTS,
     type ObjectiveQuestion,
     type EssayQuestion,
     type ProjectQuestion,
+    type SectionWeights,
 } from "@/components/assignment/test_editor";
 
 import { ConfirmModal } from "@/components/ui/modal/confirmation_modal";
@@ -39,6 +43,7 @@ interface CourseQuestions {
     essay: EssayQuestion[];
     project: ProjectQuestion[];
     saved: boolean;
+    sectionWeights?: SectionWeights;
 }
 
 // -- Main Client --
@@ -113,6 +118,11 @@ export function AddAssignmentClient({
     const [simpleObjective, setSimpleObjective] = useState<ObjectiveQuestion[]>([]);
     const [simpleEssay, setSimpleEssay] = useState<EssayQuestion[]>([]);
     const [simpleProject, setSimpleProject] = useState<ProjectQuestion[]>([]);
+    const [simpleThresholds, setSimpleThresholds] = useState<Record<string, number>>({});
+    const [simpleSectionWeights, setSimpleSectionWeights] = useState<SectionWeights>({
+        ...DEFAULT_SECTION_WEIGHTS,
+    });
+    const [editorWeightsNonce, setEditorWeightsNonce] = useState(0);
 
     // Modal & submitting
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -165,6 +175,7 @@ export function AddAssignmentClient({
                 if (prefillData.type === "POSTTEST") setTitle("Post-Test");
                 if (prefillData.type === "PRETEST" || prefillData.type === "POSTTEST") {
                     setSimpleObjective([makeObjectiveQuestion(idRef)]);
+                    setSimpleSectionWeights({ objective: 100, essay: 0, project: 0 });
                 }
             }
             if (prefillData.classId) setSelectedClassId(prefillData.classId);
@@ -218,6 +229,8 @@ export function AddAssignmentClient({
         setSimpleObjective([]);
         setSimpleEssay([]);
         setSimpleProject([]);
+        setSimpleThresholds({});
+        setSimpleSectionWeights({ ...DEFAULT_SECTION_WEIGHTS });
         setOverviewErrors(p => ({ ...p, classId: "" }));
         if (id) {
             const res = await fetchCoursesByClassIdAction(id);
@@ -256,6 +269,8 @@ export function AddAssignmentClient({
         setSimpleObjective([]);
         setSimpleEssay([]);
         setSimpleProject([]);
+        setSimpleThresholds({});
+        setSimpleSectionWeights({ ...DEFAULT_SECTION_WEIGHTS });
         setOverviewErrors({});
 
         // Reset submission type on type change
@@ -328,20 +343,32 @@ export function AddAssignmentClient({
                     id: item.id,
                     content: item.question,
                     score: item.maxScore || 10,
-                    attachments: item.options?.attachments || [],
-                    answers: (item.options || []).map((text: string) => ({
+                };
+
+                if (item.type === "OBJECTIVE") {
+                    const optionsArray = Array.isArray(item.options) ? item.options : [];
+                    q.answers = optionsArray.map((text: string) => ({
                         id: idRef.current++,
                         text: text,
                         isCorrect: text === item.correctAnswer
-                    }))
-                };
-                if (item.type === "OBJECTIVE") newData[item.courseId].objective.push(q);
-                else if (item.type === "ESSAY") newData[item.courseId].essay.push(q);
-                else if (item.type === "PROJECT") newData[item.courseId].project.push(q);
+                    }));
+                    newData[item.courseId].objective.push(q);
+                } else if (item.type === "ESSAY") {
+                    q.attachments = Array.isArray(item.options?.attachments) ? item.options.attachments : [];
+                    newData[item.courseId].essay.push(q);
+                } else if (item.type === "PROJECT") {
+                    q.attachments = Array.isArray(item.options?.attachments) ? item.options.attachments : [];
+                    newData[item.courseId].project.push(q);
+                }
             });
 
             classCourses.forEach(c => {
                 if (c.threshold !== null) newThresholds[c.id] = c.threshold;
+            });
+
+            Object.keys(newData).forEach((cid) => {
+                const d = newData[cid];
+                d.sectionWeights = inferSectionWeightsFromQuestions(d.objective, d.essay, d.project);
             });
 
             setCourseData(newData);
@@ -353,28 +380,36 @@ export function AddAssignmentClient({
             const pro: ProjectQuestion[] = [];
 
             test.assignmentItems.forEach((item: any) => {
-                const q = {
+                const q: any = {
                     id: item.id,
                     content: item.question,
                     score: item.maxScore || 10,
-                    attachments: item.options?.attachments || []
                 };
+
                 if (item.type === "OBJECTIVE") {
-                    (q as any).answers = (item.options || []).map((text: string) => ({
+                    const optionsArray = Array.isArray(item.options) ? item.options : [];
+                    q.answers = optionsArray.map((text: string) => ({
                         id: idRef.current++,
                         text: text,
                         isCorrect: text === item.correctAnswer
                     }));
-                    obj.push(q as any);
-                } else if (item.type === "ESSAY") ess.push(q as any);
-                else if (item.type === "PROJECT") pro.push(q as any);
+                    obj.push(q);
+                } else if (item.type === "ESSAY") {
+                    q.attachments = Array.isArray(item.options?.attachments) ? item.options.attachments : [];
+                    ess.push(q);
+                } else if (item.type === "PROJECT") {
+                    q.attachments = Array.isArray(item.options?.attachments) ? item.options.attachments : [];
+                    pro.push(q);
+                }
             });
 
             setSimpleObjective(obj);
             setSimpleEssay(ess);
             setSimpleProject(pro);
+            setSimpleSectionWeights(inferSectionWeightsFromQuestions(obj, ess, pro));
             if (test.passingGrade !== null) {
                 setThresholds({ "-1": test.passingGrade });
+                setSimpleThresholds({ "-1": test.passingGrade });
             }
         }
     };
@@ -382,6 +417,7 @@ export function AddAssignmentClient({
     // ── PLACEMENT editor handlers ────────────────────────────────────────────
 
     const handleAddItem = (course: any) => {
+        setEditorWeightsNonce((n) => n + 1);
         setSelectedCourseForEditor({ id: course.id, title: course.title });
         const existing = courseData[course.id];
         if (existing && (existing.objective.length > 0 || existing.essay.length > 0 || existing.project.length > 0)) {
@@ -400,22 +436,24 @@ export function AddAssignmentClient({
     const handleEditorSave = (
         objective: ObjectiveQuestion[],
         essay: EssayQuestion[],
-        project: ProjectQuestion[]
+        project: ProjectQuestion[],
+        sectionWeights: SectionWeights,
     ) => {
-        const max =
-            objective.reduce((a, b) => a + b.score, 0) +
-            essay.reduce((a, b) => a + b.score, 0) +
-            project.reduce((a, b) => a + b.score, 0);
-
         setCourseData(prev => ({
             ...prev,
-            [selectedCourseForEditor!.id]: { objective, essay, project, saved: true },
+            [selectedCourseForEditor!.id]: {
+                objective,
+                essay,
+                project,
+                saved: true,
+                sectionWeights,
+            },
         }));
 
         setThresholds(prev => {
             const existing = prev[selectedCourseForEditor!.id];
             if (existing === undefined || existing === 0) {
-                return { ...prev, [selectedCourseForEditor!.id]: Math.round(max * 0.8) };
+                return { ...prev, [selectedCourseForEditor!.id]: 80 };
             }
             return prev;
         });
@@ -434,6 +472,7 @@ export function AddAssignmentClient({
     // ── Simple editor (non-placement) handlers ───────────────────────────────
 
     const handleOpenSimpleEditor = () => {
+        setEditorWeightsNonce((n) => n + 1);
         // Find the title for the editor (either the selected session/course or the assignment type)
         let editorTitle = assignmentType.replace(/_/g, " ");
         if (sessionEnabled && selectedSessionId) {
@@ -454,14 +493,20 @@ export function AddAssignmentClient({
     const handleSimpleEditorSave = (
         objective: ObjectiveQuestion[],
         essay: EssayQuestion[],
-        project: ProjectQuestion[]
+        project: ProjectQuestion[],
+        sectionWeights: SectionWeights,
     ) => {
         setSimpleObjective(objective);
         setSimpleEssay(essay);
         setSimpleProject(project);
+        setSimpleSectionWeights(sectionWeights);
+        setSimpleThresholds((prev) => {
+            const cur = prev["-1"];
+            if (cur === undefined || cur === 0) return { ...prev, "-1": 80 };
+            return prev;
+        });
 
         const total = objective.length + essay.length + project.length;
-        // The thresholds state is already updated inside TestEditor for both placement and simple types
 
         showModal({
             open: true,
@@ -476,7 +521,6 @@ export function AddAssignmentClient({
 
     // Fake course for the simple editor (no per-course threshold needed)
     const simpleFakeCourse = { id: -1, title: assignmentType.replace("_", " ") };
-    const [simpleThresholds, setSimpleThresholds] = useState<Record<string, number>>({});
 
     // ── Create handler ───────────────────────────────────────────────────────
 
@@ -495,10 +539,29 @@ export function AddAssignmentClient({
         if (isPlacement) {
             if (Object.values(courseData).filter(d => d.saved).length === 0)
                 questionErrs.push("Configure at least one course's questions.");
+            Object.values(courseData)
+                .filter((d) => d.saved)
+                .forEach((d) => {
+                    questionErrs.push(
+                        ...validateAssignmentQuestions(
+                            d.objective,
+                            d.essay,
+                            d.project,
+                            d.sectionWeights ?? DEFAULT_SECTION_WEIGHTS,
+                        ),
+                    );
+                });
         } else if (assignmentType) {
             const total = simpleObjective.length + simpleEssay.length + simpleProject.length;
             if (total === 0) questionErrs.push("At least one question is required.");
-            questionErrs.push(...validateQuestions(simpleObjective, simpleEssay, simpleProject));
+            questionErrs.push(
+                ...validateAssignmentQuestions(
+                    simpleObjective,
+                    simpleEssay,
+                    simpleProject,
+                    simpleSectionWeights,
+                ),
+            );
         }
 
         setOverviewErrors(errs);
@@ -540,34 +603,29 @@ export function AddAssignmentClient({
             startDate: startDate,
             endDate: endDate,
             duration: duration ? parseInt(duration) : 0,
-            passingGrade: thresholds["-1"] || 0,
+            passingGrade: isPlacement ? 0 : simpleThresholds["-1"] || 0,
         };
 
         const items: any[] = [];
         if (isPlacement) {
             Object.entries(courseData).forEach(([cid, data]) => {
                 const cId = parseInt(cid);
-                data.objective.forEach(q => items.push({ courseId: cId, type: "OBJECTIVE", question: q.content, maxScore: q.score, options: q.answers.map(a => a.text), correctAnswer: q.answers.find(a => a.isCorrect)?.text || "" }));
-                data.essay.forEach(q => items.push({ courseId: cId, type: "ESSAY", question: q.content, maxScore: q.score }));
-                data.project.forEach(q => items.push({ 
-                    courseId: cId, 
-                    type: "PROJECT", 
-                    question: q.content, 
-                    maxScore: q.score,
-                    options: { attachments: q.attachments || [] }
-                }));
+                const w = data.sectionWeights ?? DEFAULT_SECTION_WEIGHTS;
+                items.push(
+                    ...buildAssignmentItemsPayload(data.objective, data.essay, data.project, w, cId),
+                );
             });
         } else {
             const baseCId = isClassLevel ? null : selectedCourseId;
-            simpleObjective.forEach(q => items.push({ courseId: baseCId, type: "OBJECTIVE", question: q.content, maxScore: q.score, options: q.answers.map(a => a.text), correctAnswer: q.answers.find(a => a.isCorrect)?.text || "" }));
-            simpleEssay.forEach(q => items.push({ courseId: baseCId, type: "ESSAY", question: q.content, maxScore: q.score }));
-            simpleProject.forEach(q => items.push({ 
-                courseId: baseCId, 
-                type: "PROJECT", 
-                question: q.content, 
-                maxScore: q.score,
-                options: { attachments: q.attachments || [] }
-            }));
+            items.push(
+                ...buildAssignmentItemsPayload(
+                    simpleObjective,
+                    simpleEssay,
+                    simpleProject,
+                    simpleSectionWeights,
+                    baseCId,
+                ),
+            );
         }
 
         const thresholdsPayload = isPlacement
@@ -930,6 +988,7 @@ export function AddAssignmentClient({
                         <h1 className="text-2xl font-medium mt-6 mb-6">Add Assignment</h1>
 
                         <TestEditor
+                            key={`placement-${selectedCourseForEditor.id}-${editorWeightsNonce}`}
                             selectedCourse={selectedCourseForEditor}
                             objectiveQuestions={objectiveQuestions}
                             setObjectiveQuestions={setObjectiveQuestions}
@@ -940,6 +999,9 @@ export function AddAssignmentClient({
                             thresholds={thresholds}
                             setThresholds={setThresholds}
                             idRef={idRef}
+                            initialSectionWeights={
+                                courseData[selectedCourseForEditor.id]?.sectionWeights
+                            }
                             onSave={handleEditorSave}
                             onCancel={() => setView("overview")}
                             showModal={showModal}
@@ -954,6 +1016,7 @@ export function AddAssignmentClient({
                         <h1 className="text-2xl font-medium mt-6 mb-6">Add Assignment</h1>
 
                         <TestEditor
+                            key={`simple-${editorWeightsNonce}`}
                             selectedCourse={selectedCourseForEditor}
                             objectiveQuestions={simpleObjective}
                             setObjectiveQuestions={setSimpleObjective}
@@ -964,6 +1027,7 @@ export function AddAssignmentClient({
                             thresholds={simpleThresholds}
                             setThresholds={setSimpleThresholds}
                             idRef={idRef}
+                            initialSectionWeights={simpleSectionWeights}
                             onSave={handleSimpleEditorSave}
                             onCancel={() => setView("overview")}
                             showModal={showModal}

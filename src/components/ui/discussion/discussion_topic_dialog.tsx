@@ -52,15 +52,15 @@ export const DiscussionTopicDialog = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-[10002] flex items-center justify-center p-4 ">
+    <div className="fixed inset-0 z-[10002] flex items-center justify-center overflow-y-auto overflow-x-auto p-4">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
         onClick={onCancel}
       />
 
-      {/* Modal Card */}
-      <div className="relative bg-white w-full max-w-2xl rounded-xl p-8 shadow-2xl animate-in zoom-in-95 duration-200">
+      {/* Modal Card — min-w-0 so flex/grid parents allow shrink; overflow-x for wide rich text */}
+      <div className="relative z-10 mx-auto my-auto w-full min-w-0 max-w-2xl max-h-[min(90dvh,100%)] overflow-x-auto overflow-y-auto rounded-xl bg-white p-8 shadow-2xl animate-in zoom-in-95 duration-200">
         <h2 className="text-xl font-medium text-gray-950 mb-6">
           {initialData?.content || initialData?.title 
             ? (isReply ? "Edit Reply" : "Edit Topic")
@@ -68,7 +68,7 @@ export const DiscussionTopicDialog = ({
           }
         </h2>
 
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
           {/* Topic Title Input */}
           {!isReply && (
             <NuraTextInput
@@ -89,9 +89,9 @@ export const DiscussionTopicDialog = ({
           )}
 
           {/* Description RichText */}
-          <div className="flex flex-col">
+          <div className="flex min-w-0 flex-col">
             <label className="block text-sm font-medium mb-1 px-1">Description</label>
-            <div className="border border-gray-200 rounded-xl overflow-hidden bg-white">
+            <div className="min-w-0 overflow-x-auto rounded-xl border border-gray-200 bg-white">
                 <RichTextInput
                   value={description}
                   onChange={(val) => setDescription(val)}

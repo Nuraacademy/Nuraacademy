@@ -1,6 +1,37 @@
 import { prisma } from '@/lib/prisma';
 import { AssignmentType, Prisma } from '@prisma/client';
 
+function assignmentItemContentKey(type: string, question: string) {
+    return `${type}:${question}`;
+}
+
+/** Same rules as submitAssignment for objective auto-grading. */
+function computeObjectiveScoreFromAnswers(
+    correctAnswer: string | null | undefined,
+    learnerAnswer: string | null | undefined,
+    maxScore: number | null | undefined,
+): number {
+    const stripHtml = (html: string) => html.replace(/<[^>]*>/g, '').trim();
+    const normalizedCorrect = stripHtml(correctAnswer || '').toLowerCase();
+    const normalizedAnswer = stripHtml(learnerAnswer || '').toLowerCase();
+
+    let isMatch = normalizedCorrect === normalizedAnswer;
+    if (!isMatch && normalizedAnswer) {
+        const stripPrefix = (str: string) => str.replace(/^[a-z]\.\s*/i, '').trim();
+        const correctPrefix = normalizedCorrect.match(/^[a-z](?=\.)/i)?.[0]?.toLowerCase();
+        const answerPrefix = normalizedAnswer.match(/^[a-z](?=\.)/i)?.[0]?.toLowerCase();
+
+        const correctNoPrefix = stripPrefix(normalizedCorrect);
+        const answerNoPrefix = stripPrefix(normalizedAnswer);
+
+        if (normalizedAnswer.length === 1 && correctPrefix === normalizedAnswer) isMatch = true;
+        else if (normalizedCorrect.length === 1 && answerPrefix === normalizedCorrect) isMatch = true;
+        else if (correctPrefix && answerNoPrefix === correctNoPrefix && normalizedAnswer === correctNoPrefix) isMatch = true;
+    }
+
+    return isMatch ? (maxScore ?? 10) : 0;
+}
+
 export async function getAssignmentsBySessionId(sessionId: number, type?: AssignmentType) {
     return await prisma.assignment.findMany({
         where: {
@@ -35,8 +66,8 @@ export async function getAssignments(userId?: number) {
     });
 
     const isLearner = user?.role?.name === 'Learner';
-    const isStaff = ['Trainer', 'Instructor', 'Instructur', 'Learning Designer'].includes(user?.role?.name || '');
-    const isAdmin = user?.role?.name === 'Admin';
+    const isStaff = ['Trainer', 'Instructor', 'Instructur'].includes(user?.role?.name || '');
+    const isAdmin = user?.role?.name === 'Admin' || user?.role?.name === 'Learning Designer';
 
     if (isAdmin) {
         return await prisma.assignment.findMany({
@@ -52,19 +83,20 @@ export async function getAssignments(userId?: number) {
     }
 
     if (isStaff) {
-        const classFilter = {
-            OR: [
-                { trainerId: userId },
-                { createdBy: userId },
-                { courses: { some: { createdBy: userId } } },
-                { courses: { some: { sessions: { some: { createdBy: userId } } } } }
-            ]
-        };
-
         return await prisma.assignment.findMany({
             where: {
                 deletedAt: null,
-                class: classFilter,
+                OR: [
+                    { createdBy: userId },
+                    { class: {
+                        OR: [
+                            { trainers: { some: { id: userId } } },
+                            { createdBy: userId },
+                            { courses: { some: { createdBy: userId } } },
+                            { courses: { some: { sessions: { some: { createdBy: userId } } } } }
+                        ]
+                    }},
+                ],
             },
             include: {
                 class: { select: { title: true } },
@@ -122,7 +154,7 @@ export async function getProjectAssignmentsByClassId(classId: number) {
 }
 
 
-export async function getAssignmentById(id: number) {
+export async function getAssignmentById(id: number, includeItems: boolean = true) {
     return await prisma.assignment.findUnique({
         where: {
             id,
@@ -132,10 +164,12 @@ export async function getAssignmentById(id: number) {
             class: { select: { title: true } },
             course: { select: { title: true } },
             session: { select: { title: true } },
-            assignmentItems: {
-                where: { deletedAt: null },
-                include: { course: true }
-            },
+            ...(includeItems && {
+                assignmentItems: {
+                    where: { deletedAt: null },
+                    include: { course: true }
+                },
+            }),
         },
     });
 }
@@ -181,7 +215,7 @@ export async function findExistingAssignment(params: {
     });
 }
 
-export async function getAssignmentResult(assignmentId: number, enrollmentId: number) {
+export async function getAssignmentResult(assignmentId: number, enrollmentId: number, includeItems: boolean = true) {
     // 1. Check direct submission
     const directResult = await prisma.assignmentResult.findUnique({
         where: {
@@ -191,15 +225,17 @@ export async function getAssignmentResult(assignmentId: number, enrollmentId: nu
             },
         },
         include: {
-            assignmentItemResults: {
-                include: {
-                    assignmentItem: {
-                        include: {
-                            course: true
+            ...(includeItems && {
+                assignmentItemResults: {
+                    include: {
+                        assignmentItem: {
+                            include: {
+                                course: true
+                            }
                         }
                     }
                 }
-            }
+            })
         }
     });
 
@@ -229,15 +265,17 @@ export async function getAssignmentResult(assignmentId: number, enrollmentId: nu
                     finishedAt: { not: null }
                 },
                 include: {
-                    assignmentItemResults: {
-                        include: {
-                            assignmentItem: {
-                                include: {
-                                    course: true
+                    ...(includeItems && {
+                        assignmentItemResults: {
+                            include: {
+                                assignmentItem: {
+                                    include: {
+                                        course: true
+                                    }
                                 }
                             }
                         }
-                    }
+                    })
                 }
             });
 
@@ -331,29 +369,11 @@ export async function submitAssignment(assignmentId: number, enrollmentId: numbe
 
             if (type === 'OBJECTIVE') {
                 answer = data.objectiveAnswers[itemId] || "";
-                
-                // Calculate score for objective
-                const stripHtml = (html: string) => html.replace(/<[^>]*>/g, '').trim();
-                const normalizedCorrect = stripHtml(assignmentItem.correctAnswer || "").toLowerCase();
-                const normalizedAnswer = stripHtml(answer || "").toLowerCase();
-
-                let isMatch = normalizedCorrect === normalizedAnswer;
-                if (!isMatch && normalizedAnswer) {
-                    const stripPrefix = (str: string) => str.replace(/^[a-z]\.\s*/i, "").trim();
-                    const correctPrefix = normalizedCorrect.match(/^[a-z](?=\.)/i)?.[0]?.toLowerCase();
-                    const answerPrefix = normalizedAnswer.match(/^[a-z](?=\.)/i)?.[0]?.toLowerCase();
-
-                    const correctNoPrefix = stripPrefix(normalizedCorrect);
-                    const answerNoPrefix = stripPrefix(normalizedAnswer);
-
-                    if (normalizedAnswer.length === 1 && correctPrefix === normalizedAnswer) isMatch = true;
-                    else if (normalizedCorrect.length === 1 && answerPrefix === normalizedCorrect) isMatch = true;
-                    else if (correctPrefix && answerNoPrefix === correctNoPrefix && normalizedAnswer === correctNoPrefix) isMatch = true;
-                }
-
-                if (isMatch) itemScore = assignmentItem.maxScore || 10;
-                else itemScore = 0;
-                
+                itemScore = computeObjectiveScoreFromAnswers(
+                    assignmentItem.correctAnswer,
+                    answer,
+                    assignmentItem.maxScore,
+                );
                 calculatedTotalScore += itemScore;
             } else if (type === 'ESSAY') {
                 answer = data.essayAnswers[itemId] || null;
@@ -459,6 +479,80 @@ export async function updateAssignment(
                     data: { threshold: parseFloat(threshold.toString()) }
                 });
             }
+        }
+
+        // Existing submissions still point at soft-deleted items; map by (type, question) to new rows
+        // and re-score OBJECTIVE from updated keys / maxScore.
+        const newItems = await tx.assignmentItem.findMany({
+            where: { assignmentId, deletedAt: null },
+            orderBy: { id: 'asc' },
+        });
+        const newItemByContentKey = new Map<string, (typeof newItems)[0]>();
+        for (const item of newItems) {
+            const k = assignmentItemContentKey(item.type, item.question);
+            if (!newItemByContentKey.has(k)) newItemByContentKey.set(k, item);
+        }
+
+        const assignmentForPassing = await tx.assignment.findUnique({
+            where: { id: assignmentId },
+            select: { passingGrade: true },
+        });
+
+        const finishedResults = await tx.assignmentResult.findMany({
+            where: {
+                assignmentId,
+                finishedAt: { not: null },
+                deletedAt: null,
+            },
+            include: {
+                assignmentItemResults: { include: { assignmentItem: true } },
+            },
+        });
+
+        for (const res of finishedResults) {
+            for (const ir of res.assignmentItemResults) {
+                const oldItem = ir.assignmentItem;
+                if (!oldItem) continue;
+
+                const key = assignmentItemContentKey(oldItem.type, oldItem.question);
+                const newItem = newItemByContentKey.get(key);
+                if (!newItem) {
+                    await tx.assignmentItemResult.delete({ where: { id: ir.id } });
+                    continue;
+                }
+
+                if (oldItem.type === 'OBJECTIVE') {
+                    const score = computeObjectiveScoreFromAnswers(
+                        newItem.correctAnswer,
+                        ir.answer,
+                        newItem.maxScore,
+                    );
+                    await tx.assignmentItemResult.update({
+                        where: { id: ir.id },
+                        data: { assignmentItemId: newItem.id, score },
+                    });
+                } else {
+                    await tx.assignmentItemResult.update({
+                        where: { id: ir.id },
+                        data: { assignmentItemId: newItem.id },
+                    });
+                }
+            }
+
+            const itemResults = await tx.assignmentItemResult.findMany({
+                where: { assignmentResultId: res.id },
+            });
+            const newTotal = itemResults.reduce((acc, r) => acc + (r.score || 0), 0);
+            const status =
+                assignmentForPassing?.passingGrade !== null &&
+                newTotal >= (assignmentForPassing?.passingGrade || 0)
+                    ? 'PASS'
+                    : 'NOT_PASS';
+
+            await tx.assignmentResult.update({
+                where: { id: res.id },
+                data: { totalScore: newTotal, status },
+            });
         }
 
         return updated;
@@ -887,9 +981,25 @@ export async function getAssignmentResultsByAssignmentId(assignmentId: number) {
             // Representative submission
             if (hasSubmitted) {
                 const items = result?.assignmentItemResults || [];
-                const totalItems = items.length;
-                const gradedItems = items.filter((i: any) => i.score !== null).length;
-                const isGraded = totalItems > 0 && gradedItems === totalItems;
+                const activeContentKeys = new Set(assignment.assignmentItems.map(i => `${i.type}:${i.question}`));
+                const uniqueResults = new Map<string, any>();
+                
+                items.forEach((ir: any) => {
+                    const item = ir.assignmentItem;
+                    if (!item) return;
+                    const contentKey = `${item.type}:${item.question}`;
+                    if (activeContentKeys.has(contentKey)) {
+                        const existing = uniqueResults.get(contentKey);
+                        if (!existing || ir.id > existing.id) {
+                            uniqueResults.set(contentKey, ir);
+                        }
+                    }
+                });
+
+                const validItems = Array.from(uniqueResults.values());
+                const totalItems = assignment.assignmentItems.length;
+                const gradedItems = validItems.filter((i: any) => i.score !== null).length;
+                const isGraded = totalItems === 0 || gradedItems === totalItems;
 
                 groupResults[groupName].status = isGraded ? "Graded" : "To Grade";
                 groupResults[groupName].submittedAt = result.finishedAt;
@@ -904,9 +1014,25 @@ export async function getAssignmentResultsByAssignmentId(assignmentId: number) {
         const result = e.assignmentResults[0];
         const items = result?.assignmentItemResults || [];
 
-        const totalItems = items.length;
-        const gradedItems = items.filter(i => i.score !== null).length;
-        const isGraded = totalItems > 0 && gradedItems === totalItems;
+        const activeContentKeys = new Set(assignment.assignmentItems.map(i => `${i.type}:${i.question}`));
+        const uniqueResults = new Map<string, any>();
+        
+        items.forEach((ir: any) => {
+            const item = ir.assignmentItem;
+            if (!item) return;
+            const contentKey = `${item.type}:${item.question}`;
+            if (activeContentKeys.has(contentKey)) {
+                const existing = uniqueResults.get(contentKey);
+                if (!existing || ir.id > existing.id) {
+                    uniqueResults.set(contentKey, ir);
+                }
+            }
+        });
+
+        const validItems = Array.from(uniqueResults.values());
+        const totalItems = assignment.assignmentItems.length;
+        const gradedItems = validItems.filter(i => i.score !== null).length;
+        const isGraded = totalItems === 0 || gradedItems === totalItems;
         const hasSubmitted = !!result?.finishedAt;
 
         return {

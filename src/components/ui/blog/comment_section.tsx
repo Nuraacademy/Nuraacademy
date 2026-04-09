@@ -1,12 +1,14 @@
 "use client"
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { RichTextInput } from "@/components/ui/input/rich_text_input";
 import { NuraButton } from "@/components/ui/button/button";
-import { Heart, Send, ChevronDown } from "lucide-react";
+import { NuraSelect } from "@/components/ui/input/nura_select";
+import { Heart, Send } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { addCommentAction, deleteCommentAction } from "@/app/actions/blog";
+import { addCommentAction, deleteCommentAction, toggleLikeCommentAction, recordCommentShareAction } from "@/app/actions/blog";
 import { toast } from "sonner";
+import { ShareModal } from "@/components/ui/modal/share_modal";
 
 interface Comment {
     id: number;
@@ -17,6 +19,11 @@ interface Comment {
         name: string | null;
         username: string;
     };
+    isLikedByCurrentUser?: boolean;
+    _count?: {
+        likes: number;
+        shares: number;
+    };
 }
 
 interface CommentSectionProps {
@@ -26,10 +33,29 @@ interface CommentSectionProps {
     isAdmin?: boolean;
 }
 
+const sortOptions = [
+    { label: "Newest", value: "newest" },
+    { label: "Most Liked", value: "likes" },
+];
+
 export const CommentSection = ({ blogId, comments: initialComments, currentUserId, isAdmin }: CommentSectionProps) => {
     const [comments, setComments] = useState(initialComments);
     const [commentText, setCommentText] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [sortCommentsBy, setSortCommentsBy] = useState("newest");
+
+    // Share modal state
+    const [sharingComment, setSharingComment] = useState<Comment | null>(null);
+
+    const sortedComments = useMemo(() => {
+        const list = [...comments];
+        if (sortCommentsBy === "newest") {
+            list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        } else if (sortCommentsBy === "likes") {
+            list.sort((a, b) => (b._count?.likes ?? 0) - (a._count?.likes ?? 0));
+        }
+        return list;
+    }, [comments, sortCommentsBy]);
 
     const handlePublish = async () => {
         if (!commentText.trim()) return;
@@ -48,7 +74,9 @@ export const CommentSection = ({ blogId, comments: initialComments, currentUserI
                         id: currentUserId!,
                         name: "You",
                         username: "you"
-                    }
+                    },
+                    isLikedByCurrentUser: false,
+                    _count: { likes: 0, shares: 0 },
                 },
                 ...comments
             ]);
@@ -68,15 +96,68 @@ export const CommentSection = ({ blogId, comments: initialComments, currentUserI
         }
     };
 
+    const handleToggleLike = async (commentId: number) => {
+        if (!currentUserId) {
+            toast.error("Please log in to like comments");
+            return;
+        }
+
+        const comment = comments.find(c => c.id === commentId);
+        if (!comment) return;
+
+        const result: any = await toggleLikeCommentAction(commentId, blogId);
+        if (result.success && result.liked !== undefined) {
+            setComments(comments.map(c => 
+                c.id === commentId 
+                    ? { 
+                        ...c, 
+                        isLikedByCurrentUser: result.liked,
+                        _count: {
+                            likes: (c._count?.likes ?? 0) + (result.liked ? 1 : -1),
+                            shares: c._count?.shares ?? 0,
+                        }
+                    } 
+                    : c
+            ));
+        } else if (!result.success) {
+            toast.error(result.error || "Failed to like comment");
+        }
+    };
+
+    const handleShare = (comment: Comment) => {
+        setSharingComment(comment);
+    };
+
+    const onCommentShareRecord = async (platform: string) => {
+        if (!sharingComment) return;
+        
+        await recordCommentShareAction(sharingComment.id, blogId, platform);
+        
+        // Update local state for share count
+        setComments(comments.map(c => 
+            c.id === sharingComment.id 
+                ? { 
+                    ...c, 
+                    _count: {
+                        likes: c._count?.likes ?? 0,
+                        shares: (c._count?.shares ?? 0) + 1,
+                    }
+                } 
+                : c
+        ));
+    };
+
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6 gap-4">
                 <h2 className="text-2xl font-medium text-gray-950">Comment</h2>
-                {/* Sort Dropdown as shown in image */}
-                <button className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-xl text-xs font-semibold text-gray-500 hover:bg-gray-50 transition-all">
-                    Sorted
-                    <ChevronDown size={14} />
-                </button>
+                <NuraSelect
+                    options={sortOptions}
+                    value={sortCommentsBy}
+                    onChange={setSortCommentsBy}
+                    placeholder="Sorted"
+                    className="w-40 shrink-0 shadow-sm"
+                />
             </div>
 
             {/* Comment Input Box */}
@@ -110,7 +191,7 @@ export const CommentSection = ({ blogId, comments: initialComments, currentUserI
 
             {/* Comments List */}
             <div className="space-y-8">
-                {comments.map((comment) => (
+                {sortedComments.map((comment) => (
                     <div key={comment.id} className="group animate-in fade-in slide-in-from-bottom-2 duration-500">
                         <div className="flex items-start justify-between mb-3">
                             <div className="flex items-center gap-2 text-[11px] font-medium">
@@ -133,18 +214,33 @@ export const CommentSection = ({ blogId, comments: initialComments, currentUserI
                             dangerouslySetInnerHTML={{ __html: comment.text }}
                         />
                         <div className="flex items-center gap-5 text-gray-400">
-                            <button className="flex items-center gap-1.5 hover:text-red-500 transition-colors text-[10px] font-medium">
-                                <Heart size={16} strokeWidth={1.5} />
-                                <span>67 likes</span>
+                            <button 
+                                onClick={() => handleToggleLike(comment.id)}
+                                className={`flex items-center gap-1.5 transition-colors text-[10px] font-medium ${comment.isLikedByCurrentUser ? 'text-red-500' : 'hover:text-red-500'}`}
+                            >
+                                <Heart size={16} strokeWidth={1.5} className={comment.isLikedByCurrentUser ? 'fill-current' : ''} />
+                                <span>{comment._count?.likes || 0} likes</span>
                             </button>
-                            <button className="flex items-center gap-1.5 hover:text-blue-500 transition-colors text-[10px] font-medium">
+                            <button 
+                                onClick={() => handleShare(comment)}
+                                className="flex items-center gap-1.5 hover:text-blue-500 transition-colors text-[10px] font-medium"
+                            >
                                 <Send size={16} strokeWidth={1.5} />
-                                <span>5 shares</span>
+                                <span>{comment._count?.shares || 0} shares</span>
                             </button>
                         </div>
                     </div>
                 ))}
             </div>
+
+            {/* Share Modal for Comments */}
+            <ShareModal
+                isOpen={!!sharingComment}
+                onClose={() => setSharingComment(null)}
+                shareUrl={typeof window !== 'undefined' && sharingComment ? `${window.location.origin}${window.location.pathname}#comment-${sharingComment.id}` : ""}
+                title="Share Comment"
+                onShare={onCommentShareRecord}
+            />
         </div>
     );
 };

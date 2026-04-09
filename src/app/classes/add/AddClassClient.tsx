@@ -85,8 +85,15 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const handleAddKeyword = () => {
-        if (keywordInput.trim() && !keywords.includes(keywordInput.trim())) {
-            setKeywords([...keywords, keywordInput.trim()]);
+        if (keywordInput.trim()) {
+            const newKeywords = keywordInput
+                .split(';')
+                .map(k => k.trim())
+                .filter(k => k && !keywords.includes(k));
+            
+            if (newKeywords.length > 0) {
+                setKeywords([...keywords, ...newKeywords]);
+            }
             setKeywordInput("");
         }
     };
@@ -144,6 +151,16 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
         }
         setLoading(true);
 
+        // Final keywords list including current input if not empty
+        let finalKeywords = [...keywords];
+        if (keywordInput.trim()) {
+            const pendingKeywords = keywordInput
+                .split(';')
+                .map(k => k.trim())
+                .filter(k => k && !finalKeywords.includes(k));
+            finalKeywords = [...finalKeywords, ...pendingKeywords];
+        }
+
         const data = {
             title,
             hours: hours ? Number(hours) : undefined,
@@ -154,13 +171,10 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
             methods,
             imgUrl,
             previewVideoUrl,
-            // Prefix trainers in keywords to store safely
-            keywords: [
-                ...keywords,
-                ...selectedTrainerIds.map(id => `trainer:${id}`)
-            ],
+            keywords: finalKeywords,
             curriculaIds: selectedCurriculaIds,
-            // Still use first trainer as the primary one for standard relations
+            trainerIds: selectedTrainerIds,
+            // Still set single trainerId for old relations/compatibility
             trainerId: selectedTrainerIds[0] || undefined,
         };
 

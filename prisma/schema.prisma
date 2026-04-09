@@ -21,7 +21,8 @@ model User {
   blogLikes            BlogLike[]
   blogs                Blog[]
   classFeedbacks       ClassFeedback[]
-  trainedClasses       Class[]               @relation("ClassTrainer")
+  trainedClasses       Class[]               @relation("ClassTrainers")
+  oldTrainedClasses    Class[]               @relation("ClassTrainer")
   createdCourses       Course[]              @relation("CourseCreator")
   discussionLikes      DiscussionLike[]
   discussionReplies    DiscussionReply[]
@@ -32,6 +33,12 @@ model User {
   reflections          Reflection[]
   createdSessions      Session[]             @relation("SessionCreator")
   trainerFeedbacks     TrainerFeedback[]     @relation("TrainerFeedbackReceiver")
+  groupSummaries       GroupSummary[]        @relation("GroupSummarySubmitter")
+  commentLikes         CommentLike[]
+  blogShares           BlogShare[]
+  commentShares        CommentShare[]
+  discussionShares     DiscussionShare[]
+  replyShares          DiscussionReplyShare[]
   role                 Role?                 @relation(fields: [roleId], references: [id])
 
   @@map("users")
@@ -53,6 +60,7 @@ model Session {
   assignments   Assignment[]
   reflections   Reflection[]
   ses           SES[]
+  groupSummaries GroupSummary[]
   course        Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
   user          User?        @relation("SessionCreator", fields: [createdBy], references: [id])
 
@@ -84,6 +92,7 @@ model Class {
   assignments       Assignment[]
   classFeedbacks    ClassFeedback[]
   trainer           User?             @relation("ClassTrainer", fields: [trainerId], references: [id])
+  trainers          User[]            @relation("ClassTrainers")
   courses           Course[]
   enrollments       Enrollment[]
   peerFeedbacks     PeerFeedback[]
@@ -394,6 +403,7 @@ model Discussion {
   deletedAt DateTime?
   likes     DiscussionLike[]
   replies   DiscussionReply[]
+  shares    DiscussionShare[]
   user      User              @relation(fields: [userId], references: [id])
 
   @@index([userId])
@@ -412,6 +422,7 @@ model DiscussionReply {
   discussion   Discussion            @relation(fields: [discussionId], references: [id], onDelete: Cascade)
   user         User                  @relation(fields: [userId], references: [id])
   likes        DiscussionReplyLike[]
+  shares       DiscussionReplyShare[]
 
   @@index([discussionId])
   @@index([userId])
@@ -440,6 +451,30 @@ model DiscussionReplyLike {
   @@id([replyId, userId])
   @@index([userId])
   @@map("discussion_reply_likes")
+}
+
+model DiscussionShare {
+  id           Int        @id @default(autoincrement())
+  discussionId Int
+  userId       Int?
+  platform     String?
+  createdAt    DateTime   @default(now())
+  discussion   Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+  user         User?      @relation(fields: [userId], references: [id])
+
+  @@map("discussion_shares")
+}
+
+model DiscussionReplyShare {
+  id        Int             @id @default(autoincrement())
+  replyId   Int
+  userId    Int?
+  platform  String?
+  createdAt DateTime        @default(now())
+  reply     DiscussionReply @relation(fields: [replyId], references: [id], onDelete: Cascade)
+  user      User?           @relation(fields: [userId], references: [id])
+
+  @@map("discussion_reply_shares")
 }
 
 model Role {
@@ -490,6 +525,7 @@ model Blog {
   comments    BlogComment[]
   likes       BlogLike[]
   views       BlogView[]
+  shares      BlogShare[]
   user        User          @relation(fields: [author], references: [id])
 
   @@map("blogs")
@@ -518,6 +554,8 @@ model BlogComment {
   deletedAt DateTime?
   blog      Blog      @relation(fields: [blogId], references: [id], onDelete: Cascade)
   user      User      @relation(fields: [userId], references: [id])
+  likes     CommentLike[]
+  shares    CommentShare[]
 
   @@map("blog_comments")
 }
@@ -531,6 +569,41 @@ model BlogLike {
 
   @@id([blogId, userId])
   @@map("blog_likes")
+}
+
+model BlogShare {
+  id        Int      @id @default(autoincrement())
+  blogId    Int
+  userId    Int?
+  platform  String?
+  createdAt DateTime @default(now())
+  blog      Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@map("blog_shares")
+}
+
+model CommentLike {
+  commentId Int
+  userId    Int
+  createdAt DateTime    @default(now())
+  comment   BlogComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      User        @relation(fields: [userId], references: [id])
+
+  @@id([commentId, userId])
+  @@map("comment_likes")
+}
+
+model CommentShare {
+  id        Int      @id @default(autoincrement())
+  commentId Int
+  userId    Int?
+  platform  String?
+  createdAt DateTime @default(now())
+  comment   BlogComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      User?       @relation(fields: [userId], references: [id])
+
+  @@map("comment_shares")
 }
 
 model LearnerAnalytics {
@@ -616,6 +689,7 @@ model ClassFeedback {
   enrollmentId                Int
   userId                      Int
   content                     String?
+  isEdited                    Boolean    @default(false)
   createdAt                   DateTime   @default(now())
   updatedAt                   DateTime   @updatedAt
   deletedAt                   DateTime?
@@ -685,4 +759,21 @@ enum SessionType {
   SESSION
   EXERCISE
   ASSIGNMENT
+}
+
+model GroupSummary {
+  id          Int       @id @default(autoincrement())
+  sessionId   Int
+  groupName   String
+  content     String
+  submittedBy Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  session     Session   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user        User      @relation("GroupSummarySubmitter", fields: [submittedBy], references: [id])
+
+  @@unique([sessionId, groupName])
+  @@map("group_summaries")
 }

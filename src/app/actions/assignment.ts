@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache"
 import { requirePermission } from "@/lib/rbac"
 import { prisma } from "@/lib/prisma"
 import { uploadToSupabase } from "@/lib/storage"
+import { sendMail } from "@/lib/mailer"
 
 export async function submitTest(formData: FormData) {
     const assignmentId = parseInt(formData.get("assignmentId") as string)
@@ -255,5 +256,96 @@ export async function uploadAssignmentFile(formData: FormData) {
             name: null,
             size: null
         };
+    }
+}
+
+export async function startAssignmentAction(assignmentId: number) {
+    try {
+        await requirePermission('Assignment', 'START_ASSIGNMENT_INSTRUCTOR');
+
+        const assignment = await prisma.assignment.findUnique({
+            where: { id: assignmentId },
+            include: { class: true }
+        });
+
+        if (!assignment) {
+            return { success: false, error: "Assignment not found" };
+        }
+
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+
+        await prisma.assignment.update({
+            where: { id: assignmentId },
+            data: { startDate: now }
+        });
+
+        // Notify enrolled learners when assignment is started
+        if (assignment.classId) {
+            const enrollments = await prisma.enrollment.findMany({
+                where: { classId: assignment.classId, status: 'ACTIVE', deletedAt: null },
+                include: { user: { select: { email: true, name: true } } }
+            });
+
+            const emailTasks = enrollments.map(async (e) => {
+                if (e.user.email) {
+                    await sendMail({
+                        to: e.user.email,
+                        subject: `Penugasan Tersedia: ${assignment.title || 'Tugas Baru'}`,
+                        html: `
+                            <h1>Halo, ${e.user.name || 'Peserta'}!</h1>
+                            <p>Terdapat penugasan baru yang telah dimulai di kelas <strong>${assignment.class?.title}</strong>.</p>
+                            <p><strong>Judul Penugasan:</strong> ${assignment.title || 'Tugas Baru'}</p>
+                            <p>Silakan segera login ke sistem untuk melihat detail tugas dan instruksi pengerjaannya.</p>
+                            <p><a href="${process.env.NEXT_PUBLIC_APP_URL || ''}/assignment/${assignment.id}" style="display:inline-block;background:#0070f3;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">Lihat Tugas</a></p>
+                        `
+                    }).catch(err => console.error(`Failed to send start assignment notification to ${e.user.email}:`, err));
+                }
+            });
+            Promise.all(emailTasks);
+        }
+
+        // Sync timeline if applicable
+        if (assignment.classId && (assignment.type === 'PLACEMENT' || assignment.type === 'PROJECT')) {
+            const searchTerms = assignment.type === 'PLACEMENT' 
+                ? ["placement test"] 
+                : ["project", "final project"];
+            
+            const timelineEntry = await prisma.timeline.findFirst({
+                where: {
+                    classId: assignment.classId,
+                    activity: {
+                        contains: searchTerms[0],
+                        mode: 'insensitive'
+                    },
+                    AND: {
+                        activity: {
+                            contains: "start",
+                            mode: 'insensitive'
+                        }
+                    }
+                }
+            });
+
+            if (timelineEntry) {
+                await prisma.timeline.update({
+                    where: { id: timelineEntry.id },
+                    data: { date: now }
+                });
+            }
+        }
+
+        if (assignment.classId) {
+            revalidatePath(`/classes/${assignment.classId}/overview`);
+            revalidatePath(`/classes/${assignment.classId}/test`);
+        }
+        revalidatePath(`/assignment`);
+        revalidatePath(`/assignment/${assignmentId}`);
+        revalidatePath(`/assignment/${assignmentId}/questions`);
+
+        return { success: true };
+    } catch (error: any) {
+        console.error("Start assignment error:", error);
+        return { success: false, error: error.message };
     }
 }

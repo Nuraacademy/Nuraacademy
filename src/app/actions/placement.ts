@@ -17,7 +17,7 @@ export async function updateThresholdsAction(classId: number, thresholds: { cour
 
 export async function assignGroupsAction(classId: number, assignments: { enrollmentId: number, groupName: string | null }[]) {
     try {
-        await requirePermission('GroupMapping', 'CREATE');
+        await requirePermission('Enrollment', 'CREATE_GROUP_MAPPING');
         await assignLearnerGroups(classId, assignments);
         revalidatePath(`/classes/${classId}/placement/learner-group`);
         revalidatePath(`/classes/${classId}/placement/create-group`);

@@ -15,8 +15,8 @@ export async function getSidebarData() {
         });
         const roleName = user?.role?.name || "";
         const isLearner = roleName === 'Learner';
-        const isStaff = ['Trainer', 'Instructor', 'Instructur', 'Learning Designer'].includes(roleName);
-        const isAdmin = roleName === 'Admin';
+        const isStaff = ['Trainer', 'Instructor', 'Instructur'].includes(roleName);
+        const isAdmin = ['Admin', 'Learning Designer'].includes(roleName);
 
         // 2. Fetch Classes (Assigned for Staff, Enrolled for Learners)
         let myClassesRaw = [];
@@ -44,7 +44,7 @@ export async function getSidebarData() {
             // Staff see their assigned classes
             const classFilter = {
                 OR: [
-                    { trainerId: userId },
+                    { trainers: { some: { id: userId } } },
                     { createdBy: userId },
                     { courses: { some: { createdBy: userId } } },
                     { courses: { some: { sessions: { some: { createdBy: userId } } } } }
@@ -137,7 +137,7 @@ export async function getSidebarData() {
             // Admin/Staff see all relevant ungraded assignments (simplified for sidebar)
             const classFilter = isAdmin ? {} : (isStaff ? {
                 OR: [
-                    { trainerId: userId },
+                    { trainers: { some: { id: userId } } },
                     { createdBy: userId },
                     { courses: { some: { createdBy: userId } } },
                     { courses: { some: { sessions: { some: { createdBy: userId } } } } }

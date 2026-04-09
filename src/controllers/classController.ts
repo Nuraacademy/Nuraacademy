@@ -34,7 +34,7 @@ export async function getClassById(id: number) {
             where: { deletedAt: null },
             orderBy: { date: 'asc' },
         },
-        trainer: {
+        trainers: {
             select: { id: true, name: true, username: true, role: { select: { name: true } } }
         },
         courses: {
@@ -54,6 +54,9 @@ export async function getClassById(id: number) {
                 }
             }
         },
+        curricula: {
+            where: { deletedAt: null }
+        },
     };
 
     const classData = (await prisma.class.findFirst({
@@ -66,29 +69,7 @@ export async function getClassById(id: number) {
 
     if (!classData) return null;
 
-    // Extract additional trainers from keywords
-    const keywordTrainerIds = classData.keywords
-        .filter(k => k.startsWith('trainer:'))
-        .map(k => parseInt(k.replace('trainer:', '')))
-        .filter(id => !isNaN(id));
-
-    // Ensure the primary trainerId is also in the list
-    if (classData.trainerId && !keywordTrainerIds.includes(classData.trainerId)) {
-        keywordTrainerIds.push(classData.trainerId);
-    }
-
-    let trainersList: any[] = [];
-    if (keywordTrainerIds.length > 0) {
-        trainersList = await prisma.user.findMany({
-            where: { id: { in: keywordTrainerIds }, deletedAt: null },
-            select: { id: true, name: true, username: true, role: { select: { name: true } } }
-        });
-    }
-
-    return {
-        ...classData,
-        trainers: trainersList
-    };
+    return classData;
 }
 
 export async function createClass(data: {
@@ -105,14 +86,31 @@ export async function createClass(data: {
     curriculaIds?: number[];
     isDraft?: boolean;
     createdBy?: number;
-    trainerId?: number;
+    trainerIds?: number[];
 }) {
-    const { curriculaIds, ...rest } = data;
+    const existingClass = await prisma.class.findFirst({
+        where: {
+            title: {
+                equals: data.title,
+                mode: 'insensitive'
+            },
+            deletedAt: null
+        }
+    });
+
+    if (existingClass) {
+        throw new Error("Class name already exists");
+    }
+
+    const { curriculaIds, trainerIds, ...rest } = data;
     return await prisma.class.create({
         data: {
             ...rest,
             curricula: curriculaIds ? {
                 connect: curriculaIds.map(id => ({ id }))
+            } : undefined,
+            trainers: trainerIds ? {
+                connect: trainerIds.map(id => ({ id }))
             } : undefined
         },
     });
@@ -134,15 +132,35 @@ export async function updateClass(id: number, data: {
     keywords?: string[];
     curriculaIds?: number[];
     isDraft?: boolean;
-    trainerId?: number;
+    trainerIds?: number[];
 }) {
-    const { curriculaIds, ...rest } = data;
+    if (data.title) {
+        const existingClass = await prisma.class.findFirst({
+            where: {
+                title: {
+                    equals: data.title,
+                    mode: 'insensitive'
+                },
+                id: { not: id },
+                deletedAt: null
+            }
+        });
+
+        if (existingClass) {
+            throw new Error("Class name already exists");
+        }
+    }
+
+    const { curriculaIds, trainerIds, ...rest } = data;
     return await prisma.class.update({
         where: { id },
         data: {
             ...rest,
             curricula: curriculaIds ? {
                 set: curriculaIds.map(id => ({ id }))
+            } : undefined,
+            trainers: trainerIds ? {
+                set: trainerIds.map(id => ({ id }))
             } : undefined
         },
     });

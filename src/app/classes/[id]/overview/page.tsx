@@ -1,4 +1,5 @@
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
+import { NuraButton } from "@/components/ui/button/button";
 import { getClassById } from "@/controllers/classController";
 import { getPlacementTestByClassId, getAssignmentResult, getProjectAssignmentsByClassId } from "@/controllers/assignmentController";
 import { getEnrollment } from "@/controllers/enrollmentController";
@@ -23,13 +24,15 @@ export default async function CourseOverviewPage({
     const canCreateCourse = await hasPermission('Course', 'CREATE_COURSE');
     const canUpdateCourse = await hasPermission('Course', 'UPDATE_COURSE');
     const canCreatePlacement = await hasPermission('Class', 'PLACEMENT_TEST_CREATE');
+    const canCreateAssignment = await hasPermission('Assignment', 'CREATE_UPDATE_ASSIGNMENT');
     const canViewFeedbackReport = await hasPermission('Feedback', 'VIEW_DETAIL_REFLECTION');
     const canViewClassAnalytics = await hasPermission('Analytics', 'ANALYTICS_REPORT_TRAINER');
     const canViewLearnerAnalytics = await hasPermission('Analytics', 'ANALYTICS_REPORT_LEARNER');
     const canEditClass = await hasPermission('Class', 'CREATE_UPDATE_CLASS');
+    const canViewCurricula = await hasPermission('Class', 'SEARCH_VIEW_CURRICULA');
 
     const session = await getFullSession();
-    const isLearner = session?.role === 'Learner';
+    const isLearner = !session || session.role === 'Learner';
 
     // Fetch live class data
     const classData = await getClassById(parseInt(id)) as any;
@@ -46,13 +49,34 @@ export default async function CourseOverviewPage({
 
     // Check placement test status for enrolled students
     let isPlacementTestFinished = false;
+    let priorityCourseIds: number[] = [];
     if (isEnrolled && enrollment && placementTest) {
-        const testResult = await getAssignmentResult(placementTest.id, enrollment.id);
+        const testResult = await getAssignmentResult(placementTest.id, enrollment.id, true);
         isPlacementTestFinished = !!testResult?.finishedAt;
+
+        if (isPlacementTestFinished && testResult?.assignmentItemResults) {
+            const itemResults = testResult.assignmentItemResults;
+
+            for (const course of classData.courses || []) {
+                const learnerScore = itemResults
+                    .filter((ir: any) => ir.assignmentItem?.courseId === course.id)
+                    .reduce((acc: number, ir: any) => acc + (ir.score || 0), 0);
+
+                const threshold = course.threshold;
+                const isPassed = threshold !== null && threshold !== undefined && learnerScore >= parseFloat(threshold);
+
+                if (threshold !== null && threshold !== undefined && !isPassed) {
+                    priorityCourseIds.push(course.id);
+                }
+            }
+        }
     }
 
     // Fetch PROJECT assignments for this class
     const projectAssignments = await getProjectAssignmentsByClassId(parseInt(id));
+
+    const finalProjectTimeline = classData.timelines?.find((t: any) => t.activity.toLowerCase().includes("final project"));
+    const finalProjectStartDate = finalProjectTimeline?.date ? new Date(finalProjectTimeline.date) : null;
 
     // Fallback image if none provided
     const imageUrl = classData.imgUrl || "https://www.lackawanna.edu/wp-content/uploads/2024/08/male-tutor-teaching-university-students-in-classro-2023-11-27-05-16-59-utc.webp";
@@ -124,7 +148,7 @@ export default async function CourseOverviewPage({
                             </div>
                             <div>
                                 <p className="text-sm mb-0.5">Schedules</p>
-                                <p>{classData.startDate ? new Date(classData.startDate).toLocaleDateString() : 'TBA'} - {classData.endDate ? new Date(classData.endDate).toLocaleDateString() : 'TBA'}</p>
+                                <p>{classData.startDate ? new Date(classData.startDate).toLocaleDateString(undefined, { timeZone: 'UTC' }) : 'TBA'} - {classData.endDate ? new Date(classData.endDate).toLocaleDateString(undefined, { timeZone: 'UTC' }) : 'TBA'}</p>
                             </div>
                         </div>
 
@@ -135,7 +159,7 @@ export default async function CourseOverviewPage({
                         </div>
 
                         {/* Enroll Button */}
-                        {(!isEnrolled && !canCreateCourse) && (
+                        {(!isEnrolled && isLearner) && (
                             <div className="mt-5">
                                 <EnrollButton classId={id} />
                             </div>
@@ -211,6 +235,11 @@ export default async function CourseOverviewPage({
                         {/* Instructor & Trainer Section */}
                         {(() => {
                             const trainersMap = new Map();
+                            // Support multiple trainers from new schema
+                            classData.trainers?.forEach((t: any) => {
+                                trainersMap.set(t.id, { ...t, isMain: true });
+                            });
+                            // Support single trainer from old schema (fallback)
                             if (classData.trainer) {
                                 trainersMap.set(classData.trainer.id, { ...classData.trainer, isMain: true });
                             }
@@ -277,7 +306,7 @@ export default async function CourseOverviewPage({
                         {/* Feedback & Analytics Buttons */}
                         <div className="flex flex-col gap-3">
                             {((isLearner && isEnrolled) || (!isLearner && canViewFeedbackReport)) && (
-                                <FeedbackButton classId={id} isLearner={isLearner} />
+                                <FeedbackButton classId={id} isLearner={isLearner} finalProjectStartDate={finalProjectStartDate} />
                             )}
                             {((isLearner && isEnrolled) || (!isLearner && (canViewClassAnalytics || canViewLearnerAnalytics))) && (
                                 <AnalyticsButton
@@ -286,6 +315,19 @@ export default async function CourseOverviewPage({
                                     canViewClassAnalytics={canViewClassAnalytics}
                                     canViewLearnerAnalytics={canViewLearnerAnalytics}
                                 />
+                            )}
+                            {canViewCurricula && classData.curricula?.length > 0 && (
+                                <div className="flex flex-col gap-3">
+                                    {classData.curricula.map((cur: any) => (
+                                        <NuraButton
+                                            key={cur.id}
+                                            label={classData.curricula.length > 1 ? `View Curricula: ${cur.title}` : "View Curricula"}
+                                            href={`/curricula/${cur.id}`}
+                                            leftIcon={<Image src="/icons/Curricula.svg" alt="Curricula" width={20} height={20} />}
+                                            variant="primary"
+                                        />
+                                    ))}
+                                </div>
                             )}
                         </div>
                     </aside>
@@ -316,9 +358,13 @@ export default async function CourseOverviewPage({
                                 classId={id}
                                 initialCourses={classData.courses || []}
                                 projectAssignments={projectAssignments || []}
+                                curricula={classData.curricula || []}
                                 canCreateCourse={canCreateCourse}
+                                canCreateAssignment={canCreateAssignment}
                                 canUpdateCourse={canUpdateCourse}
+                                canViewCurricula={canViewCurricula}
                                 isLearner={isLearner}
+                                priorityCourseIds={priorityCourseIds}
                             />
                         </div>
                     </section>

@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { Clock, ChevronLeft, ChevronRight, Download, FileText } from "lucide-react"
+import { useEffect, useState, useRef } from "react"
+import { Clock, ChevronLeft, ChevronRight, Download, FileText, X } from "lucide-react"
 import { NuraButton } from "@/components/ui/button/button"
 import { RichTextInput } from "@/components/ui/input/rich_text_input"
 import FileUploadModal from "@/components/ui/modal/file_upload_modal"
@@ -24,25 +24,31 @@ import TitleCard from "../ui/card/title_card"
 type TestRunnerProps = {
   classId: string
   assignmentId: number
-  enrollmentId: number
-  objectiveQuestions: ObjectiveQuestion[]
-  essayQuestions: EssayQuestion[]
-  projectQuestions: ProjectQuestion[]
+  enrollmentId?: number
+  userName?: string
+  objectiveQuestions: any[]
+  essayQuestions: any[]
+  projectQuestions: any[]
   testData: TestData
   pageText: PageText
-  userName?: string
   autoStart?: boolean
   finished?: boolean
   initialScore?: number
-  showBanner?: boolean
   feedback?: string
+  isPlacement?: boolean
+  assignmentType?: string
   problemUnderstanding?: number
   technicalAbility?: number
   solutionQuality?: number
   problemUnderstandingFeedback?: string
   technicalAbilityFeedback?: string
   solutionQualityFeedback?: string
-  assignmentType?: string
+  objectiveScore?: number
+  maxObjectiveScore?: number
+  essayScore?: number
+  maxEssayScore?: number
+  projectScore?: number
+  maxProjectScore?: number
 }
 
 export function TestRunner({
@@ -58,15 +64,21 @@ export function TestRunner({
   autoStart = false,
   finished = false,
   initialScore,
-  showBanner = true,
   feedback,
+  isPlacement = false,
+  assignmentType,
   problemUnderstanding,
   technicalAbility,
   solutionQuality,
   problemUnderstandingFeedback,
   technicalAbilityFeedback,
   solutionQualityFeedback,
-  assignmentType,
+  objectiveScore,
+  maxObjectiveScore,
+  essayScore,
+  maxEssayScore,
+  projectScore,
+  maxProjectScore,
 }: TestRunnerProps) {
   const STORAGE_KEY = `test_progress_${assignmentId}_${enrollmentId}`
 
@@ -75,6 +87,7 @@ export function TestRunner({
   const [isFinished, setIsFinished] = useState(finished)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isTimeoutModalOpen, setIsTimeoutModalOpen] = useState(false)
   const [totalScore, setTotalScore] = useState<number | null>(initialScore ?? null)
   const [timeLeft, setTimeLeft] = useState(testData.durationMinutes * 60)
   const [currentType, setCurrentType] = useState<QuestionType>(
@@ -163,13 +176,14 @@ export function TestRunner({
     }
   }
 
-  const handleConfirmSubmit = async () => {
+  const handleConfirmSubmit = async (isAutoSubmit: boolean = false) => {
     setIsSubmitting(true)
+    setIsModalOpen(false)
 
     try {
       const formData = new FormData()
       formData.append("assignmentId", assignmentId.toString())
-      formData.append("enrollmentId", enrollmentId.toString())
+      if (enrollmentId) formData.append("enrollmentId", enrollmentId.toString())
       formData.append("classId", classId)
       formData.append("startedAt", (startTime || new Date()).toISOString())
 
@@ -198,9 +212,8 @@ export function TestRunner({
 
       if (response.success) {
         cleanupStorage()
-        setIsModalOpen(false)
-        if (assignmentType === "PROJECT") {
-          window.location.href = `/classes/${classId}/feedback`
+        if (isAutoSubmit) {
+          setIsTimeoutModalOpen(true)
         } else {
           window.location.reload()
         }
@@ -215,6 +228,8 @@ export function TestRunner({
     }
   }
 
+  const isAutoSubmittingRef = useRef(false)
+
   useEffect(() => {
     if (!hasStarted || isFinished || testData.durationMinutes === 0) return
 
@@ -222,7 +237,6 @@ export function TestRunner({
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer)
-          handleConfirmSubmit()
           return 0
         }
         return prev - 1
@@ -231,6 +245,14 @@ export function TestRunner({
 
     return () => clearInterval(timer)
   }, [hasStarted, isFinished, startTime, testData.durationMinutes])
+
+  useEffect(() => {
+    if (timeLeft === 0 && hasStarted && !isFinished && testData.durationMinutes > 0 && !isAutoSubmittingRef.current) {
+      isAutoSubmittingRef.current = true
+      handleConfirmSubmit(true)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeLeft, hasStarted, isFinished, testData.durationMinutes])
 
   const getUnansweredCount = () => {
     let count = 0
@@ -411,7 +433,7 @@ export function TestRunner({
   )
 
   const renderObjectiveContent = () => (
-    <section className="flex-1">
+    <section className="min-w-0 flex-1">
       <div className="flex justify-between items-center text-xs text-gray-600 mb-6">
         <span className="font-semibold">{pageText.contentObjective}</span>
         <span>
@@ -429,7 +451,7 @@ export function TestRunner({
       />
 
       <div className="space-y-3">
-        {currentObjective.options.map((opt, optIndex) => {
+        {currentObjective.options.map((opt: string, optIndex: number) => {
           const isSelected = objectiveAnswers[currentObjective.id] === opt
           return (
             <button
@@ -455,7 +477,7 @@ export function TestRunner({
     if (!currentEssay) return null
     const attachedFile = essayFiles[currentEssay.id]
     return (
-      <section className="flex-1">
+      <section className="min-w-0 flex-1">
         <div className="flex justify-between items-center text-xs text-gray-600 mb-6">
           <span className="font-semibold">{pageText.contentEssay}</span>
           <span>
@@ -493,7 +515,24 @@ export function TestRunner({
             onClick={() => setIsEssayUploadModalOpen(true)}
           />
           {attachedFile && (
-            <p className="text-xs text-gray-600 mt-2">Attached: {attachedFile.name}</p>
+            <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-gray-600">
+              <span>Attached: {attachedFile.name}</span>
+              <button
+                type="button"
+                onClick={() =>
+                  setEssayFiles((prev) => {
+                    const next = { ...prev }
+                    delete next[currentEssay.id]
+                    return next
+                  })
+                }
+                className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-red-600 hover:bg-red-50 hover:text-red-700 font-medium transition-colors"
+                aria-label="Remove attachment"
+              >
+                <X size={14} aria-hidden />
+                Remove
+              </button>
+            </div>
           )}
         </div>
       </section>
@@ -504,7 +543,7 @@ export function TestRunner({
     if (!currentProject) return null
     const attachedFile = projectFiles[currentProject.id]
     return (
-      <section className="flex-1">
+      <section className="min-w-0 flex-1">
         <div className="flex justify-between items-center text-xs text-gray-600 mb-6">
           <span className="font-semibold">{pageText.contentProject}</span>
           <span>
@@ -553,10 +592,10 @@ export function TestRunner({
         )}
 
         <ul className="list-none space-y-2 mb-6">
-          {currentProject.requirements.map((req, index) => (
+          {currentProject.requirements.map((req: string, index: number) => (
             <li key={index} className="text-sm text-gray-900 leading-relaxed">
               <span className="font-semibold">{String.fromCharCode(97 + index)}.</span>{" "}
-              {req.split("\n").map((line, lineIndex) => (
+              {req.split("\n").map((line: string, lineIndex: number) => (
                 <span key={lineIndex}>
                   {lineIndex > 0 && <br />}
                   {line.trim().startsWith("•") ? (
@@ -591,7 +630,24 @@ export function TestRunner({
             onClick={() => setIsProjectUploadModalOpen(true)}
           />
           {attachedFile && (
-            <p className="text-xs text-gray-600 mt-2">Attached: {attachedFile.name}</p>
+            <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-gray-600">
+              <span>Attached: {attachedFile.name}</span>
+              <button
+                type="button"
+                onClick={() =>
+                  setProjectFiles((prev) => {
+                    const next = { ...prev }
+                    delete next[currentProject.id]
+                    return next
+                  })
+                }
+                className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-red-600 hover:bg-red-50 hover:text-red-700 font-medium transition-colors"
+                aria-label="Remove attachment"
+              >
+                <X size={14} aria-hidden />
+                Remove
+              </button>
+            </div>
           )}
         </div>
       </section>
@@ -656,6 +712,8 @@ export function TestRunner({
       {isFinished ? (
         <FinishedCard
           classId={classId}
+          assignmentId={assignmentId}
+          enrollmentId={enrollmentId}
           testData={testData}
           pageText={pageText}
           userName={userName}
@@ -667,6 +725,13 @@ export function TestRunner({
           problemUnderstandingFeedback={problemUnderstandingFeedback}
           technicalAbilityFeedback={technicalAbilityFeedback}
           solutionQualityFeedback={solutionQualityFeedback}
+          isPlacement={isPlacement}
+          objectiveScore={objectiveScore}
+          maxObjectiveScore={maxObjectiveScore}
+          essayScore={essayScore}
+          maxEssayScore={maxEssayScore}
+          projectScore={projectScore}
+          maxProjectScore={maxProjectScore}
         />
       ) : hasStarted ? (
         renderTestCard()
@@ -676,7 +741,7 @@ export function TestRunner({
 
       <ConfirmModal
         isOpen={isModalOpen}
-        onConfirm={handleConfirmSubmit}
+        onConfirm={() => handleConfirmSubmit(false)}
         isLoading={isSubmitting}
         onCancel={() => setIsModalOpen(false)}
         title="Submit Test?"
@@ -687,6 +752,23 @@ export function TestRunner({
         }
         confirmText="Submit Test"
         cancelText="Cancel"
+      />
+
+      <ConfirmModal
+        isOpen={isTimeoutModalOpen}
+        onConfirm={() => {
+          setIsTimeoutModalOpen(false)
+          if (assignmentType === "PROJECT") {
+            window.location.href = `/classes/${classId}/feedback`
+          } else {
+            window.location.reload()
+          }
+        }}
+        onCancel={() => {}}
+        title="Waktu Habis"
+        message="Waktu test telah habis, jawaban anda otomatis tersubmit"
+        confirmText="Tutup"
+        hideCancel={true}
       />
 
       <FileUploadModal

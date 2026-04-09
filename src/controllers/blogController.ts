@@ -23,7 +23,8 @@ export const getBlogs = async (options: { skip?: number, take?: number, search?:
             _count: {
                 select: {
                     likes: true,
-                    comments: true
+                    comments: true,
+                    shares: true
                 }
             }
         },
@@ -36,7 +37,7 @@ export const getBlogs = async (options: { skip?: number, take?: number, search?:
 };
 
 export const getBlogById = async (id: number, currentUserId?: number) => {
-    return await prisma.blog.findUnique({
+    const blog = await prisma.blog.findUnique({
         where: { id, deletedAt: null },
         include: {
             user: {
@@ -55,21 +56,45 @@ export const getBlogById = async (id: number, currentUserId?: number) => {
                             name: true,
                             username: true
                         }
-                    }
+                    },
+                    likes: true,
+                    shares: true
                 },
                 orderBy: {
                     createdAt: 'desc'
                 }
             },
             likes: true,
+            shares: true,
             _count: {
                 select: {
                     likes: true,
-                    comments: true
+                    comments: true,
+                    shares: true
                 }
             }
         }
     });
+
+    if (!blog) return null;
+
+    // Check if liked/shared by current user
+    const isLikedByCurrentUser = currentUserId ? blog.likes.some(l => l.userId === currentUserId) : false;
+    const isSharedByCurrentUser = currentUserId ? blog.shares.some(s => s.userId === currentUserId) : false;
+
+    return {
+        ...blog,
+        isLikedByCurrentUser,
+        isSharedByCurrentUser,
+        comments: blog.comments.map(comment => ({
+            ...comment,
+            isLikedByCurrentUser: currentUserId ? (comment as any).likes.some((l: any) => l.userId === currentUserId) : false,
+            _count: {
+                likes: (comment as any).likes.length,
+                shares: (comment as any).shares.length
+            }
+        }))
+    };
 };
 
 export const createBlog = async (data: {
@@ -163,10 +188,40 @@ export const deleteComment = async (commentId: number, userId: number, isAdmin: 
 
 export const trackBlogView = async (blogId: number, userId?: number, ip?: string, userAgent?: string) => {
     try {
-        return await (prisma as any).blogView.create({
+        return await prisma.blogView.create({
             data: { blogId, userId, ip, userAgent }
         });
     } catch {
         // Silently ignore if table doesn't exist yet (migration pending)
     }
+};
+
+export const recordBlogShare = async (blogId: number, userId?: number, platform?: string) => {
+    return await prisma.blogShare.create({
+        data: { blogId, userId, platform }
+    });
+};
+
+export const toggleLikeComment = async (commentId: number, userId: number) => {
+    const existingLike = await (prisma as any).commentLike.findUnique({
+        where: { commentId_userId: { commentId, userId } }
+    });
+
+    if (existingLike) {
+        await prisma.commentLike.delete({
+            where: { commentId_userId: { commentId, userId } }
+        });
+        return { liked: false };
+    } else {
+        await prisma.commentLike.create({
+            data: { commentId, userId }
+        });
+        return { liked: true };
+    }
+};
+
+export const recordCommentShare = async (commentId: number, userId?: number, platform?: string) => {
+    return await prisma.commentShare.create({
+        data: { commentId, userId, platform }
+    });
 };

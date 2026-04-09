@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, use } from "react";
-import { getBlogByIdAction, toggleLikeBlogAction, trackBlogViewAction, deleteBlogAction } from "@/app/actions/blog";
+import { getBlogByIdAction, toggleLikeBlogAction, trackBlogViewAction, deleteBlogAction, recordBlogShareAction } from "@/app/actions/blog";
 import { CommentSection } from "@/components/ui/blog/comment_section";
 import { getSession } from "@/app/actions/auth";
 import { hasPermission } from "@/lib/rbac";
@@ -62,6 +62,21 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
         }
     };
 
+    const handleShareRecord = async (platform: string) => {
+        if (!blog) return;
+        
+        await recordBlogShareAction(blog.id, platform);
+        
+        // Update local state
+        setBlog({
+            ...blog,
+            _count: {
+                ...blog._count,
+                shares: (blog._count.shares || 0) + 1
+            }
+        });
+    };
+
     const handleDelete = async () => {
         if (!blog) return;
         setIsDeleting(true);
@@ -106,8 +121,8 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
                 height={500}
             />
 
-            <div className="max-w-4xl mx-auto px-6 pt-6 md:pl-16 relative z-10">
-                <div className="w-full">
+            <div className="max-w-4xl mx-auto px-6 pt-6 md:pl-16 relative z-10 min-w-0">
+                <div className="w-full min-w-0">
                     <div className="mb-6">
                         <div className="scale-90 origin-left opacity-80">
                             <Breadcrumb items={breadcrumbItems} />
@@ -163,19 +178,19 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
                 )}
 
                 {/* Content */}
-                <div className="max-w-4xl mx-auto mb-16">
-                    <div className="space-y-8">
+                <div className="max-w-4xl mx-auto mb-16 min-w-0">
+                    <div className="space-y-8 min-w-0">
                         {typeof blog.content === "string" ? (
                             <div
-                                className="prose prose-p:text-gray-700 prose-p:leading-[1.7] prose-p:text-base max-w-none"
+                                className="prose prose-p:text-gray-700 prose-p:leading-[1.7] prose-p:text-base max-w-none min-w-0 w-full break-words [overflow-wrap:anywhere] [&_pre]:overflow-x-auto [&_code]:break-all"
                                 dangerouslySetInnerHTML={{ __html: blog.content.replace(/<p><\/p>/g, '<br />') }}
                             />
                         ) : (
                             (blog.content as any[]).map((section: any, idx: number) => (
-                                <div key={idx} className="animate-in fade-in duration-500">
+                                <div key={idx} className="animate-in fade-in duration-500 min-w-0">
                                     {section.type === "text" ? (
                                         <div
-                                            className="prose prose-p:text-gray-700 prose-p:leading-[1.7] prose-p:text-base max-w-none"
+                                            className="prose prose-p:text-gray-700 prose-p:leading-[1.7] prose-p:text-base max-w-none min-w-0 w-full break-words [overflow-wrap:anywhere] [&_pre]:overflow-x-auto [&_code]:break-all"
                                             dangerouslySetInnerHTML={{ __html: section.content.replace(/<p><\/p>/g, '<br />') }}
                                         />
                                     ) : (
@@ -206,7 +221,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
                             className="flex items-center gap-2 text-gray-500 hover:text-blue-500 transition-all"
                         >
                             <Send size={20} strokeWidth={1.5} />
-                            <span className="text-xs font-medium">{Math.floor((blog._count?.views || 0) / 4)} shares</span>
+                            <span className="text-xs font-medium">{blog._count?.shares || 0} shares</span>
                         </button>
                     </div>
                 </div>
@@ -217,6 +232,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
                     onClose={() => setIsShareModalOpen(false)}
                     shareUrl={typeof window !== 'undefined' ? window.location.href : ""}
                     title="Share Post"
+                    onShare={handleShareRecord}
                 />
 
                 {/* Delete Confirmation Modal */}

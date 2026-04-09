@@ -54,7 +54,7 @@ export default function LearnerGroupClient({
     const [newGroupName, setNewGroupName] = useState("");
 
     useEffect(() => {
-        hasPermission("GroupMapping", "CREATE").then(setCanManage);
+        hasPermission("Enrollment", "CREATE_GROUP_MAPPING").then(setCanManage);
     }, []);
 
     const handleGroupChange = (enrollmentId: number, value: string) => {

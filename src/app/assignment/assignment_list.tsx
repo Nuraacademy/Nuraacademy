@@ -16,9 +16,10 @@ interface AssignmentListProps {
     canAddAssignment: boolean;
     canDeleteAssignment: boolean;
     canGrade: boolean;
+    canStartAssignment?: boolean;
 }
 
-export default function AssignmentList({ initialAssignments, canAddAssignment, canDeleteAssignment, canGrade }: AssignmentListProps) {
+export default function AssignmentList({ initialAssignments, canAddAssignment, canDeleteAssignment, canGrade, canStartAssignment }: AssignmentListProps) {
     const [searchValue, setSearchValue] = useState("");
     const [assignmentType, setAssignmentType] = useState("all");
 
@@ -29,8 +30,9 @@ export default function AssignmentList({ initialAssignments, canAddAssignment, c
         const classMatch = assignment.class?.title?.toLowerCase().includes(query);
         const courseMatch = assignment.course?.title?.toLowerCase().includes(query);
         const sessionMatch = assignment.session?.title?.toLowerCase().includes(query);
+        const typeMatch = assignment.type?.toLowerCase().includes(query);
         
-        const matchesSearch = !searchValue || titleMatch || classMatch || courseMatch || sessionMatch;
+        const matchesSearch = !searchValue || titleMatch || classMatch || courseMatch || sessionMatch || typeMatch;
         const matchesType = assignmentType === "all" || assignment.type === assignmentType;
         return matchesSearch && matchesType;
     });
@@ -110,6 +112,7 @@ export default function AssignmentList({ initialAssignments, canAddAssignment, c
                             type={mapPrismaAssignmentType(assignment.type)}
                             isAdmin={canDeleteAssignment}
                             canGrade={canGrade}
+                            canStartAssignment={canStartAssignment}
                             syntheticType={(assignment as any).syntheticType}
                         />
                     ))}

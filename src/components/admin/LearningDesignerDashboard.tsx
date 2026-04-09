@@ -8,6 +8,7 @@ import AssignmentSection from './dashboard/AssignmentSection';
 
 interface DashboardProps {
     data: DashboardData;
+    permissions: Record<string, boolean>;
 }
 
 import { NuraButton } from '../ui/button/button';
@@ -15,7 +16,7 @@ import AnalyticsSection from './dashboard/AnalyticsSection';
 import InstructorSection from './dashboard/InstructorSection';
 import CurriculaSection from './dashboard/CurriculaSection';
 
-export default function LearningDesignerDashboard({ data }: DashboardProps) {
+export default function LearningDesignerDashboard({ data, permissions }: DashboardProps) {
     const router = useRouter();
 
     return (
@@ -39,7 +40,11 @@ export default function LearningDesignerDashboard({ data }: DashboardProps) {
                     {/* Left Column - 8 columns */}
                     <div className="lg:col-span-8 space-y-12">
                         {/* 1. Classes Section (Reusable) */}
-                        <ClassSection classes={data.classes} />
+                        <ClassSection 
+                            classes={data.classes} 
+                            canEditClass={permissions['Class_CREATE_UPDATE_CLASS']} 
+                            canDeleteClass={permissions['Class_DELETE_CLASS']} 
+                        />
 
                         {/* 2. Action Buttons & Split Area */}
                         <div className="grid grid-cols-1 md:grid-cols-12 gap-12">

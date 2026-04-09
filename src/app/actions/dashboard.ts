@@ -78,10 +78,10 @@ export async function getDashboardData() {
         return { success: false, error: "Unauthorized" };
     }
 
-    const isStaff = ['Trainer', 'Instructor', 'Instructur', 'Learning Designer'].includes(user.role?.name || '');
+    const isStaff = ['Trainer', 'Instructor', 'Instructur'].includes(user.role?.name || '');
     const classFilter = isStaff ? {
         OR: [
-            { trainerId: userId },
+            { trainers: { some: { id: userId } } },
             { createdBy: userId },
             { courses: { some: { createdBy: userId } } },
             { courses: { some: { sessions: { some: { createdBy: userId } } } } }
@@ -145,6 +145,11 @@ export async function getDashboardData() {
             id: true,
             name: true,
             username: true,
+            role: {
+                select: {
+                    name: true
+                }
+            }
         },
         take: 5
     });
@@ -242,7 +247,7 @@ export async function getDashboardData() {
                 id: t.id,
                 name: t.name || t.username,
                 username: t.username,
-                role: "Mentor", // Simplified for UI
+                role: t.role?.name || "Mentor",
                 image: null
             })),
             stats: {

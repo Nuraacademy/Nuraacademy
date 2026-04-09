@@ -116,9 +116,6 @@ export function PlacementTestButton({
     const isStarted = startDate ? new Date() >= new Date(startDate) : true;
     const isEnded = endDate ? new Date() > new Date(endDate) : false;
 
-    // For students, if not started and not finished, we hide the button entirely
-    const shouldHide = !isAdmin && !isFinished && !isStarted;
-
     const handleClick = () => {
         if (courseCount === 0) {
             setIsModalOpen(true)
@@ -134,17 +131,22 @@ export function PlacementTestButton({
         }
     }
 
-    if (shouldHide) return null;
-
     return (
         <div className="flex gap-4">
-            <NuraButton
-                label={isAdmin ? (courseCount > 0 ? "Edit Test" : "Create Test") : (isFinished ? "See Result" : "Start Test")}
-                variant="primary"
-                onClick={handleClick}
-                id="create-placement-test-btn"
-                disabled={!isAdmin && !isFinished && isEnded}
-            />
+            <div className="relative group flex items-center justify-center">
+                <NuraButton
+                    label={isAdmin ? (courseCount > 0 ? "Edit Test" : "Create Test") : (isFinished ? "See Result" : "Start Test")}
+                    variant="primary"
+                    onClick={handleClick}
+                    id="create-placement-test-btn"
+                    disabled={!isAdmin && !isFinished && (isEnded || !isStarted)}
+                />
+                {!isAdmin && !isFinished && !isStarted && (
+                    <div className="absolute -top-8 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                        placement test belum dimulai
+                    </div>
+                )}
+            </div>
             {isAdmin && (
                 <NuraButton
                     label="Mapping"
@@ -184,7 +186,7 @@ export function AddCourseButton({ classId }: { classId: string }) {
     return <NuraButton label="Add Course" variant="primary" onClick={() => router.push(`/classes/${classId}/course/add`)} />
 }
 
-export function CourseCard({ classId, course, isAdmin, isLearner }: { classId: string, course: any, isAdmin: boolean, isLearner: boolean }) {
+export function CourseCard({ classId, course, isAdmin, isLearner, isPriority }: { classId: string, course: any, isAdmin: boolean, isLearner: boolean, isPriority?: boolean }) {
     const router = useRouter()
     const [isDeleting, setIsDeleting] = useState(false)
     const [isConfirmOpen, setIsConfirmOpen] = useState(false)
@@ -210,7 +212,14 @@ export function CourseCard({ classId, course, isAdmin, isLearner }: { classId: s
             >
                 <div className="flex justify-between items-start">
                 <div>
-                    <h3 className="text-sm mb-1">{course.title}</h3>
+                    <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-sm">{course.title}</h3>
+                        {isPriority && (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 font-medium">
+                                Prioritas
+                            </span>
+                        )}
+                    </div>
                     <div className="text-xs line-clamp-2" dangerouslySetInnerHTML={{ __html: course.description }} />
                     </div>
                     {isAdmin && (
@@ -348,10 +357,24 @@ export function ProjectCard({ classId, assignment, isAdmin, isLearner }: { class
     )
 }
 
-export function FeedbackButton({ classId, isLearner }: { classId: string, isLearner: boolean }) {
+export function FeedbackButton({ 
+    classId, 
+    isLearner, 
+    finalProjectStartDate 
+}: { 
+    classId: string, 
+    isLearner: boolean, 
+    finalProjectStartDate?: Date | null 
+}) {
     const router = useRouter()
     
+    // Cek apakah periode feedback sudah dimulai
+    const isStarted = finalProjectStartDate ? new Date() >= new Date(finalProjectStartDate) : true;
+
     const handleClick = () => {
+        // Jika learner dan belum mulai, button tidak melakukan apa-apa (atau bisa dicegah di onClick)
+        if (isLearner && !isStarted) return;
+
         if (isLearner) {
             router.push(`/classes/${classId}/feedback`)
         } else {
@@ -360,12 +383,23 @@ export function FeedbackButton({ classId, isLearner }: { classId: string, isLear
     }
 
     return (
-        <NuraButton
-            label="Feedback"
-            variant="primary"
-            leftIcon={<Image src="/icons/Feedback.svg" alt="Feedback" width={20} height={20} />}
-            onClick={handleClick}
-        />
+        <div className="relative group flex items-center justify-center w-full">
+            <NuraButton
+                label="Feedback"
+                variant="primary"
+                leftIcon={<Image src="/icons/Feedback.svg" alt="Feedback" width={20} height={20} />}
+                onClick={handleClick}
+                // Menambahkan styling visual jika disabled
+                className={`w-full ${isLearner && !isStarted ? "opacity-50 cursor-not-allowed" : ""}`}                disabled={isLearner && !isStarted}
+            />
+            
+            {/* Tooltip: Hanya muncul jika isLearner dan periode belum dimulai */}
+            {isLearner && !isStarted && (
+                <div className="absolute -top-10 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                    Feedback tersedia setelah final project dimulai
+                </div>
+            )}
+        </div>
     )
 }
 

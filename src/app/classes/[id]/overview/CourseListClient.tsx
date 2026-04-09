@@ -1,4 +1,5 @@
 "use client";
+import { NuraButton } from "@/components/ui/button/button";
 
 import { useState } from "react";
 import { NuraSearchInput } from "@/components/ui/input/nura_search_input";
@@ -8,18 +9,26 @@ interface CourseListClientProps {
     classId: string;
     initialCourses: any[];
     projectAssignments: any[];
+    curricula: any[];
     canCreateCourse: boolean;
+    canCreateAssignment: boolean;
     canUpdateCourse: boolean;
+    canViewCurricula: boolean;
     isLearner: boolean;
+    priorityCourseIds?: number[];
 }
 
 export default function CourseListClient({
     classId,
     initialCourses,
     projectAssignments,
+    curricula,
     canCreateCourse,
+    canCreateAssignment,
     canUpdateCourse,
-    isLearner
+    canViewCurricula,
+    isLearner,
+    priorityCourseIds = []
 }: CourseListClientProps) {
     const [searchQuery, setSearchQuery] = useState("");
 
@@ -53,10 +62,10 @@ export default function CourseListClient({
                         <h2 className="text-lg">Courses & Curriculum</h2>
                         <p className="text-xs text-gray-400 font-medium mt-1">Explore modules and assignments in this class.</p>
                     </div>
-                    {canCreateCourse && (
+                    {(canCreateCourse || canCreateAssignment) && (
                         <div className="flex items-center gap-2">
-                            <AddCourseButton classId={classId} />
-                            <AddAssignmentButton classId={classId} />
+                            {canCreateCourse && <AddCourseButton classId={classId} />}
+                            {canCreateAssignment && <AddAssignmentButton classId={classId} />}
                         </div>
                     )}
                 </div>
@@ -87,6 +96,7 @@ export default function CourseListClient({
                             course={course}
                             isAdmin={canUpdateCourse}
                             isLearner={isLearner}
+                            isPriority={priorityCourseIds.includes(course.id)}
                         />
                     ))}
 

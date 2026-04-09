@@ -11,9 +11,10 @@ import AnalyticsSection from './dashboard/AnalyticsSection';
 
 interface DashboardProps {
     data: DashboardData;
+    permissions: Record<string, boolean>;
 }
 
-export default function AdminDashboard({ data }: DashboardProps) {
+export default function AdminDashboard({ data, permissions }: DashboardProps) {
     return (
         <div className="min-h-screen bg-[#F9F9EE] relative overflow-hidden ">
             {/* Background Decorative Elements */}
@@ -47,7 +48,11 @@ export default function AdminDashboard({ data }: DashboardProps) {
                     {/* Main Content Area - 8 columns */}
                     <div className="lg:col-span-8 space-y-12">
 
-                        <ClassSection classes={data.classes} />
+                        <ClassSection 
+                            classes={data.classes} 
+                            canEditClass={permissions['Class_CREATE_UPDATE_CLASS']} 
+                            canDeleteClass={permissions['Class_DELETE_CLASS']} 
+                        />
 
                         <TimelineSection schedule={data.schedule} />
 
@@ -60,7 +65,11 @@ export default function AdminDashboard({ data }: DashboardProps) {
 
                     {/* Sidebar Area - 4 columns */}
                     <div className="lg:col-span-4 space-y-12">
-                        <AssignmentSection assignments={data.assignments} />
+                        <AssignmentSection
+                            assignments={data.assignments}
+                            canGrade={true}
+                            isAdmin={true}
+                        />
                         <AnalyticsSection data={data.analytics} />
                     </div>
                 </div>

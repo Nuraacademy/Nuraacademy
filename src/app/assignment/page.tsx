@@ -10,11 +10,20 @@ export default async function AssignmentPage() {
     const isAdmin = await hasPermission('Assignment', 'CREATE_UPDATE_ASSIGNMENT');
     const canDeleteAssignment = await hasPermission('Assignment', 'DELETE_ASSIGNMENT');
     const canGrade = await hasPermission('Assignment', 'CHECK_ASSIGNMENT_RESULT');
+    const canStartAssignment = await hasPermission('Assignment', 'START_ASSIGNMENT_INSTRUCTOR');
     
     // Fetch assignments with automatic role-based filtering
     const assignments = await getAssignments(userId || undefined);
 
     const canAddAssignment = isAdmin;
 
-    return <AssignmentList initialAssignments={assignments} canAddAssignment={canAddAssignment} canDeleteAssignment={canDeleteAssignment} canGrade={canGrade} />;
+    return (
+        <AssignmentList 
+            initialAssignments={assignments} 
+            canAddAssignment={canAddAssignment} 
+            canDeleteAssignment={canDeleteAssignment} 
+            canGrade={canGrade} 
+            canStartAssignment={canStartAssignment}
+        />
+    );
 }

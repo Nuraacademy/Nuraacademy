@@ -48,7 +48,7 @@ export default async function RootLayout({
 
           <Toaster position="bottom-right" richColors />
 
-          <Footer instagram="www.google.com" youtube="www.youtube.com" x="www.x.com" />
+          <Footer instagram="www.instagram.com" youtube="www.youtube.com" x="www.x.com" />
         </NavigationProvider>
       </body>
     </html>

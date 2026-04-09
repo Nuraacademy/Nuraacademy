@@ -20,6 +20,7 @@ export async function getDiscussions({ skip = 0, take = 10 }: { skip?: number; t
                 select: {
                     replies: true,
                     likes: true,
+                    shares: true,
                 },
             },
         },
@@ -29,6 +30,7 @@ export async function getDiscussions({ skip = 0, take = 10 }: { skip?: number; t
         ...discussion,
         likeCount: discussion._count.likes,
         repliesCount: discussion._count.replies,
+        shareCount: discussion._count.shares,
         authorName: discussion.user.name || discussion.user.username,
     }));
 }
@@ -59,6 +61,7 @@ export async function getDiscussionById(id: number, currentUserId?: number) {
                     _count: {
                         select: {
                             likes: true,
+                            shares: true,
                         },
                     },
                 },
@@ -67,6 +70,7 @@ export async function getDiscussionById(id: number, currentUserId?: number) {
                 select: {
                     likes: true,
                     replies: true,
+                    shares: true,
                 },
             },
         },
@@ -91,12 +95,14 @@ export async function getDiscussionById(id: number, currentUserId?: number) {
         ...discussion,
         likeCount: discussion._count.likes,
         repliesCount: discussion._count.replies,
+        shareCount: discussion._count.shares,
         authorName: discussion.user.name || discussion.user.username,
         isLikedByCurrentUser,
         replies: discussion.replies.map(reply => ({
             ...reply,
             authorName: reply.user.name || reply.user.username,
             likeCount: reply._count.likes,
+            shareCount: reply._count.shares,
             isLikedByCurrentUser: currentUserId ? reply.likes.some(like => like.userId === currentUserId) : false,
         })),
     };
@@ -215,7 +221,7 @@ export async function editReply(id: number, text: string, userId: number, isAdmi
     const reply = await prisma.discussionReply.findUnique({ where: { id } });
     if (!reply) throw new Error("Reply not found");
 
-    if (!isAdmin && reply.userId !== userId) {
+    if (reply.userId !== userId) {
         throw new Error("Unauthorized to edit this reply");
     }
 
@@ -227,14 +233,33 @@ export async function editReply(id: number, text: string, userId: number, isAdmi
 
 // Delete a reply
 export async function deleteReply(id: number, userId: number, isAdmin: boolean) {
-    const reply = await prisma.discussionReply.findUnique({ where: { id } });
+    const reply = await prisma.discussionReply.findUnique({ 
+        where: { id },
+        include: { discussion: true }
+    });
     if (!reply) throw new Error("Reply not found");
 
-    if (!isAdmin && reply.userId !== userId) {
+    const isDiscussionAuthor = reply.discussion.userId === userId;
+
+    if (!isAdmin && reply.userId !== userId && !isDiscussionAuthor) {
         throw new Error("Unauthorized to delete this reply");
     }
 
     return prisma.discussionReply.delete({
         where: { id },
+    });
+}
+
+// Record a share for a discussion
+export async function recordDiscussionShare(discussionId: number, userId?: number, platform?: string) {
+    return prisma.discussionShare.create({
+        data: { discussionId, userId, platform },
+    });
+}
+
+// Record a share for a reply
+export async function recordReplyShare(replyId: number, userId?: number, platform?: string) {
+    return prisma.discussionReplyShare.create({
+        data: { replyId, userId, platform },
     });
 }

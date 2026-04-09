@@ -19,6 +19,7 @@ interface ClassCardProp {
     duration: number,
     courses: number,
     isEnrolled: boolean,
+    isLearner?: boolean,
     canEdit?: boolean,
     canDelete?: boolean,
     canViewAnalytics?: boolean,
@@ -26,7 +27,7 @@ interface ClassCardProp {
 }
 
 export default function ClassCard({
-    id, imageUrl, title, method, scheduleStart, scheduleEnd, description, duration, courses, isEnrolled, canEdit, canDelete, canViewAnalytics, onClick
+    id, imageUrl, title, method, scheduleStart, scheduleEnd, description, duration, courses, isEnrolled, isLearner, canEdit, canDelete, canViewAnalytics, onClick
 }: ClassCardProp) {
     const router = useNuraRouter();
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -173,7 +174,7 @@ export default function ClassCard({
                             <BarChart3 size={16} />
                         </button>
                     )}
-                    { !canEdit && (
+                    { !canEdit && (isEnrolled || isLearner) && (
                         <NuraButton
                             label={isEnrolled ? "View Class" : "Enroll Now"}
                             variant="navigate"

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -59,7 +59,7 @@ export const RichTextInput = ({
         editorProps: {
             attributes: {
                 class: cn(
-                    'prose prose-sm max-w-none focus:outline-none px-4 py-2.5 text-black leading-relaxed',
+                    'prose prose-sm max-w-none min-w-0 max-w-full break-words [overflow-wrap:anywhere] focus:outline-none px-4 py-2.5 text-black leading-relaxed',
                     `min-h-[${minHeight}]`
                 ),
                 style: `min-height: ${minHeight}`,
@@ -75,20 +75,29 @@ export const RichTextInput = ({
         }
     }, [value, editor]);
 
-    if (!isMounted || !editor) return <div className="bg-gray-50 rounded-xl animate-pulse border border-gray-200" style={{ height: minHeight }} />;
-
-    // Local Image Upload Logic
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
+    const handleFileChange = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+            const input = e.target;
+            const file = input.files?.[0];
+            if (!file || !editor) {
+                input.value = '';
+                return;
+            }
             const reader = new FileReader();
-            reader.onload = (event) => {
-                const url = event.target?.result as string;
+            reader.onload = () => {
+                const url = reader.result as string;
                 editor.chain().focus().setImage({ src: url }).run();
+                input.value = '';
+            };
+            reader.onerror = () => {
+                input.value = '';
             };
             reader.readAsDataURL(file);
-        }
-    };
+        },
+        [editor]
+    );
+
+    if (!isMounted || !editor) return <div className="bg-gray-50 rounded-xl animate-pulse border border-gray-200" style={{ height: minHeight }} />;
 
     const toggleLink = () => {
         const previousUrl = editor.getAttributes('link').href;
@@ -124,12 +133,12 @@ export const RichTextInput = ({
             <label className="block text-sm mb-2">{label}{required && <span className="text-red-500">*</span>}</label>
         )}
         <div className={cn(
-            "group w-full bg-white border border-gray-200 rounded-xl overflow-hidden transition-all focus-within:border-black focus-within:ring-1 focus-within:ring-black",
+            "group min-w-0 w-full overflow-hidden rounded-xl border border-gray-200 bg-white transition-all focus-within:border-black focus-within:ring-1 focus-within:ring-black",
             className
         )}>
             {/* Toolbar Area */}
             {!hideToolbar && (
-                <div className="flex items-center gap-1.5 px-3 py-2 border-b border-gray-100 bg-gray-50/30">
+                <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-1.5 border-b border-gray-100 bg-gray-50/30 px-3 py-2">
                     <MenuButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')}>
                         <Bold size={14} strokeWidth={3} />
                     </MenuButton>
@@ -148,21 +157,23 @@ export const RichTextInput = ({
                         <LinkIcon size={14} strokeWidth={3} />
                     </MenuButton>
 
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        className="sr-only"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        tabIndex={-1}
+                        aria-hidden
+                    />
                     <MenuButton onClick={() => fileInputRef.current?.click()} active={editor.isActive('image')}>
                         <ImageIcon size={14} strokeWidth={3} />
-                        <input 
-                            type="file" 
-                            ref={fileInputRef} 
-                            className="hidden" 
-                            accept="image/*" 
-                            onChange={handleFileChange} 
-                        />
                     </MenuButton>
                 </div>
             )}
 
-            {/* Editable Content */}
-            <div className="cursor-text">
+            {/* Editable: wrap long unbroken strings; optional x-scroll for unusually wide embeds */}
+            <div className="min-w-0 max-w-full cursor-text overflow-x-auto [&_.tiptap]:min-w-0 [&_.tiptap]:max-w-full [&_.ProseMirror]:min-w-0 [&_.ProseMirror]:max-w-full">
                 <EditorContent editor={editor} />
             </div>
         </div>
