@@ -146,15 +146,16 @@ export async function editDiscussionAction(id: number, title: string, content: s
         if (!discussion) return { success: false, error: "Discussion not found" };
 
         const isAuthor = discussion.userId === userId;
-        // CREATE_EDIT_TOPIC still covers both creating and editing self topics.
-        // If others want to edit, we refer to CREATE_EDIT_TOPIC as well or we could check a specific one.
-        // For now, let's stick to the tracker's CREATE_EDIT_TOPIC for topic editing.
-        const canEdit = await hasPermission('Forums', 'CREATE_EDIT_TOPIC');
-        
-        if (!isAuthor && !canEdit) {
+        const canCreateOrEditOwnTopic = await hasPermission('Forums', 'CREATE_EDIT_TOPIC');
+        const canModerateOthersTopic = await hasPermission('Forums', 'DELETE_OTHERS_TOPIC');
+
+        if (isAuthor && !canCreateOrEditOwnTopic) {
             return { success: false, error: "You don't have permission to edit this topic" };
         }
-        
+        if (!isAuthor && !canModerateOthersTopic) {
+            return { success: false, error: "You don't have permission to edit this topic" };
+        }
+
         const updated = await editDiscussion(id, { title, content, type }, userId, !isAuthor);
         revalidatePath("/discussions");
         revalidatePath(`/discussions/topic`);

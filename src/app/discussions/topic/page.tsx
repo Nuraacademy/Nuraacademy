@@ -378,7 +378,7 @@ export default function DiscussionTopicPage({
                                     <ForumTag type={discussion_data.type} />
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    {(perms.createEditTopic || currentUserId === discussion_data.userId) && (
+                                    {((perms.createEditTopic && currentUserId === discussion_data.userId) || perms.deleteOthersTopic) && (
                                         <button
                                             onClick={() => setIsEditTopicModalOpen(true)}
                                             className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
