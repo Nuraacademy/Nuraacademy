@@ -59,7 +59,7 @@ export const RichTextInput = ({
         editorProps: {
             attributes: {
                 class: cn(
-                    'prose prose-sm max-w-none focus:outline-none px-4 py-2.5 text-black leading-relaxed',
+                    'prose prose-sm max-w-none min-w-0 max-w-full break-words [overflow-wrap:anywhere] focus:outline-none px-4 py-2.5 text-black leading-relaxed',
                     `min-h-[${minHeight}]`
                 ),
                 style: `min-height: ${minHeight}`,
@@ -172,8 +172,8 @@ export const RichTextInput = ({
                 </div>
             )}
 
-            {/* Editable Content — horizontal scroll for long lines / wide content */}
-            <div className="max-w-full min-w-0 cursor-text overflow-x-auto [&_.ProseMirror]:w-max [&_.ProseMirror]:min-w-full [&_.ProseMirror]:max-w-none">
+            {/* Editable: wrap long unbroken strings; optional x-scroll for unusually wide embeds */}
+            <div className="min-w-0 max-w-full cursor-text overflow-x-auto [&_.tiptap]:min-w-0 [&_.tiptap]:max-w-full [&_.ProseMirror]:min-w-0 [&_.ProseMirror]:max-w-full">
                 <EditorContent editor={editor} />
             </div>
         </div>

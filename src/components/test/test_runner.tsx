@@ -433,7 +433,7 @@ export function TestRunner({
   )
 
   const renderObjectiveContent = () => (
-    <section className="flex-1">
+    <section className="min-w-0 flex-1">
       <div className="flex justify-between items-center text-xs text-gray-600 mb-6">
         <span className="font-semibold">{pageText.contentObjective}</span>
         <span>
@@ -477,7 +477,7 @@ export function TestRunner({
     if (!currentEssay) return null
     const attachedFile = essayFiles[currentEssay.id]
     return (
-      <section className="flex-1">
+      <section className="min-w-0 flex-1">
         <div className="flex justify-between items-center text-xs text-gray-600 mb-6">
           <span className="font-semibold">{pageText.contentEssay}</span>
           <span>
@@ -526,7 +526,7 @@ export function TestRunner({
     if (!currentProject) return null
     const attachedFile = projectFiles[currentProject.id]
     return (
-      <section className="flex-1">
+      <section className="min-w-0 flex-1">
         <div className="flex justify-between items-center text-xs text-gray-600 mb-6">
           <span className="font-semibold">{pageText.contentProject}</span>
           <span>
