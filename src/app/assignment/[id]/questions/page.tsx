@@ -169,7 +169,11 @@ export default async function AssignmentQuestionsPage({
                     </div>
                 </div>
                 {/* Actions */}
-                <QuestionPreviewClient assignmentId={assignment.id} resultsUrl={`/assignment/${assignment.id}/results`} />
+                <QuestionPreviewClient 
+                    assignmentId={assignment.id} 
+                    resultsUrl={`/assignment/${assignment.id}/results`} 
+                    startDate={assignment.startDate}
+                />
             </div>
         </main>
     );

@@ -1,11 +1,16 @@
-name: Deploy Nura Academy
+name: Nura Academy CI/CD & Maintenance
 
 on:
   push:
-    branches: [ main ] # Change to your default branch
+    branches: [ main ]
+  schedule:
+    - cron: '0 0 * * *' # Setiap hari jam 00:00 UTC
+  workflow_dispatch: # Memungkinkan trigger manual dari tab Actions
 
 jobs:
+  # Job untuk Deployment
   deploy:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -27,12 +32,20 @@ jobs:
             # Install dependencies with Bun
             /home/nura/.bun/bin/bun install
             
-            # Sync Prisma Schema (Optional but recommended)
+            # Sync Prisma Schema
             /home/nura/.bun/bin/bun x prisma generate
             
-            # Build the project 
-            # (Note: Ensure your 2GB Swap is active or this might fail)
+            # Build the project
             /home/nura/.bun/bin/bun run build
             
             # Restart the Systemd service
             sudo systemctl restart nura
+
+  # Job untuk Daily Cron
+  hit-cron-endpoint:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Placement Reminder API
+        run: |
+          curl -X GET "https://nuraacademy.id/api/cron/placement-reminder?secret=${{ secrets.CRON_SECRET }}"

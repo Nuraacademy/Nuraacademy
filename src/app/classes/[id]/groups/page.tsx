@@ -15,7 +15,7 @@ export default async function ViewGroupPage({ params }: { params: Promise<{ id: 
     if (!classData) return notFound();
 
     const groups = await getClassGroupsSummary(classId);
-    const canManageGroups = await hasPermission("GroupMapping", "CREATE");
+    const canManageGroups = await hasPermission("Enrollment", "CREATE_GROUP_MAPPING");
 
     return (
         <main className="min-h-screen bg-[#FDFDF7] max-w-7xl mx-auto text-gray-800 pb-20">

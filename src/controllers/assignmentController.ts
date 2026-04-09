@@ -887,9 +887,25 @@ export async function getAssignmentResultsByAssignmentId(assignmentId: number) {
             // Representative submission
             if (hasSubmitted) {
                 const items = result?.assignmentItemResults || [];
-                const totalItems = items.length;
-                const gradedItems = items.filter((i: any) => i.score !== null).length;
-                const isGraded = totalItems > 0 && gradedItems === totalItems;
+                const activeContentKeys = new Set(assignment.assignmentItems.map(i => `${i.type}:${i.question}`));
+                const uniqueResults = new Map<string, any>();
+                
+                items.forEach((ir: any) => {
+                    const item = ir.assignmentItem;
+                    if (!item) return;
+                    const contentKey = `${item.type}:${item.question}`;
+                    if (activeContentKeys.has(contentKey)) {
+                        const existing = uniqueResults.get(contentKey);
+                        if (!existing || ir.id > existing.id) {
+                            uniqueResults.set(contentKey, ir);
+                        }
+                    }
+                });
+
+                const validItems = Array.from(uniqueResults.values());
+                const totalItems = assignment.assignmentItems.length;
+                const gradedItems = validItems.filter((i: any) => i.score !== null).length;
+                const isGraded = totalItems === 0 || gradedItems === totalItems;
 
                 groupResults[groupName].status = isGraded ? "Graded" : "To Grade";
                 groupResults[groupName].submittedAt = result.finishedAt;
@@ -904,9 +920,25 @@ export async function getAssignmentResultsByAssignmentId(assignmentId: number) {
         const result = e.assignmentResults[0];
         const items = result?.assignmentItemResults || [];
 
-        const totalItems = items.length;
-        const gradedItems = items.filter(i => i.score !== null).length;
-        const isGraded = totalItems > 0 && gradedItems === totalItems;
+        const activeContentKeys = new Set(assignment.assignmentItems.map(i => `${i.type}:${i.question}`));
+        const uniqueResults = new Map<string, any>();
+        
+        items.forEach((ir: any) => {
+            const item = ir.assignmentItem;
+            if (!item) return;
+            const contentKey = `${item.type}:${item.question}`;
+            if (activeContentKeys.has(contentKey)) {
+                const existing = uniqueResults.get(contentKey);
+                if (!existing || ir.id > existing.id) {
+                    uniqueResults.set(contentKey, ir);
+                }
+            }
+        });
+
+        const validItems = Array.from(uniqueResults.values());
+        const totalItems = assignment.assignmentItems.length;
+        const gradedItems = validItems.filter(i => i.score !== null).length;
+        const isGraded = totalItems === 0 || gradedItems === totalItems;
         const hasSubmitted = !!result?.finishedAt;
 
         return {
