@@ -88,6 +88,20 @@ export async function createClass(data: {
     createdBy?: number;
     trainerIds?: number[];
 }) {
+    const existingClass = await prisma.class.findFirst({
+        where: {
+            title: {
+                equals: data.title,
+                mode: 'insensitive'
+            },
+            deletedAt: null
+        }
+    });
+
+    if (existingClass) {
+        throw new Error("Class name already exists");
+    }
+
     const { curriculaIds, trainerIds, ...rest } = data;
     return await prisma.class.create({
         data: {
@@ -120,6 +134,23 @@ export async function updateClass(id: number, data: {
     isDraft?: boolean;
     trainerIds?: number[];
 }) {
+    if (data.title) {
+        const existingClass = await prisma.class.findFirst({
+            where: {
+                title: {
+                    equals: data.title,
+                    mode: 'insensitive'
+                },
+                id: { not: id },
+                deletedAt: null
+            }
+        });
+
+        if (existingClass) {
+            throw new Error("Class name already exists");
+        }
+    }
+
     const { curriculaIds, trainerIds, ...rest } = data;
     return await prisma.class.update({
         where: { id },

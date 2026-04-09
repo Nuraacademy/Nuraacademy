@@ -68,7 +68,7 @@ export async function updateSessionContent(
     referenceData: any[]
 ) {
     try {
-        await requirePermission('Session', 'UPDATE_SESSION');
+        await requirePermission('Course', 'UPDATE_SESSION');
         const id = parseInt(moduleId);
 
         // Fetch current session to check recording changes
@@ -114,7 +114,7 @@ export async function updateSessionContent(
 
 export async function deleteSession(sessionId: number, classId: string) {
     try {
-        await requirePermission('Session', 'DELETE_SESSION');
+        await requirePermission('Course', 'DELETE_SESSION');
         await prisma.session.update({
             where: { id: sessionId },
             data: { deletedAt: new Date() }
@@ -142,7 +142,7 @@ export async function createSession(
     }
 ) {
     try {
-        await requirePermission('Session', 'CREATE_SESSION');
+        await requirePermission('Course', 'CREATE_SESSION');
         const newSession = await prisma.session.create({
             data: {
                 courseId: courseId,
@@ -200,5 +200,45 @@ export async function updatePresence(
     } catch (error) {
         console.error("Failed to update presence:", error);
         return { success: false, error: "Failed to update presence" };
+    }
+}
+
+export async function updateSessionStatusAction(
+    classId: string,
+    courseId: string,
+    sessionId: string,
+    status: 'LIVE' | 'DONE'
+) {
+    try {
+        await requirePermission('Course', 'START_SESSION');
+        const id = parseInt(sessionId);
+
+        const currentSession = await prisma.session.findUnique({
+            where: { id },
+            select: { content: true }
+        });
+
+        if (!currentSession) {
+            return { success: false, error: "Session not found" };
+        }
+
+        const content: any = currentSession.content || {};
+        if (!content.zoom) {
+            content.zoom = {};
+        }
+        content.zoom.status = status;
+
+        await prisma.session.update({
+            where: { id },
+            data: { content }
+        });
+
+        const sessionPath = `/classes/${classId}/course/${courseId}/session/${sessionId}`;
+        revalidatePath(sessionPath);
+
+        return { success: true };
+    } catch (error: any) {
+        console.error("Failed to update session status:", error);
+        return { success: false, error: error.message || "Failed to update session status" };
     }
 }

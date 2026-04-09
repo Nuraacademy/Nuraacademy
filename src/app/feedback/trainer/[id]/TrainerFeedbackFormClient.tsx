@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { saveTrainerFeedback, clearTrainerFeedback } from '@/app/actions/trainer_feedback';
 import { toast } from 'sonner';
 import Breadcrumb from '@/components/ui/breadcrumb/breadcrumb';
@@ -111,9 +112,12 @@ export default function TrainerFeedbackFormClient({ trainer, evaluatorEnrollment
                 title={`Trainer Feedback: ${trainer.name || trainer.username}`}
                 description={classTitle}
                 actions={
-                    initialFeedback && <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/20">
-                        <span className="text-xs font-medium text-white">Edited</span>
-                    </div>
+                    initialFeedback?.isEdited && (
+                        <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/20">
+                         
+                            <span className="text-xs font-medium uppercase tracking-widest text-[#DAEE49]">Edited</span>
+                        </div>
+                    )
                 }
             />
 

@@ -5,6 +5,7 @@ import Breadcrumb from '@/components/ui/breadcrumb/breadcrumb';
 import { NuraButton } from '@/components/ui/button/button';
 import TitleCard from '@/components/ui/card/title_card';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 interface ClassFeedbackDetailProps {
     classId: string;
@@ -37,6 +38,14 @@ export default function ClassFeedbackDetail({ classId, classTitle, feedback }: C
             <TitleCard 
                 title="Class Feedback Detail" 
                 description={`${classTitle} - ${feedback.user.name || feedback.user.username}`}
+                actions={
+                    feedback?.isEdited && (
+                        <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/20">
+                        
+                            <span className="text-xs font-medium uppercase tracking-widest text-[#DAEE49]">Edited</span>
+                        </div>
+                    )
+                }
             />
 
             <div className="bg-white rounded-xl p-6 md:p-10 shadow-sm border border-gray-100 space-y-10">
