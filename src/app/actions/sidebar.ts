@@ -15,8 +15,8 @@ export async function getSidebarData() {
         });
         const roleName = user?.role?.name || "";
         const isLearner = roleName === 'Learner';
-        const isStaff = ['Trainer', 'Instructor', 'Instructur', 'Learning Designer'].includes(roleName);
-        const isAdmin = roleName === 'Admin';
+        const isStaff = ['Trainer', 'Instructor', 'Instructur'].includes(roleName);
+        const isAdmin = ['Admin', 'Learning Designer'].includes(roleName);
 
         // 2. Fetch Classes (Assigned for Staff, Enrolled for Learners)
         let myClassesRaw = [];
