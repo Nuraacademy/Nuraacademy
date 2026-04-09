@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -75,20 +75,29 @@ export const RichTextInput = ({
         }
     }, [value, editor]);
 
-    if (!isMounted || !editor) return <div className="bg-gray-50 rounded-xl animate-pulse border border-gray-200" style={{ height: minHeight }} />;
-
-    // Local Image Upload Logic
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
+    const handleFileChange = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+            const input = e.target;
+            const file = input.files?.[0];
+            if (!file || !editor) {
+                input.value = '';
+                return;
+            }
             const reader = new FileReader();
-            reader.onload = (event) => {
-                const url = event.target?.result as string;
+            reader.onload = () => {
+                const url = reader.result as string;
                 editor.chain().focus().setImage({ src: url }).run();
+                input.value = '';
+            };
+            reader.onerror = () => {
+                input.value = '';
             };
             reader.readAsDataURL(file);
-        }
-    };
+        },
+        [editor]
+    );
+
+    if (!isMounted || !editor) return <div className="bg-gray-50 rounded-xl animate-pulse border border-gray-200" style={{ height: minHeight }} />;
 
     const toggleLink = () => {
         const previousUrl = editor.getAttributes('link').href;
@@ -148,15 +157,17 @@ export const RichTextInput = ({
                         <LinkIcon size={14} strokeWidth={3} />
                     </MenuButton>
 
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        className="sr-only"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        tabIndex={-1}
+                        aria-hidden
+                    />
                     <MenuButton onClick={() => fileInputRef.current?.click()} active={editor.isActive('image')}>
                         <ImageIcon size={14} strokeWidth={3} />
-                        <input 
-                            type="file" 
-                            ref={fileInputRef} 
-                            className="hidden" 
-                            accept="image/*" 
-                            onChange={handleFileChange} 
-                        />
                     </MenuButton>
                 </div>
             )}
