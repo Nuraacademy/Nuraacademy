@@ -6,6 +6,7 @@ import { updateSessionContent, createSession, uploadSessionFile } from "@/app/ac
 import { NuraButton } from "@/components/ui/button/button";
 import { NuraTextInput } from "@/components/ui/input/text_input";
 import { NuraTextArea } from "@/components/ui/input/text_area";
+import { NuraSelect } from "@/components/ui/input/nura_select";
 import { Plus } from "lucide-react";
 import Image from "next/image";
 import FileUpload from "@/components/ui/upload/file_upload";
@@ -345,11 +346,15 @@ export default function EditSessionForm({
                             value={zoomUrl}
                             onChange={(e) => setZoomUrl(e.target.value)}
                         />
-                        <NuraTextInput
+                        <NuraSelect
                             label="Status"
-                            placeholder="Scheduled"
+                            options={[
+                                { label: "Scheduled", value: "Scheduled" },
+                                { label: "LIVE", value: "LIVE" },
+                                { label: "DONE", value: "DONE" }
+                            ]}
                             value={zoomStatus}
-                            onChange={(e) => setZoomStatus(e.target.value)}
+                            onChange={(value) => setZoomStatus(value)}
                         />
                     </div>
                     <div className="flex flex-col gap-2 mt-4">
