@@ -33,7 +33,7 @@ export default async function AnalyticsDashboardPage() {
         // Show assigned classes for staff
         const classFilter = {
             OR: [
-                { trainerId: session.id },
+                { trainers: { some: { id: session.id } } },
                 { createdBy: session.id },
                 { courses: { some: { createdBy: session.id } } },
                 { courses: { some: { sessions: { some: { createdBy: session.id } } } } }

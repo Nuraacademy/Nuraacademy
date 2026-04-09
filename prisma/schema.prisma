@@ -21,7 +21,8 @@ model User {
   blogLikes            BlogLike[]
   blogs                Blog[]
   classFeedbacks       ClassFeedback[]
-  trainedClasses       Class[]               @relation("ClassTrainer")
+  trainedClasses       Class[]               @relation("ClassTrainers")
+  oldTrainedClasses    Class[]               @relation("ClassTrainer")
   createdCourses       Course[]              @relation("CourseCreator")
   discussionLikes      DiscussionLike[]
   discussionReplies    DiscussionReply[]
@@ -86,6 +87,7 @@ model Class {
   assignments       Assignment[]
   classFeedbacks    ClassFeedback[]
   trainer           User?             @relation("ClassTrainer", fields: [trainerId], references: [id])
+  trainers          User[]            @relation("ClassTrainers")
   courses           Course[]
   enrollments       Enrollment[]
   peerFeedbacks     PeerFeedback[]

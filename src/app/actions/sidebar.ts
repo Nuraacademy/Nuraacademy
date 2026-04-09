@@ -44,7 +44,7 @@ export async function getSidebarData() {
             // Staff see their assigned classes
             const classFilter = {
                 OR: [
-                    { trainerId: userId },
+                    { trainers: { some: { id: userId } } },
                     { createdBy: userId },
                     { courses: { some: { createdBy: userId } } },
                     { courses: { some: { sessions: { some: { createdBy: userId } } } } }
@@ -137,7 +137,7 @@ export async function getSidebarData() {
             // Admin/Staff see all relevant ungraded assignments (simplified for sidebar)
             const classFilter = isAdmin ? {} : (isStaff ? {
                 OR: [
-                    { trainerId: userId },
+                    { trainers: { some: { id: userId } } },
                     { createdBy: userId },
                     { courses: { some: { createdBy: userId } } },
                     { courses: { some: { sessions: { some: { createdBy: userId } } } } }

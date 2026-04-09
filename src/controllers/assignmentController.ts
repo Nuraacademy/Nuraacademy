@@ -54,7 +54,7 @@ export async function getAssignments(userId?: number) {
     if (isStaff) {
         const classFilter = {
             OR: [
-                { trainerId: userId },
+                { trainers: { some: { id: userId } } },
                 { createdBy: userId },
                 { courses: { some: { createdBy: userId } } },
                 { courses: { some: { sessions: { some: { createdBy: userId } } } } }

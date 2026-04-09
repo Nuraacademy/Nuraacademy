@@ -81,7 +81,7 @@ export async function getDashboardData() {
     const isStaff = ['Trainer', 'Instructor', 'Instructur', 'Learning Designer'].includes(user.role?.name || '');
     const classFilter = isStaff ? {
         OR: [
-            { trainerId: userId },
+            { trainers: { some: { id: userId } } },
             { createdBy: userId },
             { courses: { some: { createdBy: userId } } },
             { courses: { some: { sessions: { some: { createdBy: userId } } } } }
