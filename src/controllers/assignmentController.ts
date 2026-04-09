@@ -122,7 +122,7 @@ export async function getProjectAssignmentsByClassId(classId: number) {
 }
 
 
-export async function getAssignmentById(id: number) {
+export async function getAssignmentById(id: number, includeItems: boolean = true) {
     return await prisma.assignment.findUnique({
         where: {
             id,
@@ -132,10 +132,12 @@ export async function getAssignmentById(id: number) {
             class: { select: { title: true } },
             course: { select: { title: true } },
             session: { select: { title: true } },
-            assignmentItems: {
-                where: { deletedAt: null },
-                include: { course: true }
-            },
+            ...(includeItems && {
+                assignmentItems: {
+                    where: { deletedAt: null },
+                    include: { course: true }
+                },
+            }),
         },
     });
 }
@@ -181,7 +183,7 @@ export async function findExistingAssignment(params: {
     });
 }
 
-export async function getAssignmentResult(assignmentId: number, enrollmentId: number) {
+export async function getAssignmentResult(assignmentId: number, enrollmentId: number, includeItems: boolean = true) {
     // 1. Check direct submission
     const directResult = await prisma.assignmentResult.findUnique({
         where: {
@@ -191,15 +193,17 @@ export async function getAssignmentResult(assignmentId: number, enrollmentId: nu
             },
         },
         include: {
-            assignmentItemResults: {
-                include: {
-                    assignmentItem: {
-                        include: {
-                            course: true
+            ...(includeItems && {
+                assignmentItemResults: {
+                    include: {
+                        assignmentItem: {
+                            include: {
+                                course: true
+                            }
                         }
                     }
                 }
-            }
+            })
         }
     });
 
@@ -229,15 +233,17 @@ export async function getAssignmentResult(assignmentId: number, enrollmentId: nu
                     finishedAt: { not: null }
                 },
                 include: {
-                    assignmentItemResults: {
-                        include: {
-                            assignmentItem: {
-                                include: {
-                                    course: true
+                    ...(includeItems && {
+                        assignmentItemResults: {
+                            include: {
+                                assignmentItem: {
+                                    include: {
+                                        course: true
+                                    }
                                 }
                             }
                         }
-                    }
+                    })
                 }
             });
 

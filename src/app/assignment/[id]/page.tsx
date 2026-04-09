@@ -104,6 +104,33 @@ export default async function AssignmentRunnerPage({
         { label: (assignment as any).title || typeLabel[assignment.type] || "Assignment", href: "#" },
     ];
 
+    // Calculate detailed scores for the breakdown modal
+    let objectiveScore = 0;
+    let maxObjectiveScore = 0;
+    let essayScore = 0;
+    let maxEssayScore = 0;
+    let projectScore = 0;
+    let maxProjectScore = 0;
+
+    if (testResult?.assignmentItemResults) {
+        testResult.assignmentItemResults.forEach((ir: any) => {
+            const score = ir.score || 0;
+            const max = ir.assignmentItem?.maxScore || 10;
+            const type = ir.assignmentItem?.type;
+
+            if (type === "OBJECTIVE") {
+                objectiveScore += score;
+                maxObjectiveScore += max;
+            } else if (type === "ESSAY") {
+                essayScore += score;
+                maxEssayScore += max;
+            } else if (type === "PROJECT") {
+                projectScore += score;
+                maxProjectScore += max;
+            }
+        });
+    }
+
     return (
         <main className="min-h-screen p-6 bg-[#F9F9F0]">
             <div className="max-w-7xl mx-auto">
@@ -144,6 +171,12 @@ export default async function AssignmentRunnerPage({
                     technicalAbilityFeedback={testResult?.technicalAbilityFeedback}
                     solutionQualityFeedback={testResult?.solutionQualityFeedback}
                     assignmentType={assignment.type}
+                    objectiveScore={objectiveScore}
+                    maxObjectiveScore={maxObjectiveScore}
+                    essayScore={essayScore}
+                    maxEssayScore={maxEssayScore}
+                    projectScore={projectScore}
+                    maxProjectScore={maxProjectScore}
                 />
             )}
         </main>

@@ -24,25 +24,31 @@ import TitleCard from "../ui/card/title_card"
 type TestRunnerProps = {
   classId: string
   assignmentId: number
-  enrollmentId: number
-  objectiveQuestions: ObjectiveQuestion[]
-  essayQuestions: EssayQuestion[]
-  projectQuestions: ProjectQuestion[]
+  enrollmentId?: number
+  userName?: string
+  objectiveQuestions: any[]
+  essayQuestions: any[]
+  projectQuestions: any[]
   testData: TestData
   pageText: PageText
-  userName?: string
   autoStart?: boolean
   finished?: boolean
   initialScore?: number
-  showBanner?: boolean
   feedback?: string
+  isPlacement?: boolean
+  assignmentType?: string
   problemUnderstanding?: number
   technicalAbility?: number
   solutionQuality?: number
   problemUnderstandingFeedback?: string
   technicalAbilityFeedback?: string
   solutionQualityFeedback?: string
-  assignmentType?: string
+  objectiveScore?: number
+  maxObjectiveScore?: number
+  essayScore?: number
+  maxEssayScore?: number
+  projectScore?: number
+  maxProjectScore?: number
 }
 
 export function TestRunner({
@@ -58,15 +64,21 @@ export function TestRunner({
   autoStart = false,
   finished = false,
   initialScore,
-  showBanner = true,
   feedback,
+  isPlacement = false,
+  assignmentType,
   problemUnderstanding,
   technicalAbility,
   solutionQuality,
   problemUnderstandingFeedback,
   technicalAbilityFeedback,
   solutionQualityFeedback,
-  assignmentType,
+  objectiveScore,
+  maxObjectiveScore,
+  essayScore,
+  maxEssayScore,
+  projectScore,
+  maxProjectScore,
 }: TestRunnerProps) {
   const STORAGE_KEY = `test_progress_${assignmentId}_${enrollmentId}`
 
@@ -171,7 +183,7 @@ export function TestRunner({
     try {
       const formData = new FormData()
       formData.append("assignmentId", assignmentId.toString())
-      formData.append("enrollmentId", enrollmentId.toString())
+      if (enrollmentId) formData.append("enrollmentId", enrollmentId.toString())
       formData.append("classId", classId)
       formData.append("startedAt", (startTime || new Date()).toISOString())
 
@@ -203,11 +215,7 @@ export function TestRunner({
         if (isAutoSubmit) {
           setIsTimeoutModalOpen(true)
         } else {
-          if (assignmentType === "PROJECT") {
-            window.location.href = `/classes/${classId}/feedback`
-          } else {
-            window.location.reload()
-          }
+          window.location.reload()
         }
       } else {
         toast.error(response.error || "Failed to submit. Please try again.")
@@ -443,7 +451,7 @@ export function TestRunner({
       />
 
       <div className="space-y-3">
-        {currentObjective.options.map((opt, optIndex) => {
+        {currentObjective.options.map((opt: string, optIndex: number) => {
           const isSelected = objectiveAnswers[currentObjective.id] === opt
           return (
             <button
@@ -567,10 +575,10 @@ export function TestRunner({
         )}
 
         <ul className="list-none space-y-2 mb-6">
-          {currentProject.requirements.map((req, index) => (
+          {currentProject.requirements.map((req: string, index: number) => (
             <li key={index} className="text-sm text-gray-900 leading-relaxed">
               <span className="font-semibold">{String.fromCharCode(97 + index)}.</span>{" "}
-              {req.split("\n").map((line, lineIndex) => (
+              {req.split("\n").map((line: string, lineIndex: number) => (
                 <span key={lineIndex}>
                   {lineIndex > 0 && <br />}
                   {line.trim().startsWith("•") ? (
@@ -670,6 +678,8 @@ export function TestRunner({
       {isFinished ? (
         <FinishedCard
           classId={classId}
+          assignmentId={assignmentId}
+          enrollmentId={enrollmentId}
           testData={testData}
           pageText={pageText}
           userName={userName}
@@ -681,6 +691,13 @@ export function TestRunner({
           problemUnderstandingFeedback={problemUnderstandingFeedback}
           technicalAbilityFeedback={technicalAbilityFeedback}
           solutionQualityFeedback={solutionQualityFeedback}
+          isPlacement={isPlacement}
+          objectiveScore={objectiveScore}
+          maxObjectiveScore={maxObjectiveScore}
+          essayScore={essayScore}
+          maxEssayScore={maxEssayScore}
+          projectScore={projectScore}
+          maxProjectScore={maxProjectScore}
         />
       ) : hasStarted ? (
         renderTestCard()
