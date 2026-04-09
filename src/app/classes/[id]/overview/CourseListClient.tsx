@@ -14,6 +14,7 @@ interface CourseListClientProps {
     canUpdateCourse: boolean;
     canViewCurricula: boolean;
     isLearner: boolean;
+    priorityCourseIds?: number[];
 }
 
 export default function CourseListClient({
@@ -24,7 +25,8 @@ export default function CourseListClient({
     canCreateCourse,
     canUpdateCourse,
     canViewCurricula,
-    isLearner
+    isLearner,
+    priorityCourseIds = []
 }: CourseListClientProps) {
     const [searchQuery, setSearchQuery] = useState("");
 
@@ -92,6 +94,7 @@ export default function CourseListClient({
                             course={course}
                             isAdmin={canUpdateCourse}
                             isLearner={isLearner}
+                            isPriority={priorityCourseIds.includes(course.id)}
                         />
                     ))}
 

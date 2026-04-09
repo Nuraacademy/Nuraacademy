@@ -186,7 +186,7 @@ export function AddCourseButton({ classId }: { classId: string }) {
     return <NuraButton label="Add Course" variant="primary" onClick={() => router.push(`/classes/${classId}/course/add`)} />
 }
 
-export function CourseCard({ classId, course, isAdmin, isLearner }: { classId: string, course: any, isAdmin: boolean, isLearner: boolean }) {
+export function CourseCard({ classId, course, isAdmin, isLearner, isPriority }: { classId: string, course: any, isAdmin: boolean, isLearner: boolean, isPriority?: boolean }) {
     const router = useRouter()
     const [isDeleting, setIsDeleting] = useState(false)
     const [isConfirmOpen, setIsConfirmOpen] = useState(false)
@@ -212,7 +212,14 @@ export function CourseCard({ classId, course, isAdmin, isLearner }: { classId: s
             >
                 <div className="flex justify-between items-start">
                 <div>
-                    <h3 className="text-sm mb-1">{course.title}</h3>
+                    <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-sm">{course.title}</h3>
+                        {isPriority && (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 font-medium">
+                                Prioritas
+                            </span>
+                        )}
+                    </div>
                     <div className="text-xs line-clamp-2" dangerouslySetInnerHTML={{ __html: course.description }} />
                     </div>
                     {isAdmin && (

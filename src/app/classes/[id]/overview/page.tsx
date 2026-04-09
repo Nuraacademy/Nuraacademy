@@ -48,9 +48,27 @@ export default async function CourseOverviewPage({
 
     // Check placement test status for enrolled students
     let isPlacementTestFinished = false;
+    let priorityCourseIds: number[] = [];
     if (isEnrolled && enrollment && placementTest) {
-        const testResult = await getAssignmentResult(placementTest.id, enrollment.id, false);
+        const testResult = await getAssignmentResult(placementTest.id, enrollment.id, true);
         isPlacementTestFinished = !!testResult?.finishedAt;
+
+        if (isPlacementTestFinished && testResult?.assignmentItemResults) {
+            const itemResults = testResult.assignmentItemResults;
+
+            for (const course of classData.courses || []) {
+                const learnerScore = itemResults
+                    .filter((ir: any) => ir.assignmentItem?.courseId === course.id)
+                    .reduce((acc: number, ir: any) => acc + (ir.score || 0), 0);
+
+                const threshold = course.threshold;
+                const isPassed = threshold !== null && threshold !== undefined && learnerScore >= parseFloat(threshold);
+
+                if (threshold !== null && threshold !== undefined && !isPassed) {
+                    priorityCourseIds.push(course.id);
+                }
+            }
+        }
     }
 
     // Fetch PROJECT assignments for this class
@@ -341,6 +359,7 @@ export default async function CourseOverviewPage({
                                 canUpdateCourse={canUpdateCourse}
                                 canViewCurricula={canViewCurricula}
                                 isLearner={isLearner}
+                                priorityCourseIds={priorityCourseIds}
                             />
                         </div>
                     </section>
