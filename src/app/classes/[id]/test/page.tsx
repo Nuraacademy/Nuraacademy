@@ -125,6 +125,7 @@ export default async function PlacementTestPage({
         autoStart={skipIntro === "1"}
         finished={isFinished}
         initialScore={initialScore}
+        isPlacement={true}
       />
     </main>
   )

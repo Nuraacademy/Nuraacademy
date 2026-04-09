@@ -34,7 +34,7 @@ export async function getFeedbacks() {
 
         const classFilter = isAdmin ? {} : (isStaff ? {
             OR: [
-                { trainerId: userId },
+                { trainers: { some: { id: userId } } },
                 { createdBy: userId },
                 { courses: { some: { createdBy: userId } } },
                 { courses: { some: { sessions: { some: { createdBy: userId } } } } }

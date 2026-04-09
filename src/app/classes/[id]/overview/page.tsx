@@ -49,7 +49,7 @@ export default async function CourseOverviewPage({
     // Check placement test status for enrolled students
     let isPlacementTestFinished = false;
     if (isEnrolled && enrollment && placementTest) {
-        const testResult = await getAssignmentResult(placementTest.id, enrollment.id);
+        const testResult = await getAssignmentResult(placementTest.id, enrollment.id, false);
         isPlacementTestFinished = !!testResult?.finishedAt;
     }
 
@@ -213,6 +213,11 @@ export default async function CourseOverviewPage({
                         {/* Instructor & Trainer Section */}
                         {(() => {
                             const trainersMap = new Map();
+                            // Support multiple trainers from new schema
+                            classData.trainers?.forEach((t: any) => {
+                                trainersMap.set(t.id, { ...t, isMain: true });
+                            });
+                            // Support single trainer from old schema (fallback)
                             if (classData.trainer) {
                                 trainersMap.set(classData.trainer.id, { ...classData.trainer, isMain: true });
                             }
