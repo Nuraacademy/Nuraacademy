@@ -29,6 +29,9 @@ export default function FileUploadModal({
 
   const displayFileType = supportedFileType ?? (accept === ".*" || accept === "*" || !accept ? "Any" : accept)
 
+  const inputAccept =
+    !accept || accept === "Any" || accept === "*" || accept === ".*" ? undefined : accept
+
   const formatSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes"
     const k = 1024
@@ -38,16 +41,30 @@ export default function FileUploadModal({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i]
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0]
-    if (selectedFile) {
-      const maxSizeBytes = maxSizeMB * 1024 * 1024
-      if (selectedFile.size > maxSizeBytes) {
-        toast.error(`File size exceeds ${maxSizeMB} MB limit`)
-        return
-      }
-      setFile(selectedFile)
+  const trySetFile = (selectedFile: File | undefined) => {
+    if (!selectedFile) return
+    const maxSizeBytes = maxSizeMB * 1024 * 1024
+    if (selectedFile.size > maxSizeBytes) {
+      toast.error(`File size exceeds ${maxSizeMB} MB limit`)
+      return
     }
+    setFile(selectedFile)
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    trySetFile(e.target.files?.[0])
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    e.dataTransfer.dropEffect = "copy"
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    trySetFile(e.dataTransfer.files?.[0])
   }
 
   const handleAttach = () => {
@@ -95,23 +112,27 @@ export default function FileUploadModal({
           type="file"
           ref={fileInputRef}
           onChange={handleFileChange}
-          accept={accept}
+          accept={inputAccept}
           className="hidden"
         />
 
-        {/* Dropzone Area */}
+        {/* Dropzone: dragover must call preventDefault() or the browser will not fire drop */}
         <div
           onClick={() => fileInputRef.current?.click()}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
           className="border-2 border-dashed border-gray-300 rounded-xl bg-[#F9FBE7] p-12 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#D9F55C] transition-colors"
         >
-          <div className="mb-4 p-4 bg-white rounded-xl border shadow-sm">
-            <Upload size={32} className="text-gray-600" />
+          <div className="pointer-events-none flex flex-col items-center">
+            <div className="mb-4 p-4 bg-white rounded-xl border shadow-sm">
+              <Upload size={32} className="text-gray-600" />
+            </div>
+            <p className="text-sm font-medium text-gray-700 mb-1">
+              <span className="underline decoration-2 underline-offset-4">Click to upload</span> or
+              drag and drop
+            </p>
+            <p className="text-xs text-gray-500">Maximum file size {maxSizeMB} MB</p>
           </div>
-          <p className="text-sm font-medium text-gray-700 mb-1">
-            <span className="underline decoration-2 underline-offset-4">Click to upload</span> or
-            drag and drop
-          </p>
-          <p className="text-xs text-gray-500">Maximum file size {maxSizeMB} MB</p>
         </div>
 
         <p className="text-sm text-gray-600 mt-4">File supported: {displayFileType}</p>

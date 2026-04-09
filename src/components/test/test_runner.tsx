@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, useRef } from "react"
-import { Clock, ChevronLeft, ChevronRight, Download, FileText } from "lucide-react"
+import { Clock, ChevronLeft, ChevronRight, Download, FileText, X } from "lucide-react"
 import { NuraButton } from "@/components/ui/button/button"
 import { RichTextInput } from "@/components/ui/input/rich_text_input"
 import FileUploadModal from "@/components/ui/modal/file_upload_modal"
@@ -515,7 +515,24 @@ export function TestRunner({
             onClick={() => setIsEssayUploadModalOpen(true)}
           />
           {attachedFile && (
-            <p className="text-xs text-gray-600 mt-2">Attached: {attachedFile.name}</p>
+            <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-gray-600">
+              <span>Attached: {attachedFile.name}</span>
+              <button
+                type="button"
+                onClick={() =>
+                  setEssayFiles((prev) => {
+                    const next = { ...prev }
+                    delete next[currentEssay.id]
+                    return next
+                  })
+                }
+                className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-red-600 hover:bg-red-50 hover:text-red-700 font-medium transition-colors"
+                aria-label="Remove attachment"
+              >
+                <X size={14} aria-hidden />
+                Remove
+              </button>
+            </div>
           )}
         </div>
       </section>
@@ -613,7 +630,24 @@ export function TestRunner({
             onClick={() => setIsProjectUploadModalOpen(true)}
           />
           {attachedFile && (
-            <p className="text-xs text-gray-600 mt-2">Attached: {attachedFile.name}</p>
+            <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-gray-600">
+              <span>Attached: {attachedFile.name}</span>
+              <button
+                type="button"
+                onClick={() =>
+                  setProjectFiles((prev) => {
+                    const next = { ...prev }
+                    delete next[currentProject.id]
+                    return next
+                  })
+                }
+                className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-red-600 hover:bg-red-50 hover:text-red-700 font-medium transition-colors"
+                aria-label="Remove attachment"
+              >
+                <X size={14} aria-hidden />
+                Remove
+              </button>
+            </div>
           )}
         </div>
       </section>
