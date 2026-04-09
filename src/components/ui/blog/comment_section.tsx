@@ -1,9 +1,10 @@
 "use client"
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { RichTextInput } from "@/components/ui/input/rich_text_input";
 import { NuraButton } from "@/components/ui/button/button";
-import { Heart, Send, ChevronDown } from "lucide-react";
+import { NuraSelect } from "@/components/ui/input/nura_select";
+import { Heart, Send } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { addCommentAction, deleteCommentAction, toggleLikeCommentAction, recordCommentShareAction } from "@/app/actions/blog";
 import { toast } from "sonner";
@@ -32,13 +33,29 @@ interface CommentSectionProps {
     isAdmin?: boolean;
 }
 
+const sortOptions = [
+    { label: "Newest", value: "newest" },
+    { label: "Most Liked", value: "likes" },
+];
+
 export const CommentSection = ({ blogId, comments: initialComments, currentUserId, isAdmin }: CommentSectionProps) => {
     const [comments, setComments] = useState(initialComments);
     const [commentText, setCommentText] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
-    
+    const [sortCommentsBy, setSortCommentsBy] = useState("newest");
+
     // Share modal state
     const [sharingComment, setSharingComment] = useState<Comment | null>(null);
+
+    const sortedComments = useMemo(() => {
+        const list = [...comments];
+        if (sortCommentsBy === "newest") {
+            list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        } else if (sortCommentsBy === "likes") {
+            list.sort((a, b) => (b._count?.likes ?? 0) - (a._count?.likes ?? 0));
+        }
+        return list;
+    }, [comments, sortCommentsBy]);
 
     const handlePublish = async () => {
         if (!commentText.trim()) return;
@@ -57,7 +74,9 @@ export const CommentSection = ({ blogId, comments: initialComments, currentUserI
                         id: currentUserId!,
                         name: "You",
                         username: "you"
-                    }
+                    },
+                    isLikedByCurrentUser: false,
+                    _count: { likes: 0, shares: 0 },
                 },
                 ...comments
             ]);
@@ -94,8 +113,8 @@ export const CommentSection = ({ blogId, comments: initialComments, currentUserI
                         ...c, 
                         isLikedByCurrentUser: result.liked,
                         _count: {
-                            ...c._count!,
-                            likes: c._count!.likes + (result.liked ? 1 : -1)
+                            likes: (c._count?.likes ?? 0) + (result.liked ? 1 : -1),
+                            shares: c._count?.shares ?? 0,
                         }
                     } 
                     : c
@@ -120,8 +139,8 @@ export const CommentSection = ({ blogId, comments: initialComments, currentUserI
                 ? { 
                     ...c, 
                     _count: {
-                        ...c._count!,
-                        shares: c._count!.shares + 1
+                        likes: c._count?.likes ?? 0,
+                        shares: (c._count?.shares ?? 0) + 1,
                     }
                 } 
                 : c
@@ -130,13 +149,15 @@ export const CommentSection = ({ blogId, comments: initialComments, currentUserI
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6 gap-4">
                 <h2 className="text-2xl font-medium text-gray-950">Comment</h2>
-                {/* Sort Dropdown as shown in image */}
-                <button className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-xl text-xs font-semibold text-gray-500 hover:bg-gray-50 transition-all">
-                    Sorted
-                    <ChevronDown size={14} />
-                </button>
+                <NuraSelect
+                    options={sortOptions}
+                    value={sortCommentsBy}
+                    onChange={setSortCommentsBy}
+                    placeholder="Sorted"
+                    className="w-40 shrink-0 shadow-sm"
+                />
             </div>
 
             {/* Comment Input Box */}
@@ -170,7 +191,7 @@ export const CommentSection = ({ blogId, comments: initialComments, currentUserI
 
             {/* Comments List */}
             <div className="space-y-8">
-                {comments.map((comment) => (
+                {sortedComments.map((comment) => (
                     <div key={comment.id} className="group animate-in fade-in slide-in-from-bottom-2 duration-500">
                         <div className="flex items-start justify-between mb-3">
                             <div className="flex items-center gap-2 text-[11px] font-medium">
