@@ -357,10 +357,24 @@ export function ProjectCard({ classId, assignment, isAdmin, isLearner }: { class
     )
 }
 
-export function FeedbackButton({ classId, isLearner }: { classId: string, isLearner: boolean }) {
+export function FeedbackButton({ 
+    classId, 
+    isLearner, 
+    finalProjectStartDate 
+}: { 
+    classId: string, 
+    isLearner: boolean, 
+    finalProjectStartDate?: Date | null 
+}) {
     const router = useRouter()
     
+    // Cek apakah periode feedback sudah dimulai
+    const isStarted = finalProjectStartDate ? new Date() >= new Date(finalProjectStartDate) : true;
+
     const handleClick = () => {
+        // Jika learner dan belum mulai, button tidak melakukan apa-apa (atau bisa dicegah di onClick)
+        if (isLearner && !isStarted) return;
+
         if (isLearner) {
             router.push(`/classes/${classId}/feedback`)
         } else {
@@ -369,12 +383,23 @@ export function FeedbackButton({ classId, isLearner }: { classId: string, isLear
     }
 
     return (
-        <NuraButton
-            label="Feedback"
-            variant="primary"
-            leftIcon={<Image src="/icons/Feedback.svg" alt="Feedback" width={20} height={20} />}
-            onClick={handleClick}
-        />
+        <div className="relative group flex items-center justify-center w-full">
+            <NuraButton
+                label="Feedback"
+                variant="primary"
+                leftIcon={<Image src="/icons/Feedback.svg" alt="Feedback" width={20} height={20} />}
+                onClick={handleClick}
+                // Menambahkan styling visual jika disabled
+                className={`w-full ${isLearner && !isStarted ? "opacity-50 cursor-not-allowed" : ""}`}                disabled={isLearner && !isStarted}
+            />
+            
+            {/* Tooltip: Hanya muncul jika isLearner dan periode belum dimulai */}
+            {isLearner && !isStarted && (
+                <div className="absolute -top-10 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                    Feedback tersedia setelah final project dimulai
+                </div>
+            )}
+        </div>
     )
 }
 

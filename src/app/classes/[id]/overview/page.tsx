@@ -74,6 +74,9 @@ export default async function CourseOverviewPage({
     // Fetch PROJECT assignments for this class
     const projectAssignments = await getProjectAssignmentsByClassId(parseInt(id));
 
+    const finalProjectTimeline = classData.timelines?.find((t: any) => t.activity.toLowerCase().includes("final project"));
+    const finalProjectStartDate = finalProjectTimeline?.date ? new Date(finalProjectTimeline.date) : null;
+
     // Fallback image if none provided
     const imageUrl = classData.imgUrl || "https://www.lackawanna.edu/wp-content/uploads/2024/08/male-tutor-teaching-university-students-in-classro-2023-11-27-05-16-59-utc.webp";
 
@@ -302,7 +305,7 @@ export default async function CourseOverviewPage({
                         {/* Feedback & Analytics Buttons */}
                         <div className="flex flex-col gap-3">
                             {((isLearner && isEnrolled) || (!isLearner && canViewFeedbackReport)) && (
-                                <FeedbackButton classId={id} isLearner={isLearner} />
+                                <FeedbackButton classId={id} isLearner={isLearner} finalProjectStartDate={finalProjectStartDate} />
                             )}
                             {((isLearner && isEnrolled) || (!isLearner && (canViewClassAnalytics || canViewLearnerAnalytics))) && (
                                 <AnalyticsButton
