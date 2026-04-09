@@ -7,6 +7,7 @@ import { NotFoundState } from "@/components/ui/status/not_found_state";
 import { AssignmentIntroCard } from "./components/assignment_intro";
 import { getSession, getFullSession } from "@/app/actions/auth";
 import { notFound } from "next/navigation";
+import { formatDate } from "@/utils/date";
 
 export default async function AssignmentRunnerPage({
     params,
@@ -60,7 +61,7 @@ export default async function AssignmentRunnerPage({
             <main className="min-h-screen w-full bg-[#F9F9F0] flex items-center justify-center">
                 <NotFoundState
                     title="Assignment Not Yet Available"
-                    message={`This assignment will be available on ${new Date(assignment.startDate).toLocaleString()}.`}
+                    message={`This assignment will be available on ${formatDate(assignment.startDate)}.`}
                     buttonLabel="Back to Overview"
                 />
             </main>

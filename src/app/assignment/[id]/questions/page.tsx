@@ -6,6 +6,7 @@ import QuestionPreviewClient from "./QuestionPreviewClient";
 import { mapAssignmentToTestRunner } from "@/utils/test_mapper";
 import Image from "next/image";
 import TitleCard from "@/components/ui/card/title_card";
+import { formatDate } from "@/utils/date";
 
 export default async function AssignmentQuestionsPage({
     params
@@ -33,17 +34,6 @@ export default async function AssignmentQuestionsPage({
         { label: "Questions", href: "#" },
     ];
 
-    const formatDate = (date: Date | null) => {
-        if (!date) return "-";
-        return new Intl.DateTimeFormat('id-ID', {
-            weekday: 'long',
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        }).format(new Date(date));
-    };
 
     return (
         <main className="min-h-screen bg-[#F9F9F0] pb-20">

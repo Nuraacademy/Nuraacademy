@@ -2,6 +2,7 @@
 
 import { NuraButton } from "@/components/ui/button/button";
 import { useRouter } from "next/navigation";
+import { formatDate } from "@/utils/date";
 
 interface AssignmentIntroProps {
     assignmentId: number;
@@ -30,17 +31,6 @@ export function AssignmentIntroCard({
 }: AssignmentIntroProps) {
     const router = useRouter();
 
-    const formatDate = (date: Date | null) => {
-        if (!date) return "-";
-        return new Intl.DateTimeFormat('id-ID', {
-            weekday: 'long',
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        }).format(new Date(date)).replace('pukul', '').trim();
-    };
 
     const now = new Date();
     const isExpired = endDate ? (now > new Date(endDate)) : false;
