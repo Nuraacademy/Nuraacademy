@@ -5,8 +5,9 @@ import { RichTextInput } from "@/components/ui/input/rich_text_input";
 import { NuraButton } from "@/components/ui/button/button";
 import { Heart, Send, ChevronDown } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { addCommentAction, deleteCommentAction } from "@/app/actions/blog";
+import { addCommentAction, deleteCommentAction, toggleLikeCommentAction, recordCommentShareAction } from "@/app/actions/blog";
 import { toast } from "sonner";
+import { ShareModal } from "@/components/ui/modal/share_modal";
 
 interface Comment {
     id: number;
@@ -16,6 +17,11 @@ interface Comment {
         id: number;
         name: string | null;
         username: string;
+    };
+    isLikedByCurrentUser?: boolean;
+    _count?: {
+        likes: number;
+        shares: number;
     };
 }
 
@@ -30,6 +36,9 @@ export const CommentSection = ({ blogId, comments: initialComments, currentUserI
     const [comments, setComments] = useState(initialComments);
     const [commentText, setCommentText] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    // Share modal state
+    const [sharingComment, setSharingComment] = useState<Comment | null>(null);
 
     const handlePublish = async () => {
         if (!commentText.trim()) return;
@@ -66,6 +75,57 @@ export const CommentSection = ({ blogId, comments: initialComments, currentUserI
         } else {
             toast.error(result.error || "Failed to delete comment");
         }
+    };
+
+    const handleToggleLike = async (commentId: number) => {
+        if (!currentUserId) {
+            toast.error("Please log in to like comments");
+            return;
+        }
+
+        const comment = comments.find(c => c.id === commentId);
+        if (!comment) return;
+
+        const result: any = await toggleLikeCommentAction(commentId, blogId);
+        if (result.success && result.liked !== undefined) {
+            setComments(comments.map(c => 
+                c.id === commentId 
+                    ? { 
+                        ...c, 
+                        isLikedByCurrentUser: result.liked,
+                        _count: {
+                            ...c._count!,
+                            likes: c._count!.likes + (result.liked ? 1 : -1)
+                        }
+                    } 
+                    : c
+            ));
+        } else if (!result.success) {
+            toast.error(result.error || "Failed to like comment");
+        }
+    };
+
+    const handleShare = (comment: Comment) => {
+        setSharingComment(comment);
+    };
+
+    const onCommentShareRecord = async (platform: string) => {
+        if (!sharingComment) return;
+        
+        await recordCommentShareAction(sharingComment.id, blogId, platform);
+        
+        // Update local state for share count
+        setComments(comments.map(c => 
+            c.id === sharingComment.id 
+                ? { 
+                    ...c, 
+                    _count: {
+                        ...c._count!,
+                        shares: c._count!.shares + 1
+                    }
+                } 
+                : c
+        ));
     };
 
     return (
@@ -133,18 +193,33 @@ export const CommentSection = ({ blogId, comments: initialComments, currentUserI
                             dangerouslySetInnerHTML={{ __html: comment.text }}
                         />
                         <div className="flex items-center gap-5 text-gray-400">
-                            <button className="flex items-center gap-1.5 hover:text-red-500 transition-colors text-[10px] font-medium">
-                                <Heart size={16} strokeWidth={1.5} />
-                                <span>67 likes</span>
+                            <button 
+                                onClick={() => handleToggleLike(comment.id)}
+                                className={`flex items-center gap-1.5 transition-colors text-[10px] font-medium ${comment.isLikedByCurrentUser ? 'text-red-500' : 'hover:text-red-500'}`}
+                            >
+                                <Heart size={16} strokeWidth={1.5} className={comment.isLikedByCurrentUser ? 'fill-current' : ''} />
+                                <span>{comment._count?.likes || 0} likes</span>
                             </button>
-                            <button className="flex items-center gap-1.5 hover:text-blue-500 transition-colors text-[10px] font-medium">
+                            <button 
+                                onClick={() => handleShare(comment)}
+                                className="flex items-center gap-1.5 hover:text-blue-500 transition-colors text-[10px] font-medium"
+                            >
                                 <Send size={16} strokeWidth={1.5} />
-                                <span>5 shares</span>
+                                <span>{comment._count?.shares || 0} shares</span>
                             </button>
                         </div>
                     </div>
                 ))}
             </div>
+
+            {/* Share Modal for Comments */}
+            <ShareModal
+                isOpen={!!sharingComment}
+                onClose={() => setSharingComment(null)}
+                shareUrl={typeof window !== 'undefined' && sharingComment ? `${window.location.origin}${window.location.pathname}#comment-${sharingComment.id}` : ""}
+                title="Share Comment"
+                onShare={onCommentShareRecord}
+            />
         </div>
     );
 };

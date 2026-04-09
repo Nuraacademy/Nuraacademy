@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, use } from "react";
-import { getBlogByIdAction, toggleLikeBlogAction, trackBlogViewAction, deleteBlogAction } from "@/app/actions/blog";
+import { getBlogByIdAction, toggleLikeBlogAction, trackBlogViewAction, deleteBlogAction, recordBlogShareAction } from "@/app/actions/blog";
 import { CommentSection } from "@/components/ui/blog/comment_section";
 import { getSession } from "@/app/actions/auth";
 import { hasPermission } from "@/lib/rbac";
@@ -60,6 +60,21 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
         } else if (!result.success) {
             toast.error(result.error || "Failed to like post");
         }
+    };
+
+    const handleShareRecord = async (platform: string) => {
+        if (!blog) return;
+        
+        await recordBlogShareAction(blog.id, platform);
+        
+        // Update local state
+        setBlog({
+            ...blog,
+            _count: {
+                ...blog._count,
+                shares: (blog._count.shares || 0) + 1
+            }
+        });
     };
 
     const handleDelete = async () => {
@@ -206,7 +221,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
                             className="flex items-center gap-2 text-gray-500 hover:text-blue-500 transition-all"
                         >
                             <Send size={20} strokeWidth={1.5} />
-                            <span className="text-xs font-medium">{Math.floor((blog._count?.views || 0) / 4)} shares</span>
+                            <span className="text-xs font-medium">{blog._count?.shares || 0} shares</span>
                         </button>
                     </div>
                 </div>
@@ -217,6 +232,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
                     onClose={() => setIsShareModalOpen(false)}
                     shareUrl={typeof window !== 'undefined' ? window.location.href : ""}
                     title="Share Post"
+                    onShare={handleShareRecord}
                 />
 
                 {/* Delete Confirmation Modal */}
