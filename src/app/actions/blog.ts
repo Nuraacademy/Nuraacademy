@@ -122,7 +122,7 @@ export async function deleteCommentAction(commentId: number, blogId: number) {
     }
 }
 
-export async function trackBlogViewAction(blogId: number, options: { userId?: number, ip?: string, userAgent?: string }) {
+export const trackBlogViewAction = async (blogId: number, options: { userId?: number, ip?: string, userAgent?: string }) => {
     try {
         await blogController.trackBlogView(blogId, options.userId, options.ip, options.userAgent);
         return { success: true };
@@ -130,4 +130,39 @@ export async function trackBlogViewAction(blogId: number, options: { userId?: nu
         console.error("View tracking failed", error);
         return { success: false };
     }
-}
+};
+
+export const recordBlogShareAction = async (blogId: number, platform?: string) => {
+    try {
+        const userId = await getSession();
+        await blogController.recordBlogShare(blogId, userId || undefined, platform);
+        revalidatePath(`/blogs/${blogId}`);
+        return { success: true };
+    } catch (error: any) {
+        return { success: false, error: error.message || "Failed to record share" };
+    }
+};
+
+export const toggleLikeCommentAction = async (commentId: number, blogId: number) => {
+    try {
+        const userId = await getSession();
+        if (!userId) return { success: false, error: "Log in to like this comment" };
+
+        const result = await blogController.toggleLikeComment(commentId, userId);
+        revalidatePath(`/blogs/${blogId}`);
+        return { success: true, ...result };
+    } catch (error: any) {
+        return { success: false, error: error.message || "Failed to like comment" };
+    }
+};
+
+export const recordCommentShareAction = async (commentId: number, blogId: number, platform?: string) => {
+    try {
+        const userId = await getSession();
+        await blogController.recordCommentShare(commentId, userId || undefined, platform);
+        revalidatePath(`/blogs/${blogId}`);
+        return { success: true };
+    } catch (error: any) {
+        return { success: false, error: error.message || "Failed to record share" };
+    }
+};
