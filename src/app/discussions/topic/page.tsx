@@ -363,21 +363,21 @@ export default function DiscussionTopicPage({
                 ) : (
                     <div className="flex flex-col gap-10">
                         {/* Main Post Card */}
-                        <div className="border border-gray-100 bg-white rounded-2xl p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
-                            <div className="flex items-center text-gray-400 text-xs font-medium mb-5">
-                                <span>{discussion_data.author}</span>
+                        <div className="border border-gray-100 bg-white rounded-2xl p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] min-w-0 overflow-hidden">
+                            <div className="flex items-center text-gray-400 text-xs font-medium mb-5 min-w-0">
+                                <span className="min-w-0 truncate">{discussion_data.author}</span>
                                 <span className="mx-2 text-[10px]">●</span>
                                 <span>{discussion_data.timeAgo}</span>
                             </div>
 
-                            <div className="flex items-center justify-between mb-6">
-                                <div className="flex items-center flex-wrap gap-4">
-                                    <h2 className="text-2xl font-medium text-gray-900 leading-tight">
+                            <div className="flex items-center justify-between gap-4 mb-6 min-w-0">
+                                <div className="flex items-center flex-wrap gap-4 min-w-0 flex-1">
+                                    <h2 className="text-2xl font-medium text-gray-900 leading-tight min-w-0 max-w-full break-words">
                                         {discussion_data.title}
                                     </h2>
                                     <ForumTag type={discussion_data.type} />
                                 </div>
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 shrink-0">
                                     {((perms.createEditTopic && currentUserId === discussion_data.userId) || perms.deleteOthersTopic) && (
                                         <button
                                             onClick={() => setIsEditTopicModalOpen(true)}
@@ -400,7 +400,7 @@ export default function DiscussionTopicPage({
                             </div>
 
                             <div 
-                                className="prose prose-base max-w-5xl text-gray-700 leading-[1.7] mb-10"
+                                className="prose prose-base max-w-full text-gray-700 leading-[1.7] mb-10 break-words min-w-0 [&_pre]:overflow-x-auto [&_code]:break-all"
                                 dangerouslySetInnerHTML={{ __html: discussion_data.content }}
                             />
 
@@ -432,7 +432,7 @@ export default function DiscussionTopicPage({
                         </div>
 
                         {/* Replies Section Container */}
-                        <div className="bg-white/40 backdrop-blur-md rounded-2xl p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-white/50">
+                        <div className="bg-white/40 backdrop-blur-md rounded-2xl p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-white/50 min-w-0 overflow-hidden">
                             {/* Replies Header */}
                             <div className="flex justify-between items-center mb-12">
                                 <h2 className="text-2xl font-medium text-gray-900">Replies</h2>
@@ -490,7 +490,7 @@ export default function DiscussionTopicPage({
                                             </div>
                                         </div>
                                         <div 
-                                            className="prose prose-base max-w-none text-gray-700 leading-[1.7] mb-6"
+                                            className="prose prose-base max-w-none text-gray-700 leading-[1.7] mb-6 break-words min-w-0 [&_pre]:overflow-x-auto [&_code]:break-all"
                                             dangerouslySetInnerHTML={{ __html: reply.text }}
                                         />
                                         <div className="flex items-center text-gray-500 gap-8">

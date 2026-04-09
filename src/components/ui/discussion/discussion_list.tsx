@@ -45,23 +45,23 @@ export default function DiscussionList({ topics, onShareRecorded }: { topics: To
             {topics.map((topic) => (
                 <div
                     key={topic.id}
-                    className="border border-gray-100 rounded-xl p-8 transition-all cursor-pointer bg-white shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:border-[#D9F066]"
+                    className="border border-gray-100 rounded-xl p-8 transition-all cursor-pointer bg-white shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:border-[#D9F066] min-w-0 overflow-hidden"
                     onClick={() => router.push(`/discussions/topic?id=${topic.id}`)}
                 >
-                    <div className="flex items-center gap-2 mb-4 text-xs text-gray-400 font-medium">
-                        <span>{topic.author}</span>
+                    <div className="flex items-center gap-2 mb-4 text-xs text-gray-400 font-medium min-w-0">
+                        <span className="min-w-0 truncate">{topic.author}</span>
                         <span className="text-[10px]">●</span>
                         <span>{topic.timeAgo}</span>
                     </div>
 
-                    <div className="flex items-center flex-wrap gap-4 mb-5">
-                        <h2 className="text-xl font-medium text-gray-900 leading-tight">
+                    <div className="flex items-center flex-wrap gap-4 mb-5 min-w-0">
+                        <h2 className="text-xl font-medium text-gray-900 leading-tight min-w-0 max-w-full break-words">
                             {topic.title}
                         </h2>
                         <ForumTag type={topic.type} />
                     </div>
 
-                    <p className="text-gray-600 text-[16px] leading-[1.6] mb-8 line-clamp-2 max-w-4xl">
+                    <p className="text-gray-600 text-[16px] leading-[1.6] mb-8 line-clamp-2 max-w-full break-words min-w-0">
                         {topic.preview}
                     </p>
 
