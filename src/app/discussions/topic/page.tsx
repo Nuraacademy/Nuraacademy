@@ -5,7 +5,7 @@ import { useEffect, useState, use, useMemo } from 'react';
 import Breadcrumb from '@/components/ui/breadcrumb/breadcrumb';
 import { NuraButton } from '@/components/ui/button/button';
 import ForumTag from '@/components/ui/tag/discussion';
-import { getDiscussionByIdAction, createReplyAction, toggleLikeDiscussionAction, toggleLikeReplyAction, deleteDiscussionAction, editReplyAction, deleteReplyAction, editDiscussionAction } from '@/app/actions/discussion';
+import { getDiscussionByIdAction, createReplyAction, toggleLikeDiscussionAction, toggleLikeReplyAction, deleteDiscussionAction, editReplyAction, deleteReplyAction, editDiscussionAction, recordDiscussionShareAction, recordReplyShareAction } from '@/app/actions/discussion';
 import { getSession } from '@/app/actions/auth';
 import { toast } from 'sonner';
 import { Heart, MessageCircle, Send, Edit, Trash2 } from 'lucide-react';
@@ -52,6 +52,7 @@ export default function DiscussionTopicPage({
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+    const [sharingItem, setSharingItem] = useState<{ type: 'topic' | 'reply', id: number } | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [sortRepliesBy, setSortRepliesBy] = useState("newest");
 
@@ -119,6 +120,7 @@ export default function DiscussionTopicPage({
         content: string;
         repliesCount: number;
         likeCount: number;
+        shareCount: number;
         isLikedByCurrentUser: boolean;
         replies: {
             id: number;
@@ -127,6 +129,7 @@ export default function DiscussionTopicPage({
             timeAgo: string;
             text: string;
             likeCount: number;
+            shareCount: number;
             isLikedByCurrentUser: boolean;
             createdAt: string
         }[];
@@ -147,6 +150,7 @@ export default function DiscussionTopicPage({
                 content: res.data.content,
                 repliesCount: res.data.repliesCount,
                 likeCount: res.data.likeCount,
+                shareCount: res.data.shareCount || 0,
                 isLikedByCurrentUser: res.data.isLikedByCurrentUser,
                 replies: res.data.replies.map((r: any) => ({
                     id: r.id,
@@ -155,6 +159,7 @@ export default function DiscussionTopicPage({
                     timeAgo: r.createdAt ? formatDistanceToNow(new Date(r.createdAt)) + " ago" : "Just now",
                     text: r.text,
                     likeCount: r.likeCount,
+                    shareCount: r.shareCount || 0,
                     isLikedByCurrentUser: r.isLikedByCurrentUser,
                     createdAt: r.createdAt
                 })),
@@ -181,8 +186,30 @@ export default function DiscussionTopicPage({
         setIsDialogOpen(false);
     };
 
-    const handleShare = () => {
+    const handleShare = (type: 'topic' | 'reply', id: number) => {
+        setSharingItem({ type, id });
         setIsShareModalOpen(true);
+    };
+
+    const handleShareRecord = async (platform: string) => {
+        if (!sharingItem || !discussion_data) return;
+
+        if (sharingItem.type === 'topic') {
+            recordDiscussionShareAction(sharingItem.id, platform);
+            setDiscussion_data({
+                ...discussion_data,
+                shareCount: (discussion_data.shareCount || 0) + 1
+            });
+        } else {
+            recordReplyShareAction(sharingItem.id, platform);
+            const newReplies = discussion_data.replies.map(r => 
+                r.id === sharingItem.id ? { ...r, shareCount: (r.shareCount || 0) + 1 } : r
+            );
+            setDiscussion_data({
+                ...discussion_data,
+                replies: newReplies
+            });
+        }
     };
 
     const handleToggleLike = async () => {
@@ -395,11 +422,11 @@ export default function DiscussionTopicPage({
                                 </div>
 
                                 <button
-                                    onClick={handleShare}
+                                    onClick={() => handleShare('topic', discussion_data.id)}
                                     className='flex items-center gap-2 transition-all hover:text-green-500 hover:scale-105 font-semibold text-xs'
                                 >
                                     <Send size={21} className="stroke-[1.5]" />
-                                    <span>{Math.floor(discussion_data.likeCount / 3)} shares</span>
+                                    <span>{discussion_data.shareCount} shares</span>
                                 </button>
                             </div>
                         </div>
@@ -478,11 +505,11 @@ export default function DiscussionTopicPage({
                                                 <span className="text-xs font-semibold">{reply.likeCount} likes</span>
                                             </button>
                                             <button
-                                                onClick={handleShare}
+                                                onClick={() => handleShare('reply', reply.id)}
                                                 className='flex items-center gap-2 transition-all hover:text-green-500 hover:scale-105'
                                             >
                                                 <Send size={17} className="stroke-[1.5]" />
-                                                <span className="text-xs font-semibold">{Math.floor(reply.likeCount / 5)} shares</span>
+                                                <span className="text-xs font-semibold">{reply.shareCount} shares</span>
                                             </button>
                                         </div>
                                     </div>
@@ -547,9 +574,13 @@ export default function DiscussionTopicPage({
 
                 <ShareModal
                     isOpen={isShareModalOpen}
-                    onClose={() => setIsShareModalOpen(false)}
+                    onClose={() => {
+                        setIsShareModalOpen(false);
+                        setSharingItem(null);
+                    }}
                     shareUrl={typeof window !== 'undefined' ? window.location.href : ""}
-                    title="Share Thread"
+                    title={sharingItem?.type === 'reply' ? "Share Comment" : "Share Thread"}
+                    onShare={handleShareRecord}
                 />
             </div>
         </main>

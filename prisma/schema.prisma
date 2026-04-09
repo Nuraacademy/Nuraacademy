@@ -37,6 +37,8 @@ model User {
   commentLikes         CommentLike[]
   blogShares           BlogShare[]
   commentShares        CommentShare[]
+  discussionShares     DiscussionShare[]
+  replyShares          DiscussionReplyShare[]
   role                 Role?                 @relation(fields: [roleId], references: [id])
 
   @@map("users")
@@ -401,6 +403,7 @@ model Discussion {
   deletedAt DateTime?
   likes     DiscussionLike[]
   replies   DiscussionReply[]
+  shares    DiscussionShare[]
   user      User              @relation(fields: [userId], references: [id])
 
   @@index([userId])
@@ -419,6 +422,7 @@ model DiscussionReply {
   discussion   Discussion            @relation(fields: [discussionId], references: [id], onDelete: Cascade)
   user         User                  @relation(fields: [userId], references: [id])
   likes        DiscussionReplyLike[]
+  shares       DiscussionReplyShare[]
 
   @@index([discussionId])
   @@index([userId])
@@ -447,6 +451,30 @@ model DiscussionReplyLike {
   @@id([replyId, userId])
   @@index([userId])
   @@map("discussion_reply_likes")
+}
+
+model DiscussionShare {
+  id           Int        @id @default(autoincrement())
+  discussionId Int
+  userId       Int?
+  platform     String?
+  createdAt    DateTime   @default(now())
+  discussion   Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+  user         User?      @relation(fields: [userId], references: [id])
+
+  @@map("discussion_shares")
+}
+
+model DiscussionReplyShare {
+  id        Int             @id @default(autoincrement())
+  replyId   Int
+  userId    Int?
+  platform  String?
+  createdAt DateTime        @default(now())
+  reply     DiscussionReply @relation(fields: [replyId], references: [id], onDelete: Cascade)
+  user      User?           @relation(fields: [userId], references: [id])
+
+  @@map("discussion_reply_shares")
 }
 
 model Role {

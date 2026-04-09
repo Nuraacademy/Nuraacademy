@@ -11,7 +11,9 @@ import {
     deleteDiscussion,
     editDiscussion,
     editReply,
-    deleteReply
+    deleteReply,
+    recordDiscussionShare,
+    recordReplyShare
 } from "@/controllers/discussionController";
 import { revalidatePath } from "next/cache";
 import { DiscussionType } from "@prisma/client";
@@ -195,5 +197,27 @@ export async function deleteReplyAction(id: number) {
         return { success: true };
     } catch (error: any) {
         return { success: false, error: error.message || "Failed to delete reply" };
+    }
+}
+
+export async function recordDiscussionShareAction(discussionId: number, platform?: string) {
+    try {
+        const userId = await getSession();
+        await recordDiscussionShare(discussionId, userId || undefined, platform);
+        revalidatePath(`/discussions/topic`);
+        return { success: true };
+    } catch (error: any) {
+        return { success: false, error: error.message || "Failed to record share" };
+    }
+}
+
+export async function recordReplyShareAction(replyId: number, platform?: string) {
+    try {
+        const userId = await getSession();
+        await recordReplyShare(replyId, userId || undefined, platform);
+        revalidatePath(`/discussions/topic`);
+        return { success: true };
+    } catch (error: any) {
+        return { success: false, error: error.message || "Failed to record share" };
     }
 }

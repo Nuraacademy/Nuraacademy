@@ -15,10 +15,11 @@ export interface Topic {
     preview: string;
     likeCount: number;
     repliesCount: number;
+    shareCount: number;
     type: "Technical Help" | "Learning Resource" | "Learning Partner" | "Course Discussion" | "Career & Portos";
 }
 
-export default function DiscussionList({ topics }: { topics: Topic[] }) {
+export default function DiscussionList({ topics, onShareRecorded }: { topics: Topic[], onShareRecorded?: (topicId: string, platform: string) => void }) {
     const router = useRouter();
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [sharingUrl, setSharingUrl] = useState("");
@@ -27,7 +28,16 @@ export default function DiscussionList({ topics }: { topics: Topic[] }) {
         e.stopPropagation();
         const url = `${window.location.origin}/discussions/topic?id=${topicId}`;
         setSharingUrl(url);
+        setSharingTopicId(topicId);
         setIsShareModalOpen(true);
+    };
+
+    const [sharingTopicId, setSharingTopicId] = useState<string | null>(null);
+
+    const handleShareRecord = (platform: string) => {
+        if (sharingTopicId && onShareRecorded) {
+            onShareRecorded(sharingTopicId, platform);
+        }
     };
 
     return (
@@ -71,7 +81,7 @@ export default function DiscussionList({ topics }: { topics: Topic[] }) {
                             onClick={(e) => handleShare(e, topic.id)}
                         >
                             <Send size={19} className="stroke-[1.5]" />
-                            <span className="text-xs font-semibold">{Math.floor(topic.likeCount / 3)} shares</span>
+                            <span className="text-xs font-semibold">{topic.shareCount} shares</span>
                         </button>
                     </div>
                 </div>
@@ -79,9 +89,13 @@ export default function DiscussionList({ topics }: { topics: Topic[] }) {
 
             <ShareModal
                 isOpen={isShareModalOpen}
-                onClose={() => setIsShareModalOpen(false)}
+                onClose={() => {
+                    setIsShareModalOpen(false);
+                    setSharingTopicId(null);
+                }}
                 shareUrl={sharingUrl}
                 title="Share Thread"
+                onShare={handleShareRecord}
             />
         </div>
     );
