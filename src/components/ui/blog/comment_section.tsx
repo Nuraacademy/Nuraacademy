@@ -192,9 +192,9 @@ export const CommentSection = ({ blogId, comments: initialComments, currentUserI
             {/* Comments List */}
             <div className="space-y-8">
                 {sortedComments.map((comment) => (
-                    <div key={comment.id} className="group animate-in fade-in slide-in-from-bottom-2 duration-500">
-                        <div className="flex items-start justify-between mb-3">
-                            <div className="flex items-center gap-2 text-[11px] font-medium">
+                    <div key={comment.id} className="group min-w-0 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                        <div className="flex items-start justify-between mb-3 gap-2">
+                            <div className="flex min-w-0 flex-wrap items-center gap-2 text-[11px] font-medium">
                                 <span className="text-[#D9F55C] bg-[#D9F55C]/10 px-1 rounded-xl">@{comment.user.username}</span>
                                 <span className="text-gray-400 font-normal">
                                     {formatDistanceToNow(new Date(comment.createdAt))} ago
@@ -210,7 +210,7 @@ export const CommentSection = ({ blogId, comments: initialComments, currentUserI
                             )}
                         </div>
                         <div
-                            className="text-gray-900 text-[13px] leading-relaxed mb-4 max-w-none prose prose-p:my-0 prose-sm focus:outline-none"
+                            className="text-gray-900 text-[13px] leading-relaxed mb-4 max-w-none min-w-0 w-full prose prose-p:my-0 prose-sm break-words [overflow-wrap:anywhere] [&_pre]:overflow-x-auto [&_code]:break-all [&_img]:max-w-full [&_img]:h-auto focus:outline-none"
                             dangerouslySetInnerHTML={{ __html: comment.text }}
                         />
                         <div className="flex items-center gap-5 text-gray-400">
