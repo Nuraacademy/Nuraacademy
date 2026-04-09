@@ -124,12 +124,12 @@ export const RichTextInput = ({
             <label className="block text-sm mb-2">{label}{required && <span className="text-red-500">*</span>}</label>
         )}
         <div className={cn(
-            "group w-full bg-white border border-gray-200 rounded-xl overflow-hidden transition-all focus-within:border-black focus-within:ring-1 focus-within:ring-black",
+            "group min-w-0 w-full overflow-hidden rounded-xl border border-gray-200 bg-white transition-all focus-within:border-black focus-within:ring-1 focus-within:ring-black",
             className
         )}>
             {/* Toolbar Area */}
             {!hideToolbar && (
-                <div className="flex items-center gap-1.5 px-3 py-2 border-b border-gray-100 bg-gray-50/30">
+                <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-1.5 border-b border-gray-100 bg-gray-50/30 px-3 py-2">
                     <MenuButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')}>
                         <Bold size={14} strokeWidth={3} />
                     </MenuButton>
@@ -161,8 +161,8 @@ export const RichTextInput = ({
                 </div>
             )}
 
-            {/* Editable Content */}
-            <div className="cursor-text">
+            {/* Editable Content — horizontal scroll for long lines / wide content */}
+            <div className="max-w-full min-w-0 cursor-text overflow-x-auto [&_.ProseMirror]:w-max [&_.ProseMirror]:min-w-full [&_.ProseMirror]:max-w-none">
                 <EditorContent editor={editor} />
             </div>
         </div>
