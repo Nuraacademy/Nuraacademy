@@ -9,10 +9,11 @@ const PDFViewer = dynamic(() => import("@/components/ui/video/pdf_viewer"), {
     ssr: false,
     loading: () => <div className="p-10 text-center animate-pulse text-gray-400">Loading document engine...</div>
 });
-import { startSessionAction } from "@/app/actions/session";
+import { startSessionAction, updateSessionStatusAction } from "@/app/actions/session";
 import { toast } from "sonner";
 import { useState } from "react";
 import Link from "next/link";
+import { ConfirmModal } from "@/components/ui/modal/confirmation_modal";
 
 interface SessionContentProps {
     classId: string;
@@ -22,6 +23,8 @@ interface SessionContentProps {
     content: any;
     referenceMaterials: { name: string; description: string; url: string }[];
     isAdmin: boolean;
+    canStartSession: boolean;
+    canUpdatePresence: boolean;
     preTestId?: number;
     postTestId?: number;
 }
@@ -34,12 +37,29 @@ export default function SessionContent({
     content,
     referenceMaterials,
     isAdmin,
+    canStartSession,
+    canUpdatePresence,
     preTestId,
     postTestId
 }: SessionContentProps) {
     const router = useRouter();
 
     const [isStarting, setIsStarting] = useState(false);
+    const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+    const [confirmStatus, setConfirmStatus] = useState<'LIVE' | 'DONE' | null>(null);
+
+    const handleStatusUpdate = async (status: 'LIVE' | 'DONE') => {
+        setIsUpdatingStatus(true);
+        const result = await updateSessionStatusAction(classId, courseId, moduleId, status);
+        setIsUpdatingStatus(false);
+        setConfirmStatus(null);
+
+        if (result.success) {
+            toast.success(`Session status updated to ${status}`);
+        } else {
+            toast.error(result.error || "Failed to update session status");
+        }
+    };
 
     const handleJoin = async () => {
         setIsStarting(true);
@@ -120,12 +140,14 @@ export default function SessionContent({
                             </p>
                         </div>
                         <div className="flex gap-4">
-                            <NuraButton
-                                label={isStarting ? "Starting..." : "Join"}
-                                variant="medium"
-                                onClick={handleJoin}
-                                disabled={isStarting}
-                            />
+                            {content.zoom.status === "LIVE" && (
+                                <NuraButton
+                                    label={isStarting ? "Starting..." : "Join"}
+                                    variant="medium"
+                                    onClick={handleJoin}
+                                    disabled={isStarting}
+                                />
+                            )}
                             {content?.recording && (
                                 <NuraButton
                                     label="View Record"
@@ -137,18 +159,21 @@ export default function SessionContent({
                             )}
                         </div>
 
-                        <div className="border-t border-gray-100"></div>
-
-                        <div className="flex flex-col gap-2">
-                            <h2 className="text-sm font-medium text-gray-900">Presence & SES</h2>
-                            <a
-                                href={`/classes/${classId}/course/${courseId}/session/${moduleId}/presence`}
-                                className="text-xs text-[#008B8B] font-medium hover:underline flex items-center gap-1"
-                            >
-                                Lihat daftar hadir
-                                <ExternalLink size={12} />
-                            </a>
-                        </div>
+                        {content.zoom.status === "DONE" && canUpdatePresence && (
+                            <>
+                                <div className="border-t border-gray-100"></div>
+                                <div className="flex flex-col gap-2">
+                                    <h2 className="text-sm font-medium text-gray-900">Presence & SES</h2>
+                                    <a
+                                        href={`/classes/${classId}/course/${courseId}/session/${moduleId}/presence`}
+                                        className="text-xs text-[#008B8B] font-medium hover:underline flex items-center gap-1"
+                                    >
+                                        Lihat daftar hadir
+                                        <ExternalLink size={12} />
+                                    </a>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </>
             )}
@@ -191,6 +216,10 @@ export default function SessionContent({
                                     variant={preTestId ? "primary" : isAdmin ? "secondary" : "primary"}
                                     onClick={() => {
                                         if (preTestId && !isAdmin) {
+                                            if (content?.zoom?.status === "DONE") {
+                                                toast.error("Pre-test is no longer available as the session is already finished.");
+                                                return;
+                                            }
                                             router.push(`/assignment/${preTestId}`);
                                         } else if (preTestId && isAdmin) {
                                             router.push(`/assignment/${preTestId}/results`);
@@ -200,7 +229,7 @@ export default function SessionContent({
                                             toast.error("Pre-test not available");
                                         }
                                     }}
-                                    disabled={!preTestId && !isAdmin}
+                                    disabled={(!preTestId && !isAdmin) || (!isAdmin && content?.zoom?.status === "DONE")}
                                 />
                                 {isAdmin && preTestId && (
                                     <Link
@@ -212,12 +241,37 @@ export default function SessionContent({
                                 )}
                             </div>
 
+                            {canStartSession && (
+                                <div className="flex flex-col items-center gap-2">
+                                    {(content?.zoom?.status === "Scheduled" || !content?.zoom?.status) && (
+                                        <NuraButton
+                                            label="Start Session"
+                                            variant="primary"
+                                            onClick={() => setConfirmStatus('LIVE')}
+                                            isLoading={isUpdatingStatus && confirmStatus === 'LIVE'}
+                                        />
+                                    )}
+                                    {content?.zoom?.status === "LIVE" && (
+                                        <NuraButton
+                                            label="End Session"
+                                            variant="primary"
+                                            onClick={() => setConfirmStatus('DONE')}
+                                            isLoading={isUpdatingStatus && confirmStatus === 'DONE'}
+                                        />
+                                    )}
+                                </div>
+                            )}
+
                             <div className="flex flex-col items-center gap-2">
                                 <NuraButton
                                     label={postTestId ? "Post-test" : isAdmin ? "Create Post-test" : "Post-test"}
                                     variant={postTestId ? "primary" : isAdmin ? "secondary" : "primary"}
                                     onClick={() => {
                                         if (postTestId && !isAdmin) {
+                                            if (content?.zoom?.status !== "DONE") {
+                                                toast.error("Post-test will be available after the session is finished.");
+                                                return;
+                                            }
                                             router.push(`/assignment/${postTestId}`);
                                         } else if (postTestId && isAdmin) {
                                             router.push(`/assignment/${postTestId}/results`);
@@ -227,7 +281,7 @@ export default function SessionContent({
                                             toast.error("Post-test not available");
                                         }
                                     }}
-                                    disabled={!postTestId && !isAdmin}
+                                    disabled={(!postTestId && !isAdmin) || (!isAdmin && content?.zoom?.status !== "DONE")}
                                 />
                                 {isAdmin && postTestId && (
                                     <Link
@@ -242,6 +296,20 @@ export default function SessionContent({
                     )}
                 </div>
             </div>
+
+            <ConfirmModal
+                isOpen={!!confirmStatus}
+                title={confirmStatus === 'LIVE' ? "Start Session" : "End Session"}
+                message={
+                    confirmStatus === 'LIVE' 
+                        ? "Are you sure you want to start this session? This will make the Join button visible to all users."
+                        : "Are you sure you want to end this session? This will hide the Join button and enable the Presence & SES section."
+                }
+                onConfirm={() => confirmStatus && handleStatusUpdate(confirmStatus)}
+                onCancel={() => setConfirmStatus(null)}
+                isLoading={isUpdatingStatus}
+                confirmText={confirmStatus === 'LIVE' ? "Start" : "End"}
+            />
         </>
     );
 }

@@ -4,7 +4,7 @@ import { getSessionById } from "@/controllers/sessionController";
 import { notFound, redirect } from "next/navigation";
 import SessionContent from "./session_content";
 import Link from "next/link";
-import { hasPermission } from "@/lib/rbac";
+import { getPermissions } from "@/lib/rbac";
 import TitleCard from "@/components/ui/card/title_card";
 import Image from "next/image";
 import { getFullSession } from "@/app/actions/auth";
@@ -18,13 +18,21 @@ export default async function SessionPage({
 }) {
     const { id: classId, course_id: courseId, module_id: moduleId } = await params;
 
-    const [session, preTest, postTest, userSession, canUpdateSession] = await Promise.all([
+    const [session, preTest, postTest, userSession, permissions] = await Promise.all([
         getSessionById(parseInt(moduleId)),
         getAssignmentBySessionAndType(parseInt(moduleId), "PRETEST"),
         getAssignmentBySessionAndType(parseInt(moduleId), "POSTTEST"),
         getFullSession(),
-        hasPermission("Session", "UPDATE_SESSION")
+        getPermissions([
+            { resource: "Course", action: "UPDATE_SESSION" },
+            { resource: "Course", action: "START_SESSION" },
+            { resource: "Course", action: "CREATE_UPDATE_PRESENCE_SES" }
+        ])
     ]);
+
+    const canUpdateSession = permissions["Course_UPDATE_SESSION"];
+    const canStartSession = permissions["Course_START_SESSION"];
+    const canUpdatePresence = permissions["Course_CREATE_UPDATE_PRESENCE_SES"];
 
     const currentUserId = userSession?.id || null;
     const isLearner = !userSession || userSession.role === 'Learner';
@@ -133,6 +141,8 @@ export default async function SessionPage({
                         content={content}
                         referenceMaterials={referenceMaterials}
                         isAdmin={canUpdateSession}
+                        canStartSession={canStartSession}
+                        canUpdatePresence={canUpdatePresence}
                         preTestId={preTest?.id}
                         postTestId={postTest?.id}
                     />

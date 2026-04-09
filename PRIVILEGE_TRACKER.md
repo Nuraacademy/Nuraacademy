@@ -25,15 +25,15 @@ This document tracks the implementation status of all the privileges seeded into
 | Course | `DELETE_COURSE` | Delete course | 🟢 Implemented |
 | Course | `VIEW_SEARCH_COURSE` | View & search course | 🟢 Implemented |
 | Course | `VIEW_DETAIL_COURSE` | View detail course | 🟢 Implemented (Public View) |
-| Session | `CREATE_SESSION` | Create session | 🟢 Implemented |
-| Session | `UPDATE_SESSION` | Update session | 🟢 Implemented |
-| Session | `DELETE_SESSION` | Delete session | 🟢 Implemented |
-| Session | `VIEW_SESSION` | View session | 🟢 Implemented (Public View) |
-| Session | `START_SESSION` | Start session | 🟢 Implemented |
+| Course | `CREATE_SESSION` | Create session | 🟢 Implemented |
+| Course | `UPDATE_SESSION` | Update session | 🟢 Implemented |
+| Course | `DELETE_SESSION` | Delete session | 🟢 Implemented |
+| Course | `VIEW_SESSION` | View session | 🟢 Implemented (Public View) |
+| Course | `START_SESSION` | Start session | 🟢 Implemented |
 | Recording | `ADD_RECORDING` | Add recording | 🟢 Implemented |
 | Recording | `UPDATE_RECORDING` | Update recording | 🟢 Implemented |
 | Recording | `DELETE_RECORDING` | Delete recording | 🟢 Implemented |
-| Presence | `CREATE_UPDATE_PRESENCE_SES` | Create/ update presence & SES | 🟢 Implemented |
+| Course | `CREATE_UPDATE_PRESENCE_SES` | Create/ update presence & SES | 🟢 Implemented |
 
 ## 3.0 Assignment
 | Resource | Action | Description | Status |
