@@ -60,7 +60,8 @@ export async function saveReflection(data: {
             where: where as any,
             update: {
                 content: data.content,
-                enrollmentId: data.enrollmentId
+                enrollmentId: data.enrollmentId,
+                deletedAt: null
             },
             create: {
                 userId: userId,
