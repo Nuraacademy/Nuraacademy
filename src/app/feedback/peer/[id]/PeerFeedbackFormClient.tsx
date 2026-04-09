@@ -114,12 +114,7 @@ export default function PeerFeedbackFormClient({ data, evaluatorEnrollmentId, cl
                 description={`${data.class.title} | ${groupName}`}
                 actions={initialFeedback?.isEdited && (
                     <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/20">
-                        <Image
-                            src="/icons/history.svg"
-                            alt="History"
-                            width={16}
-                            height={16}
-                        />
+                      
                         <span className="text-xs font-medium uppercase tracking-widest text-[#DAEE49]">Edited</span>
                     </div>
                 )}

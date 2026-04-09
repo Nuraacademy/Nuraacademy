@@ -45,6 +45,16 @@ export async function saveClassFeedback(data: {
         const userId = await getCurrentUserId();
         if (!userId) return { success: false, error: "Unauthorized" };
 
+        const existing = await prisma.classFeedback.findUnique({
+            where: {
+                userId_classId: {
+                    userId,
+                    classId: data.classId
+                }
+            }
+        });
+        const isEdited = !!existing;
+
         const feedback = await prisma.classFeedback.upsert({
             where: {
                 userId_classId: {
@@ -64,7 +74,8 @@ export async function saveClassFeedback(data: {
                 technicalSupport: data.technicalSupport,
                 technicalSupportFeedback: data.technicalSupportFeedback,
                 content: data.content,
-                enrollmentId: data.enrollmentId
+                enrollmentId: data.enrollmentId,
+                isEdited: isEdited
             },
             create: {
                 userId: userId,
@@ -80,7 +91,8 @@ export async function saveClassFeedback(data: {
                 learningEnvironmentFeedback: data.learningEnvironmentFeedback,
                 technicalSupport: data.technicalSupport,
                 technicalSupportFeedback: data.technicalSupportFeedback,
-                content: data.content
+                content: data.content,
+                isEdited: false
             }
         });
 

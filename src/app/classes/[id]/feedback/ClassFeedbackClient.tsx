@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import Breadcrumb from '@/components/ui/breadcrumb/breadcrumb';
 import { saveClassFeedback } from '@/app/actions/classFeedback';
 import { toast } from 'sonner';
@@ -76,10 +77,18 @@ export default function ClassFeedbackClient({ classId, data, initialFeedback }: 
                 <Breadcrumb items={breadcrumbItems} />
 
                 {/* Hero */}
-                <div className="bg-[#005954] rounded-xl p-6 text-white shadow-sm">
-                    <h1 className="text-xl font-medium mb-1">Class Feedback</h1>
-                    <p className="text-sm opacity-90">{data.classTitle}</p>
-                </div>
+                <TitleCard
+                    title="Class Feedback"
+                    description={data.classTitle}
+                    actions={
+                        initialFeedback?.isEdited && (
+                            <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/20">
+
+                                <span className="text-xs font-medium uppercase tracking-widest text-[#DAEE49]">Edited</span>
+                            </div>
+                        )
+                    }
+                />
 
                 {/* Details View */}
                 <div className="bg-white rounded-xl p-6 md:p-10 shadow-sm border border-gray-100 space-y-10">
@@ -124,6 +133,19 @@ export default function ClassFeedbackClient({ classId, data, initialFeedback }: 
             <TitleCard
                 title="Class Feedback"
                 description={data.classTitle}
+                actions={
+                    initialFeedback?.isEdited && (
+                        <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/20">
+                            <Image
+                                src="/icons/history.svg"
+                                alt="History"
+                                width={16}
+                                height={16}
+                            />
+                            <span className="text-xs font-medium uppercase tracking-widest text-[#DAEE49]">Edited</span>
+                        </div>
+                    )
+                }
             />
 
             {/* Editor View */}
