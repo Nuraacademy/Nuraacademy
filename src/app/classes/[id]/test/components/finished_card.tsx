@@ -81,7 +81,7 @@ export function FinishedCard({
                                         }`}>
                                         {course.status}
                                     </span>
-                                    <a href={`/classes/${classId}/feedback`} className="text-xs text-[#075546] underline hover:text-[#005954] transition-colors">
+                                    <a href={`/classes/${classId}/feedback`} className="hidden text-xs text-[#075546] underline hover:text-[#005954] transition-colors">
                                         Feedback
                                     </a>
                                 </div>
