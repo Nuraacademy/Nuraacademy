@@ -1040,7 +1040,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                 <a
                                     href="/templates/objective_questions_template.csv"
                                     download
-                                    className="px-6 py-2.5 text-sm text-gray-400 hover:text-gray-600 flex items-center justify-center gap-1.5 transition-colors border-2 border-dashed border-gray-100 rounded-2xl hover:border-gray-200 hover:bg-gray-50"
+                                    className="px-6 py-2.5 text-sm font-medium text-blue-700 hover:text-blue-900 flex items-center justify-center gap-1.5 transition-colors border-2 border-dashed border-blue-200 rounded-2xl hover:border-blue-400 hover:bg-blue-50"
                                 >
                                     <Download size={14} /> Template
                                 </a>
