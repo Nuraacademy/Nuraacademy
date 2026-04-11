@@ -5,6 +5,7 @@ import { getEnrollment } from "@/controllers/enrollmentController"
 import { mapAssignmentToTestRunner } from "@/utils/test_mapper"
 import { NotFoundState } from "@/components/ui/status/not_found_state"
 import { getSession } from "@/app/actions/auth"
+import { formatAppDateTime } from "@/lib/appDatetime"
 
 export default async function PlacementTestPage({
   params,
@@ -34,7 +35,7 @@ export default async function PlacementTestPage({
             ? "It looks like there is no placement test available for this class yet. Please contact your instructor for more information."
             : (!enrollment 
                 ? "You must be enrolled in this class to take the placement test."
-                : `The placement test is scheduled to start on ${new Date(assignment.startDate!).toLocaleString()}. Please check back then.`)
+                : `The placement test is scheduled to start on ${formatAppDateTime(assignment.startDate!)}. Please check back then.`)
           }
         />
       </main>

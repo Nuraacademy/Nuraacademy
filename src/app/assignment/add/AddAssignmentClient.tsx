@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useNuraRouter as useRouter } from "@/components/providers/navigation-provider";
 import { CheckCircle } from "lucide-react";
 import { addAssignment, editAssignment } from "@/app/actions/assignment";
@@ -140,6 +140,143 @@ export function AddAssignmentClient({
 
     const showModal = (opts: typeof modal) => setModal({ ...opts, open: true });
     const closeModal = () => setModal((m) => ({ ...m, open: false }));
+
+    // ── Unsaved changes guard (baseline vs current serialized form) ───────────
+    const baselineSerializedRef = useRef<string | null>(null);
+    const [baselineNonce, setBaselineNonce] = useState(0);
+    const skipLeaveConfirmRef = useRef(false);
+
+    const getSerializedAssignmentState = useCallback(() => {
+        return JSON.stringify({
+            title,
+            assignmentType,
+            submissionType,
+            selectedClassId,
+            selectedCourseId,
+            selectedSessionId,
+            startDate: startDate?.toISOString?.() ?? null,
+            endDate: endDate?.toISOString?.() ?? null,
+            duration,
+            courseData,
+            thresholds,
+            simpleObjective,
+            simpleEssay,
+            simpleProject,
+            simpleThresholds,
+            simpleSectionWeights,
+            view,
+            existingTestId,
+            objectiveQuestions,
+            essayQuestions,
+            projectQuestions,
+        });
+    }, [
+        title,
+        assignmentType,
+        submissionType,
+        selectedClassId,
+        selectedCourseId,
+        selectedSessionId,
+        startDate,
+        endDate,
+        duration,
+        courseData,
+        thresholds,
+        simpleObjective,
+        simpleEssay,
+        simpleProject,
+        simpleThresholds,
+        simpleSectionWeights,
+        view,
+        existingTestId,
+        objectiveQuestions,
+        essayQuestions,
+        projectQuestions,
+    ]);
+
+    const getSerializedRef = useRef(getSerializedAssignmentState);
+    getSerializedRef.current = getSerializedAssignmentState;
+
+    const commitFormBaseline = () => {
+        baselineSerializedRef.current = getSerializedRef.current();
+        setBaselineNonce((n) => n + 1);
+    };
+
+    const scheduleFormBaseline = () => {
+        setTimeout(() => {
+            commitFormBaseline();
+        }, 0);
+    };
+
+    const serializedForm = getSerializedAssignmentState();
+    const hasUnsavedChanges =
+        baselineNonce >= 0 &&
+        baselineSerializedRef.current !== null &&
+        serializedForm !== baselineSerializedRef.current;
+
+    const [leaveConfirm, setLeaveConfirm] = useState<
+        null | { kind: "back" } | { kind: "push"; href: string }
+    >(null);
+
+    useEffect(() => {
+        const t = setTimeout(() => {
+            commitFormBaseline();
+        }, 0);
+        return () => clearTimeout(t);
+    }, []);
+
+    useEffect(() => {
+        if (!hasUnsavedChanges) return;
+        const onBeforeUnload = (e: BeforeUnloadEvent) => {
+            e.preventDefault();
+            e.returnValue = "";
+        };
+        window.addEventListener("beforeunload", onBeforeUnload);
+        return () => window.removeEventListener("beforeunload", onBeforeUnload);
+    }, [hasUnsavedChanges]);
+
+    useEffect(() => {
+        if (!hasUnsavedChanges) return;
+        const onClickCapture = (e: MouseEvent) => {
+            if (skipLeaveConfirmRef.current) return;
+            const el = (e.target as HTMLElement | null)?.closest("a[href]");
+            if (!el) return;
+            const a = el as HTMLAnchorElement;
+            if (a.target === "_blank" || a.download) return;
+            const href = a.getAttribute("href");
+            if (!href || href === "#" || href.startsWith("#")) return;
+            if (href.startsWith("mailto:") || href.startsWith("tel:")) return;
+            let path = href;
+            try {
+                const u = new URL(href, window.location.origin);
+                if (u.origin !== window.location.origin) return;
+                path = u.pathname + u.search + u.hash;
+            } catch {
+                if (href.startsWith("http")) return;
+            }
+            if (path === window.location.pathname + window.location.search + window.location.hash) return;
+            e.preventDefault();
+            e.stopPropagation();
+            setLeaveConfirm({ kind: "push", href: path });
+        };
+        document.addEventListener("click", onClickCapture, true);
+        return () => document.removeEventListener("click", onClickCapture, true);
+    }, [hasUnsavedChanges]);
+
+    const confirmLeaveAndNavigate = () => {
+        const pending = leaveConfirm;
+        setLeaveConfirm(null);
+        if (!pending) return;
+        skipLeaveConfirmRef.current = true;
+        if (pending.kind === "back") {
+            router.back();
+        } else {
+            router.push(pending.href);
+        }
+        setTimeout(() => {
+            skipLeaveConfirmRef.current = false;
+        }, 0);
+    };
 
     // ── Pre-fill from initialAssignment (when navigating from ProjectCard edit) ─
     useEffect(() => {
@@ -412,6 +549,7 @@ export function AddAssignmentClient({
                 setSimpleThresholds({ "-1": test.passingGrade });
             }
         }
+        scheduleFormBaseline();
     };
 
     // ── PLACEMENT editor handlers ────────────────────────────────────────────
@@ -640,13 +778,21 @@ export function AddAssignmentClient({
 
         if (res.success) {
             setExistingTestId(res.assignmentId); // Immediately switch to Edit mode
+            scheduleFormBaseline();
             showModal({
                 open: true,
                 type: "success",
                 title: existingTestId ? "Assignment Updated! 🎉" : "Assignment Created! 🎉",
                 message: existingTestId ? "Your assignment has been updated successfully." : "Your assignment has been created successfully.",
                 closeText: "Stay Here",
-                onConfirm: () => { closeModal(); router.push("/assignment"); },
+                onConfirm: () => {
+                    closeModal();
+                    skipLeaveConfirmRef.current = true;
+                    router.push("/assignment");
+                    setTimeout(() => {
+                        skipLeaveConfirmRef.current = false;
+                    }, 0);
+                },
                 confirmText: "Go to Assignments",
             });
         } else {
@@ -715,6 +861,16 @@ export function AddAssignmentClient({
                 confirmText="Yes, Continue"
                 cancelText="No, Go Back"
                 isLoading={isSubmitting}
+            />
+
+            <ConfirmModal
+                isOpen={leaveConfirm !== null}
+                title="Tinggalkan halaman?"
+                message="Ada perubahan yang belum disimpan. Jika Anda pergi sekarang, perubahan tersebut akan hilang."
+                onConfirm={confirmLeaveAndNavigate}
+                onCancel={() => setLeaveConfirm(null)}
+                confirmText="Tinggalkan"
+                cancelText="Lanjut mengedit"
             />
 
             <div className="relative z-10 max-w-5xl mx-auto w-full px-6 md:px-10 py-8">
@@ -969,7 +1125,15 @@ export function AddAssignmentClient({
 
                         {/* Footer */}
                         <div className="flex justify-end items-center gap-4">
-                            <NuraButton label="Cancel" variant="secondary" onClick={() => router.back()} disabled={isSubmitting} />
+                            <NuraButton
+                                label="Cancel"
+                                variant="secondary"
+                                onClick={() => {
+                                    if (hasUnsavedChanges) setLeaveConfirm({ kind: "back" });
+                                    else router.back();
+                                }}
+                                disabled={isSubmitting}
+                            />
                             <NuraButton
                                 label={isSubmitting ? "Saving..." : (existingTestId ? "Update Assignment" : "Create Assignment")}
                                 variant="primary"

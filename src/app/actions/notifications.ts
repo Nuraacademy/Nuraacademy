@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getSession } from "./auth";
+import { endOfAppDay, formatAppDate, startOfAppDay } from "@/lib/appDatetime";
 
 export type AppNotification = {
     id: string;
@@ -20,8 +21,8 @@ export async function getNotificationsAction(): Promise<{ success: boolean; data
         const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
         const in3Days = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
         const in1h = new Date(now.getTime() + 60 * 60 * 1000);
-        const startOfToday = new Date(now); startOfToday.setHours(0, 0, 0, 0);
-        const endOfToday = new Date(now); endOfToday.setHours(23, 59, 59, 999);
+        const startOfToday = startOfAppDay(now);
+        const endOfToday = endOfAppDay(now);
 
         // Get user's active enrollments with full related data
         const enrollments = await prisma.enrollment.findMany({
@@ -103,7 +104,7 @@ export async function getNotificationsAction(): Promise<{ success: boolean; data
                             id: `placement-start-${assignment.id}`,
                             type: "placement_test_soon",
                             title: "Placement test starting soon",
-                            message: `The placement test for ${cls.title} starts on ${assignment.startDate.toLocaleDateString()}.`,
+                            message: `The placement test for ${cls.title} starts on ${formatAppDate(assignment.startDate)}.`,
                             href: `/classes/${cls.id}/test`,
                         });
                     }
@@ -113,7 +114,7 @@ export async function getNotificationsAction(): Promise<{ success: boolean; data
                             id: `placement-end-${assignment.id}`,
                             type: "placement_test_ending",
                             title: "Placement test ending soon",
-                            message: `The placement test for ${cls.title} ends on ${assignment.endDate.toLocaleDateString()}.`,
+                            message: `The placement test for ${cls.title} ends on ${formatAppDate(assignment.endDate)}.`,
                             href: `/classes/${cls.id}/test`,
                         });
                     }

@@ -5,6 +5,7 @@ import { getSession } from "./auth"
 import { revalidatePath } from "next/cache"
 import { requirePermission } from "@/lib/rbac"
 import { sendMail } from "@/lib/mailer"
+import { formatAppDate } from "@/lib/appDatetime"
 
 export async function handleEnrollment(classId: number, formData: any) {
     const userId = await getSession();
@@ -68,11 +69,11 @@ export async function handleEnrollment(classId: number, formData: any) {
         // Send Enrollment Success Email
         if (user?.email) {
             const timelineHtml = classWithTimelines?.timelines.map(t => 
-                `<li><strong>${t.date.toLocaleDateString()}:</strong> ${t.activity}</li>`
+                `<li><strong>${formatAppDate(t.date)}:</strong> ${t.activity}</li>`
             ).join('') || '<li>No timeline activities scheduled yet.</li>';
 
             const learningPeriod = (classWithTimelines?.startDate && classWithTimelines?.endDate) 
-                ? `<li><strong>Learning Period:</strong> ${classWithTimelines.startDate.toLocaleDateString()} to ${classWithTimelines.endDate.toLocaleDateString()}</li>`
+                ? `<li><strong>Learning Period:</strong> ${formatAppDate(classWithTimelines.startDate)} to ${formatAppDate(classWithTimelines.endDate)}</li>`
                 : '';
 
             await sendMail({

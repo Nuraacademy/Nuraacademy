@@ -17,6 +17,13 @@ import { addAssignment, editAssignment, removeAssignment } from "@/app/actions/a
 import { NuraTextInput } from "@/components/ui/input/text_input";
 import { getClassDetails, uploadClassFile } from "@/app/actions/classes";
 import { toast } from "sonner";
+import {
+    buildAssignmentItemsPayload,
+    DEFAULT_SECTION_WEIGHTS,
+    inferSectionWeightsFromQuestions,
+    validateAssignmentQuestions,
+    type SectionWeights,
+} from "@/components/assignment/test_editor";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -51,6 +58,7 @@ interface CourseQuestions {
     essay: EssayQuestion[];
     project: ProjectQuestion[];
     saved: boolean;
+    sectionWeights?: SectionWeights;
 }
 
 interface CourseItem {
@@ -114,8 +122,7 @@ function ObjectiveBlock({
     const hasError =
         isEmpty(question.content) ||
         !question.answers.some((a) => a.isCorrect) ||
-        question.answers.some((a) => isEmpty(a.text)) ||
-        question.score <= 0;
+        question.answers.some((a) => isEmpty(a.text));
 
     return (
         <div className={`bg-[#F0F5D8] rounded-2xl p-5 mb-4 border-2 transition-colors ${hasError ? "border-orange-200" : "border-transparent"}`}>
@@ -186,21 +193,6 @@ function ObjectiveBlock({
                     <p className="text-orange-500 text-xs">Mark one answer as correct.</p>
                 )}
             </div>
-
-            {/* Score */}
-            <div className="mt-4 flex items-center gap-3">
-                <label className="text-xs font-medium text-gray-500 shrink-0">Score</label>
-                <input
-                    type="number"
-                    min={1}
-                    value={question.score || ""}
-                    placeholder="e.g. 10"
-                    onChange={(e) => onChange((prev) => ({ ...prev, score: Math.max(0, Number(e.target.value)) }))}
-                    onWheel={(e) => e.currentTarget.blur()}
-                    className={`w-28 rounded-lg border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#D9F55C] bg-white ${question.score <= 0 ? "border-orange-200" : "border-gray-300"}`}
-                />
-                {question.score <= 0 && <span className="text-orange-500 text-xs">Required</span>}
-            </div>
         </div>
     );
 }
@@ -214,7 +206,7 @@ function OpenEndedBlock({
     onRemove: () => void;
     label: string;
 }) {
-    const hasError = isEmpty(question.content) || question.score <= 0;
+    const hasError = isEmpty(question.content);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
     const attachments = (question as any).attachments || [];
@@ -250,41 +242,26 @@ function OpenEndedBlock({
                 </button>
             </div>
             <RichTextInput value={question.content} onChange={(val) => onChange((prev) => ({ ...prev, content: val }))} />
-            <div className="mt-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <label className="text-xs font-medium text-gray-500 shrink-0">Score</label>
-                    <input
-                        type="number"
-                        min={1}
-                        value={question.score || ""}
-                        placeholder="e.g. 20"
-                        onChange={(e) => onChange((prev) => ({ ...prev, score: Math.max(0, Number(e.target.value)) }))}
-                        onWheel={(e) => e.currentTarget.blur()}
-                        className={`w-28 rounded-lg border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#D9F55C] bg-white ${question.score <= 0 ? "border-orange-200" : "border-gray-300"}`}
-                    />
-                    {question.score <= 0 && <span className="text-orange-500 text-xs font-medium">Required</span>}
-                </div>
 
-                {label === "Project Question" && (
-                    <div className="flex items-center gap-2">
-                        {attachments.length > 0 && (
-                            <div className="flex -space-x-1 pr-2 border-r border-gray-200">
-                                {attachments.map((_: any, idx: number) => (
-                                    <div key={idx} className="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm">
-                                        <FileText size={10} className="text-emerald-600" />
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                        <NuraButton
-                            label={attachments.length > 0 ? `${attachments.length} Attachments` : "Add Attachments"}
-                            variant="secondary"
-                            className="!h-9 !text-xs !px-4"
-                            onClick={() => setIsUploadModalOpen(true)}
-                        />
-                    </div>
-                )}
-            </div>
+            {label === "Project Question" && (
+                <div className="mt-4 flex items-center justify-end gap-2">
+                    {attachments.length > 0 && (
+                        <div className="flex -space-x-1 pr-2 border-r border-gray-200">
+                            {attachments.map((_: any, idx: number) => (
+                                <div key={idx} className="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm">
+                                    <FileText size={10} className="text-emerald-600" />
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    <NuraButton
+                        label={attachments.length > 0 ? `${attachments.length} Attachments` : "Add Attachments"}
+                        variant="secondary"
+                        className="!h-9 !text-xs !px-4"
+                        onClick={() => setIsUploadModalOpen(true)}
+                    />
+                </div>
+            )}
 
             {/* List of attachments for Projects if and only if label was originally Project in the editor */}
             {attachments.length > 0 && (
@@ -400,7 +377,10 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
     const [objectiveQuestions, setObjectiveQuestions] = useState<ObjectiveQuestion[]>([]);
     const [essayQuestions, setEssayQuestions] = useState<EssayQuestion[]>([]);
     const [projectQuestions, setProjectQuestions] = useState<ProjectQuestion[]>([]);
+    const [sectionWeights, setSectionWeights] = useState<SectionWeights>({ ...DEFAULT_SECTION_WEIGHTS });
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+
+    const SCORE_TOTAL = 100;
 
     const handleImportCSV = (file: File) => {
         const reader = new FileReader();
@@ -572,6 +552,10 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                     }
                 });
             }
+            Object.keys(initialCourseData).forEach((cid) => {
+                const d = initialCourseData[cid];
+                d.sectionWeights = inferSectionWeightsFromQuestions(d.objective, d.essay, d.project);
+            });
             setCourseData(initialCourseData);
             setThresholds(initialThresholds);
         }
@@ -585,10 +569,15 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
             setObjectiveQuestions(existing.objective);
             setEssayQuestions(existing.essay);
             setProjectQuestions(existing.project);
+            setSectionWeights(
+                existing.sectionWeights ??
+                    inferSectionWeightsFromQuestions(existing.objective, existing.essay, existing.project),
+            );
         } else {
             setObjectiveQuestions([makeObjectiveQuestion(idRef)]);
             setEssayQuestions([makeEssayQuestion(idRef)]);
             setProjectQuestions([]);
+            setSectionWeights({ objective: 50, essay: 50, project: 0 });
         }
 
         // Initialize threshold if not set
@@ -602,31 +591,14 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
         setView("editor");
     };
 
-    // ── Validate editor ──────────────────────────────────────────────────────
-    const validateEditor = (): string[] => {
-        const errors: string[] = [];
-        objectiveQuestions.forEach((q, i) => {
-            if (isEmpty(q.content)) errors.push(`Objective Q${i + 1}: question text is required.`);
-            if (!q.answers.some((a) => a.isCorrect)) errors.push(`Objective Q${i + 1}: mark one answer as correct.`);
-            if (q.answers.some((a) => isEmpty(a.text))) errors.push(`Objective Q${i + 1}: all answer options must be filled.`);
-            if (q.score <= 0) errors.push(`Objective Q${i + 1}: score must be > 0.`);
-            const texts = q.answers.map(a => a.text.replace(/<[^>]*>/g, '').trim().toLowerCase()).filter(t => t !== "");
-            if (new Set(texts).size !== texts.length) errors.push(`Objective Q${i + 1}: all answer options must be unique.`);
-        });
-        essayQuestions.forEach((q, i) => {
-            if (isEmpty(q.content)) errors.push(`Essay Q${i + 1}: question text is required.`);
-            if (q.score <= 0) errors.push(`Essay Q${i + 1}: score must be > 0.`);
-        });
-        projectQuestions.forEach((q, i) => {
-            if (isEmpty(q.content)) errors.push(`Project Q${i + 1}: question text is required.`);
-            if (q.score <= 0) errors.push(`Project Q${i + 1}: score must be > 0.`);
-        });
-        return errors;
-    };
-
     // ── Save editor ──────────────────────────────────────────────────────────
     const handleSave = () => {
-        const errors = validateEditor();
+        const errors = validateAssignmentQuestions(
+            objectiveQuestions,
+            essayQuestions,
+            projectQuestions,
+            sectionWeights,
+        );
         if (errors.length > 0) {
             showModal({
                 open: true,
@@ -645,18 +617,14 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                 essay: essayQuestions,
                 project: projectQuestions,
                 saved: true,
+                sectionWeights: { ...sectionWeights },
             },
         }));
-
-        // Calculate and set default threshold (80%) if not already set or if it was 0
-        const currentMax = objectiveQuestions.reduce((a, b) => a + b.score, 0) +
-            essayQuestions.reduce((a, b) => a + b.score, 0) +
-            projectQuestions.reduce((a, b) => a + b.score, 0);
 
         setThresholds(prev => {
             const existing = prev[selectedCourse!.id];
             if (existing === undefined || existing === 0) {
-                return { ...prev, [selectedCourse!.id]: Math.round(currentMax * 0.8) };
+                return { ...prev, [selectedCourse!.id]: Math.round(SCORE_TOTAL * 0.8) };
             }
             return prev;
         });
@@ -671,6 +639,15 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
             confirmText: "Back to Overview",
         });
     };
+
+    const setWeight = (key: keyof SectionWeights, raw: string) => {
+        const n = parseFloat(raw);
+        const v = Number.isFinite(n) ? Math.max(0, Math.min(100, n)) : 0;
+        setSectionWeights((prev) => ({ ...prev, [key]: v }));
+    };
+
+    const weightSum = sectionWeights.objective + sectionWeights.essay + sectionWeights.project;
+    const weightSumError = Math.abs(weightSum - 100) > 0.01;
 
     // ── Submit overview ──────────────────────────────────────────────────────
     const handleCreate = async () => {
@@ -711,43 +688,15 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
         Object.entries(courseData).forEach(([courseId, course]) => {
             if (!course.saved) return;
 
-            course.objective.forEach(q => {
-                if (!isEmpty(q.content)) {
-                    itemsPayload.push({
-                        courseId: parseInt(courseId),
-                        type: "OBJECTIVE",
-                        question: q.content,
-                        options: q.answers.map(a => a.text) || [],
-                        correctAnswer: q.answers.find(a => a.isCorrect)?.text || "",
-                        maxScore: q.score || 10
-                    });
-                }
-            });
+            const obj = course.objective.filter((q) => !isEmpty(q.content));
+            const ess = course.essay.filter((q) => !isEmpty(q.content));
+            const proj = course.project.filter((q) => !isEmpty(q.content));
+            const w =
+                course.sectionWeights ?? inferSectionWeightsFromQuestions(obj, ess, proj);
 
-            course.essay.forEach(q => {
-                if (!isEmpty(q.content)) {
-                    itemsPayload.push({
-                        courseId: parseInt(courseId),
-                        type: "ESSAY",
-                        question: q.content,
-                        maxScore: q.score || 20
-                    });
-                }
-            });
-
-            course.project.forEach(q => {
-                if (!isEmpty(q.content)) {
-                    itemsPayload.push({
-                        courseId: parseInt(courseId),
-                        type: "PROJECT",
-                        question: q.content,
-                        options: {
-                            attachments: q.attachments || []
-                        },
-                        maxScore: q.score || 20
-                    });
-                }
-            });
+            itemsPayload.push(
+                ...buildAssignmentItemsPayload(obj, ess, proj, w, parseInt(courseId, 10)),
+            );
         });
 
         const thresholdsPayload = Object.entries(thresholds).map(([courseId, value]) => ({
@@ -970,11 +919,8 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                             </div>
 
                             {(() => {
-                                const currentMax = objectiveQuestions.reduce((a, b) => a + b.score, 0) +
-                                    essayQuestions.reduce((a, b) => a + b.score, 0) +
-                                    projectQuestions.reduce((a, b) => a + b.score, 0);
                                 const threshold = thresholds[selectedCourse.id] ?? 0;
-                                const isError = threshold < 0 || threshold > currentMax;
+                                const isError = threshold < 0 || threshold > SCORE_TOTAL;
 
                                 return (
                                     <div className="flex flex-col">
@@ -991,10 +937,10 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                                 className="flex-1 text-right text-base font-medium text-black outline-none bg-transparent"
                                                 placeholder="e.g. 80"
                                             />
-                                            <span className="text-gray-400 text-sm font-medium shrink-0">/ {currentMax}</span>
+                                            <span className="text-gray-400 text-sm font-medium shrink-0">/ {SCORE_TOTAL}</span>
                                         </div>
-                                        {threshold > currentMax && (
-                                            <span className="text-[10px] text-red-500 font-medium mt-1 italic">Cannot exceed max score ({currentMax})</span>
+                                        {threshold > SCORE_TOTAL && (
+                                            <span className="text-[10px] text-red-500 font-medium mt-1 italic">Cannot exceed max score ({SCORE_TOTAL})</span>
                                         )}
                                         {threshold < 0 && (
                                             <span className="text-[10px] text-red-500 font-medium mt-1 italic">Cannot be negative</span>
@@ -1002,6 +948,66 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                     </div>
                                 );
                             })()}
+                        </div>
+
+                        {/* Bobot per jenis (total 100%) */}
+                        <div
+                            className={`mb-8 rounded-2xl border-2 p-5 bg-[#F7FAEE] ${
+                                weightSumError ? "border-orange-300" : "border-transparent"
+                            }`}
+                        >
+                            <h2 className="text-sm font-semibold mb-1">Score weights by section</h2>
+                            <p className="text-xs text-gray-500 mb-4">
+                                Set the percentage for each question type. Total must equal 100%. Points are split evenly among questions in each section.
+                            </p>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">Objective (%)</label>
+                                    <input
+                                        type="number"
+                                        min={0}
+                                        max={100}
+                                        step={1}
+                                        value={sectionWeights.objective}
+                                        onChange={(e) => setWeight("objective", e.target.value)}
+                                        onWheel={(e) => e.currentTarget.blur()}
+                                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#D9F55C]"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">Essay (%)</label>
+                                    <input
+                                        type="number"
+                                        min={0}
+                                        max={100}
+                                        step={1}
+                                        value={sectionWeights.essay}
+                                        onChange={(e) => setWeight("essay", e.target.value)}
+                                        onWheel={(e) => e.currentTarget.blur()}
+                                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#D9F55C]"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">Project (%)</label>
+                                    <input
+                                        type="number"
+                                        min={0}
+                                        max={100}
+                                        step={1}
+                                        value={sectionWeights.project}
+                                        onChange={(e) => setWeight("project", e.target.value)}
+                                        onWheel={(e) => e.currentTarget.blur()}
+                                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#D9F55C]"
+                                    />
+                                </div>
+                            </div>
+                            <p
+                                className={`mt-3 text-xs font-medium ${
+                                    weightSumError ? "text-orange-600" : "text-gray-600"
+                                }`}
+                            >
+                                Total: {weightSum.toFixed(1)}% {weightSumError ? "(must be 100%)" : ""}
+                            </p>
                         </div>
 
                         {/* ── Objective Questions ── */}
@@ -1040,7 +1046,7 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
                                 <a
                                     href="/templates/objective_questions_template.csv"
                                     download
-                                    className="px-6 py-2.5 text-sm text-gray-400 hover:text-gray-600 flex items-center justify-center gap-1.5 transition-colors border-2 border-dashed border-gray-100 rounded-2xl hover:border-gray-200 hover:bg-gray-50"
+                                    className="px-6 py-2.5 text-sm font-medium text-blue-700 hover:text-blue-900 flex items-center justify-center gap-1.5 transition-colors border-2 border-dashed border-blue-200 rounded-2xl hover:border-blue-400 hover:bg-blue-50"
                                 >
                                     <Download size={14} /> Template
                                 </a>
