@@ -1,4 +1,4 @@
-import SidebarWrapper from "../sidebar_wrapper"
+import { SidebarLayoutPad } from "@/components/providers/sidebar-provider"
 import Image from "next/image"
 import AddClassClient from "./AddClassClient"
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb"
@@ -13,8 +13,6 @@ export default async function AddClassPage() {
 
     return (
         <main className="relative min-h-screen w-full bg-white pb-16">
-            <SidebarWrapper />
-
             {/* Background */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
                 <Image
@@ -34,7 +32,7 @@ export default async function AddClassPage() {
             </div>
 
             {/* Form */}
-            <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 py-8">
+            <SidebarLayoutPad className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 py-8">
                 <Breadcrumb
                     items={[
                         { label: "Home", href: "/classes" },
@@ -43,7 +41,7 @@ export default async function AddClassPage() {
                     ]}
                 />
                 <AddClassClient />
-            </div>
+            </SidebarLayoutPad>
         </main>
     )
 }

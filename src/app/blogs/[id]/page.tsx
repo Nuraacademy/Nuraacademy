@@ -9,7 +9,7 @@ import { User, Calendar, Clock, Heart, MessageCircle, Send, Edit2, Trash2 } from
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import SidebarWrapper from "@/app/classes/sidebar_wrapper";
+import { useSidebar } from "@/components/providers/sidebar-provider";
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import { ShareModal } from "@/components/ui/modal/share_modal";
 import { ConfirmModal } from "@/components/ui/modal/confirmation_modal";
@@ -25,6 +25,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const router = useRouter();
+    const { isOpen: isSidebarOpen } = useSidebar();
 
     useEffect(() => {
         const init = async () => {
@@ -101,9 +102,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
     ];
 
     return (
-        <main className="relative min-h-screen w-full overflow-hidden py-4 px-4 md:py-8 md:pr-8 transition-all duration-300 md:pl-8">
-            <SidebarWrapper />
-
+        <main className={`relative min-h-screen w-full overflow-hidden py-4 px-4 md:py-8 md:pr-8 transition-all duration-300 ${isSidebarOpen ? "md:pl-80" : "md:pl-8"}`}>
             {/* Background Image */}
             <Image
                 src="/background/PolygonBGTop.svg"
