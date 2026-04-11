@@ -510,6 +510,7 @@ export async function updateAssignment(
         });
 
         for (const res of finishedResults) {
+            const itemResultIdsToRemove: number[] = [];
             for (const ir of res.assignmentItemResults) {
                 const oldItem = ir.assignmentItem;
                 if (!oldItem) continue;
@@ -517,7 +518,7 @@ export async function updateAssignment(
                 const key = assignmentItemContentKey(oldItem.type, oldItem.question);
                 const newItem = newItemByContentKey.get(key);
                 if (!newItem) {
-                    await tx.assignmentItemResult.delete({ where: { id: ir.id } });
+                    itemResultIdsToRemove.push(ir.id);
                     continue;
                 }
 
@@ -539,6 +540,12 @@ export async function updateAssignment(
                 }
             }
 
+            if (itemResultIdsToRemove.length > 0) {
+                await tx.assignmentItemResult.deleteMany({
+                    where: { id: { in: itemResultIdsToRemove } },
+                });
+            }
+
             const itemResults = await tx.assignmentItemResult.findMany({
                 where: { assignmentResultId: res.id },
             });
@@ -556,6 +563,9 @@ export async function updateAssignment(
         }
 
         return updated;
+    }, {
+        maxWait: 10_000,
+        timeout: 60_000,
     });
 }
 

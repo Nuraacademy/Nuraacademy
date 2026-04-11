@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendMail } from '@/lib/mailer';
+import { endOfAppDay, formatAppDate, startOfAppDay } from '@/lib/appDatetime';
 
 export async function GET(request: Request) {
   try {
@@ -12,13 +13,9 @@ export async function GET(request: Request) {
     }
 
     const now = new Date();
-    // Calculate date exactly 3 days from now (ignoring time)
-    const in3DaysStart = new Date(now);
-    in3DaysStart.setDate(now.getDate() + 3);
-    in3DaysStart.setHours(0, 0, 0, 0);
-    
-    const in3DaysEnd = new Date(in3DaysStart);
-    in3DaysEnd.setHours(23, 59, 59, 999);
+    // Jendela "hari ke-3 dari hari ini" dalam zona aplikasi (Asia/Jakarta)
+    const in3DaysStart = new Date(startOfAppDay(now).getTime() + 3 * 24 * 60 * 60 * 1000);
+    const in3DaysEnd = endOfAppDay(in3DaysStart);
 
     console.log(`Checking for placement tests between ${in3DaysStart.toISOString()} and ${in3DaysEnd.toISOString()}`);
 
@@ -77,7 +74,7 @@ export async function GET(request: Request) {
             subject: `Pengingat: Placement Test ${test.class?.title} 3 Hari Lagi!`,
             html: `
               <h1>Halo, ${enrollment.user.name || 'Peserta'}!</h1>
-              <p><strong>Placement Test</strong> untuk kelas <strong>${test.class?.title}</strong> akan dilaksanakan dalam 3 hari, tepatnya pada tanggal <strong>${test.startDate?.toLocaleDateString()}</strong>.</p>
+              <p><strong>Placement Test</strong> untuk kelas <strong>${test.class?.title}</strong> akan dilaksanakan dalam 3 hari, tepatnya pada tanggal <strong>${test.startDate ? formatAppDate(test.startDate) : ''}</strong>.</p>
               <p>Jangan sampai melewatkan tes ini! Silakan login ke akun LMS Anda untuk melihat instruksi lebih lengkap.</p>
               <p><a href="${process.env.NEXT_PUBLIC_APP_URL || ''}/classes/${test.classId}/test" style="display:inline-block;background:#0070f3;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">Ke Halaman Tes</a></p>
               <p>Sampai jumpa di kelas!</p>

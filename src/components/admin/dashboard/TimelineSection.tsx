@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter } from 'next/navigation';
+import { formatAppDate } from '@/lib/appDatetime';
 
 interface TimelineSectionProps {
     schedule: any[];
@@ -13,10 +14,9 @@ export default function TimelineSection({ schedule }: TimelineSectionProps) {
     const firstClassName = schedule[0]?.className || "Class Schedule";
     const classSchedule = schedule.filter(item => item.className === firstClassName);
 
-    const formatDate = (date: Date | null) => {
+    const formatDate = (date: Date | string | null) => {
         if (!date) return '-';
-        const d = new Date(date);
-        return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+        return formatAppDate(date, '-');
     };
 
     return (

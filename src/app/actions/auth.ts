@@ -39,7 +39,7 @@ export async function handleLogin(formData: FormData) {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
-            maxAge: 60 * 60 * 24 * 7, // 1 week
+            maxAge: 60 * 60 * 24, // 1 day
             path: "/",
         });
 
@@ -92,7 +92,7 @@ export async function handleRegister(formData: FormData) {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
-            maxAge: 60 * 60 * 24 * 7, // 1 week
+            maxAge: 60 * 60 * 24, // 1 day
             path: "/",
         });
 
@@ -157,7 +157,7 @@ export async function handleGoogleLogin(idToken: string) {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
-            maxAge: 60 * 60 * 24 * 7, // 1 week
+            maxAge: 60 * 60 * 24, // 1 day
             path: "/",
         });
 
