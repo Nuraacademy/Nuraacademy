@@ -103,6 +103,37 @@ export default async function CourseOverviewPage({
 
                 {/* Hero Card */}
                 <section className="relative bg-gradient-to-r from-[#005954] via-[#005954] to-[#94B546] rounded-4xl overflow-hidden mb-8 flex flex-col md:flex-row items-stretch gap-0">
+                    {/* Admin / trainer actions: fixed corner + contrast so icons stay visible on dark gradient */}
+                    {canEditClass && (
+                        <div className="absolute right-4 top-4 z-20 flex shrink-0 items-center gap-2 md:right-6 md:top-6">
+                            <Link
+                                href={`/classes/${id}/enrollments`}
+                                title="View Enrollments"
+                                className="inline-flex size-10 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/25 transition-colors hover:bg-white/25"
+                            >
+                                <Image
+                                    src="/icons/People.svg"
+                                    alt="Enrollments"
+                                    width={18}
+                                    height={18}
+                                    className="brightness-0 invert opacity-95"
+                                />
+                            </Link>
+                            <Link
+                                href={`/classes/${id}/edit`}
+                                title="Edit Class"
+                                className="inline-flex size-10 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/25 transition-colors hover:bg-white/25"
+                            >
+                                <Image
+                                    src="/icons/Edit.svg"
+                                    alt="Edit"
+                                    width={18}
+                                    height={18}
+                                    className="brightness-0 invert opacity-95"
+                                />
+                            </Link>
+                        </div>
+                    )}
                     {/* Image */}
                     <div className="relative w-full md:w-[382px] lg:w-[382px] shrink-0 aspect-[382/216] md:aspect-auto mx-4 my-4">
                         <Image
@@ -165,18 +196,6 @@ export default async function CourseOverviewPage({
                             </div>
                         )}
                     </div>
-
-                    {/* Action Buttons */}
-                    {canEditClass && (
-                        <div className="flex justify-center mt-6 mr-6 gap-4 top-0">
-                            <Link href={`/classes/${id}/enrollments`} title="View Enrollments">
-                                <Image src="/icons/People.svg" alt="Enrollments" width={16} height={16} />
-                            </Link>
-                            <Link href={`/classes/${id}/edit`} title="Edit Class">
-                                <Image src="/icons/Edit.svg" alt="Edit" width={16} height={16} />
-                            </Link>
-                        </div>
-                    )}
                 </section>
 
                 {/* Main Grid: Left + Right */}
