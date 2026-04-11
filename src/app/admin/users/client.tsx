@@ -6,7 +6,7 @@ import { NuraButton } from "@/components/ui/button/button";
 import { assignRoleToUserAction } from "@/app/actions/role";
 import { adminDeleteUserAction, adminCreateUserAction } from "@/app/actions/user";
 import { User, Role } from "@prisma/client";
-import { Search, UserPlus, Trash2, Shield, User as UserIcon, X, Check } from "lucide-react";
+import { Search, UserPlus, Trash2, Shield, User as UserIcon, X, Check, ListFilter } from "lucide-react";
 import { ConfirmModal } from "@/components/ui/modal/confirmation_modal";
 import { toast } from "sonner";
 
@@ -24,6 +24,45 @@ export default function UsersClient({
     const roleFilter = searchParams.get('role');
     const staffFilter = searchParams.get('filter') === 'staff';
     const learnerFilter = searchParams.get('filter') === 'learner';
+
+    const sortedRoles = useMemo(
+        () => [...roles].sort((a, b) => a.name.localeCompare(b.name)),
+        [roles]
+    );
+
+    const roleFilterSelectValue = useMemo(() => {
+        if (staffFilter) return "__staff__";
+        if (learnerFilter) {
+            const learner = roles.find((r) => r.name.toLowerCase() === "learner");
+            return learner ? `role:${learner.name}` : "__learner__";
+        }
+        if (roleFilter) {
+            const match = roles.find(
+                (r) => r.name.toLowerCase() === roleFilter.toLowerCase()
+            );
+            return match ? `role:${match.name}` : `role:${roleFilter}`;
+        }
+        return "";
+    }, [staffFilter, learnerFilter, roleFilter, roles]);
+
+    const applyRoleFilter = (value: string) => {
+        if (!value) {
+            router.push("/admin/users");
+            return;
+        }
+        if (value === "__staff__") {
+            router.push("/admin/users?filter=staff");
+            return;
+        }
+        if (value === "__learner__") {
+            router.push("/admin/users?filter=learner");
+            return;
+        }
+        if (value.startsWith("role:")) {
+            const name = value.slice("role:".length);
+            router.push(`/admin/users?role=${encodeURIComponent(name)}`);
+        }
+    };
 
     const [users, setUsers] = useState(initialUsers);
     const [searchQuery, setSearchQuery] = useState("");
@@ -140,16 +179,38 @@ export default function UsersClient({
     return (
         <div className="space-y-6">
             {/* Header / Actions Bar */}
-            <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white/50 backdrop-blur-md p-4 rounded-xl border border-white shadow-sm">
-                <div className="relative w-full md:w-96">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input
-                        type="text"
-                        placeholder="Search by name, email, or username..."
-                        className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-[#D9F55C] transition-all text-sm"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
+            <div className="flex flex-col lg:flex-row gap-4 justify-between items-stretch lg:items-center bg-white/50 backdrop-blur-md p-4 rounded-xl border border-white shadow-sm">
+                <div className="flex flex-col sm:flex-row gap-3 flex-1 min-w-0 w-full">
+                    <div className="relative w-full sm:flex-1 sm:max-w-md">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Search by name, email, or username..."
+                            className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-[#D9F55C] transition-all text-sm"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
+                    <div className="flex items-center gap-2 w-full sm:w-auto sm:min-w-[200px]">
+                        <ListFilter className="w-4 h-4 text-gray-400 shrink-0 hidden sm:block" aria-hidden />
+                        <select
+                            className="w-full pl-3 pr-8 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-[#D9F55C] transition-all text-sm appearance-none cursor-pointer"
+                            value={roleFilterSelectValue}
+                            onChange={(e) => applyRoleFilter(e.target.value)}
+                            aria-label="Filter by role"
+                        >
+                            <option value="">All roles</option>
+                            <option value="__staff__">Staff (non-learners)</option>
+                            {learnerFilter && roleFilterSelectValue === "__learner__" && (
+                                <option value="__learner__">Learners</option>
+                            )}
+                            {sortedRoles.map((r) => (
+                                <option key={r.id} value={`role:${r.name}`}>
+                                    {r.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
                 <NuraButton
                     label="Add New User"
