@@ -14,7 +14,6 @@ import { hasPermission } from '@/lib/rbac';
 import { useRouter } from 'next/navigation';
 import { ConfirmModal } from '@/components/ui/modal/confirmation_modal';
 import Image from 'next/image';
-import Sidebar from '@/components/ui/sidebar/sidebar';
 import { ShareModal } from '@/components/ui/modal/share_modal';
 import { formatDistanceToNow } from "date-fns";
 
@@ -49,7 +48,6 @@ export default function DiscussionTopicPage({
     const params = use(searchParams);
     const idStr = params.id;
     const router = useRouter();
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [sharingItem, setSharingItem] = useState<{ type: 'topic' | 'reply', id: number } | null>(null);
@@ -325,7 +323,6 @@ export default function DiscussionTopicPage({
 
     return (
         <main className="relative min-h-screen bg-white flex flex-col text-gray-800">
-            <Sidebar onOpenChange={setIsSidebarOpen} />
             {/* Background Image */}
             <Image
                 src="/background/PolygonBGTop.svg"

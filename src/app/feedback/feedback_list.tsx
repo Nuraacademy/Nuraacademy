@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { NuraSelect } from "@/components/ui/input/nura_select";
 import { NuraSearchInput } from "@/components/ui/input/nura_search_input";
-import Sidebar from "@/components/ui/sidebar/sidebar";
+import { useSidebar } from "@/components/providers/sidebar-provider";
 import { FeedbackCard } from "@/components/ui/card/feedback_card";
 import { FeedbackItem } from "@/app/actions/feedback";
 import Image from "next/image";
@@ -13,7 +13,7 @@ interface FeedbackListProps {
 }
 
 export default function FeedbackList({ initialFeedbacks }: FeedbackListProps) {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const { isOpen: isSidebarOpen } = useSidebar();
     const [searchValue, setSearchValue] = useState("");
     const [feedbackType, setFeedbackType] = useState("all");
 
@@ -26,9 +26,6 @@ export default function FeedbackList({ initialFeedbacks }: FeedbackListProps) {
 
     return (
         <main className={`relative min-h-screen w-full overflow-hidden py-4 px-4 md:py-8 md:pr-8 transition-all duration-300 ${isSidebarOpen ? "md:pl-80" : "md:pl-8"}`}>
-            {/* Sidebar */}
-            <Sidebar onOpenChange={setIsSidebarOpen} />
-
             {/* Background Images - Using the same as assignment page */}
             <div className="absolute top-0 left-0 -z-10 w-full h-full overflow-hidden pointer-events-none">
                 <Image

@@ -7,6 +7,7 @@ import Footer from "@/components/ui/footer/footer";
 
 
 import { NavigationProvider } from "@/components/providers/navigation-provider";
+import { SidebarProvider } from "@/components/providers/sidebar-provider";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -38,17 +39,19 @@ export default async function RootLayout({
         className={`${outfit.variable} antialiased min-h-screen`}
       >
         <NavigationProvider>
-          <Header initialIsLoggedIn={!!userId} />
+          <SidebarProvider>
+            <Header initialIsLoggedIn={!!userId} />
 
-          {userId && <SidebarWrapper />}
-          
-          <main className="transition-all duration-300">
-            {children}
-          </main>
+            {userId && <SidebarWrapper />}
 
-          <Toaster position="bottom-right" richColors />
+            <main className="transition-all duration-300">
+              {children}
+            </main>
 
-          <Footer instagram="www.instagram.com" youtube="www.youtube.com" x="www.x.com" />
+            <Toaster position="bottom-right" richColors />
+
+            <Footer instagram="www.instagram.com" youtube="www.youtube.com" x="www.x.com" />
+          </SidebarProvider>
         </NavigationProvider>
       </body>
     </html>

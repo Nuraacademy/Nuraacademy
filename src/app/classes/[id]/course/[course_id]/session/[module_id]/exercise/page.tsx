@@ -1,4 +1,4 @@
-import SidebarWrapper from "@/app/classes/sidebar_wrapper";
+import { SidebarLayoutPad } from "@/components/providers/sidebar-provider";
 import { getAssignmentBySessionAndType } from "@/controllers/assignmentController";
 import { getSessionById } from "@/controllers/sessionController";
 import { notFound } from "next/navigation";
@@ -38,10 +38,8 @@ export default async function ExercisePage({
     const exerciseTitle = "Exercise: " + sessionTitle;
 
     return (
-        <main className="relative bg-[#FDFDF7] min-h-screen w-full overflow-hidden py-4 px-4 md:py-8 md:pr-8 md:pl-8">
-            <SidebarWrapper />
-
-            <div className="flex flex-col h-[calc(100vh-2rem)] md:h-[calc(100vh-4rem)] md:px-12 w-full max-w-screen-2xl mx-auto gap-4 z-10 relative">
+        <main className="relative bg-[#FDFDF7] min-h-screen w-full overflow-hidden py-4 px-4 md:py-8 md:pr-8">
+            <SidebarLayoutPad className="flex flex-col h-[calc(100vh-2rem)] md:h-[calc(100vh-4rem)] md:px-12 w-full max-w-screen-2xl mx-auto gap-4 z-10 relative">
                 <div className="flex-none flex-col items-end justify-between space-y-4">
                     <div>
                         <Breadcrumb items={breadcrumbItems} />
@@ -84,7 +82,7 @@ export default async function ExercisePage({
                         />
                     </div>
                 </div>
-            </div>
+            </SidebarLayoutPad>
         </main>
     );
 }

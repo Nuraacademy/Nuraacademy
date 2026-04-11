@@ -1,7 +1,6 @@
 "use client"
 
-import { useState } from "react";
-import Sidebar from "@/components/ui/sidebar/sidebar";
+import { useSidebar } from "@/components/providers/sidebar-provider";
 import Image from "next/image";
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import TitleCard from "@/components/ui/card/title_card";
@@ -12,13 +11,11 @@ interface LearnerClassSelectionProps {
 }
 
 export default function LearnerClassSelection({ classes }: LearnerClassSelectionProps) {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const { isOpen: isSidebarOpen } = useSidebar();
     const router = useNuraRouter();
 
     return (
         <main className={`relative min-h-screen w-full overflow-hidden py-4 px-4 md:py-8 md:pr-8 transition-all duration-300 ${isSidebarOpen ? "md:pl-80" : "md:pl-8"}`}>
-            <Sidebar onOpenChange={setIsSidebarOpen} />
-
             <div className="absolute top-0 left-0 -z-10 w-full h-full overflow-hidden pointer-events-none">
                 <Image
                     src="/background/PolygonBGTop.svg"

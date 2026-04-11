@@ -1,7 +1,6 @@
 "use client"
 
-import { useState } from "react";
-import Sidebar from "@/components/ui/sidebar/sidebar";
+import { useSidebar } from "@/components/providers/sidebar-provider";
 import Image from "next/image";
 import { Users, BarChart3, MessageSquare, Briefcase } from "lucide-react";
 import { AnalyticsCard, AnalyticsReportType } from "@/components/ui/card/analytics_card";
@@ -16,7 +15,7 @@ interface AnalyticsDashboardClientProps {
 }
 
 export default function AnalyticsDashboardClient({ stats }: AnalyticsDashboardClientProps) {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const { isOpen: isSidebarOpen } = useSidebar();
 
     const statItems = [
         { label: 'Total Enrollment', value: stats.enrollmentCount, icon: <Users size={18} />, color: 'bg-blue-100/50 text-blue-600' },
@@ -47,9 +46,6 @@ export default function AnalyticsDashboardClient({ stats }: AnalyticsDashboardCl
 
     return (
         <main className={`relative min-h-screen w-full overflow-hidden py-4 px-4 md:py-8 md:pr-8 transition-all duration-300 ${isSidebarOpen ? "md:pl-80" : "md:pl-8"}`}>
-            {/* Sidebar */}
-            <Sidebar onOpenChange={setIsSidebarOpen} />
-
             {/* Background Polygons */}
             <div className="absolute top-0 left-0 -z-10 w-full h-full overflow-hidden pointer-events-none">
                 <Image
