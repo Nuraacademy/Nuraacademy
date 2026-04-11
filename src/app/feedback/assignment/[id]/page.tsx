@@ -5,8 +5,8 @@ import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import Link from "next/link";
 import { format } from "date-fns";
 import { notFound } from "next/navigation";
-import Sidebar from "@/components/ui/sidebar/sidebar";
 import Image from "next/image";
+import { SidebarLayoutPad } from "@/components/providers/sidebar-provider";
 
 export default async function AssignmentFeedbackLearnerListPage({
     params
@@ -28,8 +28,6 @@ export default async function AssignmentFeedbackLearnerListPage({
 
     return (
         <main className="min-h-screen bg-[#FDFDF7]  text-gray-800 pb-20 relative">
-            <Sidebar />
-
             {/* Background Images */}
             <div className="absolute top-0 left-0 -z-10 w-full h-full overflow-hidden pointer-events-none opacity-40">
                 <Image
@@ -49,7 +47,7 @@ export default async function AssignmentFeedbackLearnerListPage({
                 />
             </div>
 
-            <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 py-8 transition-all duration-300 md:pl-80">
+            <SidebarLayoutPad className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 py-8">
                 <div className="mb-6">
                     <Breadcrumb
                         items={[
@@ -111,7 +109,7 @@ export default async function AssignmentFeedbackLearnerListPage({
                         </table>
                     </div>
                 </div>
-            </div>
+            </SidebarLayoutPad>
         </main>
     );
 }

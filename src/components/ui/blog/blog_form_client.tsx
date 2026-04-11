@@ -7,7 +7,7 @@ import { NuraTextArea } from "@/components/ui/input/text_area";
 import { RichTextInput } from "@/components/ui/input/rich_text_input";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
-import SidebarWrapper from "@/app/classes/sidebar_wrapper";
+import { useSidebar } from "@/components/providers/sidebar-provider";
 import Image from "next/image";
 import Breadcrumb from "../breadcrumb/breadcrumb";
 import FileUpload from "@/components/ui/upload/file_upload";
@@ -34,6 +34,7 @@ export function BlogFormClient({
     onSubmit,
 }: BlogFormClientProps) {
     const router = useRouter();
+    const { isOpen: isSidebarOpen } = useSidebar();
     const [title, setTitle] = useState(initialTitle);
     const [description, setDescription] = useState(initialDescription);
     const [bannerUrl, setBannerUrl] = useState(initialBannerUrl);
@@ -73,9 +74,7 @@ export function BlogFormClient({
     };
 
     return (
-        <main className="relative min-h-screen w-full overflow-hidden py-4 px-4 md:py-8 md:pr-8 transition-all duration-300 md:pl-8">
-            <SidebarWrapper />
-
+        <main className={`relative min-h-screen w-full overflow-hidden py-4 px-4 md:py-8 md:pr-8 transition-all duration-300 ${isSidebarOpen ? "md:pl-80" : "md:pl-8"}`}>
             {/* Background Images */}
             <Image
                 src="/background/PolygonBGTop.svg"

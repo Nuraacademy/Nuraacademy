@@ -4,7 +4,6 @@ import { useState } from "react";
 import { NuraSelect } from "@/components/ui/input/nura_select";
 import { NuraSearchInput } from "@/components/ui/input/nura_search_input";
 import { NuraButton } from "@/components/ui/button/button";
-import Sidebar from "@/components/ui/sidebar/sidebar";
 import { AssignmentCard } from "@/components/ui/card/assignment_card";
 import { mapPrismaAssignmentType } from "@/utils/assignment";
 

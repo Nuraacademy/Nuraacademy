@@ -1,4 +1,4 @@
-import SidebarWrapper from "@/app/classes/sidebar_wrapper"
+import { SidebarLayoutPad } from "@/components/providers/sidebar-provider"
 import Image from "next/image"
 import AddClassClient from "../../add/AddClassClient"
 import { getClassById } from "@/controllers/classController"
@@ -22,8 +22,6 @@ export default async function EditClassPage({ params }: { params: Promise<{ id: 
 
     return (
         <main className="relative min-h-screen w-full overflow-hidden bg-white  pb-16">
-            <SidebarWrapper />
-
             {/* Background */}
             <Image
                 src="/background/OvalBGLeft.svg"
@@ -41,7 +39,7 @@ export default async function EditClassPage({ params }: { params: Promise<{ id: 
             />
 
             {/* Form */}
-            <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 py-8">
+            <SidebarLayoutPad className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 py-8">
                 <Breadcrumb
                     items={[
                         { label: "Home", href: "/classes" },
@@ -50,7 +48,7 @@ export default async function EditClassPage({ params }: { params: Promise<{ id: 
                     ]}
                 />
                 <AddClassClient classData={classData} isEditing />
-            </div>
+            </SidebarLayoutPad>
         </main>
     )
 }

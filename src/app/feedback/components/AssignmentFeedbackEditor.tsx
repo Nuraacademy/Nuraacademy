@@ -8,7 +8,7 @@ import { uploadFileAction } from '@/app/actions/common';
 import { toast } from 'sonner';
 import { NuraButton } from '@/components/ui/button/button';
 import { X, FileText } from 'lucide-react';
-import Sidebar from '@/components/ui/sidebar/sidebar';
+import { SidebarLayoutPad } from '@/components/providers/sidebar-provider';
 import Image from 'next/image';
 import TitleCard from '@/components/ui/card/title_card';
 import { FeedbackCriteriaField } from '@/components/ui/feedback/FeedbackCriteriaField';
@@ -135,8 +135,6 @@ export default function AssignmentFeedbackEditor({
 
     return (
         <main className="min-h-screen bg-[#FDFDF7] text-gray-800 pb-20 relative">
-            <Sidebar />
-
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-40">
                 <Image
                     src="/background/PolygonBGTop.svg"
@@ -155,7 +153,7 @@ export default function AssignmentFeedbackEditor({
                 />
             </div>
 
-            <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 py-8 space-y-8 transition-all duration-300">
+            <SidebarLayoutPad className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 py-8 space-y-8">
                 <Breadcrumb
                     items={[
                         { label: "Home", href: "/classes" },
@@ -252,7 +250,7 @@ export default function AssignmentFeedbackEditor({
                         />
                     </div>
                 </div>
-            </div>
+            </SidebarLayoutPad>
         </main>
     );
 }

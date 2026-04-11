@@ -1,6 +1,5 @@
 "use client"
 
-import Sidebar from "@/components/ui/sidebar/sidebar";
 import { useEffect, useState, useMemo } from "react";
 import DiscussionList, { Topic } from "@/components/ui/discussion/discussion_list";
 import { DiscussionTopicDialog } from "@/components/ui/discussion/discussion_topic_dialog";
@@ -27,7 +26,6 @@ const parseDiscussionType = (type: string) => {
 }
 
 export default function DiscussionPage() {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [discussions, setDiscussions] = useState<Topic[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -110,8 +108,6 @@ export default function DiscussionPage() {
 
     return (
         <main className="relative min-h-screen bg-white flex flex-col text-gray-800">
-            <Sidebar onOpenChange={setIsSidebarOpen} />
-
             {/* Background Image */}
             <Image
                 src="/background/PolygonBGTop.svg"

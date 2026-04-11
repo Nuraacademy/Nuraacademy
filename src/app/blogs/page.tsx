@@ -9,10 +9,11 @@ import { hasPermission } from "@/lib/rbac";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { Search } from "lucide-react";
-import SidebarWrapper from "@/app/classes/sidebar_wrapper";
+import { useSidebar } from "@/components/providers/sidebar-provider";
 import Image from "next/image";
 
 export default function BlogsPage() {
+    const { isOpen: isSidebarOpen } = useSidebar();
     const [blogs, setBlogs] = useState<any[]>([]);
     const [search, setSearch] = useState("");
     const [isLoading, setIsLoading] = useState(true);
@@ -40,9 +41,7 @@ export default function BlogsPage() {
     }, [search]);
 
     return (
-        <main className="relative min-h-screen w-full overflow-hidden py-4 px-4 md:py-8 md:pr-8 transition-all duration-300 md:pl-8">
-            <SidebarWrapper />
-
+        <main className={`relative min-h-screen w-full overflow-hidden py-4 px-4 md:py-8 md:pr-8 transition-all duration-300 ${isSidebarOpen ? "md:pl-80" : "md:pl-8"}`}>
             {/* Background Image */}
             <Image
                 src="/background/PolygonBGTop.svg"

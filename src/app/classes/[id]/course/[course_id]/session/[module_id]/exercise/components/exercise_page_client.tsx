@@ -1,7 +1,6 @@
 "use client"
 
-import Sidebar from "@/components/ui/sidebar/sidebar";
-import { useState } from "react";
+import { useSidebar } from "@/components/providers/sidebar-provider";
 import Breadcrumb from "@/components/ui/breadcrumb/breadcrumb";
 import { NuraButton } from "@/components/ui/button/button";
 import { useRouter } from "next/navigation";
@@ -31,13 +30,11 @@ export default function ExercisePageClient({
     instruction,
     colabUrl
 }: ExercisePageClientProps) {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const { isOpen: isSidebarOpen } = useSidebar();
     const router = useRouter();
 
     return (
         <main className={`relative bg-[#FDFDF7] min-h-screen w-full overflow-hidden py-4 px-4 md:py-8 md:pr-8 transition-all duration-300 ${isSidebarOpen ? "md:pl-80" : "md:pl-8"}`}>
-            {/* Sidebar */}
-            <Sidebar onOpenChange={setIsSidebarOpen} />
 
             {/* Content */}
             <div className="flex flex-col h-[calc(100vh-2rem)] md:h-[calc(100vh-4rem)] md:px-12 w-full max-w-screen-2xl mx-auto gap-4 z-10 relative">
