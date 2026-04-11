@@ -299,6 +299,11 @@ export function TestRunner({
         setProjectIndex(0)
         setIsProjectUploadModalOpen(false)
       }
+    } else if (currentType === "project") {
+      setIsProjectUploadModalOpen(false)
+      if (projectIndex < projectQuestions.length - 1) {
+        setProjectIndex(projectIndex + 1)
+      }
     }
   }
 
