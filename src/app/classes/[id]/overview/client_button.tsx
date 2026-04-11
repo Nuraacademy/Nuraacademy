@@ -1,5 +1,6 @@
 "use client"
 
+import { formatAppDate } from "@/lib/appDatetime"
 import { NuraButton } from "@/components/ui/button/button"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -34,14 +35,7 @@ export function SuccessHandler({
         }
     }, [searchParams])
 
-    const formatDate = (date: any) => {
-        if (!date) return "TBA";
-        return new Date(date).toLocaleDateString("id-ID", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric"
-        });
-    };
+    const formatDate = (date: any) => formatAppDate(date, "TBA");
 
     // Filter and map timelines to specific labels
     const getStep = (search: string, label: string) => {
@@ -314,7 +308,7 @@ export function ProjectCard({ classId, assignment, isAdmin, isLearner }: { class
                         )}
                         {isMounted && assignment.startDate && (
                             <p className="text-xs mt-0.5">
-                                Start: {new Date(assignment.startDate).toLocaleDateString()} - Due: {new Date(assignment.endDate).toLocaleDateString()}
+                                Start: {formatAppDate(assignment.startDate)} - Due: {formatAppDate(assignment.endDate)}
                             </p>
                         )}
                     </div>

@@ -7,6 +7,7 @@ import { ConfirmModal } from "@/components/ui/modal/confirmation_modal";
 import { toast } from "sonner";
 import { removeAssignment } from "@/app/actions/assignment";
 import Image from "next/image";
+import { formatAppDate } from "@/lib/appDatetime";
 
 interface CourseAssignmentLinkProps {
     assignment: {
@@ -83,7 +84,7 @@ export default function CourseAssignmentLink({ assignment, classId, courseId, is
 
                     {assignment.startDate && (
                         <span className="text-xs text-gray-400">
-                            Due {new Date(assignment.startDate).toLocaleDateString()}
+                            Due {formatAppDate(assignment.startDate)}
                         </span>
                     )}
                 </div>

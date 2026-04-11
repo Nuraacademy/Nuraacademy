@@ -11,6 +11,7 @@ import { getFullSession } from "@/app/actions/auth";
 import Image from "next/image";
 import Link from "next/link";
 import CourseListClient from "./CourseListClient";
+import { formatAppDate } from "@/lib/appDatetime";
 
 export default async function CourseOverviewPage({
     params
@@ -225,7 +226,7 @@ export default async function CourseOverviewPage({
                                     <div key={item.id} className="relative flex items-center mb-6 last:mb-0">
                                         {/* Date */}
                                         <div className="w-24 text-xs whitespace-pre-wrap">
-                                            {item.date ? new Date(item.date).toLocaleDateString() : 'TBA'}
+                                            {item.date ? formatAppDate(item.date) : 'TBA'}
                                         </div>
 
                                         {/* Indicator (Dot & Line) */}
