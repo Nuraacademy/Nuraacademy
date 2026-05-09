@@ -8,7 +8,47 @@ import {
     Clock,
     X
 } from "lucide-react";
+import { getAppTimeZone } from "@/lib/appDatetime";
 import { cn } from "@/lib/utils";
+
+// --- Timezone Helpers ---
+/**
+ * Get the parts of a Date in the app timezone (Asia/Jakarta).
+ */
+function getPartsInAppTz(date: Date): { year: number; month: number; day: number; hour: number; minute: number } {
+    const tz = getAppTimeZone();
+    const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: tz,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+    }).formatToParts(date);
+
+    const get = (type: string) => parseInt(parts.find(p => p.type === type)?.value ?? "0");
+    return { year: get("year"), month: get("month") - 1, day: get("day"), hour: get("hour"), minute: get("minute") };
+}
+
+/**
+ * Create a UTC Date from year/month/day/hour/minute interpreted in the app timezone.
+ * E.g. if app tz is Asia/Jakarta (UTC+7), dateFromAppTz(2026, 4, 9, 23, 55) → 2026-05-09T16:55:00Z
+ */
+function dateFromAppTz(year: number, month: number, day: number, hour: number, minute: number): Date {
+    // Build an ISO-like string with the app timezone offset
+    // For Asia/Jakarta (no DST) this is always +07:00
+    const tz = getAppTimeZone();
+    // Use a temporary date to figure out the offset
+    const tempUtc = Date.UTC(year, month, day, hour, minute, 0, 0);
+    const tempDate = new Date(tempUtc);
+    // Get what the local time would be in the target timezone
+    const formatted = tempDate.toLocaleString("en-US", { timeZone: tz });
+    const inTz = new Date(formatted);
+    const offsetMs = tempDate.getTime() - inTz.getTime();
+    // The actual UTC time for the given wall-clock time in the app timezone
+    return new Date(tempUtc + offsetMs);
+}
 
 // --- Configuration & Helpers ---
 const MONTHS = [
@@ -32,13 +72,18 @@ interface CalendarPopoverProps {
 
 function CalendarPopover({ value, onChange, onClose, withTime = true, minDate, maxDate }: CalendarPopoverProps) {
     const today = new Date();
-    const [viewYear, setViewYear] = useState(value?.getFullYear() ?? today.getFullYear());
-    const [viewMonth, setViewMonth] = useState(value?.getMonth() ?? today.getMonth());
-    const [selectedDate, setSelectedDate] = useState<Date | null>(value);
+    const valueParts = value ? getPartsInAppTz(value) : null;
+    const todayParts = getPartsInAppTz(today);
 
-    // Time State
-    const [hour, setHour] = useState(value?.getHours() ?? 0);
-    const [minute, setMinute] = useState(value?.getMinutes() ?? 0);
+    const [viewYear, setViewYear] = useState(valueParts?.year ?? todayParts.year);
+    const [viewMonth, setViewMonth] = useState(valueParts?.month ?? todayParts.month);
+    const [selectedDate, setSelectedDate] = useState<{ year: number; month: number; day: number } | null>(
+        valueParts ? { year: valueParts.year, month: valueParts.month, day: valueParts.day } : null
+    );
+
+    // Time State (in app timezone)
+    const [hour, setHour] = useState(valueParts?.hour ?? 0);
+    const [minute, setMinute] = useState(valueParts?.minute ?? 0);
 
     const daysInMonth = getDaysInMonth(viewYear, viewMonth);
     const firstDay = getFirstDayOfMonth(viewYear, viewMonth);
@@ -47,24 +92,18 @@ function CalendarPopover({ value, onChange, onClose, withTime = true, minDate, m
     );
 
     const handleSelectDay = (day: number) => {
-        const d = new Date(viewYear, viewMonth, day, hour, minute);
-        setSelectedDate(d);
+        setSelectedDate({ year: viewYear, month: viewMonth, day });
         if (!withTime) {
-            onChange(d);
+            onChange(dateFromAppTz(viewYear, viewMonth, day, hour, minute));
             onClose();
         }
     };
 
     const handleConfirm = () => {
         if (!selectedDate) return;
-        const finalDate = new Date(selectedDate);
-        finalDate.setHours(hour, minute, 0, 0);
+        const finalDate = dateFromAppTz(selectedDate.year, selectedDate.month, selectedDate.day, hour, minute);
 
         if (minDate && finalDate < minDate) {
-            // If it's the same day, we could show an error or just adjust to minDate
-            // For now, let's block it or adjust it. 
-            // Most users expect it to just work, but "cannot be before" is strict.
-            // Let's just use minDate if it's before.
             onChange(minDate);
         } else if (maxDate && finalDate > maxDate) {
             onChange(maxDate);
@@ -106,8 +145,8 @@ function CalendarPopover({ value, onChange, onClose, withTime = true, minDate, m
 
             <div className="grid grid-cols-7 gap-1">
                 {cells.map((day, i) => {
-                    const isSel = day === selectedDate?.getDate() && viewMonth === selectedDate?.getMonth() && viewYear === selectedDate?.getFullYear();
-                    const isTod = day === today.getDate() && viewMonth === today.getMonth() && viewYear === today.getFullYear();
+                    const isSel = day === selectedDate?.day && viewMonth === selectedDate?.month && viewYear === selectedDate?.year;
+                    const isTod = day === todayParts.day && viewMonth === todayParts.month && viewYear === todayParts.year;
 
                     let isDisabled = false;
                     if (day) {
@@ -250,6 +289,7 @@ export default function M3DateTimePicker({
 
     const displayDate = value
         ? value.toLocaleString("id-ID", {
+            timeZone: getAppTimeZone(),
             day: "2-digit",
             month: "2-digit",
             year: "numeric",
