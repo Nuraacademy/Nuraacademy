@@ -33,21 +33,21 @@ function getPartsInAppTz(date: Date): { year: number; month: number; day: number
 
 /**
  * Create a UTC Date from year/month/day/hour/minute interpreted in the app timezone.
- * E.g. if app tz is Asia/Jakarta (UTC+7), dateFromAppTz(2026, 4, 9, 23, 55) → 2026-05-09T16:55:00Z
+ * E.g. if app tz is Asia/Jakarta (UTC+7), dateFromAppTz(2026, 4, 9, 0, 5) → 2026-05-08T17:05:00Z
  */
 function dateFromAppTz(year: number, month: number, day: number, hour: number, minute: number): Date {
-    // Build an ISO-like string with the app timezone offset
-    // For Asia/Jakarta (no DST) this is always +07:00
     const tz = getAppTimeZone();
-    // Use a temporary date to figure out the offset
-    const tempUtc = Date.UTC(year, month, day, hour, minute, 0, 0);
-    const tempDate = new Date(tempUtc);
-    // Get what the local time would be in the target timezone
-    const formatted = tempDate.toLocaleString("en-US", { timeZone: tz });
-    const inTz = new Date(formatted);
-    const offsetMs = tempDate.getTime() - inTz.getTime();
-    // The actual UTC time for the given wall-clock time in the app timezone
-    return new Date(tempUtc + offsetMs);
+    // Create a date as if it were UTC
+    const asUtc = new Date(Date.UTC(year, month, day, hour, minute, 0, 0));
+    // Find out what the UTC offset is for this timezone at this moment
+    // by comparing the "wall clock" representation in the target tz vs UTC
+    const inTzStr = asUtc.toLocaleString("en-US", { timeZone: tz });
+    const inUtcStr = asUtc.toLocaleString("en-US", { timeZone: "UTC" });
+    const tzTime = new Date(inTzStr).getTime();
+    const utcTime = new Date(inUtcStr).getTime();
+    const offsetMs = tzTime - utcTime; // positive for east of UTC (e.g. +7h for Jakarta)
+    // Subtract the offset to convert wall-clock time in app tz to UTC
+    return new Date(asUtc.getTime() - offsetMs);
 }
 
 // --- Configuration & Helpers ---
