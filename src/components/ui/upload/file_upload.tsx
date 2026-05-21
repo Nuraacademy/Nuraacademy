@@ -14,7 +14,7 @@ interface FileUploadProps {
 
 export default function FileUpload({
     onFileSelect,
-    maxSizeMB = 5,
+    maxSizeMB = 50,
     accept = ".pdf",
     supportedFileType = ".pdf",
     className = ""

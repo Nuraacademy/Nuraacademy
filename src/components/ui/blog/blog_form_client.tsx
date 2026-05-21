@@ -143,7 +143,7 @@ export function BlogFormClient({
                                 <div className="relative">
                                     <FileUpload
                                         onFileSelect={handleBannerUpload}
-                                        maxSizeMB={5}
+                                        maxSizeMB={50}
                                         accept="image/png, image/jpeg, image/webp"
                                         supportedFileType="PNG, JPG, WEBP"
                                     />

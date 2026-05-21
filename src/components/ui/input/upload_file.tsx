@@ -96,7 +96,7 @@ export function UploadModal({ onClose, onUploadSuccess }: UploadModalProps) {
                     <p className="text-lg font-medium">
                         <span className="underline decoration-2 underline-offset-4">Click to upload</span> or drag and drop
                     </p>
-                    <p className="text-gray-500 text-sm mt-1">Maximum file size 10 MB</p>
+                    <p className="text-gray-500 text-sm mt-1">Maximum file size 50 MB</p>
                 </div>
 
                 <p className="text-sm font-medium text-gray-600 mt-4">File supported: .pdf</p>

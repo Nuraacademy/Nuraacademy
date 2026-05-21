@@ -20,7 +20,7 @@ export default function FileUploadModal({
   onClose,
   onUploadSuccess,
   accept = ".pdf",
-  maxSizeMB = 5,
+  maxSizeMB = 50,
   supportedFileType,
   title = "Attach File",
 }: FileUploadModalProps) {

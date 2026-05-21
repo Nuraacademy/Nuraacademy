@@ -9,7 +9,7 @@ interface CVUploadProps {
     maxSizeMB?: number
 }
 
-export default function CVUpload({ onFileSelect, maxSizeMB = 5 }: CVUploadProps) {
+export default function CVUpload({ onFileSelect, maxSizeMB = 50 }: CVUploadProps) {
     const [file, setFile] = useState<File | null>(null)
     const fileInputRef = useRef<HTMLInputElement>(null)
 
