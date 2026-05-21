@@ -358,7 +358,7 @@ export function OpenEndedBlock({
                 onUploadSuccess={handleUploadComplete}
                 title="Attach Document"
                 accept="Any"
-                maxSizeMB={10}
+                maxSizeMB={50}
             />
         </div>
     );
