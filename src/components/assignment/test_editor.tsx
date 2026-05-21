@@ -732,13 +732,21 @@ export function TestEditor({
                     >
                         <Upload size={14} /> Import CSV
                     </button>
-                    <a
-                        href="/templates/objective_questions_template.csv"
-                        download
+                    <button
+                        type="button"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            const link = document.createElement('a');
+                            link.href = '/templates/objective_questions_template.csv';
+                            link.download = 'objective_questions_template.csv';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        }}
                         className="px-6 py-2.5 text-sm font-medium text-blue-700 hover:text-blue-900 flex items-center justify-center gap-1.5 transition-colors border-2 border-dashed border-blue-200 rounded-2xl hover:border-blue-400 hover:bg-blue-50"
                     >
                         <Download size={14} /> Template
-                    </a>
+                    </button>
                 </div>
             </section>
 
