@@ -490,20 +490,42 @@ export function TestEditor({
             if (!text) return;
 
             const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
-            if (lines.length < 2) {
-                toast.error("CSV file is empty or missing headers");
+            if (lines.length < 1) {
+                toast.error("CSV file is empty");
                 return;
             }
 
+            // Normalize smart/curly quotes to standard ASCII quotes
+            const normalizeQuotes = (str: string) => {
+                return str
+                    .replace(/[\u201C\u201D\u201E\u201F\u2033\u2036]/g, '"')  // smart double quotes
+                    .replace(/[\u2018\u2019\u201A\u201B\u2032\u2035]/g, "'"); // smart single quotes
+            };
+
             // Simple CSV parser that handles quotes
             const parseCSVLine = (line: string) => {
-                const result = [];
+                // Normalize quotes first
+                line = normalizeQuotes(line);
+                
+                // Remove outer wrapping quotes if the entire line is wrapped
+                // e.g. ""Question","A","B","C","D",,,C"  → "Question","A","B","C","D",,,C
+                if (line.startsWith('""') && line.endsWith('"')) {
+                    line = line.slice(1, -1);
+                }
+
+                const result: string[] = [];
                 let current = "";
                 let inQuotes = false;
                 for (let i = 0; i < line.length; i++) {
                     const char = line[i];
                     if (char === '"') {
-                        inQuotes = !inQuotes;
+                        if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
+                            // Escaped quote inside quoted field
+                            current += '"';
+                            i++;
+                        } else {
+                            inQuotes = !inQuotes;
+                        }
                     } else if (char === ',' && !inQuotes) {
                         result.push(current.trim());
                         current = "";
@@ -515,14 +537,32 @@ export function TestEditor({
                 return result;
             };
 
-            const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
+            // Detect if the first line is a header row
+            const firstLineParsed = parseCSVLine(lines[0]);
+            const knownHeaders = ["question", "option a", "option b", "option c", "option d", "correct answer"];
+            const isHeaderRow = firstLineParsed.some(cell =>
+                knownHeaders.includes(cell.toLowerCase())
+            );
+
+            let headers: string[];
+            let dataStartIndex: number;
+
+            if (isHeaderRow) {
+                headers = firstLineParsed.map(h => h.toLowerCase());
+                dataStartIndex = 1;
+            } else {
+                // No header row — assume format: Question, Option A, Option B, Option C, Option D, Option E, Option F, Correct Answer
+                headers = ["question", "option a", "option b", "option c", "option d", "option e", "option f", "correct answer"];
+                dataStartIndex = 0;
+            }
+
             const newQuestions: ObjectiveQuestion[] = [];
 
-            for (let i = 1; i < lines.length; i++) {
+            for (let i = dataStartIndex; i < lines.length; i++) {
                 const values = parseCSVLine(lines[i]);
                 if (values.length < 2) continue;
 
-                const qData: any = {};
+                const qData: Record<string, string> = {};
                 headers.forEach((h, idx) => {
                     qData[h] = values[idx] || "";
                 });
