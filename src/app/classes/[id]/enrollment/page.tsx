@@ -14,6 +14,7 @@ import { getClassDetails } from "@/app/actions/classes"
 import { hasPermission } from "@/lib/rbac"
 import { uploadFileAction } from "@/app/actions/common"
 import { toast } from "sonner"
+import { formatAppDate } from "@/lib/appDatetime"
 
 export default function EnrollmentPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter()
@@ -153,7 +154,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
     const className = classData?.title || "Class"
 
     const timelines = classData?.timelines?.map((t: any) => ({
-        date: new Date(t.date).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
+        date: formatAppDate(t.date),
         label: t.activity
     })) || []
 

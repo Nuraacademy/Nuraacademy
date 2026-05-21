@@ -180,7 +180,7 @@ export default async function CourseOverviewPage({
                             </div>
                             <div>
                                 <p className="text-sm mb-0.5">Schedules</p>
-                                <p>{classData.startDate ? new Date(classData.startDate).toLocaleDateString(undefined, { timeZone: 'UTC' }) : 'TBA'} - {classData.endDate ? new Date(classData.endDate).toLocaleDateString(undefined, { timeZone: 'UTC' }) : 'TBA'}</p>
+                                <p>{formatAppDate(classData.startDate)} - {formatAppDate(classData.endDate)}</p>
                             </div>
                         </div>
 

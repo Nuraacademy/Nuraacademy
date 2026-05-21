@@ -9,6 +9,7 @@ import { hasPermission } from "@/lib/rbac";
 import { NuraButton } from "@/components/ui/button/button";
 import Link from "next/link";
 import { toast } from "sonner";
+import { formatAppDate } from "@/lib/appDatetime";
 
 interface PaymentPageProps {
     params: Promise<{ id: string }>;
@@ -138,7 +139,7 @@ export default function PaymentPage({ params }: PaymentPageProps) {
                                 <div className="flex flex-col gap-2">
                                     <p className="font-semibold text-gray-900">Schedules</p>
                                     <p className="text-gray-700">
-                                        {classData.startDate ? new Date(classData.startDate).toLocaleDateString("id-ID") : "TBA"} - {classData.endDate ? new Date(classData.endDate).toLocaleDateString("id-ID") : "TBA"}
+                                        {formatAppDate(classData.startDate)} - {formatAppDate(classData.endDate)}
                                     </p>
                                 </div>
                             </div>

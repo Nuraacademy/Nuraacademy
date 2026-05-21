@@ -9,6 +9,7 @@ import { FeedbackModal } from "@/components/ui/modal/feedback_modal"
 import M3DateTimePicker from "@/components/ui/input/datetime_picker"
 import Image from "next/image"
 import { toast } from "sonner"
+import { startOfAppDay } from "@/lib/appDatetime"
 
 type Props = {
     classData: any
@@ -159,8 +160,9 @@ export function CreateTimelineClient({ classData }: Props) {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 w-full mx-auto">
                     {EVENTS.map((event, index) => {
-                        const today = new Date();
-                        today.setHours(0, 0, 0, 0);
+                        // Awal hari (00:00) di zona aplikasi (Asia/Jakarta), agar
+                        // batasan "tidak boleh sebelum hari ini" konsisten lintas TZ browser.
+                        const today = startOfAppDay();
                         // Start date min is always today as per request
                         const startMinDate = today;
 

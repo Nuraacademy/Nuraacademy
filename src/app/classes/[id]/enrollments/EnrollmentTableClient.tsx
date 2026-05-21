@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { FileText, Mail, Phone, ExternalLink, Activity, Award, Briefcase, GraduationCap, Target, ChevronRight, X } from "lucide-react";
 import { CVViewerModal } from "@/components/ui/modal/cv_viewer_modal";
+import { formatAppDate, formatAppTime } from "@/lib/appDatetime";
 
 interface User {
     id: number;
@@ -122,10 +123,10 @@ export default function EnrollmentTableClient({
                                 <td className="px-10 py-7 text-right">
                                     <div className="flex flex-col items-end gap-0.5">
                                         <span className="text-[13px] font-bold text-[#1C3A37]">
-                                            {new Date(en.createdAt).toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric' })}
+                                            {formatAppDate(en.createdAt)}
                                         </span>
                                         <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest bg-gray-50/50 px-1 rounded-md">
-                                            {new Date(en.createdAt).toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' })}
+                                            {formatAppTime(en.createdAt)}
                                         </span>
                                     </div>
                                 </td>

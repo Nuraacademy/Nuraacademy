@@ -80,3 +80,51 @@ export function formatAppDateTime(
         minute: "2-digit",
     });
 }
+
+/** Tanggal saja, format panjang (hari, tanggal panjang, bulan panjang, tahun) di zona aplikasi. */
+export function formatAppDateLong(
+    input: Date | string | null | undefined,
+    fallback = "TBA"
+): string {
+    const d = toDate(input);
+    if (!d) return fallback;
+    return d.toLocaleDateString("id-ID", {
+        timeZone: getAppTimeZone(),
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+    });
+}
+
+/** Tanggal + jam, format panjang (hari, tanggal, bulan panjang, tahun, jam:menit) di zona aplikasi. */
+export function formatAppDateTimeLong(
+    input: Date | string | null | undefined,
+    fallback = "TBA"
+): string {
+    const d = toDate(input);
+    if (!d) return fallback;
+    return d.toLocaleString("id-ID", {
+        timeZone: getAppTimeZone(),
+        weekday: "long",
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+    });
+}
+
+/** Jam saja (HH:mm) di zona aplikasi. */
+export function formatAppTime(
+    input: Date | string | null | undefined,
+    fallback = "--:--"
+): string {
+    const d = toDate(input);
+    if (!d) return fallback;
+    return d.toLocaleTimeString("id-ID", {
+        timeZone: getAppTimeZone(),
+        hour: "2-digit",
+        minute: "2-digit",
+    });
+}

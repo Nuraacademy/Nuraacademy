@@ -4,6 +4,7 @@ import { getSessionById } from "@/controllers/sessionController";
 import { notFound } from "next/navigation";
 import RecordingClient from "./recording_client";
 import TitleCard from "@/components/ui/card/title_card";
+import { formatAppDateTimeLong } from "@/lib/appDatetime";
 
 export default async function SessionRecordingPage({
     params
@@ -43,16 +44,9 @@ export default async function SessionRecordingPage({
     const classTitle = session.course?.class?.title || "Class";
     const courseTitle = session.course?.title || "Course";
 
-    // Build time string from schedule
+    // Build time string from schedule (in Asia/Jakarta timezone)
     const timeString = schedule?.date
-        ? new Date(schedule.date).toLocaleString("en-US", {
-            weekday: "long",
-            day: "2-digit",
-            month: "long",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        })
+        ? formatAppDateTimeLong(schedule.date)
         : "TBA";
 
     const breadcrumbItems = [

@@ -6,6 +6,7 @@ import {
     PageText,
     TestData
 } from "@/app/classes/[id]/test/types";
+import { formatAppDate } from "@/lib/appDatetime";
 
 export function mapAssignmentToTestRunner(assignment: any) {
     const items = assignment.assignmentItems || [];
@@ -62,7 +63,7 @@ export function mapAssignmentToTestRunner(assignment: any) {
         introDescription: assignment.description || defaultIntro[assignment.type] || "Selesaikan assignment ini sesuai instruksi yang diberikan.",
         durationMinutes: (assignment.duration !== null && assignment.duration !== undefined) ? assignment.duration : 120,
         sectionsCount: (objectiveQuestions.length > 0 ? 1 : 0) + (essayQuestions.length > 0 ? 1 : 0) + (projectQuestions.length > 0 ? 1 : 0),
-        deadlineValue: assignment.endDate ? new Date(assignment.endDate).toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' }) : "TBA",
+        deadlineValue: assignment.endDate ? formatAppDate(assignment.endDate) : "TBA",
         testDescription: assignment.description || "",
         instructions: assignment.instruction ? assignment.instruction.split('\n') : [
             "Pastikan koneksi internet stabil selama pengerjaan.",

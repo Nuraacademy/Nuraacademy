@@ -10,6 +10,7 @@ import Image from "next/image";
 import { getFullSession } from "@/app/actions/auth";
 import { getEnrollment } from "@/controllers/enrollmentController";
 import { NotFoundState } from "@/components/ui/status/not_found_state";
+import { formatAppDateTimeLong } from "@/lib/appDatetime";
 
 export default async function SessionPage({
     params
@@ -68,16 +69,9 @@ export default async function SessionPage({
     const schedule = parseJson(session.schedule);
     const reference = parseJson(session.reference);
 
-    // Build time string from schedule
+    // Build time string from schedule (in Asia/Jakarta timezone)
     const timeString = schedule?.date
-        ? new Date(schedule.date).toLocaleString("en-US", {
-            weekday: "long",
-            day: "2-digit",
-            month: "long",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        })
+        ? formatAppDateTimeLong(schedule.date)
         : "TBA";
 
     // Build reference materials array

@@ -6,6 +6,7 @@ import { NuraButton } from "@/components/ui/button/button";
 import TitleCard from "@/components/ui/card/title_card";
 import { PAGE_DATA } from "../overview/constants";
 import { ASSIGNMENT_DATA } from "./constants";
+import { formatAppDateLong } from "@/lib/appDatetime";
 
 export default function CourseAssignmentPage() {
     const params = useParams();
@@ -44,21 +45,11 @@ export default function CourseAssignmentPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                         <div className="flex flex-col gap-1">
                             <span className="font-medium text-gray-900">Start Date:</span>
-                            <span className="text-gray-700">{ASSIGNMENT_DATA.startDate.toLocaleDateString("id-ID", {
-                                weekday: "long",
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                            })}</span>
+                            <span className="text-gray-700">{formatAppDateLong(ASSIGNMENT_DATA.startDate)}</span>
                         </div>
                         <div className="flex flex-col gap-1">
                             <span className="font-medium text-gray-900">End Date:</span>
-                            <span className="text-gray-700">{ASSIGNMENT_DATA.endDate.toLocaleDateString("id-ID", {
-                                weekday: "long",
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                            })}</span>
+                            <span className="text-gray-700">{formatAppDateLong(ASSIGNMENT_DATA.endDate)}</span>
                         </div>
                     </div>
 

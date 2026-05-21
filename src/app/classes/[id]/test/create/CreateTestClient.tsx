@@ -669,17 +669,15 @@ export function CreateTestClient({ classData, existingTest }: { classData: any, 
 
         setIsSubmitting(true);
 
-        const start = new Date(startDate!);
-        if (endTime) {
-            start.setHours(endTime.getHours(), endTime.getMinutes());
-        }
-
+        // Pakai startDate dan endTime apa adanya. Keduanya sudah dalam UTC instant
+        // (di-construct lewat M3DateTimePicker → dateFromAppTz → UTC), jadi tidak boleh
+        // dipanggil setHours() pakai TZ browser admin (yang akan menggeser jam ke offset lokal).
         const payload = {
             title: testTitle,
             classId: classData.id,
             type: "PLACEMENT",
-            startDate: start,
-            endDate: endTime || undefined,
+            startDate: new Date(startDate!),
+            endDate: endTime ? new Date(endTime) : undefined,
             duration: durationMinutes,
         };
 
