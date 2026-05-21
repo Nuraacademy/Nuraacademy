@@ -2,6 +2,8 @@ import { AddAssignmentClient } from "@/app/assignment/add/AddAssignmentClient";
 import { getAllClasses } from "@/controllers/classController";
 import { getAssignmentById } from "@/controllers/assignmentController";
 
+export const dynamic = 'force-dynamic';
+
 export default async function AddAssignmentPage({
     searchParams,
 }: {

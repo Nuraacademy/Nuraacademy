@@ -113,6 +113,8 @@ export async function addAssignment(payload: any, itemsPayload: any[], threshold
         // Revalidate based on what's created (course or class path)
         if (payload.classId) {
             revalidatePath(`/classes/${payload.classId}/overview`)
+            revalidatePath(`/classes/${payload.classId}/test`)
+            revalidatePath(`/classes/${payload.classId}/test/create`)
         } else if (payload.courseId) {
             revalidatePath(`/courses/${payload.courseId}`)
         }
@@ -136,6 +138,7 @@ export async function editAssignment(assignmentId: number, payload: any, itemsPa
         if (payload.classId) {
             revalidatePath(`/classes/${payload.classId}/overview`)
             revalidatePath(`/classes/${payload.classId}/test`)
+            revalidatePath(`/classes/${payload.classId}/test/create`)
         } else if (payload.courseId) {
             revalidatePath(`/courses/${payload.courseId}`)
         }
@@ -156,6 +159,7 @@ export async function removeAssignment(assignmentId: number, classId?: number, c
         if (classId) {
             revalidatePath(`/classes/${classId}/overview`);
             revalidatePath(`/classes/${classId}/test`);
+            revalidatePath(`/classes/${classId}/test/create`);
         }
         if (courseId) {
             revalidatePath(`/courses/${courseId}`);
