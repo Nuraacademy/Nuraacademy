@@ -289,7 +289,7 @@ export default function AddClassClient({ classData, isEditing = false }: AddClas
                     <FileUpload
                         accept=".jpg,.jpeg,.png"
                         supportedFileType=".jpg, .png, .jpeg"
-                        maxSizeMB={5}
+                        maxSizeMB={50}
                         onFileSelect={async (file) => {
                             if (!file) {
                                 setImgUrl("");

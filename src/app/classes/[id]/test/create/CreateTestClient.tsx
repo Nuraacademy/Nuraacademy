@@ -291,7 +291,7 @@ function OpenEndedBlock({
                 onUploadSuccess={handleUploadComplete}
                 title="Attach Document"
                 accept="Any"
-                maxSizeMB={5}
+                maxSizeMB={50}
             />
         </div>
     );

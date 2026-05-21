@@ -786,7 +786,7 @@ export function TestRunner({
           }))
         }
         accept="Any"
-        maxSizeMB={5}
+        maxSizeMB={50}
         title="Attach File"
       />
 
@@ -800,7 +800,7 @@ export function TestRunner({
           }))
         }
         accept="Any"
-        maxSizeMB={5}
+        maxSizeMB={50}
         title="Attach File"
       />
     </div>

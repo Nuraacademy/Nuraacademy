@@ -183,7 +183,7 @@ export default function EditCurriculaPage({ params }: { params: Promise<{ id: st
                                 supportedFileType=".pdf"
                             />
                         </div>
-                        <p className="text-[10px] text-gray-400">Maximum file size 5 MB. Supported format: .pdf, .csv</p>
+                        <p className="text-[10px] text-gray-400">Maximum file size 50 MB. Supported format: .pdf, .csv</p>
                     </div>
 
                     <div className="flex flex-col gap-4">

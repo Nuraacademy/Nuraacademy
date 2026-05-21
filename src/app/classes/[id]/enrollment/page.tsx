@@ -270,7 +270,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ id: strin
                             <h2 className="text-xl font-medium text-gray-900 mb-4">Upload CV*</h2>
                             <CVUpload
                                 onFileSelect={(file) => setCvFile(file)}
-                                maxSizeMB={5}
+                                maxSizeMB={50}
                             />
                         </div>
 
