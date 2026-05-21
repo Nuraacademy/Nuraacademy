@@ -23,11 +23,12 @@ interface ClassCardProp {
     canEdit?: boolean,
     canDelete?: boolean,
     canViewAnalytics?: boolean,
+    enrollmentEndDate?: Date,
     onClick: () => void
 }
 
 export default function ClassCard({
-    id, imageUrl, title, method, scheduleStart, scheduleEnd, description, duration, courses, isEnrolled, isLearner, canEdit, canDelete, canViewAnalytics, onClick
+    id, imageUrl, title, method, scheduleStart, scheduleEnd, description, duration, courses, isEnrolled, isLearner, canEdit, canDelete, canViewAnalytics, enrollmentEndDate, onClick
 }: ClassCardProp) {
     const router = useNuraRouter();
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -174,17 +175,37 @@ export default function ClassCard({
                             <BarChart3 size={16} />
                         </button>
                     )}
-                    { !canEdit && (isEnrolled || isLearner) && (
-                        <NuraButton
-                            label={isEnrolled ? "View Class" : "Enroll Now"}
-                            variant="navigate"
-                            className="min-w-[100px]"
-                            href={isEnrolled ? `/classes/${id}/overview` : `/classes/${id}/enrollment`}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                            }}
-                        />
-                    )}
+                    { !canEdit && (isEnrolled || isLearner) && (() => {
+                        if (isEnrolled) {
+                            return (
+                                <NuraButton
+                                    label="View Class"
+                                    variant="navigate"
+                                    className="min-w-[100px]"
+                                    href={`/classes/${id}/overview`}
+                                    onClick={(e) => { e.stopPropagation(); }}
+                                />
+                            );
+                        }
+                        const isEnrollmentClosed = enrollmentEndDate && new Date() > enrollmentEndDate;
+                        return isEnrollmentClosed ? (
+                            <NuraButton
+                                label="Enrollment Closed"
+                                variant="navigate"
+                                className="min-w-[100px] opacity-50 cursor-not-allowed"
+                                disabled
+                                onClick={(e) => { e.stopPropagation(); }}
+                            />
+                        ) : (
+                            <NuraButton
+                                label="Enroll Now"
+                                variant="navigate"
+                                className="min-w-[100px]"
+                                href={`/classes/${id}/enrollment`}
+                                onClick={(e) => { e.stopPropagation(); }}
+                            />
+                        );
+                    })()}
                 </div>
             </div>
             <div onClick={(e) => e.stopPropagation()}>

@@ -133,22 +133,27 @@ export default function LandingPage() {
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1C3A37]"></div>
               </div>
             ) : topClasses.length > 0 ? (
-              topClasses.map((item) => (
-                <ClassCard
-                  key={item.id}
-                  id={String(item.id)}
-                  imageUrl={item.imgUrl}
-                  title={item.title}
-                  duration={item.hours || 0}
-                  scheduleStart={item.startDate ? new Date(item.startDate) : undefined}
-                  scheduleEnd={item.endDate ? new Date(item.endDate) : undefined}
-                  method={item.methods}
-                  courses={item.courses?.length || 0}
-                  description={item.description}
-                  isEnrolled={item.isEnrolled}
-                  onClick={() => router.push(`/classes/${item.id}/overview`)}
-                />
-              ))
+              topClasses.map((item) => {
+                const enrollmentEndsTimeline = item.timelines?.find((t: any) => t.activity === "Enrollment Ends");
+                const enrollmentEndDate = enrollmentEndsTimeline ? new Date(enrollmentEndsTimeline.date) : undefined;
+                return (
+                  <ClassCard
+                    key={item.id}
+                    id={String(item.id)}
+                    imageUrl={item.imgUrl}
+                    title={item.title}
+                    duration={item.hours || 0}
+                    scheduleStart={item.startDate ? new Date(item.startDate) : undefined}
+                    scheduleEnd={item.endDate ? new Date(item.endDate) : undefined}
+                    method={item.methods}
+                    courses={item.courses?.length || 0}
+                    description={item.description}
+                    isEnrolled={item.isEnrolled}
+                    enrollmentEndDate={enrollmentEndDate}
+                    onClick={() => router.push(`/classes/${item.id}/overview`)}
+                  />
+                );
+              })
             ) : (
               <p className="text-gray-500 italic">No classes available at the moment.</p>
             )}

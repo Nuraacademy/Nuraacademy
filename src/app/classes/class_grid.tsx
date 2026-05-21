@@ -12,7 +12,8 @@ import { NuraSearchInput } from "@/components/ui/input/nura_search_input"
 export default function ClassesGrid({ initialClasses, canCreate, canDelete, isEnrolledView, isLearner }: { initialClasses: any[], canCreate?: boolean, canDelete?: boolean, isEnrolledView?: boolean, isLearner?: boolean }) {
     const [searchValue, setSearchValue] = useState("");
     const router = useRouter();
-    const { startRedirect } = useNavigation();
+    const navigation = useNavigation();
+    const startRedirect = navigation?.startRedirect ?? ((href: string) => router.push(href));
 
     const filteredClasses = initialClasses.filter(c =>
         c.title.toLowerCase().includes(searchValue.toLowerCase())
@@ -47,25 +48,30 @@ export default function ClassesGrid({ initialClasses, canCreate, canDelete, isEn
             {/* Classes Container */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-screen-2xl mx-auto md:px-16 relative z-10">
                 {
-                    filteredClasses.map((item) => (
-                        <ClassCard
-                            key={item.id}
-                            id={String(item.id)}
-                            imageUrl={item.imgUrl}
-                            title={item.title}
-                            duration={item.hours || 0}
-                            scheduleStart={item.startDate ? new Date(item.startDate) : undefined}
-                            scheduleEnd={item.endDate ? new Date(item.endDate) : undefined}
-                            method={item.methods}
-                            courses={item.courses?.length || 0}
-                            description={item.description}
-                            isEnrolled={item.isEnrolled}
-                            isLearner={isLearner}
-                            canEdit={canCreate}
-                            canDelete={canDelete}
-                            onClick={() => startRedirect(`/classes/${item.id}/overview`)}
-                        />
-                    ))
+                    filteredClasses.map((item) => {
+                        const enrollmentEndsTimeline = item.timelines?.find((t: any) => t.activity === "Enrollment Ends");
+                        const enrollmentEndDate = enrollmentEndsTimeline ? new Date(enrollmentEndsTimeline.date) : undefined;
+                        return (
+                            <ClassCard
+                                key={item.id}
+                                id={String(item.id)}
+                                imageUrl={item.imgUrl}
+                                title={item.title}
+                                duration={item.hours || 0}
+                                scheduleStart={item.startDate ? new Date(item.startDate) : undefined}
+                                scheduleEnd={item.endDate ? new Date(item.endDate) : undefined}
+                                method={item.methods}
+                                courses={item.courses?.length || 0}
+                                description={item.description}
+                                isEnrolled={item.isEnrolled}
+                                isLearner={isLearner}
+                                canEdit={canCreate}
+                                canDelete={canDelete}
+                                enrollmentEndDate={enrollmentEndDate}
+                                onClick={() => startRedirect(`/classes/${item.id}/overview`)}
+                            />
+                        );
+                    })
                 }
 
                 {filteredClasses.length === 0 && (

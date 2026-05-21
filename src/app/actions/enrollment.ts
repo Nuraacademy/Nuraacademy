@@ -41,6 +41,12 @@ export async function handleEnrollment(classId: number, formData: any) {
             }
         });
 
+        // Enrollment deadline check: cannot enroll after "Enrollment Ends" timeline date
+        const enrollmentEndsTimeline = classWithTimelines?.timelines?.find(t => t.activity === "Enrollment Ends");
+        if (enrollmentEndsTimeline && new Date() > new Date(enrollmentEndsTimeline.date)) {
+            return { success: false, error: "Enrollment period has ended." };
+        }
+
         if (classWithTimelines && classWithTimelines.capacity !== null && classWithTimelines._count.enrollments >= classWithTimelines.capacity) {
             return { success: false, error: "Class Full" };
         }

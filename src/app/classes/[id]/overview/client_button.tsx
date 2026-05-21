@@ -66,14 +66,17 @@ export function SuccessHandler({
 }
 
 
-export function EnrollButton({ classId }: { classId: string }) {
+export function EnrollButton({ classId, endDate }: { classId: string, endDate?: Date | null }) {
     const router = useRouter()
+    const isEnrollmentClosed = endDate ? new Date() > new Date(endDate) : false;
+
     return (
         <NuraButton
-            label="Enroll Now"
+            label={isEnrollmentClosed ? "Enrollment Closed" : "Enroll Now"}
             variant="primary"
             onClick={() => router.push(`/classes/${classId}/enrollment`)}
             className="h-6 text-sm"
+            disabled={isEnrollmentClosed}
         />
     )
 }

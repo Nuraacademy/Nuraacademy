@@ -193,7 +193,7 @@ export default async function CourseOverviewPage({
                         {/* Enroll Button */}
                         {(!isEnrolled && isLearner) && (
                             <div className="mt-5">
-                                <EnrollButton classId={id} />
+                                <EnrollButton classId={id} endDate={classData.timelines?.find((t: any) => t.activity === "Enrollment Ends")?.date} />
                             </div>
                         )}
                     </div>
