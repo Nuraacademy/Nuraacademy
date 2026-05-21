@@ -755,13 +755,10 @@ export async function getGradingData(assignmentId: number, targetId: number | st
     if (!result) return null;
 
     // Ensure all items have a result record (for legacy data or skipped answers)
-    // We check for both ID match AND content match (question text + type)
-    // to avoid creating duplicates when an assignment is updated/re-saved.
+    // Use ID-based matching as primary, with content fallback for migrated data.
     const missingItems = (result as any).assignment.assignmentItems.filter((item: any) => {
         return !(result as any).assignmentItemResults.some((ir: any) => {
-            const sameId = ir.assignmentItemId === item.id;
-            const sameContent = ir.assignmentItem?.question === item.question && ir.assignmentItem?.type === item.type;
-            return sameId || sameContent;
+            return ir.assignmentItemId === item.id;
         });
     });
 
@@ -805,33 +802,56 @@ function processGradingData(result: any) {
     const essay: any[] = [];
     const project: any[] = [];
 
-    // Use a Map to de-duplicate by Question Content (Type + Question Text)
-    // This is the most reliable way to handle assignment updates where items are soft-deleted and replaced.
-    const uniqueResults = new Map<string, any>();
+    // Build a set of active assignment item IDs for reference
+    const activeItemIds = new Set(
+        (result.assignment?.assignmentItems || []).map((item: any) => item.id)
+    );
+
+    // De-duplicate by assignmentItemId (primary key-based) to avoid collapsing
+    // different questions that happen to share the same text.
+    // For items referencing a deleted/replaced assignmentItem, fall back to content-based matching.
+    const uniqueByItemId = new Map<number, any>();
+    const orphanResults: any[] = [];
     
     result.assignmentItemResults.forEach((ir: any) => {
         const item = ir.assignmentItem;
         if (!item) return;
 
-        const contentKey = `${item.type}:${item.question}`;
-        const existing = uniqueResults.get(contentKey);
-        
-        // Priority: 
-        // 1. Record with an answer OR a manually given score
-        // 2. Most recent record (higher ID) if both have or both lack the above
-        const hasFiles = Array.isArray(ir.answerFiles) ? ir.answerFiles.length > 0 : (ir.answerFiles !== null && ir.answerFiles !== undefined);
-        const hasData = (ir.answer !== null && ir.answer !== undefined && ir.answer !== "") || (ir.score !== null && ir.score !== undefined) || hasFiles;
-        const existingHasFiles = existing && (Array.isArray(existing.answerFiles) ? existing.answerFiles.length > 0 : (existing.answerFiles !== null && existing.answerFiles !== undefined));
-        const existingHasData = existing && ((existing.answer !== null && existing.answer !== undefined && existing.answer !== "") || (existing.score !== null && existing.score !== undefined) || existingHasFiles);
-
-        const shouldReplace = !existing || (hasData && !existingHasData) || (hasData === existingHasData && ir.id > existing.id);
-
-        if (shouldReplace) {
-            uniqueResults.set(contentKey, ir);
+        // If this result points to an active assignment item, use ID-based dedup
+        if (activeItemIds.has(item.id)) {
+            const existing = uniqueByItemId.get(item.id);
+            if (!existing || ir.id > existing.id) {
+                uniqueByItemId.set(item.id, ir);
+            }
+        } else {
+            // Orphan result (item was soft-deleted but result still exists)
+            orphanResults.push(ir);
         }
     });
 
-    uniqueResults.forEach((ir: any) => {
+    // For orphan results, try to match them to active items that don't already have a result
+    const matchedItemIds = new Set(uniqueByItemId.keys());
+    const unmatchedActiveItems = (result.assignment?.assignmentItems || []).filter(
+        (item: any) => !matchedItemIds.has(item.id)
+    );
+
+    for (const orphan of orphanResults) {
+        const orphanItem = orphan.assignmentItem;
+        if (!orphanItem) continue;
+        
+        // Try to find an unmatched active item with same content
+        const matchIdx = unmatchedActiveItems.findIndex(
+            (item: any) => item.type === orphanItem.type && item.question === orphanItem.question
+        );
+        if (matchIdx !== -1) {
+            const matchedItem = unmatchedActiveItems[matchIdx];
+            // Use the orphan's answer data but map it to the active item
+            uniqueByItemId.set(matchedItem.id, { ...orphan, assignmentItem: matchedItem });
+            unmatchedActiveItems.splice(matchIdx, 1);
+        }
+    }
+
+    uniqueByItemId.forEach((ir: any) => {
         const item = ir.assignmentItem;
         // Normalize answerFiles from Prisma JsonValue to a plain string[]
         const rawFiles = ir.answerFiles;
@@ -991,25 +1011,26 @@ export async function getAssignmentResultsByAssignmentId(assignmentId: number) {
             // Representative submission
             if (hasSubmitted) {
                 const items = result?.assignmentItemResults || [];
-                const activeContentKeys = new Set(assignment.assignmentItems.map(i => `${i.type}:${i.question}`));
-                const uniqueResults = new Map<string, any>();
+                const activeItemIds = new Set(assignment.assignmentItems.map(i => i.id));
                 
+                // De-duplicate by assignmentItemId (ID-based)
+                const uniqueByItemId = new Map<number, any>();
                 items.forEach((ir: any) => {
                     const item = ir.assignmentItem;
                     if (!item) return;
-                    const contentKey = `${item.type}:${item.question}`;
-                    if (activeContentKeys.has(contentKey)) {
-                        const existing = uniqueResults.get(contentKey);
+                    if (activeItemIds.has(item.id)) {
+                        const existing = uniqueByItemId.get(item.id);
                         if (!existing || ir.id > existing.id) {
-                            uniqueResults.set(contentKey, ir);
+                            uniqueByItemId.set(item.id, ir);
                         }
                     }
                 });
 
-                const validItems = Array.from(uniqueResults.values());
                 const totalItems = assignment.assignmentItems.length;
-                const gradedItems = validItems.filter((i: any) => i.score !== null).length;
-                const isGraded = totalItems === 0 || gradedItems === totalItems;
+                // Count items that have been graded (have a score, including 0)
+                const gradedItems = Array.from(uniqueByItemId.values()).filter((i: any) => i.score !== null).length;
+                const itemsWithResults = uniqueByItemId.size;
+                const isGraded = totalItems === 0 || (itemsWithResults === totalItems && gradedItems === totalItems);
 
                 groupResults[groupName].status = isGraded ? "Graded" : "To Grade";
                 groupResults[groupName].submittedAt = result.finishedAt;
@@ -1024,25 +1045,27 @@ export async function getAssignmentResultsByAssignmentId(assignmentId: number) {
         const result = e.assignmentResults[0];
         const items = result?.assignmentItemResults || [];
 
-        const activeContentKeys = new Set(assignment.assignmentItems.map(i => `${i.type}:${i.question}`));
-        const uniqueResults = new Map<string, any>();
+        const activeItemIds = new Set(assignment.assignmentItems.map(i => i.id));
         
+        // De-duplicate by assignmentItemId (ID-based)
+        const uniqueByItemId = new Map<number, any>();
         items.forEach((ir: any) => {
             const item = ir.assignmentItem;
             if (!item) return;
-            const contentKey = `${item.type}:${item.question}`;
-            if (activeContentKeys.has(contentKey)) {
-                const existing = uniqueResults.get(contentKey);
+            if (activeItemIds.has(item.id)) {
+                const existing = uniqueByItemId.get(item.id);
                 if (!existing || ir.id > existing.id) {
-                    uniqueResults.set(contentKey, ir);
+                    uniqueByItemId.set(item.id, ir);
                 }
             }
         });
 
-        const validItems = Array.from(uniqueResults.values());
         const totalItems = assignment.assignmentItems.length;
-        const gradedItems = validItems.filter(i => i.score !== null).length;
-        const isGraded = totalItems === 0 || gradedItems === totalItems;
+        // Count items that have been graded (have a score, including 0)
+        const gradedItems = Array.from(uniqueByItemId.values()).filter(i => i.score !== null).length;
+        // Also count items that have no result record at all as ungraded
+        const itemsWithResults = uniqueByItemId.size;
+        const isGraded = totalItems === 0 || (itemsWithResults === totalItems && gradedItems === totalItems);
         const hasSubmitted = !!result?.finishedAt;
 
         return {
